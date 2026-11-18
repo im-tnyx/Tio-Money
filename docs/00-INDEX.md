@@ -5,16 +5,16 @@
 ### One elegant map for product decisions, screen behavior, accounting accuracy and engineering delivery.
 
 ![Stage](https://img.shields.io/badge/DOCS-DRAFT%20IN%20PROGRESS-7357E8?style=for-the-badge)
-![App](https://img.shields.io/badge/APP-NOT%20YET%20IMPLEMENTED-596274?style=for-the-badge)
+![App](https://img.shields.io/badge/APP-PHASE%200%20SHELL%20IN%20REVIEW-596274?style=for-the-badge)
 
-[🏠 Project Home](../README.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Design](03-SCREEN-SPEC.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [🧪 Implementation & Tests](06-IMPLEMENTATION-TEST-PLAN.md) · [✍️ Style Guide](90-DOCS-STYLE-GUIDE.md)
+[🏠 Project Home](../README.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Design](03-SCREEN-SPEC.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [🧪 Implementation & Tests](06-IMPLEMENTATION-TEST-PLAN.md) · [🧱 Phase 0 Notes](07-PHASE-0-FOUNDATION-NOTES.md) · [✍️ Style Guide](90-DOCS-STYLE-GUIDE.md)
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Planning stage.** Documents capture product intent and testable proposals. They do not imply working code, native SMS permissions, launched products or approved production security. The PRD is a **draft** until reviewed.
+> **Phase 0 code review stage.** The feature branch now contains an Expo Router UI shell and SQLite bootstrap **source**, not a working finance tracker. Native SMS, posted money, backups and production security are not implemented. Dependency install, CI and real Android/iPhone Expo Go tests still require explicit evidence. Product documents remain drafts.
 
 ## 🧭 Find the answer you need
 
@@ -25,7 +25,7 @@
 | Create new documentation consistent with the product | [✍️ 90 — Style & Quality Guide](90-DOCS-STYLE-GUIDE.md) | Page anatomy, diagrams, status labeling, quality checklist |
 | Design original app screens | [🎨 03 — Screen Design Specification](03-SCREEN-SPEC.md) | Original visual direction, tokens, 10 screen contracts, acceptance tests |
 | Design the financial data model | [🗄 04 — Database & Financial Ledger](04-DATABASE-DESIGN.md) | Double-entry postings, assets/liabilities, transfer fees, reconciliation |
-| Build the Expo project | [🏗 05 — Technical Architecture](05-TECH-ARCHITECTURE.md) | Modules, Expo Go boundaries, SQLite safety, optional native SMS |
+| Build the Expo project | [🏗 05 — Technical Architecture](05-TECH-ARCHITECTURE.md) · [🧱 Phase 0 Foundation Notes](07-PHASE-0-FOUNDATION-NOTES.md) | Modules, Expo Go boundaries, scaffold choices, remaining validation |
 | Evaluate readiness for release | [🧪 06 — Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) | Phases 0–7, financial test cases, permissions, release gates and owner decisions |
 
 ## 💎 Product rules that must survive every design revision
@@ -69,6 +69,7 @@ flowchart TD
 | [Data model / ledger](04-DATABASE-DESIGN.md) | 📝 Initial draft | Review journal schema, reversal policy, credit-card postings |
 | [Technical architecture](05-TECH-ARCHITECTURE.md) | 📝 Initial draft | Review SQLite transaction strategy, Expo SDK and platform gates |
 | [Implementation & test plan](06-IMPLEMENTATION-TEST-PLAN.md) | 📝 Initial draft | Owner review of milestone gates, finance test matrix and unresolved ADRs |
+| [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md) | 🧱 Scaffold source under review | Resolve lockfile, CI and actual Expo Go/device verification |
 
 ## 🧱 Information architecture
 
@@ -83,6 +84,7 @@ Tio-Money/
    ├─ 04-DATABASE-DESIGN.md       ← Ledger draft
    ├─ 05-TECH-ARCHITECTURE.md     ← Architecture draft
    ├─ 06-IMPLEMENTATION-TEST-PLAN.md ← Phase-gated delivery & QA draft
+   ├─ 07-PHASE-0-FOUNDATION-NOTES.md ← Scaffold choices & pending verification
    └─ 90-DOCS-STYLE-GUIDE.md      ← Documentation contract
 ```
 
