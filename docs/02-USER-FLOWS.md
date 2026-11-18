@@ -190,7 +190,7 @@ flowchart TD
 
 - [🎯 Product Requirements](01-PRD.md) — normative product scope and business rules.
 - [✍️ Documentation Style](90-DOCS-STYLE-GUIDE.md) — document quality and visual language.
-- **Next:** Screen specification — original visual patterns, accessibility and field-state definitions.
+- [🎨 Screen design specification](03-SCREEN-SPEC.md) — original visual patterns, accessibility and field-state definitions.
 - **Next:** Database design — signed journal / accounting invariant and SQLite schema.
 
 ---
