@@ -1,69 +1,77 @@
-# TM-TASK-ID — [descriptive task title]
+# TM-TASK-ID — [descriptive scoped task title]
 
-> **Template only.** This is not approval to implement, merge, deploy or edit sensitive systems.
+> **Template only. Not permission to implement/merge/deploy.** When copying to a nested `.ai/tasks/<area>/` path, **rebase all relative links** using [task creation guidance](README.md) / [helper](../../scripts/ai_context.py); this template's links are relative to `.ai/tasks/`.
 
-## Identity, provenance and scope
+## Task identity, decision and lifecycle
 
 | Required field | Verified value |
 |---|---|
-| Task ID | `TM-...` (stable, unique) |
+| Task ID | `TM-...` (stable unique ID) |
 | Repository | `im-tnyx/Tio-Money` |
-| Current agent | Self-identified exact agent/tool or `UNKNOWN_NOT_VERIFIED` |
-| Model | Actual exposed model or `UNKNOWN_NOT_VERIFIED` |
-| Previous agent | Last **verified** working agent or `UNKNOWN_NOT_VERIFIED` |
-| Git commit author | Observed identity or `UNKNOWN_NOT_VERIFIED`; **not proof of agent/model** |
-| PR author | Observed identity or `UNKNOWN_NOT_VERIFIED` |
-| Reviewer / owner | Verified separately; not interchangeable with agent |
-| Working branch | Verify live branch before write |
-| Base commit SHA | Verified immutable SHA and inspection source |
-| Observed HEAD SHA | Verified immutable SHA at checkpoint; may become stale |
-| Started at (UTC) | ISO 8601 timestamp of actual session |
-| Last checkpoint (UTC) | ISO 8601 timestamp of actual check |
-| Task status | Planned / Active / Blocked / Review / Completed |
-| Authorized scope | Exact paths/behavior/approval reference |
-| PR | Existing verified URL, or Not opened / Unknown |
+| Lifecycle state | `PROPOSED / DISCUSSION / DECISION_PENDING / APPROVED / ASSIGNED / IN_PROGRESS / VALIDATING / IN_REVIEW / COMPLETED / ARCHIVED / BLOCKED / DEFERRED / CANCELLED / CHANGES_REQUESTED` |
+| RFC / discussion | Persistent GitHub Issue/Discussion/existing PR URL |
+| Implementation decision | `APPROVED_FOR_IMPLEMENTATION / CHANGES_REQUESTED / DEFERRED / REJECTED / BLOCKED_PENDING_DECISION` |
+| Approval evidence | Exact owner statement/source, date, scope, conditions; mark agent-transcribed vs direct |
+| Current agent | Self-identified working agent/tool or `UNKNOWN_NOT_VERIFIED` |
+| Model | Actually exposed model or `UNKNOWN_NOT_VERIFIED` |
+| Previous verified agent | Actual prior working agent or `UNKNOWN_NOT_VERIFIED` |
+| Git commit author / PR author | Observed separately, not proof of agent/model |
+| Reviewer / owner | Verified separately, not interchangeable with agent |
+| Working branch | Live verified branch |
+| Base / inspected HEAD | Immutable actual SHAs; snapshot time |
+| Started at / last checkpoint (UTC) | Actual ISO 8601 UTC timestamps or `UNKNOWN_NOT_VERIFIED` |
+| Authorized scope | Exact behavior, file paths, exclusions, decision source |
+| PR | Verified URL, or Not opened |
 | Next agent | Verified assignee or Unassigned |
 
-## What was requested / scope
+## Mandatory discussion and architecture contract
 
-- Objective and measurable acceptance:
-- Written owner authorization / reference:
-- Allowed files and changes:
-- Exclusions (things **not** to modify):
-- Relevant [core summaries](../core/README.md) and [source documents](../../docs/00-INDEX.md):
+- Request/problem, expected user behavior and explicit non-goals:
+- [RFC template](../discussions/TEMPLATE.md) / actual discussion URL:
+- Product flow, errors and failure cases:
+- Module ownership, public/private interfaces, architecture contracts, reuse and dependencies:
+- Security/privacy, applicable platform policies, alternatives, risks and rollback:
+- Acceptance tests **defined before coding**:
+- Canonical owner decision / [decision register](../../docs/DECISIONS.md) / conditions:
+- Implementation approval gate: only move from `DECISION_PENDING` to `APPROVED` after a valid explicit owner decision.
+- Independent merge approval: **not granted** unless later explicitly recorded.
 
-## Decisions and coordination
+## Scope, ownership and integration
 
-- Accepted decisions, authority and links:
-- Unresolved choices requiring owner approval:
-- Concurrent branches/PRs and potentially overlapping files:
-- Current owner, PR author, commit author and reviewer must not be conflated.
+- Read required [core summaries](../core/README.md), [docs hub](../../docs/00-INDEX.md), relevant actual source and live PRs on demand.
+- Allowed file paths:
+- Excluded files/business rules:
+- Parallel PR/agent overlaps:
+- Defined feature-specific tests and approved plan:
+- Do not infer previous agent from Git history.
 
-## Session checkpoints (append latest first)
+## Immutable session checkpoints — append, do not rewrite prior history
 
-### [ISO-8601 UTC] — [verified agent or UNKNOWN_NOT_VERIFIED]
+### [ISO-8601 UTC] — [actual agent/model or UNKNOWN_NOT_VERIFIED]
 
-- **Previous verified agent:** 
-- **Base / HEAD inspected:** 
-- **Completed and checked:** 
-- **Attempted but failed:** 
-- **Exact changed file paths:** 
-- **Validation (command/tool, SHA, observed PASS/FAIL):** 
-- **Checks unavailable / not run:** 
-- **Blockers, approvals, residual risks:** 
-- **What remains unfinished:** 
-- **Branch / commit / PR containing work:** 
-- **Do not change:** 
-- **Next agent should read first:** 
-- **Exact next safe action:** 
+- **Prior verified agent:**
+- **Discussion / owner implementation approval reference:**
+- **Base / HEAD inspected / current branch / PR:**
+- **Requested, completed and verified work:**
+- **Attempted but failed:**
+- **Exact changed files:**
+- **Test commands, executed environment, observed results and tested SHA:**
+- **Checks not run / limitations:**
+- **Independent reviewer, reviewed SHA, finding severity and open threads:**
+- **Owner merge approval (separate) and conditions:**
+- **Remaining work, blockers and risk:**
+- **What next agent must not change:**
+- **Next agent should read first:**
+- **Exact next safe action:**
 
-## PR review and terminal gate
+## Independent review and terminal archive gate
 
-- Review status and actual review evidence:
-- Tested SHA vs PR HEAD:
-- Explicit owner merge approval (not assumed):
-- Verified PR merge status and resulting commit SHA, if applicable:
-- Remaining known risks and future follow-ups:
-- Archive decision only after verified terminal state.
+- Reviewer identity + link, review type `APPROVED` / `COMMENTED` / independent analysis:
+- Actual inspected commit and findings severity:
+- Fix SHA and evidence, unresolved review threads, re-review after material changes:
+- Required versus optional CI; scanner/service limits distinguished from app findings:
+- Explicit owner **merge** decision and evidence:
+- Verified merge/terminal status/resulting SHA and residual risks:
+- Archive only after terminal state verified and all incoming/outgoing Markdown links repaired.
 
-[Task protocol](README.md) · [Root agent contract](../../AGENTS.md)
+[Task guide](README.md) · [Root agent contract](../../AGENTS.md) · [Discussions](../discussions/README.md)

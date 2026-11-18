@@ -1,25 +1,27 @@
-# 🔄 Task, branch, review and handoff workflow
+# 🔄 Discussion-first task, review and agent handoff workflow
 
-**Canonical:** [AGENTS](../../AGENTS.md) · [task guide](../tasks/README.md) · [template](../tasks/TEMPLATE.md) · [current index](../current.md).
+**Canonical:** [Root agent contract](../../AGENTS.md) · [RFC guide](../discussions/README.md) · [Task state machine](../tasks/README.md) · [Task template](../tasks/TEMPLATE.md) · [Current multi-task index](../current.md).
 
 ```mermaid
 flowchart LR
-  A["Owner task"] --> B["Scoped task brief"]
-  B --> C["Verified agent assignment"]
-  C --> D["Feature branch work"]
-  D --> E["Checkpoint / handoff"]
-  E --> F["Pull Request"]
-  F --> G["Review and validation"]
-  G --> H["Explicit owner-approved merge"]
-  H --> I["Verified archive"]
+  A["Owner requirement"] --> B["Inspect repo and context"]
+  B --> C["Technical RFC: architecture, threat, policy, tests"]
+  C --> D{"Owner approves implementation?"}
+  D -->|No| C
+  D -->|Yes| E["Finalize task, assignee and branch"]
+  E --> F["Implement only bounded scope"]
+  F --> G["Validate at SHA, independent review"]
+  G --> H{"Owner separately approves merge?"}
+  H -->|No| G
+  H -->|Yes| I["Verify terminal outcome, archive and handoff"]
 ```
 
-1. Verify repository, latest base SHA, branch, PR, checked ownership and current instructions.
-2. Record stable task ID, current agent/model if exposed, prior verified agent (else `UNKNOWN_NOT_VERIFIED`), UTC times, scope and approval reference.
-3. Work only in assigned branch. Never push to `main`, edit parallel branches or overwrite shared docs without coordination.
-4. Checkpoint exact changed files, test commands/results, inspected HEAD, decisions, failures, next action and prohibited changes.
-5. PR creation/review is a gate; a green job, agent comment or PR author is **not** a merge approval.
-6. Obtain separate owner merge approval. After merge, verify GitHub state, final SHA and remaining risks; only then archive and reconcile `current.md`.
-7. If task stops midflight, retain it as Active/Blocked/Review; a stopped session is **not** completion.
+1. Read `AGENTS.md`, `.ai/current.md`, assigned task and **linked durable RFC/decisions**; inspect live repo/branch/PR and actual source. No blanket task creation or code writes merely because a plan exists.
+2. Record product purpose, error paths, module ownership, dependency directions, applicable security/OS policy, alternatives/trade-offs, testable acceptance, rollback and outstanding decisions in GitHub Issue/Discussion/existing PR. Use [discussion template](../discussions/TEMPLATE.md).
+3. No `IN_PROGRESS` until an explicit owner `APPROVED_FOR_IMPLEMENTATION` is recorded with decision source, date, scope and conditions, and **confirmed** feature owner, branch, non-goals and tests. New scope or material risks renew discussion; routine approved subtasks can continue.
+4. Work only on the approved isolated feature branch. No direct `main` commits, editing concurrent PR branches, unapproved schema/permissions/security changes, force-push or automatic merge.
+5. Record exact commands/results, tested SHA, independent reviewer, review type/verdict/severity and outstanding threads. `COMMENTED` is not formal approval; reviewer outage/quota failure is `INCONCLUSIVE`, not code failure or review pass. Re-review after material changes.
+6. Require **distinct express owner merge permission** before merge. After verified terminal outcome, move to archive only with [link repair](../archive/README.md), provenance/risks and `.ai/current.md` index reconciliation.
+7. Append handoff checkpoints; current/previous verified working agents, Git commit author, PR author, reviewer and owner remain distinct. Do not overwrite old records or infer model from commit metadata.
 
-`current.md` is a **multi-task index**, not an exclusive lock. One task owns its own durable record; concurrent agents must coordinate overlapping files and reread live refs on each write. Never claim identity or passing tests from commit author metadata.
+No template checkbox or Python helper verifies the owner's identity, reviews or GitHub status by itself. Concurrency requires live source verification on every shared-file write. Product/language/financial contracts remain under their canonical owner documents.

@@ -1,11 +1,11 @@
 # 👥 Agent identities and handoff provenance
 
-`agents/` is a **protocol/registry**, not automated model detection or a source of historical certainty.
+An agent is **not** a Git commit author, PR author, reviewer, or repository owner. Model identity is only the actual exposed model, otherwise `UNKNOWN_NOT_VERIFIED`; never reconstruct working agent identity from a commit author, bot or PR username.
 
-Distinguish **current working agent, previous verified working agent, actual model, Git commit author, PR author, reviewer, and repository owner**. These can all be different identities. Never infer an agent or model from commit email, bot label, PR author or a previous chat.
+**Resume order:** [AGENTS](../../AGENTS.md) → [current tasks](../current.md) → one scoped [task](../tasks/README.md) → its durable [RFC and owner decision](../discussions/README.md) → relevant core summaries → actual source and live GitHub PR. Verify reviewed/inspected commit SHA, implementation scope and latest checkpoint before taking ownership. Agent replacement does not require rewriting history.
 
-For each actual task session, record the stable task ID, agent/tool, known model or `UNKNOWN_NOT_VERIFIED`, previous verified agent, UTC start/checkpoint, repository, working branch, base and observed HEAD SHA, exact changed paths, test results, PR and one next action in that [task file](../tasks/TEMPLATE.md).
+Every **new** working session appends a timestamped checkpoint with task ID, current agent/model, previous **verified** agent, branch/base/HEAD, discussion and owner approval references, exact changed paths, tests and results, review findings, unfinished work, risks and exact safe action. If the previous agent is unknown, record `UNKNOWN_NOT_VERIFIED`, not a guessed historical model.
 
-The optional [registry](registry.md) links only **verified present sessions** to their task records. Do not manufacture historical agents, future assignments or a permanent identity based on a temporary tool account. New agents must recheck GitHub and source.
+The [registry](registry.md) links task-specific verified snapshots, **not** permissions. No private data, OTPs, chat transcripts or fictitious past sessions. A branch's existence or a commit's signature is not authorization.
 
-[Root contract](../../AGENTS.md) · [Current tasks](../current.md).
+[Task template](../tasks/TEMPLATE.md) · [Discussion template](../discussions/TEMPLATE.md).
