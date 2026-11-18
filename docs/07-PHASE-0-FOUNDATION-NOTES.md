@@ -19,7 +19,7 @@
 
 | Area | Scaffold choice | Why / remaining gate |
 | :--- | :--- | :--- |
-| Runtime | Expo SDK 58 / RN 0.88 / React 19.3 / TS strict | [Expo release compatibility](https://docs.expo.dev/versions/latest/); local install and Expo Go runtime checks outstanding |
+| Runtime | Expo SDK 58 / RN 0.88.1 / React 19.3 / TS strict | [Expo release compatibility](https://docs.expo.dev/versions/latest/); local install and Expo Go runtime checks outstanding |
 | Routes | Expo Router `Stack` + nested `Slot` root shell + single bottom action | Four content destinations and center `+`; placement remains [Screen Spec proposal](03-SCREEN-SPEC.md#02--navigation-architecture) |
 | App status | All finance screens are marked planned; Save disabled | Prevents placeholder UI being mistaken for real ledger features |
 | Theme | Provisional semantic light/dark tokens from [Screen Spec §03](03-SCREEN-SPEC.md#03--tio-money-visual-language--proposed-tokens) | Final palette, contrast and user override awaiting owner/device review |
