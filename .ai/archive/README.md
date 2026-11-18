@@ -6,7 +6,7 @@ Moving `.ai/tasks/<area>/<slug>.md` to `.ai/archive/<year>/<slug>.md` changes ho
 
 ## Supported reference-style Markdown links and fail-closed behavior
 
-The Python helper supports inline \`[Task](file.md#anchor)\` and explicit reference-style \`[Task][ref]\` with single-line \`[ref]: relative.md#anchor\` definitions (including angle-bracket targets and supported titles). It rebases definitions when copying nested tasks and moving tasks to the archive, and also changes incoming definitions in other Markdown files. It checks definitions and conventional local Markdown anchors **before writing**.
+The Python helper supports inline `[Task](file.md#anchor)` and explicit reference-style `[Task][ref]` with single-line `[ref]: relative.md#anchor` definitions (including angle-bracket targets and supported titles). It rebases definitions when copying nested tasks and moving tasks to the archive, and also changes incoming definitions in other Markdown files. It checks definitions and conventional local Markdown anchors **before writing**.
 
 Unsupported/ambiguous references, missing definitions or relative non-Markdown references inside a moved document cause a **fail-closed error**; do not manually force the source deletion. Fenced examples, remote URLs and unrelated links are left alone. Unsupported Markdown dialects/complex nested markup are **not** automatically verified. Archive writes stage temporary files and restore prior content on ordinary filesystem errors; multi-file operations are **not crash-atomic**, so review the Git diff and recover from version control if an interruption occurs.
 
