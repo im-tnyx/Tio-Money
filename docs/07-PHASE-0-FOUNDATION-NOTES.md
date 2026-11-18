@@ -37,6 +37,7 @@
 | Dependency install and lockfile | **Passed on GitHub Actions Ubuntu, 2026-11-18** | [CI run](https://github.com/im-tnyx/Tio-Money/actions/runs/44351018913) · `npm ci --no-audit --no-fund` |
 | Expo compatibility | **Passed config and dependency checks in CI; device unverified** | `npx expo install --check`; `npx expo config --type public` |
 | TypeScript, ESLint, Prettier, unit tests | **Passed GitHub CI** (strict typecheck, lint, formatting, **9 tests**) | `npm run check`; [run evidence](https://github.com/im-tnyx/Tio-Money/actions/runs/44351018913) |
+| Android/iOS Metro bundles | **Passed GitHub CI** (both `expo export --platform android` and `ios`) | [CI run](https://github.com/im-tnyx/Tio-Money/actions/runs/44351447192); bundles are not installed-device tests |
 | SQLite migration/FK tests | **Passed pure migration-driver unit tests**, not on-device FK/real-SQLite startup | `npm test`; still run real SQLite device initialization and upgrade |
 | Expo Go Android / iPhone | **Not verified** | Open QR on both; test root routes, editor, settings, cold restart |
 
