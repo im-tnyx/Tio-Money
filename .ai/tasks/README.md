@@ -41,6 +41,23 @@ Return to **DISCUSSION** if a new feature, meaningful scope expansion, financial
 
 **Decision vocabulary** (distinct from lifecycle): `PROCEED` (technical decision; not owner authorization), optional owner `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, `BLOCKED_PENDING_DECISION`. A rejected task remains non-implementable/cancelled as appropriate; never treat a negative decision as `APPROVED`.
 
+## Recovery from BLOCKED — explicit evidence gate
+
+The \`check-transition\` CLI now rejects \`BLOCKED → ASSIGNED / IN_PROGRESS / IN_REVIEW\` without **all** applicable, self-attested evidence: prior RFC, recorded \`PROCEED\` decision (owner implementation signoff remains optional), verified branch, blocker disposition and explanation, applicable risk/approval clearance and consistent last active task state. Entering \`IN_REVIEW\` also requires a recorded PR and independent-review request. A direct \`VALIDATING → IN_REVIEW\` requires that PR/review evidence too.
+
+For supported automated checks, supply \`--rfc-recorded --proceed-recorded --branch-verified\`; for review also \`--pr-recorded --review-recorded\`; recovery requires \`--recovery-record FILE\` with:
+
+\`\`\`json
+{
+  "blocker_disposition": "RESOLVED",
+  "blocker_evidence": "Persistent issue/PR comment URL with explanation",
+  "risk_clearance_evidence": "Reviewed policy/architecture decision or applicability rationale",
+  "last_active_state": "IN_REVIEW"
+}
+\`\`\`
+
+For \`EXPLICITLY_ACCEPTED\`, include an \`acceptance_authority\` reference, not only a checkbox. The tool checks **presence and consistency of operator-asserted evidence**, not GitHub identity or actual decision authority. A reviewer must inspect the linked evidence. Do not bypass an unresolved security/product restriction through an invented JSON record.
+
 ## Create, hand off and archive safely
 
 1. Inspect actual repository PR/branch state, then copy the [template](TEMPLATE.md) to a scoped folder with **recalculated relative links**. The original template's links are relative to `.ai/tasks/`; copying verbatim to `.ai/tasks/<area>/` breaks them.
