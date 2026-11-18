@@ -1,0 +1,33 @@
+name: Phase 0 checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - feat/phase-0-expo-foundation
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify Expo dependency compatibility
+        run: npx expo install --check
+      - name: Strict TypeScript, ESLint, format and unit tests
+        run: npm run check
+      - name: Validate Expo public configuration
+        run: npx expo config --type public > /dev/null
+      - name: Check default build for SMS permissions
+        run: |
+          if grep -R -E 'READ_SMS|RECEIVE_SMS|READ_CALL_LOG' app.json src/; then
+            echo "Unexpected restricted permission reference in default app configuration"
+            exit 1
+          fi
