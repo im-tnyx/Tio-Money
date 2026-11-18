@@ -1,11 +1,45 @@
-# 01 — Product Requirements Document (PRD)
+<div align="center">
 
-**Product:** Tio Money (working name; “Daily Hisaab” was a planning placeholder)  
-**Version:** 0.1 — Initial draft, not final approval  
-**Date:** 18 November 2026  
-**Platforms:** Android and iPhone  
-**Implementation:** React Native + Expo + TypeScript  
-**Owner-provided references:** Screenshots of Income / Expense / Transfer forms, supplied for behavior and field reference only. Do **not** copy that UI pixel-for-pixel.
+# 🎯 01 · Product Requirements Document
+
+### The product contract behind every rupee, every account and every transaction.
+
+![Status](https://img.shields.io/badge/STATUS-DRAFT%20FOR%20REVIEW-7357E8?style=flat-square)
+![Version](https://img.shields.io/badge/VERSION-0.1-596274?style=flat-square)
+![Platform](https://img.shields.io/badge/PLATFORMS-ANDROID%20%2B%20IOS-118C84?style=flat-square)
+
+[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🧭 User Flows](02-USER-FLOWS.md) · [✍️ Docs Standard](90-DOCS-STYLE-GUIDE.md)
+
+</div>
+
+---
+
+> [!IMPORTANT]
+> **Product planning, not delivered code.** Version 0.1 is a working requirements draft dated 2026-11-18. Final app name, visual assets, screen design and mobile store approvals remain to be determined. Screenshots provided by the owner are **functional references only**, not UI assets to clone.
+
+## ✨ Executive snapshot
+
+| Product | Experience | Delivery |
+| :--- | :--- | :--- |
+| **Tio Money** (working name) | **Single `+` entry** → Income / Expense / Transfer | React Native + Expo + TypeScript (planned) |
+| Offline-first personal finance | Optional transfer fees **count as expense** | Expo Go core MVP; Android native SMS only via conditional custom build |
+| Bank / Cash / Wallet / Credit card | One consistent asset/liability ledger | iPhone supports user-initiated imports, not automatic full inbox reading |
+
+**The non-negotiable math:** moving ₹5,000 between your own banks does **not** create ₹5,000 expense or income. If that transfer costs ₹50, **₹50 is the expense** — not ₹5,050.
+
+### Main interaction
+
+```mermaid
+flowchart LR
+  H["🏠 Home"] --> A["➕ Add"]
+  A --> T{"Income / Expense / Transfer"}
+  T --> F["Fields + validations"]
+  F --> L["🧮 Ledger rules"]
+  L --> S["🗄 Atomic local save"]
+  S --> R["📊 Balances + Reports"]
+```
+
+**Where to go next:** [Full interaction & fee flows](02-USER-FLOWS.md) · [Documentation navigation](00-INDEX.md).
 
 ---
 
@@ -303,3 +337,18 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 6. `docs/06-IMPLEMENTATION-TEST-PLAN.md` — milestones, test suites, performance and store release.
 
 **Status:** Initial planning draft. UX specifics and implementation details can evolve, but money math and platform constraints should remain explicit and testable.
+
+---
+
+## 📎 Navigation and document relationships
+
+| Document | Purpose | State |
+| :--- | :--- | :--- |
+| [📚 00 — Documentation Hub](00-INDEX.md) | Navigation and current state | Draft |
+| **01 — Product Requirements** | Scope and acceptance contract | Draft |
+| [🧭 02 — User Flows](02-USER-FLOWS.md) | Precise interactions and alternate cases | Draft |
+| [✍️ 90 — Documentation Style Guide](90-DOCS-STYLE-GUIDE.md) | Visual style and truthfulness standard | Draft |
+
+**Next documentation:** original screen specification, canonical asset/liability ledger, architecture, and implementation/test strategy.
+
+[← Documentation Hub](00-INDEX.md) · [User Flows →](02-USER-FLOWS.md)
