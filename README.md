@@ -110,7 +110,7 @@ flowchart LR
 
 ## 🛠 Phase 0 · Developer setup (scaffold under review)
 
-The code in this branch is an **Expo SDK 58 / React Native 0.88 / React 19.3** project scaffold. The app currently opens placeholder Home, History, Reports, Accounts and Settings routes and a single central `+` editor with **Income | Expense | Transfer** tabs. **Save is disabled**; financial data and genuine account setup are scheduled for later phases.
+The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** project scaffold. The app currently opens placeholder Home, History, Reports, Accounts and Settings routes and a single central `+` editor with **Income | Expense | Transfer** tabs. **Save is disabled**; financial data and genuine account setup are scheduled for later phases.
 
 **Requirements:** Node.js 22.13+ (the repo provides `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry.
 
