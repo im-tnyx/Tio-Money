@@ -24,7 +24,7 @@
 | Understand the exact `+` transaction experience | [🧭 02 — User Flows](02-USER-FLOWS.md) | Journey diagrams, fields, fee behavior, edge cases |
 | Create new documentation consistent with the product | [✍️ 90 — Style & Quality Guide](90-DOCS-STYLE-GUIDE.md) | Page anatomy, diagrams, status labeling, quality checklist |
 | Design original app screens | [🎨 03 — Screen Design Specification](03-SCREEN-SPEC.md) | Original visual direction, tokens, 10 screen contracts, acceptance tests |
-| Design the financial data model | **04 — Data Model & Ledger** · next | Asset/liability ledger, transfer-fee atomicity, migrations |
+| Design the financial data model | [🗄 04 — Database & Financial Ledger](04-DATABASE-DESIGN.md) | Double-entry postings, assets/liabilities, transfer fees, reconciliation |
 | Build the Expo project | **05 — Technical Architecture** · next | Modules, Expo Go boundaries, integration decisions |
 | Evaluate readiness for release | **06 — Implementation & Test Plan** · next | Test cases, milestones, permission and release gates |
 
@@ -66,7 +66,7 @@ flowchart TD
 | Detailed flows | 📝 Initial draft | Confirm Save & Add Another and fee exceptions |
 | Documentation design language | 📝 Initial standard | Apply to new and existing pages |
 | [Screen specification](03-SCREEN-SPEC.md) | 📝 Initial draft | Review navigation, visual palette, fee disclosure |
-| Data model / ledger | ⚪ Not started | Resolve asset + liability journal design |
+| [Data model / ledger](04-DATABASE-DESIGN.md) | 📝 Initial draft | Review journal schema, reversal policy, credit-card postings |
 | Architecture | ⚪ Not started | Confirm Expo package + native boundaries |
 | Test/release plan | ⚪ Not started | Map every accounting rule to automated tests |
 
@@ -80,13 +80,13 @@ Tio-Money/
    ├─ 01-PRD.md                   ← Product contract
    ├─ 02-USER-FLOWS.md            ← Interaction & edge cases
    ├─ 03-SCREEN-SPEC.md           ← Screen design draft
-   ├─ 04-DATABASE-DESIGN.md       ← Next
+   ├─ 04-DATABASE-DESIGN.md       ← Ledger draft
    ├─ 05-TECH-ARCHITECTURE.md     ← Next
    ├─ 06-IMPLEMENTATION-TEST-PLAN.md ← Next
    └─ 90-DOCS-STYLE-GUIDE.md      ← Documentation contract
 ```
 
-Only **04–06** are future placeholder paths; the other listed documents exist on the branch.
+Only **05–06** are future placeholder paths; the other listed documents exist on the branch.
 
 ## 🔄 Review gate
 
