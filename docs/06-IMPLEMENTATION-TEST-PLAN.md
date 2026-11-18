@@ -121,7 +121,7 @@ This follows the [proposed architecture tree](05-TECH-ARCHITECTURE.md#03--propos
 | :--- | :--- | :--- | :--- |
 | **M0** | Phase 0 · Foundation | Toolchain, routing shell, strict TS, decision log | Both platform dev paths build; CI baseline green |
 | **M1** | Phase 1 · UI foundation | Setup, Home, History, Reports, Accounts, Settings, unified editor UI | Original accessible shells and one `+`; **mock UI ≠ finance complete** |
-| **M2** | Phase 2 · Ledger | SQLite migrations, domain, writer, projections | `TM-DB-001…022` / invariant and rollback evidence |
+| **M2** | Phase 2 · Ledger | SQLite migrations, domain, writer, projections | P0-relevant `TM-DB` cases / invariant and rollback evidence |
 | **M3** | Phase 3 · Transactions | Real create/edit/reverse/detail/filter workflows | P0 end-to-end manual event scenarios; no duplicate or orphan fee |
 | **M4** | Phase 4 · Reports | Local daily/monthly/custom breakdowns and card views | Report vs ledger reconciliation on both OSs |
 | **M5** | Phase 5 · User imports | Text/CSV adapter, candidates, matching, review | P1 privacy, duplicate and confirmation fixtures |
@@ -222,7 +222,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 | **Dependencies** | M0; owner review of [DB design](04-DATABASE-DESIGN.md), correction/date policy and idempotency/migration ADR; Expo SQLite API validation |
 | **Files / modules** | `src/domain/{money,ledger,contracts}/*`, `src/data/sqlite/{initialize.ts,migrations/*,repositories/*,queries/*}`, `src/data/projections/*`, `tests/{domain,sqlite}/*` |
 | **Deliverables** | Schema v1 migrations, typed ledger/use-case contracts, atomic repository, reusable real-SQLite fixture suite |
-| **Acceptance** | Every event balances; ₹0.01 exactness; card liability ≠ asset; fee is one expense posting; FK ON on write connection; bad writes reject and roll back; `TM-DB-001…022` reconciled |
+| **Acceptance** | Every event balances; ₹0.01 exactness; card liability ≠ asset; fee is one expense posting; FK ON on write connection; bad writes reject and roll back; P0-relevant `TM-DB-001…014,017…022` reconciled; import-specific `TM-DB-015/016` deferred to M5 |
 | **Automated tests** | Domain property tests, all `TM-FIN-001…029` applicable invariants, fault injection, FK/kind/unique constraints, upgrade/reopen/corruption safety, serialized concurrency |
 | **Manual tests** | Android + iOS persistent DB across force close/restart, killed write path, offline read/write, low-storage recovery without data deletion |
 | **Risks** | `withTransactionAsync()` interleaving, exclusive connection FK gap, hidden float arithmetic, half-applied migration, missing idempotency constraint |
@@ -427,7 +427,7 @@ For every seeded event `e`, use a shared test helper to assert **all** of the fo
 5. Editing, deleting or restoring only through an approved compensating-event policy; every reversal references a real original and cannot apply twice.
 6. Re-running the same request token, including after crash/relaunch, produces at most one booked intent; independent legitimate entries with different tokens remain possible.
 7. Rebuild read models from postings after restart and after migration; independently compare against Home, Accounts, History and Reports.
-8. Negative/oversized amounts, zero/negative fees, fee > principal for destination deduction, same account, archived account and missing FK are rejected without side effects.
+8. Negative/oversized principal amounts, **negative** fees, fee > principal for destination deduction, same account, archived account and missing FK are rejected without side effects; a **zero** fee is valid and produces no fee posting.
 
 **Failure protocol:** Test on a **real Expo SQLite database** on each platform, not merely a mocked repository. Simulate exceptions after each step and an app kill at controlled boundaries. Expected outcomes are either fully committed data or fully absent data, never an orphan event/fee/import link. If SQLite itself reports corruption, **do not erase or recreate silently**; block writes, preserve the file, present recovery guidance and document any validated export path.
 
