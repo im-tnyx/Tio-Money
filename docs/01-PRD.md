@@ -331,7 +331,7 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 
 1. **This file:** `docs/01-PRD.md` — product scope and acceptance criteria.
 2. `docs/02-USER-FLOWS.md` — navigation, validations, transfer fee, imports, errors.
-3. `docs/03-SCREEN-SPEC.md` — unique design system and detailed screen specifications.
+3. [`docs/03-SCREEN-SPEC.md`](03-SCREEN-SPEC.md) — unique design system and detailed screen specifications.
 4. `docs/04-DATABASE-DESIGN.md` — SQLite ledger schema, relationships, migration plan.
 5. `docs/05-TECH-ARCHITECTURE.md` — React Native / Expo Go boundary, modules and service layer.
 6. `docs/06-IMPLEMENTATION-TEST-PLAN.md` — milestones, test suites, performance and store release.
@@ -349,6 +349,6 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 | [🧭 02 — User Flows](02-USER-FLOWS.md) | Precise interactions and alternate cases | Draft |
 | [✍️ 90 — Documentation Style Guide](90-DOCS-STYLE-GUIDE.md) | Visual style and truthfulness standard | Draft |
 
-**Next documentation:** original screen specification, canonical asset/liability ledger, architecture, and implementation/test strategy.
+**Next documentation:** review the [original screen specification](03-SCREEN-SPEC.md), then define the canonical asset/liability ledger, architecture, and implementation/test strategy.
 
 [← Documentation Hub](00-INDEX.md) · [User Flows →](02-USER-FLOWS.md)
