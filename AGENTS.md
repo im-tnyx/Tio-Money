@@ -10,6 +10,7 @@
 | Owner decisions | [Decision register](docs/DECISIONS.md); approved decisions override older conflicting drafts |
 | Live progress | [Current task index](.ai/current.md) — **snapshot only, never proof of live GitHub state** |
 | Detailed rules | [.ai/core/README.md](.ai/core/README.md) · [task protocol](.ai/tasks/README.md) |
+| GitHub governance | [Issue Forms, PR template and CI](.github/README.md) · [independent review guide](.github/REVIEW_GUIDE.md) · [manual post-merge sync](.github/POST-MERGE-SYNC.md) |
 | Reference stage, 2026-11-18 | `main` was documentation-only at governance kickoff; [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is parallel draft work; recheck both before acting |
 
 ## 1. Mandatory startup and execution sequence
@@ -39,7 +40,7 @@ flowchart TD
 6. After the documented proceed decision (owner signoff if provided), finalize scoped task, non-goals, assigned agent and verified branch. Read only relevant [core summaries](.ai/core/README.md), canonical source documents and actual code; implement **only** the authorized slice. A material new risk or scope expansion returns to discussion.
 7. Run proportionate validation; report actual commands, inspected SHA, results and skipped tests. Obtain independent review or document explicit owner-accepted deferral. `COMMENTED` is **not** formal `APPROVED`; reviewer failures/limits are **not** a security or code pass.
 8. Update task record and compact index with observed HEAD, review finding severity, exact changed paths, results and safe handoff. Re-review after material fixes.
-9. Require **separate, express owner merge approval** for the exact PR; verify merge and only then archive a terminal task. **Never auto-merge.**
+9. Require **separate, express owner merge approval** for the exact PR; verify merge and only then archive a terminal task. **Never auto-merge.** Record the decision and tests in the [GitHub PR contract](.github/PULL_REQUEST_TEMPLATE.md); follow [independent review guidance](.github/REVIEW_GUIDE.md). A form/checkmark is not merge authorization.
 
 Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discussion / approved decision → relevant core files → actual source`**. Summaries route to authoritative specifications; they do not override the owner's decisions.
 

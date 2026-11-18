@@ -1,6 +1,6 @@
 # 🔄 Discussion-first task, review and agent handoff workflow
 
-**Canonical:** [Root agent contract](../../AGENTS.md) · [RFC guide](../discussions/README.md) · [Task state machine](../tasks/README.md) · [Task template](../tasks/TEMPLATE.md) · [Current multi-task index](../current.md).
+**Canonical:** [Root agent contract](../../AGENTS.md) · [RFC guide](../discussions/README.md) · [Task state machine](../tasks/README.md) · [Task template](../tasks/TEMPLATE.md) · [Current multi-task index](../current.md) · [GitHub review and CI](../../.github/README.md).
 
 ```mermaid
 flowchart LR
@@ -21,8 +21,8 @@ flowchart LR
 3. No `IN_PROGRESS` until the durable RFC contains a documented decision to **PROCEED** with date, source, scope and conditions, and confirmed agent/feature ownership, branch, non-goals and tests. **Owner implementation signoff is optional**, but unresolved material restricted-operation risks block progress. New scope/risk returns to discussion; routine bounded subtasks may continue.
 4. Work only on the verified, scoped feature branch after the documented proceed decision. No direct `main` commits, editing concurrent PR branches, unapproved schema/permissions/security changes, force-push or automatic merge.
 5. Record exact commands/results, tested SHA, independent reviewer, review type/verdict/severity and outstanding threads. `COMMENTED` is not formal approval; reviewer outage/quota failure is `INCONCLUSIVE`, not code failure or review pass. Re-review after material changes.
-6. Require **distinct express owner merge permission** before merge. After verified terminal outcome, move to archive only with [link repair](../archive/README.md), provenance/risks and `.ai/current.md` index reconciliation.
-7. Before PR/merge review, inspect the actual commit message range and **reject every `Co-authored-by:` trailer** (Claude, Codex, Cursor, ChatGPT or any contributor). Use `python3 scripts/ai_context.py check-commits --base <base> --head <head>` in a real local Git checkout. Never spoof commit author; agent/model attribution belongs **only** in task provenance. This is documented/tool-checked, not an active GitHub CI gate.
+6. Require **distinct express owner merge permission** before merge. After verified terminal outcome, use the [manual post-merge procedure](../../.github/POST-MERGE-SYNC.md), then archive only with [link repair](../archive/README.md), provenance/risks and `.ai/current.md` index reconciliation.
+7. Before PR/merge review, inspect the actual commit message range and **reject every `Co-authored-by:` trailer** (Claude, Codex, Cursor, ChatGPT or any contributor). Use `python3 scripts/ai_context.py check-commits --base <base> --head <head>` in a real local Git checkout. Never spoof commit author; agent/model attribution belongs **only** in task provenance. A [read-only governance workflow](../../.github/workflows/ai-governance-checks.yml) is proposed on PR #2, but it is **not** a trusted required branch-protection check or proof of merge authorization until explicitly configured and independently verified.
 8. Append handoff checkpoints; current/previous verified working agents, Git commit author, PR author, reviewer and owner remain distinct. Do not overwrite old records or infer model from commit metadata.
 
 No template checkbox or Python helper verifies the owner's identity, reviews or GitHub status by itself. Concurrency requires live source verification on every shared-file write. Product/language/financial contracts remain under their canonical owner documents.

@@ -10,6 +10,8 @@ The Python helper supports inline \`[Task](file.md#anchor)\` and explicit refere
 
 Unsupported/ambiguous references, missing definitions or relative non-Markdown references inside a moved document cause a **fail-closed error**; do not manually force the source deletion. Fenced examples, remote URLs and unrelated links are left alone. Unsupported Markdown dialects/complex nested markup are **not** automatically verified. Archive writes stage temporary files and restore prior content on ordinary filesystem errors; multi-file operations are **not crash-atomic**, so review the Git diff and recover from version control if an interruption occurs.
 
+For a GitHub-merged task, follow the [manual post-merge sync guide](../../.github/POST-MERGE-SYNC.md) before any tracked archival changes; verify the actual resulting merge SHA and clean worktree, not only an agent flag.
+
 ## Safe procedure
 
 1. Confirm live repo/PR/owner terminal evidence and current working tree/branch scope; don't archive an open or blocked task.

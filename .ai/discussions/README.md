@@ -7,7 +7,7 @@
 ## Discussion-first procedure
 
 1. Verify live repo, requested behavior, current/parallel task ownership and source of truth.
-2. Open one persistent, reviewable **GitHub Issue/Discussion** when supported, use an **existing PR discussion** for an active PR (including governance PR #2), or link a focused RFC document. Do not assume GitHub Discussions is enabled.
+2. Open one persistent, reviewable **GitHub Issue/Discussion** when supported, using the [Task Discussion Issue Form](../../.github/ISSUE_TEMPLATE/task_discussion.yml) for a new task. Use an **existing PR discussion** for already-active work (including governance PR #2), or link a focused RFC document. Do not assume GitHub Discussions is enabled. The Issue Form and its decision dropdown are **not** authorization; the sourced proceed decision must be recorded separately and reviewers must verify it.
 3. Cover product purpose, UX/data flow, failure states, feature ports, dependencies, canonical ledger implications, applicable threats/store permissions, alternatives and trade-offs, recovery and acceptance tests. Avoid irrelevant security boilerplate.
 4. Record unresolved questions and a **documented technical decision**: `PROCEED`, optional owner `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED` or `BLOCKED_PENDING_DECISION`. Include source/URL, decision maker, date, scoped change and conditions. `PROCEED` alone is not owner approval; no decision/unknown high-risk policy means no implementation.
 5. A linked RFC plus documented `PROCEED` **or optional** owner `APPROVED_FOR_IMPLEMENTATION`, with scope, owner/agent assignment and verified branch, permits the [task state](../tasks/README.md) to advance where no unresolved restricted decision blocks work. **All PR merges require a separate explicit owner merge approval**, even with CI and review passing.
@@ -18,4 +18,4 @@
 
 The [V2 RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6986950549) and [owner chat authorization recorded on PR #2](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987125950) describe this governance-only bounded task. The latter is **agent-transcribed**, not a GitHub-owner-authored approval. Owner **merge approval remains pending**. The [later owner policy refinement](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987299176) makes owner implementation signoff optional for future ordinary tasks; it does not revoke this task's already-granted Stage B permission.
 
-[Discussion template](TEMPLATE.md) · [Task template](../tasks/TEMPLATE.md)
+[Discussion template](TEMPLATE.md) · [Task template](../tasks/TEMPLATE.md) · [GitHub Issue Forms and review process](../../.github/README.md)

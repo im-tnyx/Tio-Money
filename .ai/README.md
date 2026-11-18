@@ -11,6 +11,7 @@
 | [`tasks/`](tasks/README.md) | Task state gates, scoped work, verified history and handoff |
 | [`agents/`](agents/README.md) | Identity and provenance rules |
 | [`archive/`](archive/README.md) | Verified completed history, never speculative work |
+| [GitHub governance](../.github/README.md) | Issue/RFC forms, PR evidence, read-only CI, independent review and manual post-merge guide |
 | [Decision register](../docs/DECISIONS.md) | Approved owner decisions / unresolved proposals |
 
 ## One-task context path

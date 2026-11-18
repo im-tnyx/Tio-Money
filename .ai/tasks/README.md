@@ -4,7 +4,7 @@
 
 > **No task enters `IN_PROGRESS` without a reviewable RFC and documented decision to proceed.** Owner implementation approval is **optional** for ordinary scoped work; material restricted decisions still need authority. **Owner merge approval is mandatory for every PR**, distinct from CI, review and implementation.
 
-Each substantial task has exactly one stable task ID and one scoped task file under `.ai/tasks/<area>/<slug>.md`, plus links to its durable GitHub Issue/Discussion/existing PR RFC and canonical decisions. Do not fabricate sessions, past approval or agent identity.
+Each substantial task has exactly one stable task ID and one scoped task file under `.ai/tasks/<area>/<slug>.md`, plus links to its durable [GitHub Task Discussion Issue Form](../../.github/ISSUE_TEMPLATE/task_discussion.yml), GitHub Issue/Discussion/existing PR RFC and canonical decisions. Issue Form submission is **not** a proceed decision or owner merge approval. Do not fabricate sessions, past approval or agent identity.
 
 ## Lifecycle and evidence gates
 
