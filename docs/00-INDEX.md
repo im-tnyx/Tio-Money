@@ -7,7 +7,7 @@
 ![Stage](https://img.shields.io/badge/DOCS-DRAFT%20IN%20PROGRESS-7357E8?style=for-the-badge)
 ![App](https://img.shields.io/badge/APP-NOT%20YET%20IMPLEMENTED-596274?style=for-the-badge)
 
-[🏠 Project Home](../README.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Design](03-SCREEN-SPEC.md) · [✍️ Style Guide](90-DOCS-STYLE-GUIDE.md)
+[🏠 Project Home](../README.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Design](03-SCREEN-SPEC.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [✍️ Style Guide](90-DOCS-STYLE-GUIDE.md)
 
 </div>
 
@@ -25,7 +25,7 @@
 | Create new documentation consistent with the product | [✍️ 90 — Style & Quality Guide](90-DOCS-STYLE-GUIDE.md) | Page anatomy, diagrams, status labeling, quality checklist |
 | Design original app screens | [🎨 03 — Screen Design Specification](03-SCREEN-SPEC.md) | Original visual direction, tokens, 10 screen contracts, acceptance tests |
 | Design the financial data model | [🗄 04 — Database & Financial Ledger](04-DATABASE-DESIGN.md) | Double-entry postings, assets/liabilities, transfer fees, reconciliation |
-| Build the Expo project | **05 — Technical Architecture** · next | Modules, Expo Go boundaries, integration decisions |
+| Build the Expo project | [🏗 05 — Technical Architecture](05-TECH-ARCHITECTURE.md) | Modules, Expo Go boundaries, SQLite safety, optional native SMS |
 | Evaluate readiness for release | **06 — Implementation & Test Plan** · next | Test cases, milestones, permission and release gates |
 
 ## 💎 Product rules that must survive every design revision
@@ -67,7 +67,7 @@ flowchart TD
 | Documentation design language | 📝 Initial standard | Apply to new and existing pages |
 | [Screen specification](03-SCREEN-SPEC.md) | 📝 Initial draft | Review navigation, visual palette, fee disclosure |
 | [Data model / ledger](04-DATABASE-DESIGN.md) | 📝 Initial draft | Review journal schema, reversal policy, credit-card postings |
-| Architecture | ⚪ Not started | Confirm Expo package + native boundaries |
+| [Technical architecture](05-TECH-ARCHITECTURE.md) | 📝 Initial draft | Review SQLite transaction strategy, Expo SDK and platform gates |
 | Test/release plan | ⚪ Not started | Map every accounting rule to automated tests |
 
 ## 🧱 Information architecture
@@ -81,12 +81,12 @@ Tio-Money/
    ├─ 02-USER-FLOWS.md            ← Interaction & edge cases
    ├─ 03-SCREEN-SPEC.md           ← Screen design draft
    ├─ 04-DATABASE-DESIGN.md       ← Ledger draft
-   ├─ 05-TECH-ARCHITECTURE.md     ← Next
+   ├─ 05-TECH-ARCHITECTURE.md     ← Architecture draft
    ├─ 06-IMPLEMENTATION-TEST-PLAN.md ← Next
    └─ 90-DOCS-STYLE-GUIDE.md      ← Documentation contract
 ```
 
-Only **05–06** are future placeholder paths; the other listed documents exist on the branch.
+Only **06** is a future placeholder path; the other listed documents exist on the branch.
 
 ## 🔄 Review gate
 
@@ -100,7 +100,7 @@ flowchart LR
   BUILD --> VERIFY["✅ Evidence before status change"]
 ```
 
-**Next:** review the [screen design specification](03-SCREEN-SPEC.md), then plan the financial ledger and database. New files should follow the [documentation quality standard](90-DOCS-STYLE-GUIDE.md).
+**Next:** review the [technical architecture](05-TECH-ARCHITECTURE.md), then prepare the Implementation & Test Plan. New files should follow the [documentation quality standard](90-DOCS-STYLE-GUIDE.md).
 
 ---
 
