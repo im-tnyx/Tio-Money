@@ -7,14 +7,14 @@
 **A thoughtfully designed, offline-first money tracker for Android & iPhone.**  
 Track income, expenses, transfers, optional transfer fees and account balances — without losing control of your data.
 
-![Stage](https://img.shields.io/badge/STAGE-PRODUCT%20DESIGN%20%26%20DOCUMENTATION-7357E8?style=for-the-badge)
+![Stage](https://img.shields.io/badge/STAGE-PHASE%200%20SCAFFOLD%20IN%20REVIEW-7357E8?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/PLATFORMS-ANDROID%20%2B%20IOS-202A44?style=for-the-badge)
 ![Principle](https://img.shields.io/badge/CORE-OFFLINE%20FIRST-118C84?style=for-the-badge)
 
-![React Native](https://img.shields.io/badge/React_Native-Planned-20232A?style=flat-square&logo=react&logoColor=61DAFB)
-![Expo](https://img.shields.io/badge/Expo-Go%20for%20Core%20MVP-000020?style=flat-square&logo=expo&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-Planned-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-Local%20Ledger-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-Phase%200%20Source-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-Go%20Compatibility%20Target-000020?style=flat-square&logo=expo&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Scaffold-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Bootstrap%20Only-003B57?style=flat-square&logo=sqlite&logoColor=white)
 
 **[📚 Docs Hub](docs/00-INDEX.md)** · **[🎯 PRD](docs/01-PRD.md)** · **[🧭 Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Ledger](docs/04-DATABASE-DESIGN.md)** · **[🏗 Architecture](docs/05-TECH-ARCHITECTURE.md)** · **[🧪 Implementation & Tests](docs/06-IMPLEMENTATION-TEST-PLAN.md)** · **[✍️ Style](docs/90-DOCS-STYLE-GUIDE.md)**
 
@@ -23,7 +23,7 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 ---
 
 > [!IMPORTANT]
-> **Current state · 2026-11-18:** This is a **documentation-stage project**, not a completed or published app. The product requirements and flows are working drafts. No functional Expo UI, SQLite implementation, SMS reader or store release has been delivered in this repository. Labels such as *planned*, *draft* and *implemented* must reflect evidence — not aspiration.
+> **Current state · 2026-11-18:** A **Phase 0 Expo Router scaffold is under review** on its feature branch. The theme/components, placeholder navigation and SQLite initialization source exist, but **financial accounts, journal tables, transaction saving, reports, imports, SMS reading and store release are not implemented**. Dependency install, Expo Go behavior and physical-device verification must be recorded separately; source presence is not a passing test.
 
 ## ✨ A calm place for your money
 
@@ -107,6 +107,30 @@ flowchart LR
 | [💡 Product promises](#-a-calm-place-for-your-money) | [🧭 User flows and edge cases](docs/02-USER-FLOWS.md) | [📋 Status & approval rules](docs/90-DOCS-STYLE-GUIDE.md) |
 | [🧩 Feature map](#-feature-map-and-honest-delivery-status) | [🎨 Screen design specification](docs/03-SCREEN-SPEC.md) | [🧪 Implementation & Test Plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) |
 | [🏗 Architecture overview](#-proposed-architecture--boundaries-not-a-shipped-stack) | [🗄 Database & ledger](docs/04-DATABASE-DESIGN.md) · [Technical architecture](docs/05-TECH-ARCHITECTURE.md) | [Phase gates & financial QA](docs/06-IMPLEMENTATION-TEST-PLAN.md#5-financial-acceptance-test-catalogue) |
+
+## 🛠 Phase 0 · Developer setup (scaffold under review)
+
+The code in this branch is an **Expo SDK 58 / React Native 0.88 / React 19.3** project scaffold. The app currently opens placeholder Home, History, Reports, Accounts and Settings routes and a single central `+` editor with **Income | Expense | Transfer** tabs. **Save is disabled**; financial data and genuine account setup are scheduled for later phases.
+
+**Requirements:** Node.js 22.13+ (the repo provides `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry.
+
+```bash
+nvm use                   # or install/use a compatible Node 22 release
+npm install               # initial install generates package-lock.json
+npx expo install --check  # confirm managed Expo SDK compatibility
+npm run check             # strict TypeScript, ESLint, Prettier, unit tests
+npm run expo:config       # inspect the public Expo configuration
+npx expo start --clear    # scan QR code in Expo Go
+```
+
+For iPhone use Expo Go from the App Store; for Android use the Expo Go app and its QR scanner. **Do not assume Expo Go compatibility solely from package versions**: test an actual device and record the SDK, OS and result. This environment has not established a physical-device pass. If SDK 58 Expo Go is not available on a particular store/device, do not downgrade packages ad hoc; check the [Expo SDK 58 release notes](https://expo.dev/changelog/sdk-58) and obtain an appropriate compatible client.
+
+**Environment / privacy:** P0 has no backend and requires **no secrets**. `.env.example` explains `EXPO_PUBLIC_*` flags; those flags are public in app bundles, so never put banking credentials, API keys or encryption secrets there. The default `app.json` declares **no SMS permissions**. Automatic Android SMS requires a separately approved custom native build; automatic iPhone inbox access is not offered.
+
+**Architecture boundaries:** [Document 05](docs/05-TECH-ARCHITECTURE.md) · [Phase 0–7 plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) · [Foundation decisions](docs/07-PHASE-0-FOUNDATION-NOTES.md). The SQLite bootstrap currently migrates only a local settings table; balances, financial event posting and encryption are **not** built. Keep local database files out of Git.
+
+> [!NOTE]
+> The initial dependency lockfile must be generated and committed during a network-enabled validation pass. Until the lockfile, CI dependency installation and Android/iPhone Expo Go QA are verified, **Phase 0 is not complete**.
 
 ## 🚀 How the product is developed
 
