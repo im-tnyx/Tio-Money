@@ -10,8 +10,8 @@
 | Repository | `im-tnyx/Tio-Money` |
 | Lifecycle state | `PROPOSED / DISCUSSION / DECISION_PENDING / APPROVED / ASSIGNED / IN_PROGRESS / VALIDATING / IN_REVIEW / COMPLETED / ARCHIVED / BLOCKED / DEFERRED / CANCELLED / CHANGES_REQUESTED` |
 | RFC / discussion | Persistent GitHub Issue/Discussion/existing PR URL |
-| Implementation decision | `APPROVED_FOR_IMPLEMENTATION / CHANGES_REQUESTED / DEFERRED / REJECTED / BLOCKED_PENDING_DECISION` |
-| Approval evidence | Exact owner statement/source, date, scope, conditions; mark agent-transcribed vs direct |
+| Proceed decision | `PROCEED / optional APPROVED_FOR_IMPLEMENTATION / CHANGES_REQUESTED / DEFERRED / REJECTED / BLOCKED_PENDING_DECISION` |
+| Decision evidence | Decision maker, source, date, bounded scope, conditions; mark an agent decision separately from optional owner signoff |
 | Current agent | Self-identified working agent/tool or `UNKNOWN_NOT_VERIFIED` |
 | Model | Actually exposed model or `UNKNOWN_NOT_VERIFIED` |
 | Previous verified agent | Actual prior working agent or `UNKNOWN_NOT_VERIFIED` |
@@ -32,8 +32,8 @@
 - Module ownership, public/private interfaces, architecture contracts, reuse and dependencies:
 - Security/privacy, applicable platform policies, alternatives, risks and rollback:
 - Acceptance tests **defined before coding**:
-- Canonical owner decision / [decision register](../../docs/DECISIONS.md) / conditions:
-- Implementation approval gate: only move from `DECISION_PENDING` to `APPROVED` after a valid explicit owner decision.
+- Canonical [decision register](../../docs/DECISIONS.md), RFC/proceed decision maker, source and conditions (plus optional owner signoff):
+- Proceed gate: move from `DECISION_PENDING` to `APPROVED` after a durable, bounded `PROCEED` technical decision (owner implementation signoff optional); unresolved high-risk/restricted decisions block.
 - Independent merge approval: **not granted** unless later explicitly recorded.
 
 ## Scope, ownership and integration
@@ -50,7 +50,7 @@
 ### [ISO-8601 UTC] — [actual agent/model or UNKNOWN_NOT_VERIFIED]
 
 - **Prior verified agent:**
-- **Discussion / owner implementation approval reference:**
+- **Discussion / documented proceed decision / optional owner implementation approval:**
 - **Base / HEAD inspected / current branch / PR:**
 - **Requested, completed and verified work:**
 - **Attempted but failed:**

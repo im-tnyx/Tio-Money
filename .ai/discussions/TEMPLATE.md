@@ -11,8 +11,9 @@
 | Existing behavior / limitation | Verified code, docs, branch/PR state |
 | Proposed user behavior | Expected flows and affected screens/states |
 | Related canonical docs | [PRD](../../docs/01-PRD.md), [architecture](../../docs/05-TECH-ARCHITECTURE.md), [ledger](../../docs/04-DATABASE-DESIGN.md), relevant exact paths |
-| Implementation status | `BLOCKED_PENDING_DECISION` until owner decision recorded |
-| Implementation approval | Direct owner source, date, precise scope and conditions (or none) |
+| Implementation status | Discussion + documented proceed decision required; owner implementation signoff optional |
+| Proceed decision | `PROCEED` with decision maker, source, date, scope and conditions; not necessarily an owner approval |
+| Optional owner implementation approval | Direct owner source/date/scope when given; otherwise `NOT_REQUIRED` for ordinary scope |
 | Merge approval | **Separate later decision**, never inherited |
 
 ## Product and end-to-end flow
@@ -37,10 +38,10 @@
 - Rollback or recovery method; residual risks:
 - Open decisions/questions for owner:
 - Canonical decision or accepted ADR URL (do not duplicate text):
-- Recorded decision: `APPROVED_FOR_IMPLEMENTATION / CHANGES_REQUESTED / DEFERRED / REJECTED / BLOCKED_PENDING_DECISION`
+- Recorded decision: `PROCEED / APPROVED_FOR_IMPLEMENTATION (optional owner signoff) / CHANGES_REQUESTED / DEFERRED / REJECTED / BLOCKED_PENDING_DECISION`
 - Decision source, date, scope and conditions:
 - Agent transcription vs direct owner action:
 - Task link / implementation branch / PR (only after verified):
-- Explicit note: **implementation approval is not merge approval**.
+- Explicit note: **owner implementation approval is optional; explicit owner approval to merge every PR is mandatory and separate**.
 
 [Discussion guide](README.md) · [Agent contract](../../AGENTS.md)

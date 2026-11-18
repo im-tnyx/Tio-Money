@@ -20,11 +20,11 @@ flowchart TD
     B --> C["Verify live repo, branch, HEAD and PR"]
     C --> D["Find assigned task and linked discussion"]
     D --> E["Discuss design, threats, policy and alternatives"]
-    E --> F{"Recorded owner implementation approval?"}
+    E --> F{"Documented decision to proceed?"}
     F -->|No| D
     F -->|Yes| G["Confirm scope, agent, branch and acceptance tests"]
     G --> H["Read only relevant core docs and source"]
-    H --> I["Implement approved changes"]
+    H --> I["Implement scoped changes"]
     I --> J["Validate and independently review at inspected SHA"]
     J --> K{"Separate owner merge approval?"}
     K -->|No| J
@@ -35,8 +35,8 @@ flowchart TD
 2. Inspect live GitHub refs, PR status, changed files, checks and authorizations. With a local checkout additionally inspect `git status --short --branch` and `git rev-parse HEAD`. Connector-only access **does not prove** a clean local worktree.
 3. Locate **one task** and its persistent [discussion/RFC](.ai/discussions/README.md); verify file ownership and current agent. Unknown means **unassigned**, not permission to start.
 4. Before implementation, discuss purpose and UX, end-to-end data/failure behavior, module/API ownership, architecture dependencies, realistic privacy/security/platform risks, alternatives, rollback and testable acceptance criteria. Store a durable GitHub Issue/Discussion or existing PR record, not only a chat.
-5. Require a recorded **`APPROVED_FOR_IMPLEMENTATION` owner decision** with source, date, exact scope and conditions. A proposed plan, RFC, branch, existing PR or previous approval for another task is **not** authorization. If missing, research/discuss only.
-6. After approval, finalize scoped task, non-goals, assigned agent and verified branch. Read only relevant [core summaries](.ai/core/README.md), canonical source documents and actual code; implement **only** the authorized slice. A material new risk or scope expansion returns to discussion.
+5. Require a **documented decision to proceed** after the RFC, with source, date, agreed scope, exclusions and any risk conditions. **Owner implementation approval is optional** for ordinary scoped tasks; when provided, record it precisely. An unresolved material policy, financial, privacy or security decision must be escalated and blocked rather than assumed safe. A discussion by itself is not a decision to proceed.
+6. After the documented proceed decision (owner signoff if provided), finalize scoped task, non-goals, assigned agent and verified branch. Read only relevant [core summaries](.ai/core/README.md), canonical source documents and actual code; implement **only** the authorized slice. A material new risk or scope expansion returns to discussion.
 7. Run proportionate validation; report actual commands, inspected SHA, results and skipped tests. Obtain independent review or document explicit owner-accepted deferral. `COMMENTED` is **not** formal `APPROVED`; reviewer failures/limits are **not** a security or code pass.
 8. Update task record and compact index with observed HEAD, review finding severity, exact changed paths, results and safe handoff. Re-review after material fixes.
 9. Require **separate, express owner merge approval** for the exact PR; verify merge and only then archive a terminal task. **Never auto-merge.**
@@ -47,9 +47,9 @@ Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discus
 
 **Every substantial feature, UI change, schema/migration, dependency installation, security-sensitive action or deployment requires a technical discussion BEFORE implementation.** The [discussion contract](.ai/discussions/README.md) covers product purpose, end-to-end flow/failure states, data boundaries, cross-feature dependencies, security and applicable store policy, alternatives, trade-offs, acceptance criteria, rollback and unresolved decisions. The conversation is durable in a GitHub Issue/Discussion (if enabled), existing PR for active work, or linked RFC; never rely solely on transient chat memory.
 
-**Decision states:** `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, `BLOCKED_PENDING_DECISION`. Record **who said what, where, when, exact authorized paths/behavior and conditions**, distinguishing any agent-transcribed chat approval from a directly posted owner decision. No explicit approval means **no implementation**; a previously approved bounded task can continue routine subtasks, while new features or material scope/security/architecture changes require renewed discussion.
+**Decision states:** `PROCEED` (recorded technical decision, **not owner approval**), optional owner `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, or `BLOCKED_PENDING_DECISION`. Record **who decided what, where, when, exact scope/behavior and conditions**; identify agent-transcribed chat instructions separately from an owner-posted decision. **The RFC and explicit proceed decision are mandatory; owner implementation approval is optional.** Material unsettled product/security/privacy policy decisions block until settled by the proper authority; new scope/risk reopens discussion.
 
-**Separate gates:** implementation approval permits only the bounded task. Independent review and applicable checks must then assess the **actual current commit SHA**, with finding severity, unresolved threads and fix evidence. Owner merge approval must be **separately and unmistakably** recorded before merging; successful CI or a bot `COMMENTED` review never grants merge authority. An unavailable reviewer is `REVIEW_PENDING` or `INCONCLUSIVE`, not `PASS`.
+**Separate gates:** a documented technical decision permits bounded implementation where no separate restricted-operation authorization is required; optional owner implementation approval does not imply merge authorization. Independent review and applicable checks must then assess the **actual current commit SHA**, with finding severity, unresolved threads and fix evidence. Owner merge approval must be **separately and unmistakably** recorded before merging; successful CI or a bot `COMMENTED` review never grants merge authority. An unavailable reviewer is `REVIEW_PENDING` or `INCONCLUSIVE`, not `PASS`.
 
 [Task state machine](.ai/tasks/README.md) · [Handoff template](.ai/tasks/TEMPLATE.md) · [Discussion template](.ai/discussions/TEMPLATE.md)
 
@@ -69,9 +69,9 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 
 ## 4. Permission and branch safety
 
-**Allowed only within a verified, specifically assigned task:** read/review; change approved documentation; implement explicitly authorized feature code; create a feature branch; add tests; create review PR; maintain task checkpoints.
+**Allowed within a verified scoped task after mandatory discussion and documented proceed decision:** read/review, bounded documentation or ordinary implementation, feature branch, tests, review PR and task checkpoints. **Owner pre-implementation signoff is optional**, but specifically restricted operations still require any applicable separate authority. No implicit right to merge.
 
-**Forbidden without new, explicit owner approval:** merge/enable auto-merge, deploy/publish, change database schema or accounting semantics, add SMS permissions or a native SMS reader, introduce Auth/Supabase/cloud/analytics, upload personal finance data, relax security/checks, change repository protection/rules, force-push, delete a branch, rewrite another agent's history, or expand beyond the authorized scope.
+**Never permitted without separate explicit owner authorization:** merge/auto-merge, production deployment/publishing, modification of protected repository settings, force-push, branch deletion and irreversible/high-impact actions. Schema/accounting, Auth/Supabase, cloud finance-data movement, native SMS permissions, privacy/security-sensitive scope changes and third-party costs require the documented RFC and all applicable product/security/restricted-operation approvals; do not mistake optional *general implementation signoff* for bypassing these risk gates.
 
 - Start from a verified base (normally latest `main`). Confirm the target branch does not contain unknown work before reuse.
 - Never commit directly to `main`; if branch creation fails, **stop** rather than falling back.
@@ -110,4 +110,4 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 - A task is not complete just because an agent stopped. Archive only after verified terminal state (for merge work, verify merge and resulting SHA). Open PR tasks remain active or under review.
 - The next agent must **reverify** all mutable refs and observed tests. An accurate handoff improves continuity but cannot promise perfect persistent memory.
 
-**Proceed from:** [.ai/current.md](.ai/current.md) → [discussion and decision](.ai/discussions/README.md) → [task template](.ai/tasks/TEMPLATE.md) → [workflow rules](.ai/core/workflow-rules.md).
+**Proceed from:** [.ai/current.md](.ai/current.md) → [mandatory discussion and proceed decision](.ai/discussions/README.md) → [task template](.ai/tasks/TEMPLATE.md) → [workflow rules](.ai/core/workflow-rules.md).

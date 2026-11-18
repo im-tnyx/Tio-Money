@@ -7,7 +7,7 @@
 | [`../AGENTS.md`](../AGENTS.md) | Mandatory operating, permission and financial contract |
 | [`current.md`](current.md) | Compact **multi-task** index; not a single-agent lock or live GitHub truth |
 | [`core/`](core/README.md) | Small routing summaries linked to authoritative `docs/` |
-| [`discussions/`](discussions/README.md) | Mandatory pre-implementation RFC, alternatives, threats, owner decision |
+| [`discussions/`](discussions/README.md) | Mandatory pre-implementation RFC, alternatives, threats and recorded proceed decision; owner signoff optional |
 | [`tasks/`](tasks/README.md) | Task state gates, scoped work, verified history and handoff |
 | [`agents/`](agents/README.md) | Identity and provenance rules |
 | [`archive/`](archive/README.md) | Verified completed history, never speculative work |
@@ -19,7 +19,7 @@
 flowchart LR
   A["AGENTS.md"] --> B["current.md"]
   B --> C["One scoped task"]
-  C --> D["Linked RFC and recorded owner decision"]
+  C --> D["Linked RFC and documented proceed decision"]
   D --> E["Relevant core summary"]
   E --> F["Canonical docs and live code"]
   F --> G["Verify live GitHub state before write"]
@@ -27,7 +27,7 @@ flowchart LR
 
 ### Concurrency
 
-- Every substantial task must have a durable [discussion/RFC](discussions/README.md) and owner implementation decision before `IN_PROGRESS`; review and merge require separate gates.
+- Every substantial task must have a durable [discussion/RFC](discussions/README.md) and a **documented decision to proceed** before `IN_PROGRESS`. Owner implementation signoff is **optional**, except for separately governed restricted actions; **explicit owner merge approval is mandatory** for every PR.
 - Every task owns a separate task file and a single bounded branch/PR scope.
 - `current.md` indexes multiple tasks; it **does not grant exclusive locks**, assign unknown work or prove merge status.
 - Before edits, compare live branches, PRs and changed paths; coordinate any overlapping files, especially this index.
@@ -36,4 +36,4 @@ flowchart LR
 - On handoff, record last verified state, discussion/approval, reviewed SHA and an exact next action, then let the next agent revalidate.
 - For safe nested task creation and archival, use the [stdlib link helper](../scripts/ai_context.py) with dry-run and fixture tests; it **does not verify** GitHub approvals.
 
-**Scope:** Governance documentation only. App implementation remains separately authorized and review-gated.
+**Scope:** These documents define governance, not a blanket grant for restricted actions, financial semantics, deployment or merge.

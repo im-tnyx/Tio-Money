@@ -2,7 +2,7 @@
 
 [Agent contract](../../AGENTS.md) · [Discussion/RFC gate](../discussions/README.md) · [Task template](TEMPLATE.md) · [Current task index](../current.md)
 
-> **No implementation task enters `IN_PROGRESS` without a reviewable discussion and an explicit, bounded owner `APPROVED_FOR_IMPLEMENTATION` decision.** A PR, roadmap, task note, bot review or chat summary alone is not approval. The owner must separately approve **merging**.
+> **No task enters `IN_PROGRESS` without a reviewable RFC and documented decision to proceed.** Owner implementation approval is **optional** for ordinary scoped work; material restricted decisions still need authority. **Owner merge approval is mandatory for every PR**, distinct from CI, review and implementation.
 
 Each substantial task has exactly one stable task ID and one scoped task file under `.ai/tasks/<area>/<slug>.md`, plus links to its durable GitHub Issue/Discussion/existing PR RFC and canonical decisions. Do not fabricate sessions, past approval or agent identity.
 
@@ -12,7 +12,7 @@ Each substantial task has exactly one stable task ID and one scoped task file un
 flowchart LR
   P["PROPOSED"] --> D["DISCUSSION"]
   D --> Q["DECISION_PENDING"]
-  Q -->|Owner authorization| A["APPROVED"]
+  Q -->|Documented PROCEED decision; owner signoff optional| A["APPROVED"]
   A --> S["ASSIGNED"]
   S --> I["IN_PROGRESS"]
   I --> V["VALIDATING"]
@@ -27,19 +27,19 @@ flowchart LR
 |---|---|
 | `PROPOSED → DISCUSSION` | Stable task ID, bounded problem, intended user/product impact and actual repository state |
 | `DISCUSSION → DECISION_PENDING` | Persistent RFC URL covering functional architecture, threat/policy review, alternatives, failure paths, test acceptance and open questions |
-| `DECISION_PENDING → APPROVED` | Owner explicitly records `APPROVED_FOR_IMPLEMENTATION` with source, UTC/date, scope, exclusions, risk/conditions; *not* merge approval |
-| `APPROVED → ASSIGNED` | Verified current agent/ownership, linked RFC and approval, working branch/base HEAD, conflicts resolved |
-| `ASSIGNED → IN_PROGRESS` | Reverified approval, scope/owner/branch and discussion, settled blocking decisions, tests defined |
+| `DECISION_PENDING → APPROVED` | Recorded technical `PROCEED` decision (owner `APPROVED_FOR_IMPLEMENTATION` optional) with source, date, scope, exclusions and resolved material risks; status **APPROVED** means proceed gate, not necessarily owner signoff |
+| `APPROVED → ASSIGNED` | Verified agent/feature ownership, RFC/proceed decision, working branch/base HEAD and file conflicts resolved |
+| `ASSIGNED → IN_PROGRESS` | Reverified RFC/proceed decision, scope/assignee/branch, settled restricted-operation decisions, tests defined |
 | `IN_PROGRESS → VALIDATING` | Implementation diff and checked SHA, commands + actual results, known limitations |
 | `VALIDATING → IN_REVIEW` | PR URL + current inspected SHA, independent review requested, severity and remaining findings recorded |
-| `IN_REVIEW → COMPLETED` | Actual reviewed SHA, applicable checks and findings addressed (or documented owner-approved deferral); separately authorized merge when required, verified terminal GitHub state and residual risks |
+| `IN_REVIEW → COMPLETED` | Actual reviewed SHA, checks/findings addressed (or owner-approved review deferral), **explicit separate owner merge approval for every PR**, verified terminal state and residual risks |
 | `COMPLETED → ARCHIVED` | Verified terminal outcome, retained agent/checkpoint/PR history, repaired inbound and outbound links, index reconciled |
 
-**Allowed exceptional transitions:** `PROPOSED → CANCELLED`; `DISCUSSION → DEFERRED/CANCELLED`; `DECISION_PENDING → CHANGES_REQUESTED/DEFERRED/BLOCKED/CANCELLED`; `CHANGES_REQUESTED → DISCUSSION/CANCELLED`; `APPROVED → DISCUSSION/CANCELLED`; `ASSIGNED → BLOCKED/DISCUSSION/CANCELLED`; `IN_PROGRESS → BLOCKED/DISCUSSION/CANCELLED`; `VALIDATING → IN_PROGRESS/BLOCKED`; `IN_REVIEW → IN_PROGRESS/BLOCKED`; `BLOCKED → DISCUSSION/DECISION_PENDING/ASSIGNED/IN_PROGRESS/IN_REVIEW/CANCELLED`; `DEFERRED → DISCUSSION/CANCELLED`. No work may resume from `BLOCKED` without rechecking the prior approval, risk, ownership and branch gates. `CANCELLED` and `ARCHIVED` are terminal.
+**Allowed exceptional transitions:** `PROPOSED → CANCELLED`; `DISCUSSION → DEFERRED/CANCELLED`; `DECISION_PENDING → CHANGES_REQUESTED/DEFERRED/BLOCKED/CANCELLED`; `CHANGES_REQUESTED → DISCUSSION/CANCELLED`; `APPROVED → DISCUSSION/CANCELLED`; `ASSIGNED → BLOCKED/DISCUSSION/CANCELLED`; `IN_PROGRESS → BLOCKED/DISCUSSION/CANCELLED`; `VALIDATING → IN_PROGRESS/BLOCKED`; `IN_REVIEW → IN_PROGRESS/BLOCKED`; `BLOCKED → DISCUSSION/DECISION_PENDING/ASSIGNED/IN_PROGRESS/IN_REVIEW/CANCELLED`; `DEFERRED → DISCUSSION/CANCELLED`. No work may resume from `BLOCKED` without rechecking the prior proceed decision, risk, ownership and branch gates. `CANCELLED` and `ARCHIVED` are terminal.
 
-Return to **DISCUSSION** if a new feature, meaningful scope expansion, financial/accounting semantic change, material security/policy risk or architecture direction change appears. Routine subtasks under an already approved *bounded* scope need not solicit the same approval again.
+Return to **DISCUSSION** if a new feature, meaningful scope expansion, financial/accounting semantic change, material security/policy risk or architecture direction change appears. Routine subtasks under an already decided *bounded* scope need not solicit owner implementation approval.
 
-**Decision vocabulary** (distinct from lifecycle): `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, `BLOCKED_PENDING_DECISION`. A rejected task remains non-implementable/cancelled as appropriate; never treat a negative decision as a transition to `APPROVED`.
+**Decision vocabulary** (distinct from lifecycle): `PROCEED` (technical decision; not owner authorization), optional owner `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, `BLOCKED_PENDING_DECISION`. A rejected task remains non-implementable/cancelled as appropriate; never treat a negative decision as `APPROVED`.
 
 ## Create, hand off and archive safely
 
