@@ -116,7 +116,7 @@ The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3**
 
 ```bash
 nvm use                   # or install/use a compatible Node 22 release
-npm install               # initial install generates package-lock.json
+npm ci                    # reproducible install from committed package-lock.json
 npx expo install --check  # confirm managed Expo SDK compatibility
 npm run check             # strict TypeScript, ESLint, Prettier, unit tests
 npm run expo:config       # inspect the public Expo configuration
@@ -130,7 +130,7 @@ For iPhone use Expo Go from the App Store; for Android use the Expo Go app and i
 **Architecture boundaries:** [Document 05](docs/05-TECH-ARCHITECTURE.md) · [Phase 0–7 plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) · [Foundation decisions](docs/07-PHASE-0-FOUNDATION-NOTES.md). The SQLite bootstrap currently migrates only a local settings table; balances, financial event posting and encryption are **not** built. Keep local database files out of Git.
 
 > [!NOTE]
-> The initial dependency lockfile must be generated and committed during a network-enabled validation pass. Until the lockfile, CI dependency installation and Android/iPhone Expo Go QA are verified, **Phase 0 is not complete**.
+> The dependency lockfile is committed, but final CI and Android/iPhone Expo Go device QA require recorded evidence. **Phase 0 is not complete** until those gates are verified.
 
 ## 🚀 How the product is developed
 
