@@ -104,7 +104,7 @@ flowchart LR
 | Start here | Interaction & product | Collaboration standards |
 | :--- | :--- | :--- |
 | [📚 Documentation hub](docs/00-INDEX.md) | [🎯 Product requirements](docs/01-PRD.md) | [✍️ Documentation style guide](docs/90-DOCS-STYLE-GUIDE.md) |
-| [💡 Product promises](#-a-calm-place-for-your-money) | [🧭 User flows and edge cases](docs/02-USER-FLOWS.md) | [📋 Status & approval rules](docs/90-DOCS-STYLE-GUIDE.md#6-status-and-approval-truth) |
+| [💡 Product promises](#-a-calm-place-for-your-money) | [🧭 User flows and edge cases](docs/02-USER-FLOWS.md) | [📋 Status & approval rules](docs/90-DOCS-STYLE-GUIDE.md) |
 | [🧩 Feature map](#-feature-map-and-honest-delivery-status) | **Next:** Screen & design spec | **Next:** Implementation / test plan |
 | [🏗 Architecture overview](#-proposed-architecture--boundaries-not-a-shipped-stack) | **Next:** Data model + technical architecture | **Next:** ADR / decision log |
 
