@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { initializeDatabase } from '@/data/sqlite/initialize';
@@ -8,7 +8,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 
 type BootstrapState = { status: 'loading' } | { status: 'ready' } | { status: 'error'; message: string };
 
-export function DatabaseGate({ children }: { children: React.ReactNode }) {
+export function DatabaseGate({ children }: { children: ReactNode }) {
   const theme = useAppTheme();
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<BootstrapState>({ status: 'loading' });
