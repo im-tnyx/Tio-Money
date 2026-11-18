@@ -87,7 +87,8 @@ export function TransactionEditorScreen() {
                   disabled
                 />
                 <AppText variant="caption" muted>
-                  Fee source/destination selection and exact money preview are planned. Fees will count as expenses.
+                  Fee source/destination selection and exact money preview are planned. Fees will
+                  count as expenses.
                 </AppText>
               </>
             ) : null}
@@ -97,8 +98,8 @@ export function TransactionEditorScreen() {
       <SectionCard>
         <AppText variant="section">Money movement preview</AppText>
         <AppText muted>
-          Available after the balanced journal calculation service is built. Internal transfer principal will never be
-          income or expense; only a real fee is an expense.
+          Available after the balanced journal calculation service is built. Internal transfer
+          principal will never be income or expense; only a real fee is an expense.
         </AppText>
       </SectionCard>
       <View style={{ gap: theme.space.sm }}>

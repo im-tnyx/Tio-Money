@@ -6,7 +6,8 @@ import { publicErrorMessage } from '@/shared/errors/app-error';
 import { ActionButton } from '@/shared/ui/action-button';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
-type BootstrapState = { status: 'loading' } | { status: 'ready' } | { status: 'error'; message: string };
+type BootstrapState =
+  { status: 'loading' } | { status: 'ready' } | { status: 'error'; message: string };
 
 export function DatabaseGate({ children }: { children: ReactNode }) {
   const theme = useAppTheme();
@@ -52,17 +53,24 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
         <>
           <Text
             accessibilityRole="header"
-            style={{ color: theme.colors.primaryText, fontSize: theme.typeScale.title, textAlign: 'center' }}
+            style={{
+              color: theme.colors.primaryText,
+              fontSize: theme.typeScale.title,
+              textAlign: 'center',
+            }}
           >
             Local data unavailable
           </Text>
           <Text style={{ color: theme.colors.secondaryText, textAlign: 'center', lineHeight: 24 }}>
             {state.message}
           </Text>
-          <ActionButton label="Retry initialization" onPress={() => {
-            setState({ status: 'loading' });
-            setAttempt((n) => n + 1);
-          }} />
+          <ActionButton
+            label="Retry initialization"
+            onPress={() => {
+              setState({ status: 'loading' });
+              setAttempt((n) => n + 1);
+            }}
+          />
           <Text style={{ color: theme.colors.secondaryText, textAlign: 'center' }}>
             Your database was not deleted or reset.
           </Text>

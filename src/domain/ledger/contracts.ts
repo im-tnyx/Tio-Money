@@ -4,13 +4,7 @@ export type AccountClassification = 'asset' | 'liability';
 export type LedgerAccountKind = 'asset' | 'liability' | 'income' | 'expense' | 'equity';
 export type JournalSide = 'debit' | 'credit';
 export type LedgerEventType =
-  | 'opening'
-  | 'income'
-  | 'expense'
-  | 'transfer'
-  | 'refund'
-  | 'adjustment'
-  | 'reversal';
+  'opening' | 'income' | 'expense' | 'transfer' | 'refund' | 'adjustment' | 'reversal';
 
 export interface MoneyMinor {
   readonly currency: CurrencyCode;

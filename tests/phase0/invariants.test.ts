@@ -17,13 +17,21 @@ const draft = (...postings: JournalPostingDraft[]): JournalDraft => ({
 });
 
 test('balanced transfer with separate fee posting passes structural preflight', () => {
-  assert.equal(isBalancedDraft(draft(posting('debit', 500_000), posting('debit', 5_000), posting('credit', 505_000))), true);
+  assert.equal(
+    isBalancedDraft(
+      draft(posting('debit', 500_000), posting('debit', 5_000), posting('credit', 505_000)),
+    ),
+    true,
+  );
 });
 
 test('zero, fractional, unsafe and unbalanced values fail', () => {
   assert.equal(isBalancedDraft(draft(posting('debit', 0), posting('credit', 0))), false);
   assert.equal(isBalancedDraft(draft(posting('debit', 0.5), posting('credit', 0.5))), false);
-  assert.equal(isBalancedDraft(draft(posting('debit', Number.MAX_SAFE_INTEGER + 1), posting('credit', 1))), false);
+  assert.equal(
+    isBalancedDraft(draft(posting('debit', Number.MAX_SAFE_INTEGER + 1), posting('credit', 1))),
+    false,
+  );
   assert.equal(isBalancedDraft(draft(posting('debit', 1), posting('credit', 2))), false);
   assert.equal(isBalancedDraft(draft(posting('debit', 1))), false);
 });

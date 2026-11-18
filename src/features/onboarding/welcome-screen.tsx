@@ -11,7 +11,8 @@ export function WelcomeScreen() {
     <ScreenContainer includeBottomInset>
       <AppText variant="title">Welcome to Tio Money</AppText>
       <AppText muted>
-        Track your own bank, cash, wallet and card activity with clarity — without needing a bank login.
+        Track your own bank, cash, wallet and card activity with clarity — without needing a bank
+        login.
       </AppText>
       <StatePanel
         title="Account setup is next"

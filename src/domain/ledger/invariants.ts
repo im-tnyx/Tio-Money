@@ -7,11 +7,7 @@ export function isBalancedDraft(draft: JournalDraft): boolean {
   let credits = 0;
   for (const posting of draft.postings) {
     const paise = posting.amountMinor.paise;
-    if (
-      posting.amountMinor.currency !== 'INR' ||
-      !Number.isSafeInteger(paise) ||
-      paise <= 0
-    ) {
+    if (posting.amountMinor.currency !== 'INR' || !Number.isSafeInteger(paise) || paise <= 0) {
       return false;
     }
     if (posting.side === 'debit') debits += paise;

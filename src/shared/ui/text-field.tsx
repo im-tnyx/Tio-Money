@@ -46,7 +46,11 @@ export function TextField({
           fontSize: theme.typeScale.body,
         }}
       />
-      {error ? <AppText variant="caption" style={{ color: theme.colors.expense }}>{error}</AppText> : null}
+      {error ? (
+        <AppText variant="caption" style={{ color: theme.colors.expense }}>
+          {error}
+        </AppText>
+      ) : null}
     </View>
   );
 }

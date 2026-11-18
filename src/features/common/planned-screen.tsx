@@ -14,11 +14,7 @@ export function PlannedScreen({
   return (
     <ScreenContainer>
       <ScreenHeader title={title} subtitle={subtitle} />
-      <StatePanel
-        title="Your data stays yours"
-        description={next}
-        state="planned"
-      />
+      <StatePanel title="Your data stays yours" description={next} state="planned" />
     </ScreenContainer>
   );
 }

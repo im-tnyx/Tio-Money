@@ -11,10 +11,7 @@ export function HomeScreen() {
   const theme = useAppTheme();
   return (
     <ScreenContainer>
-      <ScreenHeader
-        title="Tio Money"
-        subtitle="Every rupee. One clear picture."
-      />
+      <ScreenHeader title="Tio Money" subtitle="Every rupee. One clear picture." />
       <View style={{ gap: theme.space.xs }}>
         <AppText variant="caption" style={{ fontWeight: '700', color: theme.colors.brand }}>
           YOUR MONEY, IN FOCUS
@@ -25,11 +22,13 @@ export function HomeScreen() {
         </AppText>
       </View>
       <SectionCard>
-        <AppText variant="caption" muted>ACCOUNT OVERVIEW</AppText>
+        <AppText variant="caption" muted>
+          ACCOUNT OVERVIEW
+        </AppText>
         <AppText variant="section">No balances to show yet</AppText>
         <AppText muted>
-          Phase 0 prepares the app and local database. Account setup, real balances and
-          financial entries arrive in later implementation phases.
+          Phase 0 prepares the app and local database. Account setup, real balances and financial
+          entries arrive in later implementation phases.
         </AppText>
       </SectionCard>
       <StatePanel

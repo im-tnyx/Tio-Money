@@ -14,20 +14,25 @@ export function SettingsScreen() {
   return (
     <ScreenContainer includeBottomInset>
       <View style={{ alignItems: 'flex-start' }}>
-        <ActionButton label="← Back" variant="ghost" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
+        <ActionButton
+          label="← Back"
+          variant="ghost"
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+        />
       </View>
       <AppText variant="title">Settings & privacy</AppText>
       <SectionCard>
         <AppText variant="section">Appearance</AppText>
         <AppText muted>
-          This foundation follows your device light/dark setting. A manual override will be reviewed in Phase 1.
+          This foundation follows your device light/dark setting. A manual override will be reviewed
+          in Phase 1.
         </AppText>
       </SectionCard>
       <SectionCard>
         <AppText variant="section">Your data</AppText>
         <AppText muted>
-          The local SQLite database has started, but financial accounts and transactions are not implemented.
-          There is no cloud sync, encrypted backup or automatic SMS reading.
+          The local SQLite database has started, but financial accounts and transactions are not
+          implemented. There is no cloud sync, encrypted backup or automatic SMS reading.
         </AppText>
       </SectionCard>
       <StatePanel

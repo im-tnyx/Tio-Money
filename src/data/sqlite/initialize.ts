@@ -29,9 +29,7 @@ async function openAndInitialize(): Promise<InitializedDatabase> {
     const activeDb = db;
     const driver: MigrationDriver = {
       async readVersion() {
-        const row = await activeDb.getFirstAsync<{ user_version: number }>(
-          'PRAGMA user_version',
-        );
+        const row = await activeDb.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
         return row?.user_version ?? 0;
       },
       transaction(work) {

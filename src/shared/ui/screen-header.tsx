@@ -17,8 +17,17 @@ export function ScreenHeader({
   const theme = useAppTheme();
   return (
     <View style={{ gap: theme.space.xs }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-        <AppText variant="title" style={{ flex: 1 }}>{title}</AppText>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+        }}
+      >
+        <AppText variant="title" style={{ flex: 1 }}>
+          {title}
+        </AppText>
         {showSettings ? (
           <Link href="/settings" asChild>
             <Pressable

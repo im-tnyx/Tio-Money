@@ -71,6 +71,11 @@ test('migration sequence must be contiguous', async () => {
 });
 
 test('migrations are ordered and do not create money tables in Phase 0', () => {
-  assert.deepEqual(migrations.map((entry) => entry.version), [1]);
-  assert.ok(migrations.every((entry) => entry.statements.every((sql) => !sql.includes('ledger_postings'))));
+  assert.deepEqual(
+    migrations.map((entry) => entry.version),
+    [1],
+  );
+  assert.ok(
+    migrations.every((entry) => entry.statements.every((sql) => !sql.includes('ledger_postings'))),
+  );
 });

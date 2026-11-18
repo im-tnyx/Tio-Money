@@ -39,12 +39,18 @@ export function RootTabBar() {
           gap: 2,
         }}
       >
-        <AppText style={{ fontSize: 23, color: active ? theme.colors.brand : theme.colors.secondaryText }}>
+        <AppText
+          style={{ fontSize: 23, color: active ? theme.colors.brand : theme.colors.secondaryText }}
+        >
           {glyph}
         </AppText>
         <AppText
           variant="caption"
-          style={{ fontSize: 11, fontWeight: active ? '700' : '500', color: active ? theme.colors.brand : theme.colors.secondaryText }}
+          style={{
+            fontSize: 11,
+            fontWeight: active ? '700' : '500',
+            color: active ? theme.colors.brand : theme.colors.secondaryText,
+          }}
         >
           {label}
         </AppText>
