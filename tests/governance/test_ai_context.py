@@ -355,5 +355,20 @@ class GovernanceTests(unittest.TestCase):
         module.archive_task(self.root, args)
         self.assertIn('[^note]: This is not a file reference', (self.root / '.ai/current.md').read_text())
 
+    def test_inline_code_link_examples_not_processed(self):
+        self.create()
+        content = ('`[Example](file.md#anchor)` and `[Example][missing]`\n'
+                   '[Task][gov]\n[gov]: tasks/governance/case-001.md\n')
+        self.write('.ai/current.md', content)
+        args = SimpleNamespace(task='.ai/tasks/governance/case-001.md', year='2026', apply=True,
+                               verified_terminal=True)
+        module.archive_task(self.root, args)
+        actual = (self.root / '.ai/current.md').read_text()
+        self.assertIn('`[Example](file.md#anchor)`', actual)
+        self.assertIn('`[Example][missing]`', actual)
+        self.assertIn('[gov]: archive/2026/case-001.md', actual)
+        self.assertEqual(module.validate_links(self.root, module.all_markdown(self.root)), [])
+
+
 if __name__ == '__main__':
     unittest.main()

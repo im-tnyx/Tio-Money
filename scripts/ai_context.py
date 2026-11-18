@@ -28,6 +28,7 @@ REF_DEF = re.compile(
     r'(?P<suffix>[ \t]*(?:\"[^\"\n]*\"|\'[^\'\n]*\'|\([^()\n]*\))?[ \t]*)$'
 )
 REF_USE = re.compile(r'(?<!\\)!?\[(?P<text>[^\]\n]+)\]\[(?P<label>[^\]\n]*)\]')
+INLINE_CODE = re.compile(r'(?<!\\)(`+)(.*?)\1')
 
 SLUG = re.compile(r'[a-z0-9][a-z0-9_-]*\Z')
 COAUTHOR = re.compile(r'^\s*co[\s_-]*authored[\s_-]*by\s*:', re.IGNORECASE | re.MULTILINE)
@@ -98,6 +99,11 @@ def non_fenced_lines(content: str):
             yield line, fence is None
 
 
+def mask_inline_code(line: str) -> str:
+    """Hide simple single-line backtick code spans without changing offsets."""
+    return INLINE_CODE.sub(lambda match: ' ' * len(match.group(0)), line)
+
+
 def reference_id(value: str) -> str:
     """Markdown reference labels match case-insensitively with collapsed spaces."""
     return ' '.join(value.split()).casefold()
@@ -121,7 +127,7 @@ def reference_definitions(content: str) -> tuple[dict[str, str], list[str]]:
             target = match.group('target').strip('<>')
             definitions[label] = target
             continue
-        for m in REF_USE.finditer(bare):
+        for m in REF_USE.finditer(mask_inline_code(bare)):
             uses.append(reference_id(m.group('label') or m.group('text')))
     for label in uses:
         if label not in definitions:
@@ -160,7 +166,14 @@ def transform_links(content: str, transformer) -> str:
                 return match.group(0)
             return match.group(1) + ('<' + new + '>' if wrapped else new) + (match.group(3) or '') + match.group(4)
 
-        output.append(LINK.sub(replace, line))
+        code_ranges = [(match.start(), match.end()) for match in INLINE_CODE.finditer(bare)]
+
+        def skip_inline_code(match):
+            if any(match.start() < end and match.end() > start for start, end in code_ranges):
+                return match.group(0)
+            return replace(match)
+
+        output.append(LINK.sub(skip_inline_code, line))
     return ''.join(output)
 
 
