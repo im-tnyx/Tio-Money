@@ -1,10 +1,10 @@
 # 🧭 Current task index
 
-> **Snapshot captured 2026-11-18 UTC.** Each entry must be compared with live GitHub branch and PR state before an edit. This file is **not an agent lock** and cannot establish a merged PR or a passed test.
+> **Snapshot verified 2026-11-18T17:21:19Z (before the checkpoint commit).** Each entry must be compared with live GitHub branch and PR state before an edit. This file is **not an agent lock** and cannot establish a merged PR or a passed test.
 
 | Task | Task file | Working branch | PR at snapshot | Verified owner / current agent | Status | Last verified checkpoint | Next safe action |
 |---|---|---|---|---|---|---|---|
-| `TM-GOV-20261118-001` | [AI governance](tasks/governance/ai-context-setup.md) | `chore/ai-context-governance` | Not opened at initial checkpoint | ChatGPT (GPT-6), this documented governance session | Active · documentation | `main` commit `b57df1ff92e3ff3e51b8e12b173282b536f06d74`; branch created from it | Verify governance branch HEAD; validate docs; open isolated PR to `main`; owner review before merge |
+| `TM-GOV-20261118-001` | [AI governance](tasks/governance/ai-context-setup.md) | `chore/ai-context-governance` | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) — open, not merged | ChatGPT (GPT-6), verified current session only | **Review** | `2026-11-18T17:21:19Z`; pre-checkpoint HEAD `e767387869abf4294f562e8460fa439be30689db` | Owner reviews PR #2; keep unmerged; revalidate HEAD/checks before any subsequent change |
 
 ## Parallel work discovered (not this task's ownership)
 
