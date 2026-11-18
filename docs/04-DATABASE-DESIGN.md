@@ -637,9 +637,9 @@ flowchart TD
 | Refund linkage | Add typed original-event relation in v1 refinement | Correct reports & partial refunds |
 | Budget persistence | Defer to P2 | Core ledger first |
 
-## 12 · Next handoff — Technical Architecture
+## 12 · Handoff — Technical Architecture
 
-The next document, **05 — Technical Architecture**, should specify:
+The [05 — Technical Architecture](05-TECH-ARCHITECTURE.md) draft specifies the implementation boundaries; verify these items during its review:
 
 1. React Native + Expo Router navigation and feature module boundaries.
 2. Domain-owned journal builder that outputs balanced, typed postings.
