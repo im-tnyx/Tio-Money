@@ -17,29 +17,43 @@
 ```mermaid
 flowchart TD
     A["Read AGENTS.md"] --> B["Read .ai/current.md"]
-    B --> C["Verify live branch, HEAD and PR state"]
-    C --> D["Find assigned task"]
-    D --> E["Read relevant .ai/core summaries"]
-    E --> F["Read necessary product documents"]
-    F --> G["Confirm owner authorization, scope and ownership"]
-    G --> H["Make only permitted changes"]
-    H --> I["Validate and record evidence"]
-    I --> J["Commit durable checkpoint and handoff"]
+    B --> C["Verify live repo, branch, HEAD and PR"]
+    C --> D["Find assigned task and linked discussion"]
+    D --> E["Discuss design, threats, policy and alternatives"]
+    E --> F{"Recorded owner implementation approval?"}
+    F -->|No| D
+    F -->|Yes| G["Confirm scope, agent, branch and acceptance tests"]
+    G --> H["Read only relevant core docs and source"]
+    H --> I["Implement approved changes"]
+    I --> J["Validate and independently review at inspected SHA"]
+    J --> K{"Separate owner merge approval?"}
+    K -->|No| J
+    K -->|Yes| L["Verify merge, handoff and archive"]
 ```
 
 1. Read this file, then `.ai/current.md`; select **one assigned task**, not the entire archive.
 2. Inspect live GitHub refs, PR status, changed files, checks and authorizations. With a local checkout additionally inspect `git status --short --branch` and `git rev-parse HEAD`. Connector-only access **does not prove** a clean local worktree.
-3. Verify which task and agent own the affected files. Unknown means **unassigned**, not an invitation to take ownership.
-4. Read the task, only relevant [core summaries](.ai/core/README.md), then the necessary canonical source documents and actual runtime code. Confirm the latest approved product decisions.
-5. State intended change, non-goals and owner approval source before changing anything; no permission may be inferred from a plan, PR or task file.
-6. Implement only the authorized slice on its assigned feature branch; never alter another agent's branch as a shortcut.
-7. Run proportionate validation; distinguish commands actually executed from planned or skipped checks.
-8. Update the task record and compact current index with evidence, risks, tested SHA, files, next action and handoff; open a PR for owner review.
-9. **Never auto-merge.** Owner approval, review completion and technical validation are distinct gates.
+3. Locate **one task** and its persistent [discussion/RFC](.ai/discussions/README.md); verify file ownership and current agent. Unknown means **unassigned**, not permission to start.
+4. Before implementation, discuss purpose and UX, end-to-end data/failure behavior, module/API ownership, architecture dependencies, realistic privacy/security/platform risks, alternatives, rollback and testable acceptance criteria. Store a durable GitHub Issue/Discussion or existing PR record, not only a chat.
+5. Require a recorded **`APPROVED_FOR_IMPLEMENTATION` owner decision** with source, date, exact scope and conditions. A proposed plan, RFC, branch, existing PR or previous approval for another task is **not** authorization. If missing, research/discuss only.
+6. After approval, finalize scoped task, non-goals, assigned agent and verified branch. Read only relevant [core summaries](.ai/core/README.md), canonical source documents and actual code; implement **only** the authorized slice. A material new risk or scope expansion returns to discussion.
+7. Run proportionate validation; report actual commands, inspected SHA, results and skipped tests. Obtain independent review or document explicit owner-accepted deferral. `COMMENTED` is **not** formal `APPROVED`; reviewer failures/limits are **not** a security or code pass.
+8. Update task record and compact index with observed HEAD, review finding severity, exact changed paths, results and safe handoff. Re-review after material fixes.
+9. Require **separate, express owner merge approval** for the exact PR; verify merge and only then archive a terminal task. **Never auto-merge.**
 
-Context budget: **`AGENTS.md → .ai/current.md → one task → relevant core files → relevant source files`**. Summaries are routing notes, not competing source-of-truth documents.
+Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discussion / approved decision → relevant core files → actual source`**. Summaries route to authoritative specifications; they do not override the owner's decisions.
 
-## 2. Authority and conflict resolution
+## 2. Mandatory discussion and independent owner decisions
+
+**Every substantial feature, UI change, schema/migration, dependency installation, security-sensitive action or deployment requires a technical discussion BEFORE implementation.** The [discussion contract](.ai/discussions/README.md) covers product purpose, end-to-end flow/failure states, data boundaries, cross-feature dependencies, security and applicable store policy, alternatives, trade-offs, acceptance criteria, rollback and unresolved decisions. The conversation is durable in a GitHub Issue/Discussion (if enabled), existing PR for active work, or linked RFC; never rely solely on transient chat memory.
+
+**Decision states:** `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, `BLOCKED_PENDING_DECISION`. Record **who said what, where, when, exact authorized paths/behavior and conditions**, distinguishing any agent-transcribed chat approval from a directly posted owner decision. No explicit approval means **no implementation**; a previously approved bounded task can continue routine subtasks, while new features or material scope/security/architecture changes require renewed discussion.
+
+**Separate gates:** implementation approval permits only the bounded task. Independent review and applicable checks must then assess the **actual current commit SHA**, with finding severity, unresolved threads and fix evidence. Owner merge approval must be **separately and unmistakably** recorded before merging; successful CI or a bot `COMMENTED` review never grants merge authority. An unavailable reviewer is `REVIEW_PENDING` or `INCONCLUSIVE`, not `PASS`.
+
+[Task state machine](.ai/tasks/README.md) · [Handoff template](.ai/tasks/TEMPLATE.md) · [Discussion template](.ai/discussions/TEMPLATE.md)
+
+## 3. Authority and conflict resolution
 
 | Question | Source of truth |
 |---|---|
@@ -53,7 +67,7 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 
 **Current owner decision:** Initial app UI, accessibility copy and validation text are **English only**; no MVP language selector. Retain localization-ready typed resources and separate number/date formatting. Hindi and other languages are future scope. See [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app).
 
-## 3. Permission and branch safety
+## 4. Permission and branch safety
 
 **Allowed only within a verified, specifically assigned task:** read/review; change approved documentation; implement explicitly authorized feature code; create a feature branch; add tests; create review PR; maintain task checkpoints.
 
@@ -65,7 +79,7 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 - Before **each** shared-file write or PR update, recheck live HEAD, relevant PR and parallel ownership. Resolve conflicts rather than overwriting other agents' notes.
 - PRs remain reviewable; separate owner approval is required for merge even if CI passes.
 
-## 4. Application engineering boundaries
+## 5. Application engineering boundaries
 
 Tio Money is an **offline-first finance tracker**, not a live bank integration. Design authority: [architecture](docs/05-TECH-ARCHITECTURE.md), [ledger](docs/04-DATABASE-DESIGN.md), [feature boundaries](.ai/core/feature-boundaries.md).
 
@@ -77,7 +91,7 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 - Prefer reusable semantic theme tokens, accessible system-font UI, centralized English strings, scale-safe layouts, correct keyboard/safe-area behavior and original (not copied) design.
 - Proposed `src/` layout is in [feature boundaries](.ai/core/feature-boundaries.md); reconcile with the **actual** Phase 0 scaffold before declaring a path final. Suggest lint enforcement in a separate approved code task.
 
-## 5. Financial and privacy invariants
+## 6. Financial and privacy invariants
 
 - Exactly **one central `+` action** opens a unified **Income | Expense | Transfer** editor; never three Home shortcut cards.
 - Internal transfer principal is **neither income nor expense**; actual optional transfer fees are expenses. A fee and its transfer post atomically.
@@ -87,13 +101,13 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 - No automatic Android SMS inbox access in Expo Go; no automatic third-party iOS SMS inbox access. Android native SMS is conditional and separately policy-gated.
 - Least privilege, redaction, secure input validation and explicit approval of future sync/encryption are mandatory. Never claim local SQLite is encrypted or data backed up without proof.
 
-## 6. Validation, provenance, ownership and handoff
+## 7. Validation, provenance, ownership and handoff
 
-- For code: typecheck, lint, relevant unit/integration tests, transaction invariants, platform/build checks and real device evidence when applicable. For docs: links, Mermaid syntax where practical, consistency, privacy and changed-file scope.
-- Log **exact commands, observed results, environment, tested commit SHA and omitted checks**. Green CI is not equivalent to real-device financial QA.
+- For code: typecheck, lint, relevant unit/integration tests, transaction invariants, platform/build checks and real device evidence when applicable. For docs: links (including copied/moved task links), Mermaid syntax where practical, consistency, privacy and changed-file scope.
+- Log **exact commands, observed results, environment, tested commit SHA, review method/verdict/severity/open threads and omitted checks**. Independent review is required by policy unless a specific owner-approved deferral is documented; a green CI or failed Codex quota review is not real-device/independent verification.
 - Record a stable task ID; agent/tool and actual model (or `UNKNOWN_NOT_VERIFIED`); current and previous *verified* agents; UTC checkpoints; branch; base and observed HEAD; scope; changed paths; blockers; decision references; PR; next safe step.
 - **Never infer the model or working agent from Git commit/PR author.** Commit author, PR author, reviewer and owner are separate roles.
 - A task is not complete just because an agent stopped. Archive only after verified terminal state (for merge work, verify merge and resulting SHA). Open PR tasks remain active or under review.
 - The next agent must **reverify** all mutable refs and observed tests. An accurate handoff improves continuity but cannot promise perfect persistent memory.
 
-**Proceed from:** [.ai/current.md](.ai/current.md) → [task template](.ai/tasks/TEMPLATE.md) → [workflow rules](.ai/core/workflow-rules.md).
+**Proceed from:** [.ai/current.md](.ai/current.md) → [discussion and decision](.ai/discussions/README.md) → [task template](.ai/tasks/TEMPLATE.md) → [workflow rules](.ai/core/workflow-rules.md).

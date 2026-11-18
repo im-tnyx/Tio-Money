@@ -67,6 +67,24 @@ flowchart TD
 - No feature may change another feature's internals during a scoped task without explicit review/coordination.
 - Financial rules (asset/liability, postings, reversals, paise, fees) are **shared domain invariants**, not each feature's property.
 
+## Feature-level contract (apply to future authorized implementation)
+
+Each independently owned feature must document: **task/owner**, public API surface (and explicitly private implementation paths), user intents and feature-specific application use cases, relevant domain/repository contracts, permitted upstream/downstream dependencies, feature-local test ownership, and linked task/RFC history. Put only durable API/ownership notes in the feature README or canonical architecture; **do not create empty directories now**.
+
+| Feature / boundary | Public contract direction | Private implementation and test owner |
+|---|---|---|
+| Onboarding | Produces account/setup commands through validated domain ports | Setup screens and first-run UX tests; never writes ledger directly in components |
+| Transactions | Exposes create/revise/reverse event use cases to route composition | Editor/controllers and submission tests; posts through **single** shared ledger |
+| Accounts | Exposes account commands and ledger-derived account projections | Account UI/tests; no mutable balance calculations |
+| Categories | Exposes stable category IDs and classification contracts | Category editing/testing; labels not stored as financial IDs |
+| Dashboard / Reports | Consume read-only ledger projections, not raw SQL in UI | Rendering, period/filter and reconciliation tests |
+| Imports | Produces **unposted** review candidates until user confirmation | Parser/dedupe tests and platform permission boundaries |
+| Settings | Exposes implemented user preferences only, no fake cloud/SMS capabilities | Settings, privacy and accessibility UI tests |
+
+**Allowed:** an Accounts view consumes `LedgerReadModel` exported by an approved contract; Transactions calls a ledger use case; Reports consumes that **same** ledger posting projection. **Forbidden:** Dashboard deep-imports Transactions editor internals, Reports runs its own fee math or SQL, shared UI contains money business rules, or features mutate another feature's scoped files without coordination. Route composition must not become an application service locator full of business logic.
+
+For every proposed boundary change, the mandatory [RFC](../discussions/README.md) records owner/ports/import direction, alternatives, dependency-cycle risk and negative tests. Any new contract affecting financial math needs a separately approved domain decision.
+
 ### Enforceability proposal — **not implemented here**
 
-In a **separately approved** code task, add ESLint `no-restricted-imports` / import-boundaries configuration for private `features/*/` paths, `src/domain` forbidden platform imports and UI forbidden `data/sqlite` paths. Test rules with deliberate violating fixtures; avoid blanket patterns that block legitimate type-only/public port imports. Phase 0 PR already proposes lint boundaries; review its actual config before changing anything.
+In a **separately approved** code task, add architecture boundary tests and ESLint `no-restricted-imports` / import-boundaries configuration for private `features/*/` paths, `src/domain` forbidden platform imports and UI forbidden `data/sqlite` paths. Test rules with deliberate violating fixtures; avoid blanket patterns that block legitimate type-only/public port imports. Phase 0 PR already proposes lint boundaries; review its actual config before changing anything.
