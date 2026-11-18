@@ -15,7 +15,6 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    setState({ status: 'loading' });
     void initializeDatabase()
       .then(() => {
         if (mounted) setState({ status: 'ready' });
@@ -60,7 +59,10 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
           <Text style={{ color: theme.colors.secondaryText, textAlign: 'center', lineHeight: 24 }}>
             {state.message}
           </Text>
-          <ActionButton label="Retry initialization" onPress={() => setAttempt((n) => n + 1)} />
+          <ActionButton label="Retry initialization" onPress={() => {
+            setState({ status: 'loading' });
+            setAttempt((n) => n + 1);
+          }} />
           <Text style={{ color: theme.colors.secondaryText, textAlign: 'center' }}>
             Your database was not deleted or reset.
           </Text>
