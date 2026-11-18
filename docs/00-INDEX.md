@@ -14,7 +14,7 @@
 ---
 
 > [!IMPORTANT]
-> **Phase 0 code review stage.** The feature branch now contains an Expo Router UI shell and SQLite bootstrap **source**, not a working finance tracker. Native SMS, posted money, backups and production security are not implemented. Dependency install, CI and real Android/iPhone Expo Go tests still require explicit evidence. Product documents remain drafts.
+> **Phase 0 code review stage.** The feature branch now contains an Expo Router UI shell and SQLite bootstrap **source**, not a working finance tracker. Native SMS, posted money, backups and production security are not implemented. The committed dependency lockfile and GitHub Actions checks are tracked in the Phase 0 notes; Android/iPhone Expo Go and real-device SQLite tests remain unverified. Product documents remain drafts.
 
 ## 🧭 Find the answer you need
 
@@ -69,7 +69,7 @@ flowchart TD
 | [Data model / ledger](04-DATABASE-DESIGN.md) | 📝 Initial draft | Review journal schema, reversal policy, credit-card postings |
 | [Technical architecture](05-TECH-ARCHITECTURE.md) | 📝 Initial draft | Review SQLite transaction strategy, Expo SDK and platform gates |
 | [Implementation & test plan](06-IMPLEMENTATION-TEST-PLAN.md) | 📝 Initial draft | Owner review of milestone gates, finance test matrix and unresolved ADRs |
-| [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md) | 🧱 Scaffold source under review | Resolve lockfile, CI and actual Expo Go/device verification |
+| [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md) | 🧱 Scaffold source under review | Lockfile committed; review CI evidence and complete Expo Go/device verification |
 
 ## 🧱 Information architecture
 
