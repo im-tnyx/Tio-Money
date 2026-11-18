@@ -13,13 +13,13 @@
 ---
 
 > [!IMPORTANT]
-> These notes describe the **feature branch only**. They do not assert merged code, installed packages, Expo Go/device QA, published products, financial correctness, or approved ADRs. Do not mark M0 complete without evidence.
+> These notes describe the **feature branch only**. GitHub Actions has verified package installation and the source-quality suite ([successful CI run](https://github.com/im-tnyx/Tio-Money/actions/runs/44351018913)); this is **not** proof of Expo Go/device QA, finished finance, published products, approved ADRs or a merged PR. Do not mark M0 complete until device evidence and review are recorded.
 
 ## Decisions implemented for the scaffold (subject to owner review)
 
 | Area | Scaffold choice | Why / remaining gate |
 | :--- | :--- | :--- |
-| Runtime | Expo SDK 58 / RN 0.88.1 / React 19.3 / TS strict | [Expo release compatibility](https://docs.expo.dev/versions/latest/); local install and Expo Go runtime checks outstanding |
+| Runtime | Expo SDK 58 / RN 0.88.1 / React + React DOM 19.3.0 / TS strict | [Expo SDK 58](https://docs.expo.dev/versions/latest/); `react-dom` pinned as a matching peer for repeatable `npm ci`; Expo Go runtime QA outstanding |
 | Routes | Expo Router `Stack` + nested `Slot` root shell + single bottom action | Four content destinations and center `+`; placement remains [Screen Spec proposal](03-SCREEN-SPEC.md#02--navigation-architecture) |
 | App status | All finance screens are marked planned; Save disabled | Prevents placeholder UI being mistaken for real ledger features |
 | Theme | Provisional semantic light/dark tokens from [Screen Spec §03](03-SCREEN-SPEC.md#03--tio-money-visual-language--proposed-tokens) | Final palette, contrast and user override awaiting owner/device review |
@@ -34,13 +34,13 @@
 | Check | Status on document creation | Reproduction |
 | :--- | :--- | :--- |
 | Static source and code-review pass | Proposed implementation; review required | Review the PR diff |
-| Dependency install and lockfile | **Committed** generated lockfile; final `npm ci` CI evidence pending | `npm ci` from locked dependencies |
-| Expo compatibility | Selected documented SDK 58 pair; not device-proven | `npx expo install --check`; `npx expo config --type public` |
-| TypeScript, ESLint, Prettier, unit tests | **Not yet passed** | `npm run check` in a network-enabled environment |
-| SQLite migration/FK tests | Pure migration-driver tests written; device tests pending | `npm test`; real device startup and upgrade |
+| Dependency install and lockfile | **Passed on GitHub Actions Ubuntu, 2026-11-18** | [CI run](https://github.com/im-tnyx/Tio-Money/actions/runs/44351018913) · `npm ci --no-audit --no-fund` |
+| Expo compatibility | **Passed config and dependency checks in CI; device unverified** | `npx expo install --check`; `npx expo config --type public` |
+| TypeScript, ESLint, Prettier, unit tests | **Passed GitHub CI** (strict typecheck, lint, formatting, **9 tests**) | `npm run check`; [run evidence](https://github.com/im-tnyx/Tio-Money/actions/runs/44351018913) |
+| SQLite migration/FK tests | **Passed pure migration-driver unit tests**, not on-device FK/real-SQLite startup | `npm test`; still run real SQLite device initialization and upgrade |
 | Expo Go Android / iPhone | **Not verified** | Open QR on both; test root routes, editor, settings, cold restart |
 
-**Lockfile rule:** The candidate lockfile was generated and formatted by a one-time branch-only CI job, then committed. The temporary write-enabled workflow was removed. The permanent quality workflow now requires reproducible `npm ci`. Avoid rewriting package versions by guessing if `expo install --check` disagrees: run the SDK-aware `npx expo install --fix` in a network-enabled working tree, review its diff, and commit exactly the validated lockfile.
+**Lockfile rule:** The committed lockfile was normalized by a one-time branch CI job, then the temporary write-enabled workflow was removed. The permanent quality workflow runs reproducible `npm ci`, Expo compatibility, strict code/format tests and config checks. The matching `react-dom@19.3.0` peer is pinned explicitly because an unpinned transitive `react-dom@19.3.1` broke `npm ci`. Avoid rewriting package versions by guessing if `expo install --check` disagrees: run the SDK-aware `npx expo install --fix` in a network-enabled working tree, review its diff, and commit exactly the validated lockfile.
 
 ## Phase 1 handoff
 
