@@ -14,7 +14,7 @@ export function SettingsScreen() {
   return (
     <ScreenContainer includeBottomInset>
       <View style={{ alignItems: 'flex-start' }}>
-        <ActionButton label="← Back" variant="ghost" onPress={() => router.back()} />
+        <ActionButton label="← Back" variant="ghost" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
       </View>
       <AppText variant="title">Settings & privacy</AppText>
       <SectionCard>
