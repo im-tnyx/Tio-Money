@@ -15,10 +15,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
+      - name: Resolve dependencies (initial scaffold; lockfile pending)
+        run: npm install --no-audit --no-fund
+      - name: Save generated lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase0-generated-lockfile
+          path: package-lock.json
+          retention-days: 7
       - name: Verify Expo dependency compatibility
         run: npx expo install --check
       - name: Strict TypeScript, ESLint, format and unit tests
