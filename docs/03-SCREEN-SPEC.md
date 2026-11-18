@@ -491,7 +491,7 @@ src/
 
 ## 11 · Handoff to the data & architecture documents
 
-The next task is **04 — Database Design & Financial Ledger**, which must encode the screen contract without duplicating accounting logic:
+The [04 — Database Design & Financial Ledger](04-DATABASE-DESIGN.md) draft is now available and should encode the screen contract without duplicating accounting logic:
 
 1. Asset accounts and credit-card liabilities use distinct posting semantics.
 2. Transfer principal and fee expense are **linked and atomic**.
@@ -502,4 +502,4 @@ The next task is **04 — Database Design & Financial Ledger**, which must encod
 
 ---
 
-[← Documentation Hub](00-INDEX.md) · [User Flows](02-USER-FLOWS.md) · [Product Requirements](01-PRD.md)
+[← Documentation Hub](00-INDEX.md) · [Database & Financial Ledger →](04-DATABASE-DESIGN.md) · [Product Requirements](01-PRD.md)
