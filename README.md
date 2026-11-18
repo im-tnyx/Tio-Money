@@ -16,7 +16,7 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 ![TypeScript](https://img.shields.io/badge/TypeScript-Planned-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-Local%20Ledger-003B57?style=flat-square&logo=sqlite&logoColor=white)
 
-**[📚 Documentation Hub](docs/00-INDEX.md)** · **[🎯 Product Requirements](docs/01-PRD.md)** · **[🧭 User Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Financial Ledger](docs/04-DATABASE-DESIGN.md)** · **[✍️ Docs Style](docs/90-DOCS-STYLE-GUIDE.md)**
+**[📚 Docs Hub](docs/00-INDEX.md)** · **[🎯 PRD](docs/01-PRD.md)** · **[🧭 Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Ledger](docs/04-DATABASE-DESIGN.md)** · **[🏗 Architecture](docs/05-TECH-ARCHITECTURE.md)** · **[✍️ Style](docs/90-DOCS-STYLE-GUIDE.md)**
 
 </div>
 
@@ -106,7 +106,7 @@ flowchart LR
 | [📚 Documentation hub](docs/00-INDEX.md) | [🎯 Product requirements](docs/01-PRD.md) | [✍️ Documentation style guide](docs/90-DOCS-STYLE-GUIDE.md) |
 | [💡 Product promises](#-a-calm-place-for-your-money) | [🧭 User flows and edge cases](docs/02-USER-FLOWS.md) | [📋 Status & approval rules](docs/90-DOCS-STYLE-GUIDE.md) |
 | [🧩 Feature map](#-feature-map-and-honest-delivery-status) | [🎨 Screen design specification](docs/03-SCREEN-SPEC.md) | **Next:** Implementation / test plan |
-| [🏗 Architecture overview](#-proposed-architecture--boundaries-not-a-shipped-stack) | [🗄 Database & ledger](docs/04-DATABASE-DESIGN.md) · **Next:** technical architecture | **Next:** ADR / decision log |
+| [🏗 Architecture overview](#-proposed-architecture--boundaries-not-a-shipped-stack) | [🗄 Database & ledger](docs/04-DATABASE-DESIGN.md) · [Technical architecture](docs/05-TECH-ARCHITECTURE.md) | **Next:** Implementation test plan |
 
 ## 🚀 How the product is developed
 
