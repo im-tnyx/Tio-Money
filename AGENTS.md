@@ -53,7 +53,16 @@ Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discus
 
 [Task state machine](.ai/tasks/README.md) · [Handoff template](.ai/tasks/TEMPLATE.md) · [Discussion template](.ai/discussions/TEMPLATE.md)
 
-## 3. Authority and conflict resolution
+## 3. Strict Git commit attribution — no co-authors
+
+**Mandatory rule: Never add a `Co-authored-by:` trailer to a commit message.** This is a zero-exceptions policy for agent-assisted commits: **Claude (including Opus), Codex, Cursor, ChatGPT or any other AI agent must never appear as a co-author**. To prevent ambiguity or bypass, **all** `Co-authored-by:` trailers are forbidden regardless of name, email, casing or contributor type. Do not replace the forbidden trailer with misleading alternative credit lines, fake authorship, false approval markers or spoofed Git identities.
+
+- Keep the real Git commit author/committer metadata intact; do not invent an agent signature or change the authenticated user's identity.
+- Attribute AI work, model (if actually known), reviewer and handoff **only in the task/agent provenance record**, not commit author/co-author trailers.
+- Before submitting a PR or merge review, inspect commit messages. Use `python3 scripts/ai_context.py check-commits --base <base> --head <head>` in a full local Git checkout; this scans commit messages and rejects forbidden trailers. Include its exact observed result and checked range in the task. Also inspect GitHub's actual commits where local Git is unavailable.
+- A standalone script/Markdown rule is **not** a GitHub-enforced gate until a separately authorized CI/ruleset is configured. Never claim it automatically blocks merges today.
+
+## 4. Authority and conflict resolution
 
 | Question | Source of truth |
 |---|---|
@@ -67,7 +76,7 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 
 **Current owner decision:** Initial app UI, accessibility copy and validation text are **English only**; no MVP language selector. Retain localization-ready typed resources and separate number/date formatting. Hindi and other languages are future scope. See [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app).
 
-## 4. Permission and branch safety
+## 5. Permission and branch safety
 
 **Allowed within a verified scoped task after mandatory discussion and documented proceed decision:** read/review, bounded documentation or ordinary implementation, feature branch, tests, review PR and task checkpoints. **Owner pre-implementation signoff is optional**, but specifically restricted operations still require any applicable separate authority. No implicit right to merge.
 
@@ -79,7 +88,7 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 - Before **each** shared-file write or PR update, recheck live HEAD, relevant PR and parallel ownership. Resolve conflicts rather than overwriting other agents' notes.
 - PRs remain reviewable; separate owner approval is required for merge even if CI passes.
 
-## 5. Application engineering boundaries
+## 6. Application engineering boundaries
 
 Tio Money is an **offline-first finance tracker**, not a live bank integration. Design authority: [architecture](docs/05-TECH-ARCHITECTURE.md), [ledger](docs/04-DATABASE-DESIGN.md), [feature boundaries](.ai/core/feature-boundaries.md).
 
@@ -91,7 +100,7 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 - Prefer reusable semantic theme tokens, accessible system-font UI, centralized English strings, scale-safe layouts, correct keyboard/safe-area behavior and original (not copied) design.
 - Proposed `src/` layout is in [feature boundaries](.ai/core/feature-boundaries.md); reconcile with the **actual** Phase 0 scaffold before declaring a path final. Suggest lint enforcement in a separate approved code task.
 
-## 6. Financial and privacy invariants
+## 7. Financial and privacy invariants
 
 - Exactly **one central `+` action** opens a unified **Income | Expense | Transfer** editor; never three Home shortcut cards.
 - Internal transfer principal is **neither income nor expense**; actual optional transfer fees are expenses. A fee and its transfer post atomically.
@@ -101,7 +110,7 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 - No automatic Android SMS inbox access in Expo Go; no automatic third-party iOS SMS inbox access. Android native SMS is conditional and separately policy-gated.
 - Least privilege, redaction, secure input validation and explicit approval of future sync/encryption are mandatory. Never claim local SQLite is encrypted or data backed up without proof.
 
-## 7. Validation, provenance, ownership and handoff
+## 8. Validation, provenance, ownership and handoff
 
 - For code: typecheck, lint, relevant unit/integration tests, transaction invariants, platform/build checks and real device evidence when applicable. For docs: links (including copied/moved task links), Mermaid syntax where practical, consistency, privacy and changed-file scope.
 - Log **exact commands, observed results, environment, tested commit SHA, review method/verdict/severity/open threads and omitted checks**. Independent review is required by policy unless a specific owner-approved deferral is documented; a green CI or failed Codex quota review is not real-device/independent verification.

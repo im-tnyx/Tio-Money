@@ -49,4 +49,6 @@ Return to **DISCUSSION** if a new feature, meaningful scope expansion, financial
 4. Review the diff, validate local links (`python3 scripts/ai_context.py check-links`, optional `--anchors` for conventional heading IDs), update status/text in the task index and agent registry without overwriting historical checkpoints, and record tested SHA and final disposition. The helper does not edit status text or create owner authorizations.
 5. **Manual fallback:** calculate link paths from the destination folder; update every incoming reference using repository-wide search; validate link destinations and anchors; then review a diff. Use fixtures to prove path changes before applying to real tasks.
 
+**Commit attribution policy:** No `Co-authored-by:` trailers in *any* new commits, including Claude/Codex/Cursor/ChatGPT. Verify actual commit messages before PR review via `python3 scripts/ai_context.py check-commits --base <base> --head <head>`. Record the checked range and result; do not infer agent identity from commit metadata. This helper is not a configured branch-protection check.
+
 No chat transcripts, secrets, OTPs, personal finance data, fabricated CI results or gigantic code dumps in task records. `.ai/current.md` is a **multi-task index**, never an exclusive agent lock. Multiple agents must coordinate shared-file writes and reread live refs first.

@@ -8,4 +8,5 @@
 - Bind SQL parameters; verify foreign keys and migrations; test rollback, idempotency, corrections, fees and credit-card liabilities.
 - Reuse semantic theme/tokens, accessible components, centrally managed English UI strings and locale-independent stable IDs.
 - Run relevant typecheck, lint, tests, builds and device QA for an implementation task; **record commands and observed outputs**, not predicted success.
-- Do not add implementation, lint rules, package changes or scaffolding on the AI-governance branch. [Feature boundary enforcement proposal](feature-boundaries.md) requires separate authorization.
+- **Never add `Co-authored-by:` to a commit message**, including entries for Claude/Opus, Codex, Cursor or other agents; use [task provenance](../agents/README.md), not Git co-author attribution. Audit commits with the [stdlib helper](../../scripts/ai_context.py) in a full checkout.
+- Do not add unrelated app implementation, lint rules, package changes or scaffolding on the AI-governance branch. [Feature boundary enforcement proposal](feature-boundaries.md) requires separate authorization.

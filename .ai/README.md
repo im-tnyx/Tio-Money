@@ -31,7 +31,7 @@ flowchart LR
 - Every task owns a separate task file and a single bounded branch/PR scope.
 - `current.md` indexes multiple tasks; it **does not grant exclusive locks**, assign unknown work or prove merge status.
 - Before edits, compare live branches, PRs and changed paths; coordinate any overlapping files, especially this index.
-- Record only known agent identity, tests and commit SHAs; use `UNKNOWN_NOT_VERIFIED` for unknown historical information.
+- Record only known agent identity, tests and commit SHAs; use `UNKNOWN_NOT_VERIFIED` for unknown historical information. **No Git `Co-authored-by:` trailers for any agent or contributor; identities belong in task records.**
 - Keep credentials, OTPs, personal finance data, raw logs and chat transcripts out of Git.
 - On handoff, record last verified state, discussion/approval, reviewed SHA and an exact next action, then let the next agent revalidate.
 - For safe nested task creation and archival, use the [stdlib link helper](../scripts/ai_context.py) with dry-run and fixture tests; it **does not verify** GitHub approvals.

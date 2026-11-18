@@ -56,6 +56,7 @@
 - **Attempted but failed:**
 - **Exact changed files:**
 - **Test commands, executed environment, observed results and tested SHA:**
+- **Commit-message audit (base/head, zero forbidden co-author trailers; GitHub/local evidence):**
 - **Checks not run / limitations:**
 - **Independent reviewer, reviewed SHA, finding severity and open threads:**
 - **Owner merge approval (separate) and conditions:**
