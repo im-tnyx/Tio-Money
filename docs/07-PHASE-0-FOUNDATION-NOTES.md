@@ -34,13 +34,13 @@
 | Check | Status on document creation | Reproduction |
 | :--- | :--- | :--- |
 | Static source and code-review pass | Proposed implementation; review required | Review the PR diff |
-| Dependency install and lockfile | **Not verified in this environment** | `npm install` and commit generated `package-lock.json` |
+| Dependency install and lockfile | **Committed** generated lockfile; final `npm ci` CI evidence pending | `npm ci` from locked dependencies |
 | Expo compatibility | Selected documented SDK 58 pair; not device-proven | `npx expo install --check`; `npx expo config --type public` |
 | TypeScript, ESLint, Prettier, unit tests | **Not yet passed** | `npm run check` in a network-enabled environment |
 | SQLite migration/FK tests | Pure migration-driver tests written; device tests pending | `npm test`; real device startup and upgrade |
 | Expo Go Android / iPhone | **Not verified** | Open QR on both; test root routes, editor, settings, cold restart |
 
-**Lockfile rule:** Commit and review a generated lockfile before declaring M0 done. A CI run using `npm install` can validate initial resolution but is not a substitute for subsequent reproducible `npm ci`. Avoid rewriting package versions by guessing if `expo install --check` disagrees: run the SDK-aware `npx expo install --fix` in a network-enabled working tree, review its diff, and commit exactly the validated lockfile.
+**Lockfile rule:** The candidate lockfile was generated and formatted by a one-time branch-only CI job, then committed. The temporary write-enabled workflow was removed. The permanent quality workflow now requires reproducible `npm ci`. Avoid rewriting package versions by guessing if `expo install --check` disagrees: run the SDK-aware `npx expo install --fix` in a network-enabled working tree, review its diff, and commit exactly the validated lockfile.
 
 ## Phase 1 handoff
 
