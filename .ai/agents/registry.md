@@ -27,3 +27,7 @@ Do not infer actual agent/model from authenticated Git author or `Co-authored-by
 | [TM-GOV-20261118-001](../tasks/governance/ai-context-setup.md#governance-p2-and-github-automation-checkpoint) | ChatGPT using connected GitHub tools (GPT-6) | ChatGPT (GPT-6), previous verified V2 checkpoint `2026-11-18T18:48:44Z` | [P2 RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6989114060), [GitHub integration RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6989498878), [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2). `IN_REVIEW` with 5 unresolved threads. **Owner merge approval NOT GRANTED**. |
 
 GitHub commit/PR author is a separate source of metadata, never proof of agent identity. No `Co-authored-by:` trailers are permitted. Do not rewrite prior registry snapshots or infer a successful CI/review from this note.
+
+## Latest observed CI-backed handoff — 2026-11-18T20:28:18Z UTC
+
+[TM-GOV-20261118-001](../tasks/governance/ai-context-setup.md#ci-validation-follow-up--2026-11-18) · Current working agent **ChatGPT (GPT-6)** · Previous verified agent **ChatGPT (GPT-6)** · pre-checkpoint SHA `821300cb62c435ec11457b3b1cc0318c72c0690c` · [actual GitHub workflow SUCCESS](https://github.com/im-tnyx/Tio-Money/actions/runs/44391147124) (24/24 tests, full-checkout Markdown links, 17 actual commits without co-author trailers) · **IN_REVIEW** (five unresolved threads, independent re-review pending) · **Owner merge approval NOT GRANTED**. Verify live state before assigning a next agent or editing.
