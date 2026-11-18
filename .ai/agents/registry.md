@@ -2,7 +2,7 @@
 
 **Policy:** Registration is evidence-based and task-specific; it is not an authorization list. Unknown agents and unverified historical work remain `UNKNOWN_NOT_VERIFIED`. No prior agent sessions are reconstructed from Git authors.
 
-> **Current verified status (2026-11-18T18:48:44Z UTC, before checkpoint commit):** [TM-GOV-20261118-001 V2 Stage B checkpoint](../tasks/governance/ai-context-setup.md#v2-stage-b-checkpoint) records **IN_REVIEW**, previously observed branch HEAD `206d7e9a01f3d5caf1abbfbaab64e6f6a63a3d75`, 3 open Copilot threads and no owner merge approval. The row below is **historical kickoff state**, not live status.
+> **Latest verified continuation 2026-11-18T20:19:48Z UTC (before checkpoint commit):** [TM-GOV-20261118-001 P2 and GitHub integration](../tasks/governance/ai-context-setup.md#governance-p2-and-github-automation-checkpoint) is **IN_REVIEW**, observed pre-checkpoint HEAD `90998568566bad7264e146e87451af8caedaaaa6`, **5 open review threads**, no independent passing re-review or owner merge approval. The row below is **historical kickoff state**, not live status.
 
 | Task | Working agent | Model (if actually exposed) | Previous verified agent | Evidence | Snapshot status |
 |---|---|---|---|---|---|
@@ -19,3 +19,11 @@ When task ownership transfers, update the individual task with the actual curren
 | [TM-GOV-20261118-001](../tasks/governance/ai-context-setup.md#v2-stage-b-checkpoint) | ChatGPT with GitHub tools | GPT-6 | ChatGPT (GPT-6) at 2026-11-18T17:21:19Z; earlier history unknown | [RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6986950549), [owner Stage B chat approval (agent-transcribed)](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987125950), [optional implementation signoff policy](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987299176), [strict no co-authors](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987814777); **IN_REVIEW, merge approval absent** |
 
 Do not infer actual agent/model from authenticated Git author or `Co-authored-by:` (strictly prohibited) trailers. Owner merge consent is separate and must be verified at the time of merge, never assumed from a current index.
+
+## Latest verified working checkpoint — 2026-11-18T20:19:48Z UTC
+
+| Task | Working agent and model | Previous verified working agent | Exact source and pending decision |
+|---|---|---|---|
+| [TM-GOV-20261118-001](../tasks/governance/ai-context-setup.md#governance-p2-and-github-automation-checkpoint) | ChatGPT using connected GitHub tools (GPT-6) | ChatGPT (GPT-6), previous verified V2 checkpoint `2026-11-18T18:48:44Z` | [P2 RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6989114060), [GitHub integration RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6989498878), [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2). `IN_REVIEW` with 5 unresolved threads. **Owner merge approval NOT GRANTED**. |
+
+GitHub commit/PR author is a separate source of metadata, never proof of agent identity. No `Co-authored-by:` trailers are permitted. Do not rewrite prior registry snapshots or infer a successful CI/review from this note.
