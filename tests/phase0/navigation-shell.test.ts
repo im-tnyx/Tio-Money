@@ -115,7 +115,10 @@ test('successful launch reveals only five blank tabs after the native splash', (
   const bootstrap = readFileSync('src/shared/bootstrap/database-gate.tsx', 'utf8');
   const root = readFileSync('src/app/_layout.tsx', 'utf8');
   const tabs = readFileSync('src/app/(tabs)/_layout.tsx', 'utf8');
-  const splashController = readFileSync('src/shared/navigation/use-reveal-tabs-on-layout.ts', 'utf8');
+  const splashController = readFileSync(
+    'src/shared/navigation/use-reveal-tabs-on-layout.ts',
+    'utf8',
+  );
 
   assert.match(bootstrap, /SplashScreen\.preventAutoHideAsync\(\)/);
   assert.match(bootstrap, /if \(state\.status === 'loading'\) return null/);
