@@ -20,7 +20,7 @@ For SDK 58 the Expo tunnel is an **Expo-account-signed tunnel**; a legacy ngrok 
 
 The exact **existing** Tio-Money EAS UUID could not be retrieved from an authenticated Expo dashboard in this GitHub-connected session: **NOT_VERIFIED**. Hence `expo.extra.eas.projectId` is deliberately **absent**. Expo Go's account-signed SDK 58 tunnel does **not** require enabling EAS Update or creating another project. **Never run bare or interactive `eas init`, `eas project:init`, `eas update:configure` or `eas build` for this preview:** some commands can create or reconfigure project resources. If separate EAS linkage is later genuinely necessary, the owner first inspects **Expo account tnyx-23 → Projects → Tio-Money → Project details** and verifies its UUID belongs to `@tnyx-23/tio-money`, **not** `@tnyx-23/tnyx`. Only then, with appropriate scoped approval and a checked current config, use the documented existing-project linking procedure `eas init --id <verified-existing-Tio-Money-UUID>`, or a reviewed equivalent config update. Do not use `--force` to overwrite an identity.
 
-In the Codespace, after private `npx expo login` run **`npx expo whoami`**, which must return exactly **`tnyx-23`**; the managed starter checks this before it starts Metro and **fails closed** if the login is absent or belongs to another account. Then run `npx expo config --type public` and check owner/slug/name. This confirms local configuration and CLI login, **not** server-side EAS UUID association. On the phone, remain signed into `tnyx-23` and tap **Tio-Money**, never Tio-TNYX. If the target cannot connect, use the current private tunnel link fallback and report it as NOT_VERIFIED; do not relink the other project.
+In the Codespace, after private `npx expo login --no-browser` run **`npx expo whoami`**, which must return exactly **`tnyx-23`**; the managed starter checks this before it starts Metro and **fails closed** if the login is absent or belongs to another account. Then run `npx expo config --type public` and check owner/slug/name. This confirms local configuration and CLI login, **not** server-side EAS UUID association. On the phone, remain signed into `tnyx-23` and tap **Tio-Money**, never Tio-TNYX. If the target cannot connect, use the current private tunnel link fallback and report it as NOT_VERIFIED; do not relink the other project.
 
 **Linkage verification register:**
 
@@ -39,7 +39,7 @@ In the Codespace, after private `npx expo login` run **`npx expo whoami`**, whic
 1. Check the chosen branch contains *both* the Expo app and these preview scripts. `main` currently has governance docs only; the active app is draft PR #1 on `feat/phase-0-expo-foundation`. The additive preview implementation is on `chore/codespaces-expo-go-stage-a` as a **stacked draft PR**. Coordinate with Phase 0 before choosing a branch. **Do not merge PR #1 just to create a Codespace.**
 2. Open GitHub's **Code → Codespaces** for Tio Money; manually create **one** Codespace on the agreed app-containing preview branch. Do not create duplicates. Choose a modest machine and short idle timeout; do not assume a stopped Codespace costs nothing in retained storage.
 3. If installation did not finish, run `npm ci --no-audit --no-fund` in the Codespace. Confirm `node -v` shows a compatible Node 22 release and `npx expo install --check` passes.
-4. Run `npx expo login` *inside* the Codespace. Sign in privately using the method it provides. Run `npx expo whoami` and require **tnyx-23** before proceeding; do not use the unrelated Tio-TNYX project's account config. The first automatic `postStartCommand` can fail before login; this is expected and **must not** be treated as a healthy tunnel. Do not share Expo passwords, access tokens, Codespaces secrets or tunnel URLs in chat, Git or Actions logs.
+4. Run `npx expo login --no-browser` **inside the Codespace terminal**. Expo SDK 58 defaults to browser-based login without this flag; `--no-browser` asks for credentials in the terminal. Enter your Expo credentials only into the private interactive prompt (and complete account verification if requested); never use `--password` on the command line or paste credentials into terminal history, logs, source or chat. Run `npx expo whoami` and require **tnyx-23** before proceeding; do not use the unrelated Tio-TNYX project's account config. The first automatic `postStartCommand` can fail before login; this is expected and **must not** be treated as a healthy tunnel. Do not share Expo passwords, access tokens, Codespaces secrets or tunnel URLs in chat, Git or Actions logs.
 5. Install an **SDK 58-compatible Expo Go** on your Android phone and iPhone; sign into Expo Go using the **same Expo account** as the Codespace CLI (required on a physical iPhone). An unavailable/older incompatible iOS Expo Go build is a blocker; do not claim success from account sign-in alone.
 6. In the Codespace run `node scripts/start-codespace-expo.mjs`, then `node scripts/start-codespace-expo.mjs --status`. A successful starter message proves **local Metro and Expo CLI tunnel-link health only**, not physical reachability.
 7. Inside Expo Go, look for the existing **Tio-Money** (not **Tio-TNYX**) in **Projects / Recent Projects** and open it directly. Try that entry on later launches without a new QR scan. This is a best-effort account flow, **not** a guarantee that the entry persists, the link remains stable, or reconnects never occur.
@@ -60,7 +60,7 @@ The Codespace must remain running while Metro serves the phone. JS/assets can Fa
 
 ## Recovery, cost and privacy
 
-- Missing login: run `npx expo login` privately, then retry the starter. Sign into the same account on the phone.
+- Missing login: run `npx expo login --no-browser` privately in the Codespace terminal, then retry the starter. Sign into the same account on the phone.
 - Failed install: rerun `npm ci --no-audit --no-fund` with the committed lockfile, inspect error and Node version. Do **not** regenerate package-lock blindly, alter SDKs or delete user work.
 - Tunnel startup fails or times out: inspect `~/.cache/tio-money-expo-preview/metro.log` **privately** in the Codespace, fix authentication/network, run `--restart` and `--status`. The starter never prints signed tunnel URLs.
 - Occupied port or foreign Metro: the starter refuses to kill it. Inspect the process manually; no `pkill` of unrelated development sessions.
@@ -99,3 +99,15 @@ If security gates cannot be established, retain manual Codespaces startup indefi
 ### 2026-11-19 process-ownership fix / fresh CI
 
 In the same stacked draft PR #4, commit `fe2003707c53ab5ef615ce547971cc27ebfde209` expanded ownership recognition to Node-managed `npm-cli.js run mobile` invocation forms, with new deterministic positive/negative smoke cases. [GitHub Actions run #44482368855](https://github.com/im-tnyx/Tio-Money/actions/runs/44482368855) completed **SUCCESS** **on that exact tested code SHA**: locked `npm ci`, Expo dependency check, `npm run check` (**16/16** existing app tests, **8/8** preview tests plus TypeScript/ESLint/Prettier), public Expo config, Android and iOS Metro exports, no restricted SMS-permission baseline. Basic local inspection of npm command-line variants informed the additional regression tests. **This is not evidence of an Expo-authenticated Codespace session or physical-device usability.** The subsequent checkpoint-only commit advances Git HEAD and requires current-head CI revalidation.
+
+### Browser-free CLI login (2026-11-19 owner follow-up)
+
+**Recommended one-time Codespace terminal flow for SDK 58:**
+
+```sh
+npx expo login --no-browser
+npx expo whoami
+node scripts/start-codespace-expo.mjs
+```
+
+The `whoami` output must be exactly `tnyx-23`. Expo SDK 58 uses browser login by default, so **`--no-browser` explicitly chooses interactive terminal login**. The password and any verification code belong only in the CLI's private prompt, never in a GitHub workflow, command arguments, code, chat or log. This does not create a new Expo/EAS project or modify **Tio-TNYX**. If the CLI rejects authentication, report only the sanitized error (never password/code). This flow is **documented but NOT_VERIFIED in a live authenticated Codespace**.

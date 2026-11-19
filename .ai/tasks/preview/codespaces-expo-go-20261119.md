@@ -68,3 +68,10 @@ Own only `.devcontainer/devcontainer.json`, `scripts/start-codespace-expo.mjs`, 
 - **Not verified:** owner-authenticated existing Expo Tio-Money UUID, active Codespace and Metro `/status`, actual account-signed tunnel, Android/iPhone Expo Go Projects, live Fast Refresh, stop/restart; no claim that test mocks prove real tunnel health. Full `scripts/ai_context.py check-links` and governance Python unit suite **NOT_RUN** on the preview branch (selected links checked through GitHub tree). Full clean-worktree/fast-forward simulation is Stage B, deliberately **NOT_IMPLEMENTED**.
 - **Review:** **DEFERRED** independent security/platform review (strongly recommended); existing PR #1 reviewer finding remains owned by PR #1. **Owner merge authorization NOT_GRANTED** for PR #4 or PR #1.
 - **Exact next safe action:** rerun CI on the subsequent handoff HEAD, have owner create/use one agreed Codespace and log in to **tnyx-23**, then verify only **Tio-Money** on both phones while protecting Tio-TNYX. Remain Stage A manual only.
+
+## 2026-11-19 browser-free login owner add-on
+
+- **Same task / decision:** Owner requested Expo login **without opening a browser**; agent **PROCEED** for bounded CLI guidance in the [existing RFC #3 follow-up](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7003585944). No new PR, project, Codespace, workflow or owner merge authority.
+- **Implementation:** SDK 58 supported command `npx expo login --no-browser` is now the default Codespaces setup, missing-login remediation and starter error instruction. User enters credentials privately in interactive terminal; never put username/password into CLI flags, Git or chat. `npx expo whoami` must show exactly `tnyx-23` before starting tunnel.
+- **Boundaries:** Existing `@tnyx-23/tio-money` only, no EAS UUID insertion/init, no touch to `@tnyx-23/tnyx`. Phase 0 PR #1 remains untouched and unmerged. Stage B blocked.
+- **Testing and next action:** Source change is guidance only; run current-head CI and record actual result in PR #4. Physical Expo login, Metro signed tunnel and both phone reopen tests remain `NOT_VERIFIED`. No owner merge authorization.

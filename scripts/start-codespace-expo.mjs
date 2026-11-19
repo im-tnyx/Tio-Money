@@ -164,7 +164,7 @@ function requireExpoAccount() {
     env: { ...process.env, EXPO_NO_TELEMETRY: '1' },
   });
   if (!validWhoami(result)) {
-    throw new Error('Expo CLI must be signed in as the configured Tio Money owner (tnyx-23). Run npx expo login in this Codespace, then retry. Never share credentials.');
+    throw new Error('Expo CLI must be signed in as the configured Tio Money owner (tnyx-23). Run npx expo login --no-browser in this Codespace, then retry. Never share credentials.');
   }
 }
 
