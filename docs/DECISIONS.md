@@ -1,6 +1,6 @@
 # 📌 Tio Money — Owner Decision Register
 
-> **Status: confirmed MVP language and governance authorization decisions.** This is the durable record of explicit owner decisions, **not** an automatic approval to implement, merge or deploy. Proposed architecture and open design choices remain proposals until separately resolved.
+> **Verified current status (2026-11-19):** Owner decisions TM-DEC-001 through TM-DEC-005 are recorded below. Governance [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) **MERGED** into `main` at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` (all 6 review threads observed resolved). Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is **READY FOR REVIEW / NOT MERGED** at reviewed source HEAD `aaa09ad88fdcb9efa032f0f9b3c5e83f72785738`, before this documentation-only change; latest SHA must be rechecked from GitHub. Separate [documentation cleanup PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) is Draft/unmerged and overlaps this file; integration needs careful reconciliation. **No decision or review-readiness label authorizes a merge, deployment, finance feature or device-QA signoff.**
 
 [Documentation hub](00-INDEX.md) · [PRD](01-PRD.md) · [Architecture](05-TECH-ARCHITECTURE.md) · [Agent contract](../AGENTS.md)
 
@@ -10,13 +10,15 @@
 |---|---|---|---|---|
 | [TM-DEC-001](#tm-dec-001--english-only-initial-app) | 2026-11-18 | Initial mobile app user-facing language is **English only** | **Owner decided** | P0/MVP UI, copy, accessibility, validation |
 | [TM-DEC-002](#tm-dec-002--independent-review-optional-by-default) | 2026-11-19 | Independent review optional by default, known blockers and configured protections binding | **Owner decided; agent-transcribed** | All PRs; sensitive-scope guidance |
-| [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | All PR merges, including PR #2 (not authorized) |
+| [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | Every PR; PR #2 later specifically authorized and merged, PR #1 NOT_GRANTED |
+| [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) | 2026-11-19 | Five destinations and a standalone floating Add FAB | **Owner decided; agent-transcribed** | Phase 0 navigation shell only |
+| [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Only five blank tab screens; disabled visual FAB, no other screens | **Owner decided; agent-transcribed** | Phase 0 visible UI, supersedes DEC-004 editor/Settings availability |
 
 ## TM-DEC-001 — English-only initial app
 
 **Decision date:** 2026-11-18  
 **Authority:** Direct owner instruction in the AI-context governance task  
-**Status:** Confirmed owner decision, pending implementation in a separately approved app branch
+**Status:** Confirmed owner decision; implemented for available Phase 0 copy on the feature branch under review, not a merged or released app
 
 ### Decision
 
@@ -54,17 +56,45 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 **Required preflight and finish:** Verify authentic owner instruction; refresh GitHub PR state/HEAD and base `main`; check all required checks, branch protections and GitHub review settings; assess unresolved blocking findings, reviewed/authorized scope and conditions; seek **renewed owner authorization** if material changes occurred or permission is unclear. Use only permitted **non-force** merge methods. Confirm GitHub reports `MERGED`, record resulting merge commit SHA and use [post-merge sync](../.github/POST-MERGE-SYNC.md) to reconcile `.ai/current.md`, agent provenance, task terminal status and archive. Stop when required checks fail or scope/authority is uncertain.
 
-**Supersedes:** wording implying an agent can **never** merge, or that owner implementation/proceed/review approval automatically permits merge. Does **not** authorize PR #2 or PR #1 to merge now, change financial/SMS/privacy invariants, permit force-push or evade required checks.
+**Supersedes:** wording implying an agent can **never** merge, or that owner implementation/proceed/review approval automatically permits merge. **Historical note:** This policy decision alone did **not** authorize PR #2; the owner later gave separate explicit PR #2 merge permission, and GitHub verifies it was **MERGED** on 2026-11-19 at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` with all six review threads now resolved. This does **not** authorize PR #1 or Draft PR #7 to merge, change financial/SMS/privacy invariants, force-push or evade required checks.
+
+## TM-DEC-004 — Five destinations and floating Add
+
+> **Historical decision with later current-Phase-0 refinement:** The five destinations and right-above-More FAB placement are still valid; the editor-opening/Settings/legacy History behavior originally written below was **superseded for current Phase 0** by [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). Keep the original wording below as owner-decision provenance, **not a currently active UI promise**.
+
+**Decision date:** 2026-11-19. **Authority:** Direct owner message in connected ChatGPT conversation for Phase 0 alignment (agent-transcribed in the [PR #1 RFC](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7001758473); that comment is **not** GitHub-authenticated owner merge authorization).
+
+**Decision:** The Phase 0 mobile bottom navigation contains **Home · Trans. · Stats. · Account · More** as five content destinations. The exactly **one** `+` is a **floating action button**, independent of the bottom bar, positioned on the **right directly above the More tab** (aligned to More's center), and never implemented as a content tab. The owner's screenshot is a spatial-placement reference, not a design or branding copy. `Trans.` routes to the future transaction timeline, `Stats.` routes to the reports/statistics placeholder, `Account` routes to accounts, and `More` provides access to Settings. The FAB opens the **same single Income / Expense / Transfer editor**; Home must not show three type-specific shortcut cards. In Phase 0, all save actions stay disabled and no invented balances or reports appear.
+
+**Supersedes:** Earlier draft screen/README/flow guidance describing four bottom destinations with a center Add **bar slot**. This is a navigation presentation decision only; it does not change the canonical finance ledger, migration policy, SMS/Expo Go limits, or [English-only initial app (TM-DEC-001)](#tm-dec-001--english-only-initial-app). No native module or financial feature is authorized.
+
+**Acceptance:** Five distinct navigable root destinations with accessible English labels; a separately floating single Add FAB; safe-area and screen-reader testing on both devices; legacy `/history` navigation remains recoverable. Formal design review and physical-device QA remain pending. **Owner permission to merge PR #1 is NOT granted by this decision.**
+
+## TM-DEC-005 — Phase 0 empty navigation shell and disabled FAB
+
+**Decision date:** 2026-11-19. **Authority:** Direct owner instructions in the connected ChatGPT project conversation (agent-transcribed; [PR #1 scope discussion](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7006286494)). This is not GitHub-authenticated permission to merge.
+
+**Decision:** For the **current Phase 0 user interface only**, display five bottom navigation destinations **Home · Trans. · Stats. · Account · More**, with **completely empty screen bodies and no top app bar**. Preserve the single `+` floating icon at the **right above More**, but it is **disabled and has no press handler, action or modal route**. No Add Transaction editor, no Settings page, no Welcome page, no old History route, no cards, placeholder text, mock balances or other feature screens. Bottom navigation itself remains selectable to switch among the five blank screens.
+
+**Scope precedence:** This latest direct owner direction **supersedes TM-DEC-004 solely for current Phase 0 FAB interactivity and editor/Settings/History availability**. TM-DEC-004's five-destination labels and More-aligned FAB placement remain valid. Earlier feature specs and documents describe **future-phase product intent**, not a present UI release contract. Any later editor/Settings/onboarding implementation requires a new scoped task. The old removed routes should not be advertised as working. No automatic SMS, financial posting, permission or database schema change is authorized.
+
+**Startup clarification (2026-11-19, owner):** After the native splash screen, launch **directly into the five-tab blank Home shell**, with no intermediate loading text/spinner, login, onboarding or separate screen. Keep native splash visible while SQLite initializes, and hide it once the navigation layout mounts. An exceptional database-startup failure can still display the minimum safe retry/error recovery needed to avoid a stuck app; no normal-path additional UI is permitted. Expo Go splash visuals are not equivalent to a production native build. This refines TM-DEC-005, not an extra feature authorization.
+
+**Foundation remains intact:** Preserve non-visible Expo Router/TypeScript, theme tokens, SQLite startup/settings-only migrations and safe error recovery, domain interfaces, tests, privacy controls and governance. The platform status bar is not an app top bar. The disabled FAB is accessibility-labeled as unavailable.
+
+**Owner implementation clarification — centralized visuals and presentation-only screens (2026-11-19):** The owner's later direct instruction requires **one centralized physical-size and shared icon-size token owner**, not per-screen hardcoded sizes. The same default **24dp** icon size must be reused in bottom navigation and future reusable top bars, buttons, bottom sheets, cards and text fields, with additional semantic roles introduced only by a separate design decision. Current UI visual sizes and colors remain unchanged; theme mode automatically follows **system light/dark** with no picker. All feature screens remain **dumb/presentation-only**; route navigation, safe-area positioning, splash lifecycle, SQLite and domain/business behavior belong to hooks/controllers/services outside screens. [Theme contract](../src/shared/theme/README.md) · [owner technical RFC/proceed](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7014064590) · [explicit shared icon rule](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7014109780). These are owner-clarified Phase 0 implementation constraints, **not permission to implement an editor or future feature screens**.
+
+**Acceptance:** Exactly five blank, selectable screen routes with no top app toolbar; exactly one disabled FAB icon above More, with no `onPress` and no target route; no other app screen routes; shared sizes/icons from theme tokens; automatic OS appearance and presentation-only screens; CI checks pass; physical Android/iPhone Expo Go on latest tokenized HEAD and on-device SQLite testing remain separately **NOT_VERIFIED**. **PR #1 is ready for code review, not owner-authorized for merge.**
 
 ## Pending choices — not decisions
 
 | Topic | Evidence | Status |
 |---|---|---|
-| Final bottom-bar placement, colors and icons | [Screen spec](03-SCREEN-SPEC.md) | Proposal; owner sign-off pending |
+| Final iconography and contrast | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) · [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) · [Screen spec](03-SCREEN-SPEC.md) | Five tab destinations, More-aligned disabled FAB and shared 24dp icon-size contract decided/implemented for Phase 0; final visual contrast/device validation pending |
 | Detailed ledger correction/idempotency strategy and device transaction behavior | [Database design](04-DATABASE-DESIGN.md) · [test plan](06-IMPLEMENTATION-TEST-PLAN.md) | Proposed / needs implementation validation |
 | Android native SMS capability and Play policy eligibility | [Architecture](05-TECH-ARCHITECTURE.md) | Conditional, not authorized |
-| Phase 0 Expo PR device QA and merge | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | Open draft at initial inspection; recheck live |
-| Governance PR and its merge | [Governance task](../.ai/tasks/governance/ai-context-setup.md) | Owner review and separate merge approval required |
+| Phase 0 Expo PR device QA and merge | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | **READY FOR REVIEW / NOT MERGED** at 2026-11-19 check; latest-tokenized device and SQLite QA pending; action-specific owner merge permission **NOT_GRANTED** |
+| Governance PR #2 outcome | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · [Governance task](../.ai/tasks/governance/ai-context-setup.md) | **MERGED** 2026-11-19 06:16:11 UTC; SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, 6/6 review threads resolved when inspected; separate [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains Draft |
 
 **Amendment policy:** Future decisions must include date, source/authority, exact scope, superseded passages and verification. Do not infer owner approval from a merged planning document alone.
 
