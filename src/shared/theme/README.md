@@ -35,7 +35,7 @@ Those future components **do not currently exist in Phase 0** and must not be
 created simply to demonstrate a token. A legitimately different icon size
 requires an approved **semantic role** and a design decision, not arbitrary
 per-screen numbers. The five bottom-tab icons use official Google Material
-Icons Outlined SVG assets and the Expo SDK 58 compatible `react-native-svg`
+Symbols Outlined SVG assets and the Expo SDK 58 compatible `react-native-svg`
 renderer. They use the 24dp shared size and active/inactive theme colors.
 No custom icon geometry, platform-dependent font glyphs or Metro SVG transformer
 is required.
@@ -45,14 +45,14 @@ is required.
 - Current bottom item: 56dp; icon: 24dp; label: 11; icon-label gap: 5dp;
   FAB circle: 56dp; centered plus mark: 24dp. This refactor does **not**
   alter visible sizes or selected-tab behavior.
-- The five bottom-tab glyphs are **Google Material Icons Outlined** (home,
-  receipt, analytics, account_balance_wallet and more_horiz) with official
-  local 24px SVG source files, licensed Apache 2.0. Their exact SVG XML is
-  embedded into the `SvgXml` presentation component with a theme-controlled
-  root fill; the [asset provenance](../assets/google-material-icons/README.md)
-  records the originals and license. No PNG raster copies remain. The disabled
-  FAB mark remains its original two centered native View strokes, with
-  existing 2dp stroke and unchanged behavior.
+- The five bottom-tab glyphs are **Google Material Symbols Outlined, weight
+  200 maximum** (home, book_2, bar_chart_4_bars, account_balance and
+  more_horiz) with exact official local SVG assets, licensed Apache 2.0.
+  Their XML is embedded in `SvgXml` and tinted through the active/inactive
+  theme fill; the [asset provenance](../assets/google-material-icons/README.md)
+  records upstream filenames and licensing. The shared 24dp display size
+  remains unchanged. The disabled FAB mark retains its original native
+  View-drawn two-stroke geometry and behavior.
 - Bottom bar pads dynamically around Android and iPhone safe areas. The
   floating disabled FAB stays centered over More, separated from the bar by
   12dp. These measured insets are runtime values, **not visual token literals**.

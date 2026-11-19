@@ -156,7 +156,7 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   for (const name of ['home', 'transactions', 'statistics', 'accounts', 'more']) {
     const svg = readFileSync(directory + '/' + name + '.svg', 'utf8');
     assert.match(svg, /^<svg /);
-    assert.match(svg, /viewBox="0 0 24 24"/);
+    assert.match(svg, /viewBox="0 -960 960 960"/);
     assert.ok(icon.includes(name + ':'), name + ' should be mapped');
     assert.ok(icon.includes("'" + svg + "'"), name + ' uses the official SVG source');
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
@@ -167,6 +167,16 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   const origin = readFileSync(directory + '/README.md', 'utf8');
   assert.match(license, /Apache License/);
   assert.match(origin, /google\/material-design-icons/);
+  for (const id of [
+    'home_wght200_24px.svg',
+    'book_2_wght200_24px.svg',
+    'bar_chart_4_bars_wght200_24px.svg',
+    'account_balance_wght200_24px.svg',
+    'more_horiz_wght200_24px.svg',
+  ]) {
+    assert.ok(origin.includes(id), id);
+  }
+  assert.doesNotMatch(origin, /account_circle_wght200/);
   assert.equal(packageJson.dependencies['react-native-svg'], '15.16.0');
   assert.equal(packageJson.dependencies['@expo/vector-icons'], undefined);
   assert.equal(packageJson.dependencies['@react-native-vector-icons/material-icons'], undefined);
