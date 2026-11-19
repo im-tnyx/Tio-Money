@@ -164,7 +164,10 @@ test('five tab icons use the shared lightweight outline, not mixed chunky fills'
   assert.match(icon, /borderWidth: iconTokens\.fineStroke/);
   assert.match(icon, /height: iconTokens\.fineStroke/);
   assert.doesNotMatch(icon, /border(?:Top|Left|Right|Bottom)?Width:\s*size\.dp2/);
-  assert.doesNotMatch(icon, /height: bar\.height,\s*borderRadius: size\.dp1,\s*backgroundColor: color/);
+  assert.doesNotMatch(
+    icon,
+    /height: bar\.height,\s*borderRadius: size\.dp1,\s*backgroundColor: color/,
+  );
   assert.match(icon, /tabIconShapes\.moreDots\.map/);
 });
 
