@@ -19,7 +19,8 @@ test('five owner-approved destinations use English-only labels', () => {
 
 test('the Add FAB is an action, not a content tab', () => {
   assert.equal(ADD_TRANSACTION_ROUTE, '/transaction/new');
-  assert.ok(ROOT_DESTINATIONS.every((item) => item.href !== ADD_TRANSACTION_ROUTE));
+  const contentRoutes: readonly string[] = ROOT_DESTINATIONS.map((item) => item.href);
+  assert.equal(contentRoutes.includes(ADD_TRANSACTION_ROUTE), false);
   const shell = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
   assert.match(shell, /accessibilityLabel="Add transaction"/);
   assert.match(shell, /position: 'absolute'/);
