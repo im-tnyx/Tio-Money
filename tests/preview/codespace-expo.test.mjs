@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { test } from 'node:test';
 import {
-  isMobileCommand, metroReady, parseStartTicks, recordMatches,
+  isMobileCommand, metroChildEnvironment, metroReady, parseStartTicks, recordMatches,
   tunnelReady, validExpoGoTunnel, validWhoami,
 } from '../../scripts/start-codespace-expo.mjs';
 
@@ -15,6 +15,17 @@ async function withServer(handler, check) {
   try { await check(server.address().port); }
   finally { await new Promise((ok) => server.close(ok)); }
 }
+
+test('interactive Metro child process always receives a valid CI boolean string', () => {
+  const parent = { CI: '', NODE_ENV: 'development' };
+  const child = metroChildEnvironment(parent);
+  assert.equal(child.CI, 'false');
+  assert.equal(child.EXPO_NO_TELEMETRY, '1');
+  assert.equal(child.NODE_ENV, 'development');
+  assert.equal(parent.CI, '', 'parent process environment must not be mutated');
+  assert.equal(metroChildEnvironment({ CI: 'true' }).CI, 'false',
+    'Codespaces preview must remain interactive even if inherited CI is true');
+});
 
 test('validates Expo Go tunnel instead of trusting an arbitrary deep link', () => {
   assert.equal(validExpoGoTunnel('exp://tunnel.on.expo.app'), true);

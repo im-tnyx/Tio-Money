@@ -111,3 +111,11 @@ node scripts/start-codespace-expo.mjs
 ```
 
 The `whoami` output must be exactly `tnyx-23`. Expo SDK 58 uses browser login by default, so **`--no-browser` explicitly chooses interactive terminal login**. The password and any verification code belong only in the CLI's private prompt, never in a GitHub workflow, command arguments, code, chat or log. This does not create a new Expo/EAS project or modify **Tio-TNYX**. If the CLI rejects authentication, report only the sanitized error (never password/code). This flow is **documented but NOT_VERIFIED in a live authenticated Codespace**.
+
+### Live Codespace confirmed Expo SDK 58 `CI=""` failure (2026-11-19)
+
+Owner authenticated successfully as `tnyx-23` using browser-free CLI login, but Metro exited immediately and Expo Go continued showing Offline. The privately inspected Metro log identified the exact source bug: `Invalid value for environment variable $CI: ""`. The managed starter previously set `CI: ''`, which Expo's `@expo/env` rejects; it now provides `CI: 'false'`, an accepted non-CI interactive value. A preview unit regression test asserts the child environment remains valid even if Codespace inherits `CI=''` or `CI='true'`.
+
+**Immediate manual workaround on a clean port, while the old starter is still checked out:** `CI=false npm run mobile`. This starts an interactive server; keep its terminal open. Before returning to the managed starter, stop the interactive server with Ctrl+C and verify port 8081 is free. Then on the same preview branch, fast-forward the Codespace worktree to the fix (`git status --short` and `git pull --ff-only origin chore/codespaces-expo-go-stage-a` only if clean), and run `node scripts/start-codespace-expo.mjs` followed by `--status`.
+
+**Evidence:** owner-supplied live Codespace CLI output proves authentication and the original CI parse failure; Expo signed tunnel success and Android/iOS reconnect still require separate evidence and are **NOT_VERIFIED** until a successful post-fix live run. Do not post the signed Expo link or private log.

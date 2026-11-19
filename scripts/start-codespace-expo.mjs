@@ -37,6 +37,12 @@ export function validExpoGoTunnel(raw) {
   }
 }
 
+export function metroChildEnvironment(parentEnv = process.env) {
+  // Expo SDK 58 accepts CI only as true/false/1/0; an empty string crashes Metro startup.
+  // This local Expo Go preview is interactive, not an unattended CI build.
+  return { ...parentEnv, EXPO_NO_TELEMETRY: '1', CI: 'false' };
+}
+
 export function validWhoami(result, expectedOwner = CONFIGURED_EXPO_OWNER) {
   if (result.status !== 0 || result.error || typeof expectedOwner !== 'string') return false;
   if (!/^[a-z0-9][a-z0-9_.-]{0,63}$/i.test(expectedOwner)) return false;
@@ -199,7 +205,7 @@ async function startManaged() {
   try {
     child = spawn('npm', ['run', 'mobile'], {
       cwd: ROOT, detached: true, stdio: ['ignore', logFd, logFd],
-      env: { ...process.env, EXPO_NO_TELEMETRY: '1', CI: '' },
+      env: metroChildEnvironment(),
     });
   } finally {
     closeSync(logFd);
