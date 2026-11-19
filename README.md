@@ -23,7 +23,7 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 ---
 
 > [!IMPORTANT]
-> **Current state · 2026-11-18:** A **Phase 0 Expo Router scaffold is under review** on its feature branch. The theme/components, placeholder navigation and SQLite initialization source exist, but **financial accounts, journal tables, transaction saving, reports, imports, SMS reading and store release are not implemented**. Dependency install, Expo Go behavior and physical-device verification must be recorded separately; source presence is not a passing test.
+> **Current state · 2026-11-19:** Phase 0 now intentionally shows **only five bottom-navigation tabs on blank themed screens**, plus a **disabled floating `+` icon above More**. There is **no top app bar, Add Transaction form, Settings screen, Welcome screen or other feature screen**. The non-visible Expo/SQLite/TypeScript foundation remains. Financial accounts, ledger tables, transaction saving, reports, imports, SMS reading and release are not implemented. Android/iPhone physical-device verification is separate from CI.
 
 ## ✨ A calm place for your money
 
@@ -36,10 +36,12 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 
 The owner-provided screenshots are **references for fields and interaction**, **not a UI to copy**. Tio Money will have its **own** visual language and screen design.
 
-- **One floating `+` action above the five-destination bottom bar, aligned over More on the right** — no separate Income / Expense / Transfer shortcut tiles or Add content tab. See [TM-DEC-004](docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add).
-- `+` opens one transaction form with the tabs **Income | Expense | Transfer**.
+- **Current Phase 0:** five bottom tabs (**Home · Trans. · Stats. · Account · More**) each display an **empty screen**. The sole floating `+` **icon is disabled**, aligned above More on the right; tapping it does nothing. No top bar or extra route. See [TM-DEC-005](docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab).
+- **Future product design (not implemented now):** after a new scoped implementation decision, `+` may open an Income / Expense / Transfer editor.
 - **Fees** appear only when needed on a transfer and are accounted for separately as an expense.
-- **Save** stores the transaction and returns; **Save & Add Another** supports faster repeated entry.
+- **Future product design only:** Save and Save & Add Another are not available in this Phase 0 shell.
+
+> **Future flow concept, not a screen or action implemented in the current Phase 0 shell.**
 
 ```mermaid
 flowchart TD
@@ -110,7 +112,7 @@ flowchart LR
 
 ## 🛠 Phase 0 · Developer setup (scaffold under review)
 
-The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** project scaffold. Its **Home · Trans. · Stats. · Account · More** destinations and independent **floating `+` FAB** open a unified preview with **Income | Expense | Transfer** tabs. **Save is disabled**; financial data and genuine account setup are scheduled for later phases.
+The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** scaffold. It renders **only Home · Trans. · Stats. · Account · More** along the bottom, with **five empty themed screen bodies** and a **disabled floating `+` icon above More**. There is **no Add editor, Settings or onboarding screen** and no top app toolbar. The SQLite settings-only initialization, strict TypeScript, theme, tests and governance remain under the hood. No financial data can be saved.
 
 **Requirements:** Node.js **`^22.13.0 || ^24.3.0 || >=26.0.0`** (the repo pins a known-compatible **22.16.0** in `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry. Node 23, 25 and Node 24.0–24.2 are not supported by the locked Expo/React Native engines.
 
