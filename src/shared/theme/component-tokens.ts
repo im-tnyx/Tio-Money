@@ -24,18 +24,16 @@ export const iconRoleSizes = {
 /** Safe-area padding remains dynamic; these values own fixed UI geometry. */
 export const navigationTokens = {
   origin: size.dp0,
-  itemHeight: size.dp56,
+  itemHeight: size.dp48,
   borderWidth: size.dp1,
-  iconLabelGap: size.dp5,
+  iconLabelGap: size.dp3,
   labelFontSize: size.dp11,
   horizontalPadding: size.dp8,
-  topPadding: size.dp8,
-  minimumBottomPadding: size.dp8,
+  topPadding: size.dp1,
+  minimumBottomPadding: size.dp0,
   fabGap: size.dp12,
-  fabDiameter: size.dp56,
+  fabDiameter: size.dp50,
   fabMarkSize: iconTokens.size,
-  fabMarkOffset: size.dp11,
-  fabMarkStroke: iconTokens.stroke,
 } as const;
 
 export const buttonTokens = {

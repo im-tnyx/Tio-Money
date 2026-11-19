@@ -28,10 +28,18 @@ test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(typeScale.title, size.dp26);
   assert.equal(typographyTokens.navLabelSize, size.dp11);
 
-  assert.equal(navigationTokens.itemHeight, size.dp56);
-  assert.equal(navigationTokens.fabDiameter, size.dp56);
+  assert.equal(navigationTokens.itemHeight, size.dp48);
+  assert.equal(navigationTokens.fabDiameter, size.dp50);
+  assert.equal(
+    navigationTokens.borderWidth +
+      navigationTokens.topPadding +
+      navigationTokens.itemHeight +
+      navigationTokens.minimumBottomPadding,
+    size.dp50,
+  );
+  assert.ok(navigationTokens.fabDiameter >= buttonTokens.minimumHeight);
   assert.equal(navigationTokens.fabGap, size.dp12);
-  assert.equal(navigationTokens.iconLabelGap, size.dp5);
+  assert.equal(navigationTokens.iconLabelGap, size.dp3);
   assert.equal(navigationTokens.labelFontSize, typographyTokens.navLabelSize);
   assert.equal(buttonTokens.minimumHeight, size.dp48);
   assert.equal(buttonTokens.disabledOpacity, opacity.disabled);
@@ -52,8 +60,7 @@ test('one shared icon size serves bottom nav and every future reusable component
   ]);
   assert.ok(Object.values(iconRoleSizes).every((token) => token === iconTokens.size));
   assert.equal(navigationTokens.fabMarkSize, iconTokens.size);
-  assert.equal(navigationTokens.fabMarkStroke, iconTokens.stroke);
-  assert.equal(navigationTokens.fabMarkOffset * 2 + iconTokens.stroke, iconTokens.size);
+  assert.ok(navigationTokens.fabMarkSize < navigationTokens.fabDiameter);
 });
 
 test('only the root theme provider chooses system dark/light colors', () => {

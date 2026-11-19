@@ -90,12 +90,14 @@ test('floating disabled icon remains centered over More and above bar with safe 
     { windowWidth: 844, leftInset: 44, rightInset: 44, bottomInset: 21 },
   ]) {
     const horizontalPadding = 8;
-    const topPadding = 8;
+    const topPadding = 1;
+    const minimumBottomPadding = 0;
     const floatingGap = 12;
     const position = getFloatingAddPosition({
       ...device,
       horizontalPadding,
       topPadding,
+      minimumBottomPadding,
       floatingGap,
     });
     const leftPadding = Math.max(horizontalPadding, device.leftInset);
@@ -105,7 +107,13 @@ test('floating disabled icon remains centered over More and above bar with safe 
     const moreCenterFromRight = rightPadding + moreTabWidth / 2;
     assert.ok(Math.abs(position.right + FLOATING_ADD_SIZE / 2 - moreCenterFromRight) < 1);
     const navHeight =
-      NAV_BORDER_WIDTH + topPadding + NAV_ITEM_HEIGHT + Math.max(device.bottomInset, 8);
+      NAV_BORDER_WIDTH +
+      topPadding +
+      NAV_ITEM_HEIGHT +
+      Math.max(device.bottomInset, minimumBottomPadding);
+    assert.equal(NAV_ITEM_HEIGHT, 48);
+    assert.equal(FLOATING_ADD_SIZE, 50);
+    assert.equal(navHeight, 50 + device.bottomInset);
     assert.equal(position.bottom - navHeight, floatingGap);
     assert.ok(position.right >= 8);
   }
@@ -142,6 +150,7 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   const directory = 'src/shared/assets/google-material-icons';
 
   assert.match(tabBar, /<RootTabIcon/);
+  assert.match(tabBar, /gap: theme\.navigation\.iconLabelGap/);
   assert.match(tabBar, /name=\{item\.icon\}/);
   assert.doesNotMatch(tabBar, /\{item\.glyph\}/);
   assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
@@ -183,13 +192,25 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   assert.equal(packageJson.dependencies['react-native-svg-transformer'], undefined);
 });
 
-test('FAB plus is drawn from two centered lines rather than font metrics', () => {
+test('disabled FAB uses official Google Add SVG and remains a 50dp safe-area-aware button', () => {
   const floating = readFileSync('src/shared/ui/floating-add-button.tsx', 'utf8');
+  const addSvg = readFileSync('src/shared/assets/google-material-icons/add.svg', 'utf8');
+  const origin = readFileSync('src/shared/assets/google-material-icons/README.md', 'utf8');
+  const controller = readFileSync('src/shared/navigation/use-floating-add-position.ts', 'utf8');
+
+  assert.match(addSvg, /^<svg /);
+  assert.match(addSvg, /viewBox="0 -960 960 960"/);
+  assert.ok(floating.includes("'" + addSvg + "'"), 'the FAB uses the unmodified Google SVG');
+  assert.match(origin, /add_wght200_24px\.svg/);
+  assert.match(floating, /import \{ SvgXml \} from 'react-native-svg'/);
+  assert.match(floating, /<SvgXml/);
+  assert.match(floating, /fill="\$\{theme\.colors\.brandText\}"/);
   assert.match(floating, /accessibilityLabel="Add transaction \(unavailable\)"/);
+  assert.match(floating, /accessibilityElementsHidden/);
+  assert.match(floating, /importantForAccessibility="no-hide-descendants"/);
   assert.match(floating, /theme\.navigation\.fabMarkSize/);
-  assert.match(floating, /theme\.navigation\.fabMarkOffset/);
-  assert.match(floating, /theme\.navigation\.fabMarkStroke/);
-  assert.match(floating, /theme\.navigation\.origin/);
-  assert.doesNotMatch(floating, /<AppText|fontSize: 30/);
+  assert.match(floating, /theme\.navigation\.fabDiameter/);
+  assert.match(controller, /minimumBottomPadding: navigationTokens\.minimumBottomPadding/);
+  assert.doesNotMatch(floating, /fabMarkOffset|fabMarkStroke|<AppText|fontSize: 30/);
   assert.doesNotMatch(floating, /\bonPress\s*=|useRouter|router\.push/);
 });

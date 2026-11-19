@@ -14,6 +14,7 @@ export type FabPositionInput = {
   bottomInset: number;
   horizontalPadding: number;
   topPadding: number;
+  minimumBottomPadding: number;
   floatingGap: number;
 };
 
@@ -24,6 +25,7 @@ export function getFloatingAddPosition({
   bottomInset,
   horizontalPadding,
   topPadding,
+  minimumBottomPadding,
   floatingGap,
 }: FabPositionInput): { right: number; bottom: number } {
   const leftPadding = Math.max(leftInset, horizontalPadding);
@@ -39,7 +41,7 @@ export function getFloatingAddPosition({
       NAV_BORDER_WIDTH +
       topPadding +
       NAV_ITEM_HEIGHT +
-      Math.max(bottomInset, horizontalPadding) +
+      Math.max(bottomInset, minimumBottomPadding) +
       floatingGap,
   };
 }

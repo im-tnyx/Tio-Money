@@ -42,9 +42,14 @@ is required.
 
 ## Visual continuity and design-system boundaries
 
-- Current bottom item: 56dp; icon: 24dp; label: 11; icon-label gap: 5dp;
-  FAB circle: 56dp; centered plus mark: 24dp. This refactor does **not**
-  alter visible sizes or selected-tab behavior.
+- Current bottom navigation: **50dp baseline total height** (top border 1dp +
+  top pad 1dp + 48dp minimum-height tab row), plus actual OS bottom safe area
+  when present. The tab icons remain 24dp, labels 11sp, and icon-label gap
+  **3dp (reduced from 5dp)** through `navigationTokens.iconLabelGap`.
+  The floating circular disabled FAB has **50dp diameter (from 56dp)**,
+  with an official Google Material Symbols Outlined `add` mark at 24dp
+  and weight 200. These changes retain the 48dp tab touch targets,
+  More-centered FAB positioning and 12dp FAB-to-bar separation.
 - The five bottom-tab glyphs are **Google Material Symbols Outlined, weight
   200 maximum** (home, book_2, bar_chart_4_bars, account_balance and
   more_horiz) with exact official local SVG assets, licensed Apache 2.0.
@@ -52,10 +57,12 @@ is required.
   theme fill; the [asset provenance](../assets/google-material-icons/README.md)
   records upstream filenames and licensing. The shared 24dp display size
   remains unchanged. The disabled FAB mark retains its original native
-  View-drawn two-stroke geometry and behavior.
-- Bottom bar pads dynamically around Android and iPhone safe areas. The
-  floating disabled FAB stays centered over More, separated from the bar by
-  12dp. These measured insets are runtime values, **not visual token literals**.
+  Google Material Symbols Outlined `add` SVG (weight 200) and behavior.
+- Bottom bar adds the OS safe-area bottom inset to the 50dp baseline and
+  remains safe-area-aware on Android and iPhone. The floating disabled FAB stays
+  centered over More, separated from the visible bar by 12dp, based on the
+  shared `minimumBottomPadding` role rather than an unrelated horizontal
+  inset. These measured insets are runtime values, **not visual token literals**.
 - All five routes remain empty and selectable. No top bar, onboarding,
   transaction editor, Settings, extra screen, finance posting or FAB action.
   Native splash transitions directly to the five-tab shell after SQLite

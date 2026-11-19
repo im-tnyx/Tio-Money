@@ -17,6 +17,7 @@ export function useFloatingAddPosition() {
     bottomInset: insets.bottom,
     horizontalPadding: navigationTokens.horizontalPadding,
     topPadding: navigationTokens.topPadding,
+    minimumBottomPadding: navigationTokens.minimumBottomPadding,
     floatingGap: navigationTokens.fabGap,
   });
 }

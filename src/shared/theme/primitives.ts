@@ -37,6 +37,7 @@ export const size = {
   dp34: 34,
   dp40: 40,
   dp48: 48,
+  dp50: 50,
   dp56: 56,
   dp100: 100,
 } as const;
