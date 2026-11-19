@@ -44,6 +44,10 @@ test('PID reuse, foreign cwd and unrelated Metro command are rejected', () => {
   assert.equal(recordMatches(rec, { ...proc, cwd: '/wrong' }, '/workspaces/Tio-Money'), false);
   assert.equal(recordMatches(rec, { ...proc, command: 'npm run dev' }, '/workspaces/Tio-Money'), false);
   assert.equal(isMobileCommand('node /usr/local/bin/npm run mobile'), true);
+  // Real Node 22 npm executable resolves to npm-cli.js in /proc/<pid>/cmdline.
+  assert.equal(isMobileCommand('node /opt/nvm/versions/node/v22.16.0/lib/node_modules/npm/bin/npm-cli.js run mobile'), true);
+  assert.equal(isMobileCommand('npm-cli.js run mobile -- --tunnel'), true);
+  assert.equal(isMobileCommand('node /tmp/npm-cli.js run mobile-other'), false);
   assert.equal(isMobileCommand('npm run mobile-other'), false);
 });
 

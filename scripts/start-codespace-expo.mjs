@@ -21,7 +21,8 @@ export function parseStartTicks(stat) {
 }
 
 export function isMobileCommand(command) {
-  return /(?:^|[\s/])npm(?:\.js)?\s+run\s+mobile(?:\s|$)/.test(command);
+  // GitHub Codespaces commonly runs npm via Node's npm-cli.js, not an npm executable.
+  return /(?:^|[\s/])npm(?:-cli)?(?:\.js)?\s+run\s+mobile(?:\s|$)/.test(command);
 }
 
 export function validExpoGoTunnel(raw) {
