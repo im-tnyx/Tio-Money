@@ -43,7 +43,7 @@ export function FloatingAddButton() {
         <View
           style={{
             position: 'absolute',
-            left: theme.navigation.fabMarkOffset - theme.navigation.fabMarkOffset,
+            left: theme.navigation.origin,
             top: theme.navigation.fabMarkOffset,
             width: theme.navigation.fabMarkSize,
             height: theme.navigation.fabMarkStroke,
@@ -55,10 +55,10 @@ export function FloatingAddButton() {
           style={{
             position: 'absolute',
             left: theme.navigation.fabMarkOffset,
-            top: theme.navigation.fabMarkOffset - theme.navigation.fabMarkOffset,
+            top: theme.navigation.origin,
             width: theme.navigation.fabMarkStroke,
             height: theme.navigation.fabMarkSize,
-            borderRadius: 1,
+            borderRadius: theme.navigation.borderWidth,
             backgroundColor: theme.colors.brandText,
           }}
         />
