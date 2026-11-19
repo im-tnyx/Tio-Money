@@ -17,7 +17,7 @@ export function SettingsScreen() {
         <ActionButton
           label="← Back"
           variant="ghost"
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/more'))}
         />
       </View>
       <AppText variant="title">Settings & privacy</AppText>
@@ -37,7 +37,7 @@ export function SettingsScreen() {
       </SectionCard>
       <StatePanel
         title="Privacy and export"
-        description="Language selection, CSV export, data deletion, app lock and backup controls will only appear once genuinely implemented."
+        description="CSV export, data deletion, app lock and backup controls will appear only when implemented. The initial MVP has English copy and no language selector."
       />
       <AppText variant="caption" style={{ color: theme.colors.secondaryText }}>
         Phase 0 • This is a development foundation, not a public release.
