@@ -10,5 +10,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 export function BlankScreen() {
   const theme = useAppTheme();
 
-  return <View testID="empty-phase0-screen" style={{ flex: 1, backgroundColor: theme.colors.canvas }} />;
+  return (
+    <View testID="empty-phase0-screen" style={{ flex: 1, backgroundColor: theme.colors.canvas }} />
+  );
 }
