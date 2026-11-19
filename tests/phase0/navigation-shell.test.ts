@@ -40,7 +40,10 @@ test('each tab is a blank themed screen with no top/header/finance preview', () 
   assert.doesNotMatch(blank, /<Text|<AppText|<ScreenHeader|<ScrollView/);
 
   const files = readdirSync('src/app/(tabs)').filter((name) => name.endsWith('.tsx'));
-  assert.deepEqual(files.sort(), [...screenRoutes.map((path) => path.split('/').at(-1)), '_layout.tsx'].sort());
+  assert.deepEqual(
+    files.sort(),
+    [...screenRoutes.map((path) => path.split('/').at(-1)), '_layout.tsx'].sort(),
+  );
 });
 
 test('FAB is an accessible disabled icon, never a content tab or active action', () => {
