@@ -7,6 +7,7 @@ import { ROOT_DESTINATIONS } from '@/shared/navigation/root-destinations';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
 import { AppText } from './app-text';
+import { RootTabIcon } from './root-tab-icon';
 
 /** Five content tabs only; the independent Add FAB lives in the root layout. */
 export function RootTabBar() {
@@ -43,17 +44,13 @@ export function RootTabBar() {
               minHeight: NAV_ITEM_HEIGHT,
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 2,
+              gap: 5,
             }}
           >
-            <AppText
-              style={{
-                fontSize: 23,
-                color: active ? theme.colors.brand : theme.colors.secondaryText,
-              }}
-            >
-              {item.glyph}
-            </AppText>
+            <RootTabIcon
+              name={item.icon}
+              color={active ? theme.colors.brand : theme.colors.secondaryText}
+            />
             <AppText
               variant="caption"
               style={{
