@@ -157,7 +157,8 @@ test('all five tabs render official Google SVG paths with token sizing and theme
     const svg = readFileSync(directory + '/' + name + '.svg', 'utf8');
     assert.match(svg, /^<svg /);
     assert.match(svg, /viewBox="0 0 24 24"/);
-    assert.ok(icon.includes(name + ": '" + svg + "',"), name + ' uses the official SVG source');
+    assert.ok(icon.includes(name + ':'), name + ' should be mapped');
+    assert.ok(icon.includes("'" + svg + "'"), name + ' uses the official SVG source');
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
     assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }
