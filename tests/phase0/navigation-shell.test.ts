@@ -132,13 +132,14 @@ test('successful launch reveals only five blank tabs after the native splash', (
   assert.doesNotMatch(root, /name="settings"|name="transaction\/new"|name="welcome"/);
 });
 
-test('tab bar uses clear native-drawn icons instead of platform-dependent font glyphs', () => {
+test('all five tabs use local Google Material Outlined PNGs with theme tint', () => {
   const tabBar = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
   const icon = readFileSync('src/shared/ui/root-tab-icon.tsx', 'utf8');
   const destinations = readFileSync('src/shared/navigation/root-destinations.ts', 'utf8');
   const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
     dependencies: Record<string, string>;
   };
+  const directory = 'src/shared/assets/google-material-icons';
 
   assert.match(tabBar, /<RootTabIcon/);
   assert.match(tabBar, /name=\{item\.icon\}/);
@@ -146,29 +147,35 @@ test('tab bar uses clear native-drawn icons instead of platform-dependent font g
   assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
   assert.match(icon, /accessibilityElementsHidden/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
+  assert.match(icon, /accessible=\{false\}/);
+  assert.match(icon, /source=\{MATERIAL_OUTLINED_ICONS\[name\]\}/);
+  assert.match(icon, /tintColor: color/);
+  assert.match(icon, /width: iconTokens\.size, height: iconTokens\.size/);
+  assert.doesNotMatch(icon, /tabIconShapes|borderWidth|IconFont|<Text|<AppText/);
+
   for (const name of ['home', 'transactions', 'statistics', 'accounts', 'more']) {
-    assert.ok(icon.includes(`name === '${name}'`), `${name} should have a native icon`);
+    assert.ok(
+      icon.includes(`${name}: require('../assets/google-material-icons/${name}.png')`),
+      `${name} should have a bundled Material icon`,
+    );
+    const oneX = readFileSync(`${directory}/${name}.png`);
+    const twoX = readFileSync(`${directory}/${name}@2x.png`);
+    for (const png of [oneX, twoX]) {
+      assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+    }
+    assert.equal(oneX.readUInt32BE(16), 24);
+    assert.equal(oneX.readUInt32BE(20), 24);
+    assert.equal(twoX.readUInt32BE(16), 48);
+    assert.equal(twoX.readUInt32BE(20), 48);
   }
-  assert.doesNotMatch(icon, /<Text|<AppText|IconFont|Image/);
+
+  const license = readFileSync(`${directory}/LICENSE.txt`, 'utf8');
+  const origin = readFileSync(`${directory}/README.md`, 'utf8');
+  assert.match(license, /Apache License/);
+  assert.match(origin, /google\/material-design-icons/);
   assert.equal(packageJson.dependencies['@expo/vector-icons'], undefined);
+  assert.equal(packageJson.dependencies['@react-native-vector-icons/material-icons'], undefined);
   assert.equal(packageJson.dependencies['react-native-svg'], undefined);
-});
-
-test('five tab icons use the shared lightweight outline, not mixed chunky fills', () => {
-  const icon = readFileSync('src/shared/ui/root-tab-icon.tsx', 'utf8');
-  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
-
-  assert.match(tokens, /fineStroke: size\.dp1_5/);
-  assert.match(icon, /borderTopWidth: iconTokens\.fineStroke/);
-  assert.match(icon, /borderLeftWidth: iconTokens\.fineStroke/);
-  assert.match(icon, /borderWidth: iconTokens\.fineStroke/);
-  assert.match(icon, /height: iconTokens\.fineStroke/);
-  assert.doesNotMatch(icon, /border(?:Top|Left|Right|Bottom)?Width:\s*size\.dp2/);
-  assert.doesNotMatch(
-    icon,
-    /height: bar\.height,\s*borderRadius: size\.dp1,\s*backgroundColor: color/,
-  );
-  assert.match(icon, /tabIconShapes\.moreDots\.map/);
 });
 
 test('FAB plus is drawn from two centered lines rather than font metrics', () => {

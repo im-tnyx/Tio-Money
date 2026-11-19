@@ -9,7 +9,6 @@ import {
   iconTokens,
   navigationTokens,
   shadowTokens,
-  tabIconShapes,
 } from '../../src/shared/theme/component-tokens';
 import { opacity, size } from '../../src/shared/theme/primitives';
 import {
@@ -55,9 +54,6 @@ test('one shared icon size serves bottom nav and every future reusable component
   assert.equal(navigationTokens.fabMarkSize, iconTokens.size);
   assert.equal(navigationTokens.fabMarkStroke, iconTokens.stroke);
   assert.equal(navigationTokens.fabMarkOffset * 2 + iconTokens.stroke, iconTokens.size);
-  assert.equal(tabIconShapes.transactionRows.length, 3);
-  assert.equal(tabIconShapes.statisticBars.length, 3);
-  assert.equal(tabIconShapes.moreDots.length, 3);
 });
 
 test('only the root theme provider chooses system dark/light colors', () => {

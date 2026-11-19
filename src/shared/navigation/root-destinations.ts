@@ -1,4 +1,4 @@
-/** Owner-approved five empty Phase 0 destinations and their native-drawn icon shapes. */
+/** Owner-approved five empty Phase 0 destinations and their Google Material Outlined icons. */
 export type RootTabIconName = 'home' | 'transactions' | 'statistics' | 'accounts' | 'more';
 
 export const ROOT_DESTINATIONS = [

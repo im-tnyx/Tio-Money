@@ -12,7 +12,7 @@ It draws on the *ownership pattern*, not the Flutter code, of the Tio-World core
 2. **`tokens.ts`** owns spacing, radii, typography and system light/dark semantic
    palettes. Existing colors and spacing values are unchanged.
 3. **`component-tokens.ts`** owns semantic sizing for navigation, FAB, buttons,
-   shadows, exceptional recovery and the five native-drawn tab icon shapes.
+   shadows, exceptional recovery and the tab icon image-size contract.
    All component roles alias the primitive physical values rather than declaring
    new numbers.
 4. **`theme-provider.tsx`** resolves `useColorScheme()` and exposes the typed,
@@ -34,21 +34,24 @@ declare `width: 24`, `height: 24` or a new icon-size constant locally.
 Those future components **do not currently exist in Phase 0** and must not be
 created simply to demonstrate a token. A legitimately different icon size
 requires an approved **semantic role** and a design decision, not arbitrary
-per-screen numbers. The five existing View-drawn tab icon paths use centrally
-owned `size.dp*` coordinates and `tabIconShapes`; they are deliberately
-independent of OS font glyph fallback.
+per-screen numbers. The five bottom-tab icons are official Google Material Icons
+Outlined images bundled locally at 1x/2x resolution. They use theme-driven
+`tintColor` and a single shared 24dp display size; there is no icon font,
+custom glyph geometry or external icon-rendering dependency.
 
 ## Visual continuity and design-system boundaries
 
 - Current bottom item: 56dp; icon: 24dp; label: 11; icon-label gap: 5dp;
   FAB circle: 56dp; centered plus mark: 24dp. This refactor does **not**
   alter visible sizes or selected-tab behavior.
-- The five tab glyphs use **lightweight 1.5dp outline strokes** via
-  `iconTokens.fineStroke`, with outlined chart bars, slimmer transaction
-  details and smaller horizontal-ellipsis dots. The design is independently
-  View-drawn, inspired by the thin-line aesthetic; it does **not** bundle
-  or copy licensed Font Awesome Light assets. The disabled FAB mark retains
-  its existing separate 2dp stroke and behavior.
+- The five bottom-tab glyphs are **Google Material Icons Outlined** (home,
+  receipt, analytics, account_balance_wallet and more_horiz), supplied as
+  local 24dp PNGs with 1x/2x density variants. They are licensed Apache 2.0;
+  original paths and license are in
+  [asset provenance](../assets/google-material-icons/README.md).
+  `Image.tintColor` follows the same active/inactive light/dark roles.
+  The disabled FAB mark remains two centered native View strokes,
+  with its existing 2dp stroke and unchanged behavior.
 - Bottom bar pads dynamically around Android and iPhone safe areas. The
   floating disabled FAB stays centered over More, separated from the bar by
   12dp. These measured insets are runtime values, **not visual token literals**.
@@ -74,7 +77,8 @@ independent of OS font glyph fallback.
   consistency, enforced absence of numeric visual size literals in the
   Phase 0 UI surfaces, system-appearance ownership and screen/logic split.
   The visual-size guard includes every corner-specific React Native border radius,
-  not just `borderRadius`; native-drawn Home icon corners use `size.dp2`.
+  not just `borderRadius`; the Google icon assets carry their own artwork,
+  while displayed image dimensions remain theme-tokenized.
 - `tests/phase0/navigation-shell.test.ts`: five blank routes, disabled FAB,
   responsive More alignment and native splash.
 - `npm run check` and Android/iOS Metro export run in the Phase 0 workflow.
