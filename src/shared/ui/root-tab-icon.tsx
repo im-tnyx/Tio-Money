@@ -2,16 +2,12 @@ import { Fragment } from 'react';
 import { View } from 'react-native';
 
 import type { RootTabIconName } from '@/shared/navigation/root-destinations';
-
-const STATISTICS_BARS = [
-  { left: 3, height: 8 },
-  { left: 10, height: 14 },
-  { left: 17, height: 19 },
-] as const;
+import { iconTokens, tabIconShapes } from '@/shared/theme/component-tokens';
+import { size } from '@/shared/theme/primitives';
 
 /**
  * Native-drawn, font-independent tab icons.
- * A fixed 24dp coordinate system avoids platform-specific Unicode glyph fallback.
+ * A shared, token-owned icon coordinate system avoids platform-specific Unicode glyph fallback.
  * The containing tab owns the accessible label and selected state.
  */
 export function RootTabIcon({ name, color }: { name: RootTabIconName; color: string }) {
@@ -19,34 +15,34 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={{ width: 24, height: 24 }}
+      style={{ width: iconTokens.size, height: iconTokens.size }}
     >
       {name === 'home' && (
         <>
           <View
             style={{
               position: 'absolute',
-              left: 5.5,
-              top: 2,
-              width: 13,
-              height: 13,
-              borderTopWidth: 2,
-              borderLeftWidth: 2,
+              left: size.dp5_5,
+              top: size.dp2,
+              width: size.dp13,
+              height: size.dp13,
+              borderTopWidth: size.dp2,
+              borderLeftWidth: size.dp2,
               borderColor: color,
               borderTopLeftRadius: 2,
-              transform: [{ rotate: '45deg' }],
+              transform: [{ rotate: iconTokens.roofRotation }],
             }}
           />
           <View
             style={{
               position: 'absolute',
-              left: 4,
-              top: 10,
-              width: 16,
-              height: 12,
-              borderLeftWidth: 2,
-              borderRightWidth: 2,
-              borderBottomWidth: 2,
+              left: size.dp4,
+              top: size.dp10,
+              width: size.dp16,
+              height: size.dp12,
+              borderLeftWidth: size.dp2,
+              borderRightWidth: size.dp2,
+              borderBottomWidth: size.dp2,
               borderColor: color,
               borderBottomLeftRadius: 2,
               borderBottomRightRadius: 2,
@@ -55,12 +51,12 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
           <View
             style={{
               position: 'absolute',
-              left: 10,
-              bottom: 2,
-              width: 4,
-              height: 8,
-              borderLeftWidth: 1.5,
-              borderRightWidth: 1.5,
+              left: size.dp10,
+              bottom: size.dp2,
+              width: size.dp4,
+              height: size.dp8,
+              borderLeftWidth: size.dp1_5,
+              borderRightWidth: size.dp1_5,
               borderColor: color,
             }}
           />
@@ -68,27 +64,27 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
       )}
 
       {name === 'transactions' &&
-        [4, 10, 16].map((top) => (
+        tabIconShapes.transactionRows.map((top) => (
           <Fragment key={top}>
             <View
               style={{
                 position: 'absolute',
-                left: 3,
-                top: top + 1,
-                width: 3,
-                height: 3,
-                borderRadius: 1,
+                left: size.dp3,
+                top: top + size.dp1,
+                width: size.dp3,
+                height: size.dp3,
+                borderRadius: size.dp1,
                 backgroundColor: color,
               }}
             />
             <View
               style={{
                 position: 'absolute',
-                left: 9,
-                top: top + 1.5,
-                width: 12,
-                height: 2,
-                borderRadius: 1,
+                left: size.dp9,
+                top: top + size.dp1_5,
+                width: size.dp12,
+                height: size.dp2,
+                borderRadius: size.dp1,
                 backgroundColor: color,
               }}
             />
@@ -96,16 +92,16 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
         ))}
 
       {name === 'statistics' &&
-        STATISTICS_BARS.map((bar) => (
+        tabIconShapes.statisticBars.map((bar) => (
           <View
             key={bar.left}
             style={{
               position: 'absolute',
               left: bar.left,
-              bottom: 3,
-              width: 4,
+              bottom: size.dp3,
+              width: size.dp4,
               height: bar.height,
-              borderRadius: 1,
+              borderRadius: size.dp1,
               backgroundColor: color,
             }}
           />
@@ -116,36 +112,36 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
           <View
             style={{
               position: 'absolute',
-              left: 2,
-              top: 5,
-              width: 20,
-              height: 15,
-              borderWidth: 2,
+              left: size.dp2,
+              top: size.dp5,
+              width: size.dp20,
+              height: size.dp15,
+              borderWidth: size.dp2,
               borderColor: color,
-              borderRadius: 3,
+              borderRadius: size.dp3,
             }}
           />
           <View
             style={{
               position: 'absolute',
-              left: 13,
-              top: 10,
-              width: 10,
-              height: 7,
-              borderWidth: 2,
+              left: size.dp13,
+              top: size.dp10,
+              width: size.dp10,
+              height: size.dp7,
+              borderWidth: size.dp2,
               borderColor: color,
-              borderRadius: 2,
+              borderRadius: size.dp2,
               backgroundColor: 'transparent',
             }}
           />
           <View
             style={{
               position: 'absolute',
-              left: 17,
-              top: 12.5,
-              width: 2,
-              height: 2,
-              borderRadius: 1,
+              left: size.dp17,
+              top: size.dp12_5,
+              width: size.dp2,
+              height: size.dp2,
+              borderRadius: size.dp1,
               backgroundColor: color,
             }}
           />
@@ -153,16 +149,16 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
       )}
 
       {name === 'more' &&
-        [3, 10, 17].map((left) => (
+        tabIconShapes.moreDots.map((left) => (
           <View
             key={left}
             style={{
               position: 'absolute',
               left,
-              top: 10,
-              width: 4,
-              height: 4,
-              borderRadius: 2,
+              top: size.dp10,
+              width: size.dp4,
+              height: size.dp4,
+              borderRadius: size.dp2,
               backgroundColor: color,
             }}
           />
