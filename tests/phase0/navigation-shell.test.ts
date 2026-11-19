@@ -132,7 +132,7 @@ test('successful launch reveals only five blank tabs after the native splash', (
   assert.doesNotMatch(root, /name="settings"|name="transaction\/new"|name="welcome"/);
 });
 
-test('all five tabs use local Google Material Outlined PNGs with theme tint', () => {
+test('all five tabs render official Google SVG paths with token sizing and theme color', () => {
   const tabBar = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
   const icon = readFileSync('src/shared/ui/root-tab-icon.tsx', 'utf8');
   const destinations = readFileSync('src/shared/navigation/root-destinations.ts', 'utf8');
@@ -145,37 +145,31 @@ test('all five tabs use local Google Material Outlined PNGs with theme tint', ()
   assert.match(tabBar, /name=\{item\.icon\}/);
   assert.doesNotMatch(tabBar, /\{item\.glyph\}/);
   assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
+  assert.match(icon, /import \{ SvgXml \} from 'react-native-svg'/);
   assert.match(icon, /accessibilityElementsHidden/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
-  assert.match(icon, /accessible=\{false\}/);
-  assert.match(icon, /source=\{MATERIAL_OUTLINED_ICONS\[name\]\}/);
-  assert.match(icon, /tintColor: color/);
-  assert.match(icon, /width: iconTokens\.size, height: iconTokens\.size/);
-  assert.doesNotMatch(icon, /tabIconShapes|borderWidth|IconFont|<Text|<AppText/);
+  assert.match(icon, /MATERIAL_OUTLINED_SVG\[name\]\.replace/);
+  assert.match(icon, /fill="\$\{color\}"/);
+  assert.match(icon, /width=\{iconTokens\.size\} height=\{iconTokens\.size\}/);
+  assert.doesNotMatch(icon, /require\(.+\.png|tabIconShapes|IconFont|<Image/);
 
   for (const name of ['home', 'transactions', 'statistics', 'accounts', 'more']) {
-    assert.ok(
-      icon.includes(`${name}: require('../assets/google-material-icons/${name}.png')`),
-      `${name} should have a bundled Material icon`,
-    );
-    const oneX = readFileSync(`${directory}/${name}.png`);
-    const twoX = readFileSync(`${directory}/${name}@2x.png`);
-    for (const png of [oneX, twoX]) {
-      assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
-    }
-    assert.equal(oneX.readUInt32BE(16), 24);
-    assert.equal(oneX.readUInt32BE(20), 24);
-    assert.equal(twoX.readUInt32BE(16), 48);
-    assert.equal(twoX.readUInt32BE(20), 48);
+    const svg = readFileSync(directory + '/' + name + '.svg', 'utf8');
+    assert.match(svg, /^<svg /);
+    assert.match(svg, /viewBox="0 0 24 24"/);
+    assert.ok(icon.includes(name + ": '" + svg + "',"), name + ' uses the official SVG source');
+    assert.equal(existsSync(directory + '/' + name + '.png'), false);
+    assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }
 
-  const license = readFileSync(`${directory}/LICENSE.txt`, 'utf8');
-  const origin = readFileSync(`${directory}/README.md`, 'utf8');
+  const license = readFileSync(directory + '/LICENSE.txt', 'utf8');
+  const origin = readFileSync(directory + '/README.md', 'utf8');
   assert.match(license, /Apache License/);
   assert.match(origin, /google\/material-design-icons/);
+  assert.equal(packageJson.dependencies['react-native-svg'], '15.16.0');
   assert.equal(packageJson.dependencies['@expo/vector-icons'], undefined);
   assert.equal(packageJson.dependencies['@react-native-vector-icons/material-icons'], undefined);
-  assert.equal(packageJson.dependencies['react-native-svg'], undefined);
+  assert.equal(packageJson.dependencies['react-native-svg-transformer'], undefined);
 });
 
 test('FAB plus is drawn from two centered lines rather than font metrics', () => {
