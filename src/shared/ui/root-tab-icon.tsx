@@ -26,8 +26,8 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               top: size.dp2,
               width: size.dp13,
               height: size.dp13,
-              borderTopWidth: size.dp2,
-              borderLeftWidth: size.dp2,
+              borderTopWidth: iconTokens.fineStroke,
+              borderLeftWidth: iconTokens.fineStroke,
               borderColor: color,
               borderTopLeftRadius: size.dp2,
               transform: [{ rotate: iconTokens.roofRotation }],
@@ -40,9 +40,9 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               top: size.dp10,
               width: size.dp16,
               height: size.dp12,
-              borderLeftWidth: size.dp2,
-              borderRightWidth: size.dp2,
-              borderBottomWidth: size.dp2,
+              borderLeftWidth: iconTokens.fineStroke,
+              borderRightWidth: iconTokens.fineStroke,
+              borderBottomWidth: iconTokens.fineStroke,
               borderColor: color,
               borderBottomLeftRadius: size.dp2,
               borderBottomRightRadius: size.dp2,
@@ -55,8 +55,8 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               bottom: size.dp2,
               width: size.dp4,
               height: size.dp8,
-              borderLeftWidth: size.dp1_5,
-              borderRightWidth: size.dp1_5,
+              borderLeftWidth: iconTokens.fineStroke,
+              borderRightWidth: iconTokens.fineStroke,
               borderColor: color,
             }}
           />
@@ -70,11 +70,12 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               style={{
                 position: 'absolute',
                 left: size.dp3,
-                top: top + size.dp1,
-                width: size.dp3,
-                height: size.dp3,
+                top,
+                width: size.dp4,
+                height: size.dp4,
+                borderWidth: iconTokens.fineStroke,
+                borderColor: color,
                 borderRadius: size.dp1,
-                backgroundColor: color,
               }}
             />
             <View
@@ -83,7 +84,7 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
                 left: size.dp9,
                 top: top + size.dp1_5,
                 width: size.dp12,
-                height: size.dp2,
+                height: iconTokens.fineStroke,
                 borderRadius: size.dp1,
                 backgroundColor: color,
               }}
@@ -101,8 +102,9 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               bottom: size.dp3,
               width: size.dp4,
               height: bar.height,
+              borderWidth: iconTokens.fineStroke,
+              borderColor: color,
               borderRadius: size.dp1,
-              backgroundColor: color,
             }}
           />
         ))}
@@ -116,7 +118,7 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               top: size.dp5,
               width: size.dp20,
               height: size.dp15,
-              borderWidth: size.dp2,
+              borderWidth: iconTokens.fineStroke,
               borderColor: color,
               borderRadius: size.dp3,
             }}
@@ -128,7 +130,7 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               top: size.dp10,
               width: size.dp10,
               height: size.dp7,
-              borderWidth: size.dp2,
+              borderWidth: iconTokens.fineStroke,
               borderColor: color,
               borderRadius: size.dp2,
               backgroundColor: 'transparent',
@@ -155,10 +157,10 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
             style={{
               position: 'absolute',
               left,
-              top: size.dp10,
-              width: size.dp4,
-              height: size.dp4,
-              borderRadius: size.dp2,
+              top: size.dp11,
+              width: size.dp2,
+              height: size.dp2,
+              borderRadius: size.dp1,
               backgroundColor: color,
             }}
           />

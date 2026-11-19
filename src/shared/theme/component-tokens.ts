@@ -21,7 +21,7 @@ export const tabIconShapes = {
     { left: size.dp10, height: size.dp14 },
     { left: size.dp17, height: size.dp19 },
   ],
-  moreDots: [size.dp3, size.dp10, size.dp17],
+  moreDots: [size.dp4, size.dp11, size.dp18],
 } as const;
 
 export const iconRoleSizes = {

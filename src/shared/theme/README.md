@@ -43,6 +43,12 @@ independent of OS font glyph fallback.
 - Current bottom item: 56dp; icon: 24dp; label: 11; icon-label gap: 5dp;
   FAB circle: 56dp; centered plus mark: 24dp. This refactor does **not**
   alter visible sizes or selected-tab behavior.
+- The five tab glyphs use **lightweight 1.5dp outline strokes** via
+  `iconTokens.fineStroke`, with outlined chart bars, slimmer transaction
+  details and smaller horizontal-ellipsis dots. The design is independently
+  View-drawn, inspired by the thin-line aesthetic; it does **not** bundle
+  or copy licensed Font Awesome Light assets. The disabled FAB mark retains
+  its existing separate 2dp stroke and behavior.
 - Bottom bar pads dynamically around Android and iPhone safe areas. The
   floating disabled FAB stays centered over More, separated from the bar by
   12dp. These measured insets are runtime values, **not visual token literals**.

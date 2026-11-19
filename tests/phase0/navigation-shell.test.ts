@@ -154,6 +154,20 @@ test('tab bar uses clear native-drawn icons instead of platform-dependent font g
   assert.equal(packageJson.dependencies['react-native-svg'], undefined);
 });
 
+test('five tab icons use the shared lightweight outline, not mixed chunky fills', () => {
+  const icon = readFileSync('src/shared/ui/root-tab-icon.tsx', 'utf8');
+  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+
+  assert.match(tokens, /fineStroke: size\.dp1_5/);
+  assert.match(icon, /borderTopWidth: iconTokens\.fineStroke/);
+  assert.match(icon, /borderLeftWidth: iconTokens\.fineStroke/);
+  assert.match(icon, /borderWidth: iconTokens\.fineStroke/);
+  assert.match(icon, /height: iconTokens\.fineStroke/);
+  assert.doesNotMatch(icon, /border(?:Top|Left|Right|Bottom)?Width:\s*size\.dp2/);
+  assert.doesNotMatch(icon, /height: bar\.height,\s*borderRadius: size\.dp1,\s*backgroundColor: color/);
+  assert.match(icon, /tabIconShapes\.moreDots\.map/);
+});
+
 test('FAB plus is drawn from two centered lines rather than font metrics', () => {
   const floating = readFileSync('src/shared/ui/floating-add-button.tsx', 'utf8');
   assert.match(floating, /accessibilityLabel="Add transaction \(unavailable\)"/);
