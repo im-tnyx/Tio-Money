@@ -1,11 +1,6 @@
-import { PlannedScreen } from '@/features/common/planned-screen';
+import { Redirect } from 'expo-router';
 
-export default function HistoryRoute() {
-  return (
-    <PlannedScreen
-      title="History"
-      subtitle="A clear timeline of your money."
-      next="Transaction history and filters will be powered by the local journal in Phase 3. No example entries are presented as real."
-    />
-  );
+/** Preserve old deep links; transaction history lives under the Trans. destination. */
+export default function LegacyHistoryRoute() {
+  return <Redirect href="/transactions" />;
 }
