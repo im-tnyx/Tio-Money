@@ -100,7 +100,8 @@ test('Expo public identity points only to existing tnyx-23/tio-money slug', () =
   assert.equal(expo.name, 'Tio Money');
   assert.equal(expo.slug, 'tio-money');
   assert.equal(expo.owner, 'tnyx-23');
-  assert.equal(expo.extra?.eas?.projectId, undefined,
-    'Do not invent or link an EAS UUID before authenticating the existing project');
+  assert.equal(expo.extra?.eas?.projectId, '722e6857-1159-4414-a024-6a4351e7d3e1',
+    'The existing Tio Money EAS project must match the owner-verified dashboard UUID');
+  assert.equal(expo.extra?.releaseStage, 'phase-0-foundation');
   assert.equal(expo.updates?.url, undefined);
 });
