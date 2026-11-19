@@ -43,6 +43,7 @@ export const size = {
 
 /** Visual state transparency and elevation alpha. */
 export const opacity = {
+  enabled: 1,
   fabShadow: 0.18,
   disabled: 0.48,
   pressed: 0.8,
