@@ -49,7 +49,7 @@ is required.
   `navigationTokens.iconLabelGap`, between each Google icon and its label.
   The floating circular disabled FAB has **50dp diameter (from 56dp)**,
   with an official Google Material Symbols Outlined `add` mark at 24dp
-  and weight 200. These changes retain the 48dp tab touch targets,
+  and default weight 400 (FAB-only). These changes retain the 48dp tab touch targets,
   More-centered FAB positioning and 12dp FAB-to-bar separation.
 - The five bottom-tab glyphs are **Google Material Symbols Outlined, weight
   200 maximum** (home, book_2, bar_chart_4_bars, account_balance and
@@ -58,7 +58,7 @@ is required.
   theme fill; the [asset provenance](../assets/google-material-icons/README.md)
   records upstream filenames and licensing. The shared 24dp display size
   remains unchanged. The disabled FAB mark retains its original native
-  Google Material Symbols Outlined `add` SVG (weight 200) and behavior.
+  Google Material Symbols Outlined `add` SVG (default weight 400) and behavior.
 - Bottom bar adds the OS safe-area bottom inset to the 50dp baseline and
   remains safe-area-aware on Android and iPhone. The floating disabled FAB stays
   centered over More, separated from the visible bar by 12dp, based on the

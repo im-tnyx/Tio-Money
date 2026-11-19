@@ -201,7 +201,8 @@ test('disabled FAB uses official Google Add SVG and remains a 50dp safe-area-awa
   assert.match(addSvg, /^<svg /);
   assert.match(addSvg, /viewBox="0 -960 960 960"/);
   assert.ok(floating.includes("'" + addSvg + "'"), 'the FAB uses the unmodified Google SVG');
-  assert.match(origin, /add_wght200_24px\.svg/);
+  assert.match(origin, /add_24px\.svg/);
+  assert.doesNotMatch(origin, /add_wght200_24px\.svg/);
   assert.match(floating, /import \{ SvgXml \} from 'react-native-svg'/);
   assert.match(floating, /<SvgXml/);
   assert.match(floating, /fill="\$\{theme\.colors\.brandText\}"/);
