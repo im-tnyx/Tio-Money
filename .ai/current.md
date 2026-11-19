@@ -1,6 +1,18 @@
 # 🧭 Current task index
 
-## Current verified handoff (2026-11-19) — replaces the historical snapshot below
+## 2026-11-20 pre-merge handoff — latest verified implementation source (not a merge)
+
+| Task | PR/branch | Latest verified source | Acceptance / next action |
+|---|---|---|---|
+| **TM-P0-ALIGN-20261119-001** | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · `feat/phase-0-expo-foundation` → `main` | Before this docs-only checkpoint, HEAD `c90d1c00462de5e4a5b007a87dade6641a106f40`. [App CI #44600432345](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432345) PASS; [Governance CI #44600432365](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432365) PASS. Five blank tabs + disabled Google FAB; 24dp icon, 50dp nav baseline/FAB, 1dp label gap, 16dp FAB clearance. **OPEN / NOT MERGED.** | **Owner-reported device UI/no-`ExpoSQLite`-error smoke PASS** (platform/version not specified). Full two-platform, a11y, SQLite PRAGMA/migration/restart **NOT_VERIFIED**. One Copilot Node thread outdated/unresolved, fix evidenced. Independent latest-head review **DEFERRED**. Owner **merge permission for current scope NOT_GRANTED**; fresh explicit authorization required, followed by current HEAD/protections checks. [Task evidence](tasks/phase0/phase0-alignment-20261119.md). |
+| **TM-GOV-20261118-001** | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) | **MERGED** into `main` at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` (2026-11-19); prior 6/6 threads resolved | Preserve verified governance history, no inherited PR #1 merge authority. |
+| **TM-GOV-CLEANUP-20261119-001** | [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) | **DRAFT / UNMERGED**, independent governance docs cleanup | PR #7 also edits `.ai/current.md` and `docs/DECISIONS.md`; reconcile conflicts manually if ever integrated; do not edit PR #7 from Phase 0. |
+
+Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assistant ChatGPT GPT-6 per conversation. Never infer agent identity, owner approval or physical QA from Git author. Source-sha results above are historical as soon as a doc-only commit advances the branch; rerun CI for the new HEAD. **Previous handoffs below are archived historical snapshots**, not latest merge authority.
+
+---
+
+## Historical verified handoff (2026-11-19) — superseded by the 2026-11-20 snapshot above
 
 | Task | PR / branch | Verified status | Last tested source and next safe action |
 |---|---|---|---|
