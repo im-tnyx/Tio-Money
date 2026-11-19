@@ -1,0 +1,82 @@
+# TM-TASK-ID — [descriptive scoped task title]
+
+> **Template only. Not permission to implement/merge/deploy.** When copying to a nested `.ai/tasks/<area>/` path, **rebase all relative links** using [task creation guidance](README.md) / [helper](../../scripts/ai_context.py); this template's links are relative to `.ai/tasks/`.
+
+## Task identity, decision and lifecycle
+
+| Required field | Verified value |
+|---|---|
+| Task ID | `TM-...` (stable unique ID) |
+| Repository | `im-tnyx/Tio-Money` |
+| Lifecycle state | `PROPOSED / DISCUSSION / DECISION_PENDING / APPROVED / ASSIGNED / IN_PROGRESS / VALIDATING / IN_REVIEW / COMPLETED / ARCHIVED / BLOCKED / DEFERRED / CANCELLED / CHANGES_REQUESTED` |
+| RFC / discussion | Persistent GitHub Issue/Discussion/existing PR URL |
+| Proceed decision | `PROCEED / optional APPROVED_FOR_IMPLEMENTATION / CHANGES_REQUESTED / DEFERRED / REJECTED / BLOCKED_PENDING_DECISION` |
+| Decision evidence | Decision maker, source, date, bounded scope, conditions; mark an agent decision separately from optional owner signoff |
+| Current agent | Self-identified working agent/tool or `UNKNOWN_NOT_VERIFIED` |
+| Model | Actually exposed model or `UNKNOWN_NOT_VERIFIED` |
+| Previous verified agent | Actual prior working agent or `UNKNOWN_NOT_VERIFIED` |
+| Git commit author / PR author | Observed separately, not proof of agent/model |
+| Reviewer / owner | Verified separately, not interchangeable with agent; independent review is optional unless GitHub-required |
+| Review disposition | `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, source/reason, reviewer & SHA if performed; blockers preserved |
+| Merge authorization | Owner identity/evidence, repository, specific PR, explicit permission to merge, conditions, current authorized SHA/scope; `NOT_GRANTED` until verified |
+| Merge executor | Owner or agent specifically authorized for the PR; never assume agent rights |
+| Working branch | Live verified branch |
+| Base / inspected HEAD | Immutable actual SHAs; snapshot time |
+| Started at / last checkpoint (UTC) | Actual ISO 8601 UTC timestamps or `UNKNOWN_NOT_VERIFIED` |
+| Authorized scope | Exact behavior, file paths, exclusions, decision source |
+| PR | Verified URL, or Not opened |
+| Next agent | Verified assignee or Unassigned |
+
+## Mandatory discussion and architecture contract
+
+- Request/problem, expected user behavior and explicit non-goals:
+- [RFC template](../discussions/TEMPLATE.md) / actual discussion URL:
+- Product flow, errors and failure cases:
+- Module ownership, public/private interfaces, architecture contracts, reuse and dependencies:
+- Security/privacy, applicable platform policies, alternatives, risks and rollback:
+- Acceptance tests **defined before coding**:
+- Canonical [decision register](../../docs/DECISIONS.md), RFC/proceed decision maker, source and conditions (plus optional owner signoff):
+- Proceed gate: move from `DECISION_PENDING` to `APPROVED` after a durable, bounded `PROCEED` technical decision (owner implementation signoff optional); unresolved high-risk/restricted decisions block.
+- Independent **review** is optional by default; strongly recommend for financial/security/privacy/auth/migration/platform changes. Record review status and never bypass unresolved blocking findings or required GitHub review settings.
+- **Separate owner merge authorization:** `NOT_GRANTED` unless source confirms repo, PR number, permission to merge and conditions. Agent merge is permitted only after explicit instruction and current-HEAD/protection revalidation. This template is not authorization.
+
+## Scope, ownership and integration
+
+- Read required [core summaries](../core/README.md), [docs hub](../../docs/00-INDEX.md), relevant actual source and live PRs on demand.
+- Allowed file paths:
+- Excluded files/business rules:
+- Parallel PR/agent overlaps:
+- Defined feature-specific tests and approved plan:
+- Do not infer previous agent from Git history.
+
+## Immutable session checkpoints — append, do not rewrite prior history
+
+### [ISO-8601 UTC] — [actual agent/model or UNKNOWN_NOT_VERIFIED]
+
+- **Prior verified agent:**
+- **Discussion / documented proceed decision / optional owner implementation approval:**
+- **Base / HEAD inspected / current branch / PR:**
+- **Requested, completed and verified work:**
+- **Attempted but failed:**
+- **Exact changed files:**
+- **Test commands, executed environment, observed results and tested SHA:**
+- **Commit-message audit (base/head, zero forbidden co-author trailers; GitHub/local evidence):**
+- **Checks not run / limitations:**
+- **Independent review disposition (`PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`), reason/source, reviewer and SHA if performed, outstanding blocking findings:**
+- **Owner merge authorization: evidence source, verified owner, repository, PR number, explicit merge permission, conditions and authorized SHA/scope (or `NOT_GRANTED`):**
+- **Remaining work, blockers and risk:**
+- **What next agent must not change:**
+- **Next agent should read first:**
+- **Exact next safe action:**
+
+## Optional independent review, authorized merge and terminal archive gate
+
+- Independent review disposition `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, reason/source (reviewer identity, link, reviewed SHA and actual type if performed):
+- Actual inspected commit and findings severity:
+- Fix SHA and evidence for **known blocking findings**; existing GitHub-required reviews/checks and their status; material-change reassessment:
+- Required versus optional CI; scanner/service limits distinguished from app findings:
+- Explicit owner **merge** authorization: verified source, repo, PR, permission and conditions; **agent merge allowed only after current-state/protection checks**:
+- Verified merge/terminal status/resulting SHA and residual risks:
+- Archive only after terminal state verified and all incoming/outgoing Markdown links repaired.
+
+[Task guide](README.md) · [Root agent contract](../../AGENTS.md) · [Discussions](../discussions/README.md)

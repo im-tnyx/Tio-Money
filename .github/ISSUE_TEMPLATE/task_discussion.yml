@@ -1,0 +1,97 @@
+name: "Technical task discussion / RFC"
+description: "Mandatory discussion-first proposal and scoped PROCEED record for substantive tasks."
+title: "[RFC]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a durable technical **discussion**, not a grant to write code, change restricted settings, or merge. Read [AGENTS.md](https://github.com/im-tnyx/Tio-Money/blob/main/AGENTS.md) and the [discussion process](https://github.com/im-tnyx/Tio-Money/blob/main/.ai/discussions/README.md). A documented PROCEED decision is required before implementation; owner implementation approval is optional for ordinary bounded tasks. **Explicit separate owner approval is mandatory for every PR merge.** A selected dropdown is only a statement requiring reviewable evidence.
+  - type: input
+    id: task_id
+    attributes:
+      label: Stable task ID
+      placeholder: "TM-…"
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Task objective and user / engineering goal
+      description: What will be delivered and why is it needed now?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Existing and proposed end-to-end behavior
+      description: Include flows, state changes, APIs, inputs/outputs and fallback behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: architecture
+    attributes:
+      label: Proposed technical architecture
+      description: Module ports, dependency direction, data flow and reused contracts.
+    validations:
+      required: true
+  - type: textarea
+    id: ownership
+    attributes:
+      label: Feature ownership and branch / PR boundaries
+      description: Name affected module, public/private APIs, expected file paths and parallel work.
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security, privacy and relevant platform/store policies
+      description: Include realistic threats and mitigations, permissions, local data, OS limits; justify N/A.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks, edge cases and recovery plan
+      description: Include failure modes, data integrity and rollback.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and trade-offs
+      description: Compare reasonable alternatives; explain if there is only one viable option.
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Expected tests and acceptance criteria
+      description: List exact planned tests, negative cases and applicable platform/manual checks.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Implementation scope and explicit exclusions
+      description: Include related docs and decision links. No material scope expansion without renewed discussion.
+    validations:
+      required: true
+  - type: dropdown
+    id: proceed_status
+    attributes:
+      label: Technical decision stage (requires separate durable evidence)
+      options:
+        - DISCUSSION_PENDING - no implementation
+        - PROCEED - documented technical decision only
+        - CHANGES_REQUESTED - return to discussion
+        - DEFERRED - no implementation
+        - BLOCKED_PENDING_DECISION - no implementation
+    validations:
+      required: true
+  - type: textarea
+    id: decision_evidence
+    attributes:
+      label: Decision to proceed, source and conditions
+      description: Record who decided, exact URL/source, UTC date, approved bounds and open restrictions; write PENDING if not decided. Dropdown selection alone proves nothing.
+    validations:
+      required: true

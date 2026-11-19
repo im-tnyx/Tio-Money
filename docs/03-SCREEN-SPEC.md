@@ -122,6 +122,8 @@ The design uses a **warm neutral canvas, deep ink, subtle violet brand signal an
 | Icons | One consistent outline family, ~20–24 | Familiar meanings |
 | Motion | 160–220ms simple transitions; respect reduced motion | Calm feedback, not animation-heavy |
 
+**Typography decision:** Prefer platform **system fonts** in the MVP; a custom font needs separate owner approval. Test text scaling and accessibility before visual approval.
+
 **Money format:** `₹12,500.00` where fractional precision is relevant; group Indian digits; avoid forcing decimals when a summary design intentionally rounds *display only*. Storage stays integer paise; never round before ledger calculation.
 
 ### 3.3 Color semantics and tone
@@ -164,14 +166,14 @@ The design uses a **warm neutral canvas, deep ink, subtle violet brand signal an
 
 ```mermaid
 flowchart LR
-  W["Welcome"] --> L["Language + INR"]
+  W["Welcome"] --> L["INR defaults (English UI)"]
   L --> A["Choose account type"]
   A --> B["Name + opening balance"]
   B --> C["Confirm & enter Home"]
 ```
 
 - Welcome: short value proposition; **Get started**; no forced bank login/signup.
-- Language: Hindi or English; currency defaults to INR.
+- Language: **English-only UI**, with **no MVP language picker**; currency defaults to INR. Keep semantic strings ready for later locales.
 - Account: Cash, Bank, funded Wallet or Credit Card (liability).
 - Opening balance wording: **Available balance** for assets; **Amount owed** for credit card.
 - Confirm screen summarizes what will be stored locally; distinguish future backup from current local storage.
@@ -385,7 +387,7 @@ flowchart TD
 ### SCREEN 09 · Settings, privacy, export `TM-S09` · P0 basic / P1 advanced
 
 - Appearance: System / Light / Dark (proposed; subject to device QA).
-- Language: Hindi / English; copy is centralized and layouts accommodate long Devanagari strings.
+- **No MVP language selector**. Initial UI text and accessibility/validation copy are English, centralized in semantic resources; layouts remain future-translation-ready ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
 - Import settings: show platform-supported import methods; no misleading toggle to enable unavailable SMS reading.
 - Export: user-initiated CSV with clear file destination/share intent.
 - Data: privacy summary, export/delete options and an explanation that reinstall/device loss can erase local-only data without a completed backup.
@@ -400,17 +402,19 @@ flowchart TD
 
 Every financial screen needs **loading, empty, validation error, persistence error, success and offline** representations where applicable. Offline is **normal** for local CRUD, not an error.
 
-| Trigger | English copy proposal | Hindi copy proposal | Action |
-| :--- | :--- | :--- | :--- |
-| No accounts | “Add an account to start tracking.” | “ट्रैकिंग शुरू करने के लिए खाता जोड़ें।” | Open Account form |
-| Missing amount | “Enter an amount greater than ₹0.” | “₹0 से अधिक राशि डालें।” | Focus amount |
-| Same transfer account | “Choose two different accounts.” | “दो अलग खाते चुनें।” | Focus To account |
-| Fee charged | “₹50 fee will be counted as an expense.” | “₹50 शुल्क खर्च में जोड़ा जाएगा।” | Preview before save |
-| Save successful | “Transaction saved.” | “लेन-देन सेव हो गया।” | Return or reset |
-| Save failed | “Couldn’t save. Nothing was recorded.” | “सेव नहीं हुआ। कोई एंट्री दर्ज नहीं हुई।” | Retry; preserve fields |
-| No history | “Your transactions will appear here.” | “आपके लेन-देन यहाँ दिखेंगे।” | Point to Add |
-| SMS unavailable | “Automatic SMS import isn’t supported here.” | “यहाँ अपने-आप SMS इम्पोर्ट उपलब्ध नहीं है।” | Show manual import |
-| Possible duplicate | “This may already be recorded.” | “यह लेन-देन पहले से दर्ज हो सकता है।” | Review duplicate |
+| Trigger | English-only MVP copy proposal | Action |
+| :--- | :--- | :--- |
+| No accounts | “Add an account to start tracking.” | Open Account form |
+| Missing amount | “Enter an amount greater than ₹0.” | Focus amount |
+| Same transfer account | “Choose two different accounts.” | Focus To account |
+| Fee charged | “₹50 fee will be counted as an expense.” | Preview before save |
+| Save successful | “Transaction saved.” | Return or reset |
+| Save failed | “Couldn’t save. Nothing was recorded.” | Retry; preserve fields |
+| No history | “Your transactions will appear here.” | Point to Add |
+| SMS unavailable | “Automatic SMS import isn’t supported here.” | Show manual import |
+| Possible duplicate | “This may already be recorded.” | Review duplicate |
+
+**Localization note:** App-visible MVP copy, voice labels and validation messages are English; the i18n layer remains extensible for a later separately approved language release.
 
 **Microcopy rule:** No deceptive “synced”, “securely backed up”, “SMS connected” or “verified balance” message unless the corresponding behavior actually exists.
 
@@ -457,7 +461,7 @@ src/
   shared/
     theme/                  # light/dark semantic tokens
     ui/                     # AppShell, TopBar, BottomNav, fields, buttons, sheets
-    i18n/                   # Hindi / English message keys
+    i18n/                   # centralized English strings; future locale-ready
     formatting/             # INR, dates, account masking
   features/
     onboarding/             # setup flow

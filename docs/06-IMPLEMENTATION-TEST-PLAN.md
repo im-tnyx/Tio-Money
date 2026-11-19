@@ -42,6 +42,8 @@
 
 **Status vocabulary:** `Planned` = design/task only; `Approved` = owner accepted a decision; `Implemented` = code exists; `Tested` = named evidence captured; `Verified` = tests **and** relevant device behavior signed off. No phase below is marked complete. Do not promote a status based on a mock screen, an AI-generated plan, or a checklist alone.
 
+**Owner decision (2026-11-18):** initial app UI/validation/accessibility language is **English only**, with no language picker and system fonts preferred; see [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). This governs MVP language requirements, not permission to implement or merge.
+
 ### 1.2 Source-of-truth and change control
 
 The [PRD](01-PRD.md) defines product behavior; [User Flows](02-USER-FLOWS.md) define interaction and error paths; [Screen Design](03-SCREEN-SPEC.md) specifies UI proposals; [Database Design](04-DATABASE-DESIGN.md) defines the journal proposal; [Technical Architecture](05-TECH-ARCHITECTURE.md) defines boundaries. This document **schedules and tests** those contracts. If two drafts differ, create an owner-visible `TM-ADR-###` decision, link both passages, and amend the owning specification in a **separate approved change**; do not retrofit a new business rule in tests.
@@ -79,7 +81,7 @@ flowchart TD
 | Concurrency | **Proposed:** one serialized write coordinator on a controlled connection. Prove that writes cannot interleave; do not assume `withTransactionAsync()` isolates unrelated async queries. If using `withExclusiveTransactionAsync()`, independently enable/check FKs on its connection before the transaction |
 | Read consistency | No editable `current_balance` cache; account totals, period reports and History are posting-derived with deterministic reversal/refund treatment |
 | Error handling | Typed domain/validation/storage/permission errors; recoverable messages preserve form inputs, prevent duplicate retries and never report success before COMMIT |
-| UI quality | Reusable components; large text; 44pt iOS / 48dp Android targets; safe areas, keyboard, light/dark contrast, English/Hindi; labels beyond color alone |
+| UI quality | Reusable components; large text; 44pt iOS / 48dp Android targets; safe areas, keyboard, light/dark contrast, **English-only MVP labels** beyond color alone; prefer system fonts |
 | Platform | P0 manual ledger in Expo Go on Android/iPhone offline; no runtime import of native SMS module in P0 bundle; no unsupported iOS SMS promise |
 | Privacy | Least privilege, masked account references, no bank login/OTP/full inbox retention; no database-encryption claim without verified encryption |
 | Build discipline | Pin mutually compatible Expo SDK/RN/Router/SQLite versions at kickoff; run typecheck, lint, format, unit, integration and applicable device QA before merge |
@@ -168,7 +170,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 - [ ] `TM-P0-01` Confirm target Expo SDK, React Native, Expo Router, TypeScript and `expo-sqlite` compatibility; pin versions and record the install matrix / lockfile.
 - [ ] `TM-P0-02` Bootstrap `src/app/_layout.tsx` and route groups; confirm editor is a stack action, not a fifth content tab.
 - [ ] `TM-P0-03` Create strict TS config, ESLint, Prettier, import-boundary rules, aliases and deterministic scripts.
-- [ ] `TM-P0-04` Establish semantic light/dark tokens, typed i18n keys, money/date format utility contracts and common error/result types; leave final palette provisional.
+- [ ] `TM-P0-04` Establish semantic light/dark tokens, typed **English** UI string keys (future-locale-ready), independent money/date format utility contracts and common error/result types; leave final palette provisional.
 - [ ] `TM-P0-05` Set up unit/component test runner, CI skeleton, emulator/simulator instructions and privacy-safe sample fixtures.
 
 | Required aspect | Implementation-ready gate |
@@ -187,12 +189,12 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 **Objective:** Create accessible original screen shells and shared components; **finance data is still mocked** until Phase 2–3.
 
 **Technical tasks**
-- [ ] `TM-P1-01` Implement first-run language/INR/account-type screens and empty/loading/error states.
+- [ ] `TM-P1-01` Implement first-run welcome/INR/account-type screens in English with no language selector, plus empty/loading/error states.
 - [ ] `TM-P1-02` Compose Home, History, Reports, Accounts, Settings and transaction detail shells from shared components.
 - [ ] `TM-P1-03` Implement four root destinations plus **one** central `+` Add action (**proposed placement awaiting owner approval**); no Income/Expense/Transfer Home tiles.
 - [ ] `TM-P1-04` Build one full-screen editor with exactly **Income | Expense | Transfer** tabs, collapsed fee disclosure, account/category pickers, preview slot, Save / Save & Add Another state UI and dirty-form dialog.
 - [ ] `TM-P1-05` Build `MoneyAmount`, `MoneyMovementPreview`, `TransactionRow`, `TypeTabs`, `FormField`, `AccountPicker`, `FeeDisclosure`, semantic loading/error/empty components.
-- [ ] `TM-P1-06` Add accessibility labels, Hindi/English strings, scale/contrast tests, keyboard avoidance and landscape policy review.
+- [ ] `TM-P1-06` Add English-only accessibility labels and semantic strings (future-localization-ready), system-font/scale/contrast tests, keyboard avoidance and landscape policy review.
 
 | Required aspect | Implementation-ready gate |
 | :--- | :--- |
@@ -201,7 +203,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 | **Deliverables** | Navigable, original UI prototype; reusable design-system components; named screen states |
 | **Acceptance** | `TM-UX-001…008,012…015` UI behavior in mock mode; only one root `+`; all form fields reachable at 320–430 logical width |
 | **Automated tests** | RN component tests for tabs, fee disclosure, field errors, dirty dialog, labels, large-font wrapping and single Add action |
-| **Manual tests** | TalkBack + VoiceOver, Hindi strings, light/dark contrast, physical keyboard/IME, safe-area edges, orientation and small phone |
+| **Manual tests** | TalkBack + VoiceOver with English labels, system-font/large-text scaling, light/dark contrast, physical keyboard/IME, safe-area edges, orientation and small phone; verify no MVP language selector |
 | **Risks** | Mistaking mock totals for working ledger; duplicate Add entry, copied screenshot style, unapproved nav/palette |
 | **Definition of Done** | [ ] Screens reviewable; [ ] mock-only banners/dev fixtures clearly labeled; [ ] accessibility evidence; [ ] no claims of persisted balances or delivered transaction saves |
 
@@ -476,7 +478,7 @@ For every seeded event `e`, use a shared test helper to assert **all** of the fo
 
 | Context | Android | iPhone | Pass criteria |
 | :--- | :--- | :--- | :--- |
-| Fresh setup + single Add + three tabs | Physical + emulator | Physical + simulator | P0 forms, i18n, safe areas, no duplicate `+` |
+| Fresh setup + single Add + three tabs | Physical + emulator | Physical + simulator | English-only P0 forms, no language selector, accessible safe areas, no duplicate `+` |
 | Offline CRUD, edit/delete, persistence | **Physical required** | **Physical required** | Reopen and read exactly same ledger; no online dependency |
 | Fee source/destination and credit-card liability | Physical | Physical | Correct preview, journal/report and spoken labels |
 | Voice accessibility, text scale, 320–430 logical width, dark/light | TalkBack / large font | VoiceOver / Dynamic Type | All actions visible, accessible and not color-only |
@@ -524,7 +526,7 @@ flowchart LR
 - [ ] Scope isolated; no unrelated files, code secrets, personal bank data, unsupported permissions or dependency drift.
 - [ ] Domain math outside screens; account class, category type, currency, safe paise and balanced postings reviewed.
 - [ ] Migration, idempotency, rollback and reversal implications documented; real SQLite tests provided where relevant.
-- [ ] UI states, translations, keyboard, safe area, screen reader and Android/iPhone differences tested where relevant.
+- [ ] UI states, centralized English copy, future localization readiness, keyboard, safe area, screen reader and Android/iPhone differences tested where relevant.
 - [ ] Tests cover success, negative path, repeat submission, interruption and offline mode; failures linked to issues.
 - [ ] CI green on PR head; reviewers inspect **actual changed lines** and linked test/device evidence.
 - [ ] Privacy claims and Play permissions accurate; no default Android SMS permission introduced.

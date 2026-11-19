@@ -1,0 +1,60 @@
+name: "Bug report"
+description: "Report a reproducible Tio Money documentation, governance, or implemented app defect."
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Review [AGENTS.md](https://github.com/im-tnyx/Tio-Money/blob/main/AGENTS.md) before reporting. Never include real bank details, transaction histories, OTPs, secrets, access tokens, or unredacted screenshots. A bug report is not implementation or merge approval.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - AI governance / documentation
+        - Transactions / canonical ledger
+        - Accounts / credit-card liabilities
+        - Dashboard / reports
+        - Setup / navigation / accessibility
+        - CSV / selected-text import
+        - Android / iOS platform behavior
+        - Other / not determined
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed problem
+      description: State what actually happened; do not claim untested behavior.
+      placeholder: "Observed at file/path, screen, or build SHA…"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include relevant device/OS, version, branch, and input conditions; use synthetic data only.
+      placeholder: "1. Open…\n2. Perform…\n3. Observe…"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior and requirements
+      description: Link canonical requirements if known.
+    validations:
+      required: true
+  - type: textarea
+    id: severity
+    attributes:
+      label: Impact and affected data
+      description: Explain correctness, privacy, financial reconciliation, or usability impact; avoid real user data.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence, tests, and related PRs
+      description: Provide reproducible tests/log excerpts, changed SHA, and links. Write NOT_RUN for checks not performed.
+    validations:
+      required: false

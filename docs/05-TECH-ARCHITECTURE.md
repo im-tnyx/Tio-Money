@@ -439,10 +439,11 @@ Keep the candidate type separate from the `JournalDraft`. Parsers can fail, date
 
 ## 10 · Localization, appearance and accessibility
 
-- **Language intent:** English + Hindi user-facing strings in P0 per PRD; translations in centralized typed resources, not spread through JSX.
+- **MVP language decision:** English-only user-facing text, validation and accessibility labels; **no language selector**. Keep typed semantic string resources future-localization-ready; Hindi and other translations are later features ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
 - **Numbers:** Indian grouping, rupee symbol, negative sign, currency label; user display may vary but ledger amounts remain integer paise.
 - **Dates:** Store timestamps consistently (UTC epoch milliseconds), render using chosen device locale/timezone; reports group by the user-selected local calendar period.
 - **Theme:** Shared light/dark token resolver described in [Screen Design](03-SCREEN-SPEC.md). Candidate tokens are not yet approved or accessibility-tested.
+- **Fonts:** prefer system fonts for MVP unless the owner specifically approves an alternative; keep number/date formatting separate from message translation.
 - **Tap targets:** minimum suggested 48dp Android and 44pt iOS, and test large-font layouts.
 - **Screen readers:** announce full amount, type and source/destination; don't convey debit/credit status with color alone.
 - **Keyboard & safe areas:** fixed Save footer stays above IME/home indicator; form scroll stays reachable.

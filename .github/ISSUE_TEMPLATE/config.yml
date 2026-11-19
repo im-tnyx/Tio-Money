@@ -1,0 +1,9 @@
+# Use structured discussion; opening an Issue is not implementation/merge approval.
+blank_issues_enabled: false
+contact_links:
+  - name: Tio Money project requirements
+    url: https://github.com/im-tnyx/Tio-Money/blob/main/docs/00-INDEX.md
+    about: Read the product and architecture documents before proposing work.
+  - name: Governance and discussion rules
+    url: https://github.com/im-tnyx/Tio-Money/blob/main/AGENTS.md
+    about: Read the mandatory RFC and separate merge-approval policy.

@@ -78,7 +78,7 @@ These are **documentation presentation suggestions**, not approved mobile app th
 
 ### Language conventions
 
-- Reader-facing summaries can be **simple Hindi-English**, but domain types, fields, schema names and engineering contracts are in consistent English.
+- Reader-facing **documentation** summaries can be simple Hindi-English, but domain types, fields, schema names and engineering contracts are in consistent English. This is **not** the mobile app language policy: the initial app UI is English-only ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
 - Format Indian currency as `₹5,050.00` when decimal detail matters; use amount in integer paise for storage examples.
 - Keep date metadata in `YYYY-MM-DD`; distinguish example date and current date.
 - Do not use “automatic” for unimplemented steps, conditional permissions or unverified detection.
