@@ -1,7 +1,7 @@
-import { Slot, SplashScreen } from 'expo-router';
-import { useCallback } from 'react';
+import { Slot } from 'expo-router';
 import { View } from 'react-native';
 
+import { useRevealTabsOnLayout } from '@/shared/navigation/use-reveal-tabs-on-layout';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { FloatingAddButton } from '@/shared/ui/floating-add-button';
 import { RootTabBar } from '@/shared/ui/root-tab-bar';
@@ -9,10 +9,7 @@ import { RootTabBar } from '@/shared/ui/root-tab-bar';
 /** Five content routes, with a separate floating Add overlay over More. */
 export default function RootTabsLayout() {
   const theme = useAppTheme();
-  const revealTabsOnLayout = useCallback(() => {
-    // The only normal post-splash UI is the fully mounted five-tab shell.
-    void SplashScreen.hideAsync().catch(() => undefined);
-  }, []);
+  const revealTabsOnLayout = useRevealTabsOnLayout();
 
   return (
     <View onLayout={revealTabsOnLayout} style={{ flex: 1, backgroundColor: theme.colors.canvas }}>
