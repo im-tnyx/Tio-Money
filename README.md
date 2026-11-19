@@ -112,7 +112,7 @@ flowchart LR
 
 ## 🛠 Phase 0 · Developer setup (scaffold under review)
 
-The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** scaffold. It renders **only Home · Trans. · Stats. · Account · More** along the bottom, with **five empty themed screen bodies** and a **disabled floating `+` icon above More**. There is **no Add editor, Settings or onboarding screen** and no top app toolbar. The SQLite settings-only initialization, strict TypeScript, theme, tests and governance remain under the hood. No financial data can be saved.
+The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** scaffold. It renders **only Home · Trans. · Stats. · Account · More** along the bottom, with **five empty themed screen bodies** and a **disabled floating `+` icon above More**. After the native **splash**, the app goes **directly to Home's blank canvas and the five-tab bottom bar**, with the disabled floating `+` above More. No intermediate loading screen is shown during successful SQLite initialization. There is **no Add editor, Settings or onboarding screen** and no top app toolbar. A database-startup failure may show a minimal retry/error recovery view rather than silently corrupting data. The SQLite settings-only initialization, strict TypeScript, theme, tests and governance remain under the hood. No financial data can be saved.
 
 **Requirements:** Node.js **`^22.13.0 || ^24.3.0 || >=26.0.0`** (the repo pins a known-compatible **22.16.0** in `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry. Node 23, 25 and Node 24.0–24.2 are not supported by the locked Expo/React Native engines.
 
