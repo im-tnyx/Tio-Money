@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 
 import {
@@ -8,12 +8,17 @@ import {
   NAV_ITEM_HEIGHT,
   getFloatingAddPosition,
 } from '../../src/shared/navigation/fab-layout';
-import {
-  ADD_TRANSACTION_ROUTE,
-  ROOT_DESTINATIONS,
-} from '../../src/shared/navigation/root-destinations';
+import { ROOT_DESTINATIONS } from '../../src/shared/navigation/root-destinations';
 
-test('five owner-approved destinations use English-only labels', () => {
+const screenRoutes = [
+  'src/app/(tabs)/index.tsx',
+  'src/app/(tabs)/transactions.tsx',
+  'src/app/(tabs)/reports.tsx',
+  'src/app/(tabs)/accounts.tsx',
+  'src/app/(tabs)/more.tsx',
+];
+
+test('exactly five English bottom tabs remain', () => {
   assert.deepEqual(
     ROOT_DESTINATIONS.map((destination) => destination.label),
     ['Home', 'Trans.', 'Stats.', 'Account', 'More'],
@@ -23,41 +28,55 @@ test('five owner-approved destinations use English-only labels', () => {
   assert.ok(ROOT_DESTINATIONS.every((item) => item.accessibleName.length > 0));
 });
 
-test('the Add FAB is an action, not a content tab', () => {
-  assert.equal(ADD_TRANSACTION_ROUTE, '/transaction/new');
-  const contentRoutes: readonly string[] = ROOT_DESTINATIONS.map((item) => item.href);
-  assert.equal(contentRoutes.includes(ADD_TRANSACTION_ROUTE), false);
+test('each tab is a blank themed screen with no top/header/finance preview', () => {
+  for (const path of screenRoutes) {
+    const source = readFileSync(path, 'utf8');
+    assert.match(source, /import \{ BlankScreen \}/);
+    assert.match(source, /export default BlankScreen/);
+    assert.doesNotMatch(source, /ScreenHeader|StatePanel|TextField|SectionCard/);
+  }
+  const blank = readFileSync('src/shared/ui/blank-screen.tsx', 'utf8');
+  assert.match(blank, /backgroundColor: theme.colors.canvas/);
+  assert.doesNotMatch(blank, /<Text|<AppText|<ScreenHeader|<ScrollView/);
+
+  const files = readdirSync('src/app/(tabs)').filter((name) => name.endsWith('.tsx'));
+  assert.deepEqual(files.sort(), [...screenRoutes.map((path) => path.split('/').at(-1)), '_layout.tsx'].sort());
+});
+
+test('FAB is an accessible disabled icon, never a content tab or active action', () => {
   const layout = readFileSync('src/app/(tabs)/_layout.tsx', 'utf8');
-  const shell = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
+  const tabBar = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
   const floating = readFileSync('src/shared/ui/floating-add-button.tsx', 'utf8');
+
   assert.match(layout, /<RootTabBar \/>/);
   assert.match(layout, /<FloatingAddButton \/>/);
   assert.ok(layout.indexOf('<RootTabBar />') < layout.indexOf('<FloatingAddButton />'));
-  assert.doesNotMatch(shell, /accessibilityLabel="Add transaction"/);
-  assert.match(floating, /accessibilityLabel="Add transaction"/);
-  assert.match(floating, /position: 'absolute'/);
-  assert.match(floating, /router\.push\(ADD_TRANSACTION_ROUTE\)/);
+  assert.doesNotMatch(tabBar, /accessibilityLabel="Add transaction"/);
+  assert.match(floating, /<Pressable\s+disabled/);
+  assert.match(floating, /accessibilityState=\{\{ disabled: true \}\}/);
+  assert.match(floating, /accessibilityRole="button"/);
+  assert.doesNotMatch(floating, /onPress|useRouter|router\.push|router\.navigate/);
 });
 
-test('unified editor preview still disables both save actions', () => {
-  const editor = readFileSync('src/features/transactions/transaction-editor-screen.tsx', 'utf8');
-  assert.match(editor, /<SegmentedTabs/);
-  assert.match(editor, /<ActionButton label="Save" disabled \/>/);
-  assert.match(editor, /label="Save & Add Another" variant="secondary" disabled/);
+test('no Add, Settings, Welcome, legacy History or transaction editor route exists', () => {
+  for (const path of [
+    'src/app/transaction/new.tsx',
+    'src/app/settings.tsx',
+    'src/app/(setup)/welcome.tsx',
+    'src/app/(tabs)/history.tsx',
+    'src/features/transactions/transaction-editor-screen.tsx',
+    'src/features/dashboard/home-screen.tsx',
+    'src/features/common/planned-screen.tsx',
+  ]) {
+    assert.equal(existsSync(path), false, path);
+  }
+
+  const root = readFileSync('src/app/_layout.tsx', 'utf8');
+  assert.match(root, /headerShown: false/);
+  assert.doesNotMatch(root, /name="transaction\/new"|name="settings"|name="\(setup\)\/welcome"/);
 });
 
-test('all five navigation destinations have route shells', () => {
-  const paths = [
-    'src/app/(tabs)/index.tsx',
-    'src/app/(tabs)/transactions.tsx',
-    'src/app/(tabs)/reports.tsx',
-    'src/app/(tabs)/accounts.tsx',
-    'src/app/(tabs)/more.tsx',
-  ];
-  for (const path of paths) assert.ok(readFileSync(path, 'utf8').length > 0);
-});
-
-test('floating Add is centered over More and above the bar, including safe areas', () => {
+test('floating disabled icon remains centered over More and above bar with safe areas', () => {
   for (const device of [
     { windowWidth: 320, leftInset: 0, rightInset: 0, bottomInset: 0 },
     { windowWidth: 390, leftInset: 0, rightInset: 0, bottomInset: 34 },
