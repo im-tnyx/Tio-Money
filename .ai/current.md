@@ -1,0 +1,23 @@
+# 🧭 Current task index
+
+> **Latest verified snapshot 2026-11-19T05:34:43.459Z UTC (before this new checkpoint commit).** Compare live GitHub branches/PRs/checks before any write or merge. This multi-task index is not proof of current owner authorization. All earlier V2/CI checkpoints remain preserved in the task history.
+
+| Task | Task file | Working branch | PR at snapshot | Verified owner / current agent | Status | Last verified checkpoint | Next safe action |
+|---|---|---|---|---|---|---|---|
+| `TM-GOV-20261118-001` | [Governance task](tasks/governance/ai-context-setup.md) · [latest owner policy checkpoint](tasks/governance/ai-context-setup.md#owner-review-and-agent-merge-policy--2026-11-19) | `chore/ai-context-governance` | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) — open, unmerged | Current ChatGPT (GPT-6); previous verified ChatGPT (GPT-6), 2026-11-18 checkpoint | **IN_REVIEW** — 6 historical/current reviewer threads unresolved; 1 latest inline-link P2 fixed pending independent verification; **owner merge permission NOT GRANTED** | `2026-11-19T05:34:43.459Z` UTC; pre-checkpoint HEAD `cb9fa85ead7e0c0a509cd90b87d51f2d3950d9f7` | [29 tests + Markdown and no-coauthor CI PASS](https://github.com/im-tnyx/Tio-Money/actions/runs/44465777121); optional independent re-review recommended, address any remaining blockers and seek **separate PR-specific owner authorization** before any merge |
+
+## Parallel work discovered (not this task's ownership)
+
+| Repository work | Live state at inspection | Authorship / agent evidence | Forbidden action |
+|---|---|---|---|
+| [Phase 0 Expo PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) on `feat/phase-0-expo-foundation` | **Open draft**, not merged; observed head `1c0f3e21d3e7938c1af3d5003ae640cfcd1cfe8f` | Working agent/model `UNKNOWN_NOT_VERIFIED`; PR author is not proof of model; some CI claimed in PR body but not independently rerun here | Do not edit its branch, change app code, merge or rewrite history |
+
+**Latest owner policies:** [TM-DEC-002](../docs/DECISIONS.md#tm-dec-002--independent-review-optional-by-default) — independent review **optional by default** (strongly recommended for financial, migration, security, privacy, auth and sensitive-platform changes); record `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, preserve known blockers and actual required GitHub reviews/checks. [TM-DEC-003](../docs/DECISIONS.md#tm-dec-003--owner-authorized-agent-merge) — **agent merge permitted only after distinct owner authorization** explicitly naming repository, PR number, permission to merge and conditions, plus live-head/required-protection/blocker/scope verification. This connected-chat decision was [transcribed in PR #2](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-7000574123) by an agent, **not** an authenticated owner-authored merge approval. **PR #2 merge permission NOT GRANTED.** Strict no-`Co-authored-by:` policy, mandatory RFC/proceed and English-only MVP remain.
+
+**Latest validation at pre-checkpoint HEAD `cb9fa85ead7e0c0a509cd90b87d51f2d3950d9f7`:** [Actual GitHub Actions run #44465777121](https://github.com/im-tnyx/Tio-Money/actions/runs/44465777121) **SUCCESS**: Python `py_compile`, **29/29 governance unittest cases**, supported Markdown `check-links` on PR checkout, **20 actual commit messages/zero prohibited co-author trailers**. Earlier [run #44465201294](https://github.com/im-tnyx/Tio-Money/actions/runs/44465201294) also passed 29 tests on helper fix `e238b7d`. New helper fixture covers inline non-Markdown relocation safety and optional review state gates. Independent review not claimed; 6 open threads remain and configured protected-branch requirements were not independently verified. This handoff commit advances HEAD; recheck its new CI run.
+
+**Coordination:** Only the governance task above is assigned to this session. Treat Phase 0 as a separate, concurrently changing PR; its test and device-validation status must be checked from the PR/checks, never inferred from the index.
+
+**Before the next write:** fetch live `main`, both branch HEADs, both PR states and changed paths. If these conflict with this snapshot, update the task evidence rather than silently assuming continuity.
+
+[Agent contract](../AGENTS.md) · [Task protocol](tasks/README.md) · [Decisions](../docs/DECISIONS.md)

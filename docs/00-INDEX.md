@@ -20,6 +20,7 @@
 
 | **You want to…** | **Read this first** | **You'll get** |
 | :--- | :--- | :--- |
+| Review confirmed owner decisions | [📌 Decision register](DECISIONS.md) | English-only initial app; distinguish approvals from pending proposals |
 | Understand the product and MVP scope | [🎯 01 — Product Requirements](01-PRD.md) | Goals, screen contracts, scope, and acceptance criteria |
 | Understand the exact `+` transaction experience | [🧭 02 — User Flows](02-USER-FLOWS.md) | Journey diagrams, fields, fee behavior, edge cases |
 | Create new documentation consistent with the product | [✍️ 90 — Style & Quality Guide](90-DOCS-STYLE-GUIDE.md) | Page anatomy, diagrams, status labeling, quality checklist |
@@ -44,7 +45,7 @@
 
 ```mermaid
 flowchart TD
-  O["📲 Setup · language + accounts"] --> H["🏠 Home"]
+  O["📲 Setup · INR and accounts (English UI)"] --> H["🏠 Home"]
   H --> ADD["➕ Add"]
   H --> HIS["📜 History"]
   H --> REP["📊 Reports"]
@@ -99,6 +100,8 @@ flowchart LR
   APPROVE -->|Yes| BUILD["💻 Implement + test"]
   BUILD --> VERIFY["✅ Evidence before status change"]
 ```
+
+**Confirmed owner language decision:** initial app copy, accessibility text and validation are **English only**, with no MVP language selector. See [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). This does not approve any app implementation or merge.
 
 **Next:** review the [technical architecture](05-TECH-ARCHITECTURE.md) and the [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md), then resolve owner decisions before coding. New files should follow the [documentation quality standard](90-DOCS-STYLE-GUIDE.md).
 

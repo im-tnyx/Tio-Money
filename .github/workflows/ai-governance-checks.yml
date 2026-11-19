@@ -1,0 +1,96 @@
+name: AI governance checks
+
+# Repository-policy and documentation checks, distinct from Phase 0's Expo/Node
+# build checks. A PR can modify these files, so this is defense-in-depth, NOT
+# an independently trusted required-approval mechanism or owner merge approval.
+# NEVER execute untrusted PR code using pull_request_target.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-governance-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    name: Governance / Python, links and commit attribution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR merge tree (read-only, immutable action SHA)
+        # actions/checkout v4.2.2, pinned to reviewed commit; do not execute
+        # an unpinned third-party action or retain checkout credentials.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: false
+      - name: Python syntax validation
+        id: syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 -m py_compile scripts/ai_context.py tests/governance/test_ai_context.py
+          echo 'PASS Python governance syntax'
+      - name: Governance regression tests (task, archive, state recovery)
+        id: tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests/governance -v
+          echo 'PASS governance regressions'
+      - name: Local Markdown link verification
+        id: links
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ai_context.py check-links
+          echo 'PASS supported Markdown references and local targets'
+      - name: Inspect every PR commit for prohibited co-author trailers
+        id: commits
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            : "${PR_BASE_SHA:?Missing PR base SHA}"
+            : "${PR_HEAD_SHA:?Missing PR head SHA}"
+            git cat-file -e "${PR_BASE_SHA}^{commit}"
+            git cat-file -e "${PR_HEAD_SHA}^{commit}"
+            base="$PR_BASE_SHA"
+            head="$PR_HEAD_SHA"
+          else
+            # Manual run checks the last commit on the selected trusted branch.
+            base="$(git rev-parse HEAD^)"
+            head="$(git rev-parse HEAD)"
+          fi
+          echo "Inspecting commit messages in ${base}..${head}"
+          python3 scripts/ai_context.py check-commits --base "$base" --head "$head"
+          echo 'PASS no Co-authored-by trailers in the checked commit range'
+      - name: Governance check outcomes
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '### Governance check outcomes'
+            echo ''
+            echo '| Check | Result |'
+            echo '|---|---|'
+            echo '| Python syntax | ${{ steps.syntax.outcome }} |'
+            echo '| Unit/fixture tests | ${{ steps.tests.outcome }} |'
+            echo '| Markdown link check | ${{ steps.links.outcome }} |'
+            echo '| Commit attribution scan | ${{ steps.commits.outcome }} |'
+            echo ''
+            echo 'No check grants owner merge approval; PR-authored workflow code is not a tamper-proof required check.'
+          } >> "$GITHUB_STEP_SUMMARY"

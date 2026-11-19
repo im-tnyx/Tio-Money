@@ -80,21 +80,21 @@ Example needs:
 
 ## 3. UX principles and fixed decisions
 
-1. **Home dashboard par Income / Expense / Transfer ke teen shortcut cards nahi honge.**
+1. **The Home dashboard must not show three Income / Expense / Transfer shortcut cards.**
 2. One prominent **+ (Add)** icon/button opens **one Add Transaction form**.
-3. Form ke top par exactly three transaction-type tabs: **Income | Expense | Transfer**.
+3. The single editor presents exactly three transaction-type tabs: **Income | Expense | Transfer**.
 4. Screenshots **only references** for possible field structure and flow. Tio Money's layout, typography, colors, icons and components will be original.
 5. Suggested color semantics: Income = positive/blue-green, Expense = red, Transfer = neutral. Final visual theme will be decided in the screen specification.
 6. **Save** validates, stores and returns to previous screen; **Save & Add Another** (reference screenshot said “Continue”) stores and clears the form for another entry. Button labels may be optimized for clarity.
 7. Every save/edit/delete must keep balances, history and reports in agreement.
-8. Labels and error messages support Hindi and English, starting with INR.
+8. All initial app text, validation errors and accessibility labels are **English only**; use centralized localization-ready strings, with INR formatting handled separately. [Owner decision TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app).
 9. Mandatory data is clearly distinguished from optional note, description, merchant or attachment.
 
 ## 4. Main navigation and screen requirements
 
 ### 4.1 First-run setup (P0)
 
-- Choose language (Hindi / English), default INR currency.
+- Initial onboarding has **no language selector**; use English UI copy and default INR currency.
 - Create first owned account (Cash / Bank / Wallet / Credit Card).
 - Enter opening balance; credit cards use a clearly identified opening outstanding liability.
 - App can be used without signup.
@@ -178,7 +178,7 @@ Privacy:
 
 ### 4.8 Settings (P0/P1)
 
-- Language, theme, default account, data export, app lock, import settings.
+- Theme, default account, data export, app lock and import settings; **no language control in the initial MVP** (future localization is separately scoped).
 - Export CSV; optional PDF later.
 - Clear description of backup/restore and data loss risks.
 - Biometric/PIN protection as a security milestone; do not imply app-lock equals database encryption.
@@ -312,7 +312,7 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 - `transaction_links` or `transfer_group_id` — transfer/fee/refund relationships.
 - `import_candidates` — parsed SMS/CSV suggestions with confirmation, duplicate and ignore statuses.
 - `budgets` — later release.
-- `app_settings` — language, privacy/import preferences and defaults.
+- `app_settings` — theme, privacy/import preferences and defaults; future locale preference is not a P0 UI requirement.
 
 **Open technical design task:** Choose a canonical signed ledger/journal representation before implementing balance calculations for assets, liabilities and linked fee postings. The initial two-account shortcut schema is not sufficient for all credit-card cases without explicit ledger rules.
 

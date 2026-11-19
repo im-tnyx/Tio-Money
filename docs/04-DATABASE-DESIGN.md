@@ -152,7 +152,7 @@ erDiagram
 | `ledger_postings` | Debit/credit legs | Actual account balances and income/expense math |
 | `transfer_details` | From, To, principal, optional fee amount and payer | Transfer form details |
 | `import_candidates` | Unposted SMS/CSV parsing results, duplicate state, optional confirmation link | Review queue, **not** balance |
-| `app_settings` | Language, theme, privacy choices | Local configuration |
+| `app_settings` | Theme, privacy choices and future locale capability | Local configuration; no MVP language selector |
 | `budgets` | Future monthly limits | **P2 only; not MVP** |
 
 **Design reconciliation:** Earlier PRD text describes a “transfer record linked to a fee expense record.” In this canonical proposal, the **transfer metadata and the distinct expense posting are linked to the same event**, posted in one SQLite transaction; the expense remains visible in Reports. This satisfies the intended *business outcome* while avoiding duplicate transaction rows. If product review requires a separately editable fee transaction, add a linked child-event projection/contract in a subsequent ADR — never create a second charge silently.
@@ -351,7 +351,7 @@ CREATE TABLE app_settings (
 );
 ```
 
-Keys like appearance and language cannot change accounting rules retroactively. Avoid storing passcodes or secret encryption keys in plaintext settings.
+Keys like appearance and a future locale preference cannot change accounting rules retroactively. Avoid storing passcodes or secret encryption keys in plaintext settings.
 
 ## 05 · Example journals: exact money math
 

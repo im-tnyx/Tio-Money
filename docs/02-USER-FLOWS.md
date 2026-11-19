@@ -18,12 +18,14 @@
 
 ## 01 · The navigation promise
 
+**Initial onboarding is English-only:** no language picker in the MVP; future locales remain a separate enhancement ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
+
 **Home stays clean:** one `+` (Add) control opens one unified transaction editor. The Home screen does **not** show three Income / Expense / Transfer shortcut tiles.
 
 ```mermaid
 flowchart TD
   ENTRY["📲 Launch"] --> FIRST{"First launch?"}
-  FIRST -->|Yes| SETUP["Language → Currency → Accounts"]
+  FIRST -->|Yes| SETUP["Welcome → INR → Accounts (English UI)"]
   FIRST -->|No| HOME["🏠 Home"]
   SETUP --> HOME
   HOME --> ADD["➕ Add transaction"]

@@ -1,0 +1,78 @@
+name: "Architecture decision proposal"
+description: "Review technical, financial, security, or platform trade-offs before adopting a contract."
+title: "[ADR]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Consult [docs/DECISIONS.md](https://github.com/im-tnyx/Tio-Money/blob/main/docs/DECISIONS.md) and [the architecture](https://github.com/im-tnyx/Tio-Money/blob/main/docs/05-TECH-ARCHITECTURE.md). Proposals do not supersede accepted decisions or authorize implementation, schema migration, or merge.
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID / linked RFC
+      placeholder: "TM-… or GitHub URL"
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Proposed technical decision
+      description: State the precise recommended contract and why.
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current architecture and constraints
+      description: Cite existing source, documented layer boundaries and any unmerged Phase 0 code.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Alternatives and trade-offs
+      description: Compare at least one meaningful alternative, limitations, operational costs, and rejected options.
+    validations:
+      required: true
+  - type: textarea
+    id: ledger
+    attributes:
+      label: Financial data and canonical ledger impact
+      description: Discuss integer paise, journal postings, assets/liabilities, transfer fees and read models; explain NONE if not applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and privacy implications
+      description: Threats, permission model, retention, redaction, sensitive fields, and mitigations.
+    validations:
+      required: true
+  - type: textarea
+    id: platform
+    attributes:
+      label: Android, iOS, and store policy restrictions
+      description: Explain Expo Go and SMS constraints if relevant; say NOT_APPLICABLE with reason otherwise.
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback and recovery strategy
+      description: Include how to recover from a partially completed migration or change.
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Test strategy and acceptance criteria
+      description: Include positive/negative scenarios, device requirements and evidence limits.
+    validations:
+      required: true
+  - type: textarea
+    id: pending
+    attributes:
+      label: Pending owner / security / architecture decisions
+      description: Write NONE if settled, otherwise identify decision-maker and blocker.
+    validations:
+      required: true

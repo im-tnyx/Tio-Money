@@ -1,0 +1,80 @@
+name: "Feature proposal"
+description: "Discuss an app or engineering feature before any scoped implementation begins."
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Technical discussion and a recorded PROCEED decision are required before implementation. Owner implementation signoff is optional for ordinary scoped work; restricted actions have separate gates. Every PR still needs explicit owner merge approval. Preserve the offline-first ledger and English-only MVP. Never submit private financial data.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and current limitation
+      description: What problem are we solving and why now?
+    validations:
+      required: true
+  - type: textarea
+    id: user_goal
+    attributes:
+      label: User goal
+      placeholder: "As a user, I need… so that…"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior and user experience
+      description: State main and failure flows, not only a screen name.
+    validations:
+      required: true
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected feature / module
+      options:
+        - Transactions / shared ledger
+        - Accounts
+        - Dashboard / reports
+        - Onboarding / setup
+        - Import review
+        - Settings / accessibility / theme
+        - Platform adapters
+        - Documentation / governance
+        - Cross-cutting / not decided
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Testable acceptance criteria
+      placeholder: "Given… when… then…; include failure and edge cases."
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Existing contracts, dependencies, and feature ownership
+      description: Link interfaces; write NONE if truly independent.
+    validations:
+      required: true
+  - type: textarea
+    id: privacy_security
+    attributes:
+      label: Privacy, security, offline, and platform impact
+      description: State any new permissions, data access, retention, cloud/API dependencies, or NONE with rationale.
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Links to existing requirements and decisions
+      description: Link PRD, user flows, architecture, decision register, task, or related PR.
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Out of scope and initial alternatives
+      description: Distinguish this proposal from approved work; link a deeper RFC if needed.
+    validations:
+      required: true
