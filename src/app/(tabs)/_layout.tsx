@@ -2,9 +2,10 @@ import { Slot } from 'expo-router';
 import { View } from 'react-native';
 
 import { useAppTheme } from '@/shared/theme/theme-provider';
+import { FloatingAddButton } from '@/shared/ui/floating-add-button';
 import { RootTabBar } from '@/shared/ui/root-tab-bar';
 
-/** Five content destinations and one floating Add action, never an Add tab. */
+/** Five content routes, with a separate floating Add overlay over More. */
 export default function RootTabsLayout() {
   const theme = useAppTheme();
   return (
@@ -13,6 +14,7 @@ export default function RootTabsLayout() {
         <Slot />
       </View>
       <RootTabBar />
+      <FloatingAddButton />
     </View>
   );
 }
