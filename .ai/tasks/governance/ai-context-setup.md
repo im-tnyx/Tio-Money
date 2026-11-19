@@ -1,5 +1,7 @@
 # TM-GOV-20261118-001 — AI context and feature governance
 
+> **Current verified task disposition:** **COMPLETED / MERGED**. Governance [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) merged on **2026-11-19 at 06:16:11 UTC**, resulting in main commit `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. Its six GitHub review threads are now resolved. The `IN_REVIEW`, `NOT_GRANTED` and older PR-head references in the dated sections below are preserved as **historical snapshots**, not current status. See [verified post-merge reconciliation](#verified-post-merge-reconciliation--2026-11-19).
+
 > **Authorized task:** AI context, agent handoffs, documentation reconciliation and architecture contracts **only**. This task does not authorize app changes or merging PRs.
 
 ## Identity and latest verified status
@@ -206,3 +208,26 @@ All five inline threads have evidence replies (three previous Copilot, two new P
 - **Limitations:** helper handles supported single-line Markdown links and simple inline code; complex CommonMark may remain unsupported. Multi-file archive is best-effort rollback, not crash-atomic. Read-only PR-authored governance CI is not a tamper-proof required check. No physical Android/iPhone checks, full Mermaid rendering or independent proof of GitHub rulesets was performed.
 
 **Next exact safe action:** Verify new HEAD and its CI after checkpoint commit, update PR #2 description to link TM-DEC-002/003 and latest 29-test evidence, confirm six open thread statuses and changed-file scope, and invite optional independent re-review especially for P2. **Do not merge PR #2** until a later distinct, authenticated, action-specific owner instruction names this repository/PR and explicitly authorizes merging with conditions; do not enable auto-merge, auto-resolve reviews or touch Phase 0/main.
+
+## Verified post-merge reconciliation — 2026-11-19
+
+**Verified terminal state for original governance task `TM-GOV-20261118-001`: COMPLETED / MERGED**, but **NOT ARCHIVED**. This checkpoint is appended under [post-merge reconciliation Issue #6](https://github.com/im-tnyx/Tio-Money/issues/6), rather than editing or erasing the earlier pre-merge task/audit history.
+
+| Evidence | Verified state |
+|---|---|
+| Repository and PR | `im-tnyx/Tio-Money`, [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) |
+| Actual final state | GitHub `MERGED`, merged at **2026-11-19 06:16:11 UTC**, resulting `main` SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` |
+| PR source head before squash merge | `d3bcbad8a33a7d9dbc692c50c35d1209c2133d85`; squash merge result differs, as expected |
+| Review-thread disposition | GitHub reports **6/6 inline review threads resolved** at 2026-11-19 verification. Earlier date-stamped "six unresolved" statements remain correct for their recorded time. Prior Copilot review `COMMENTED` is not a fabricated `APPROVED`. Independent review remains **UNAVAILABLE / NOT_VERIFIED** as a new-head passing assessment; do not equate thread resolution with formal independent approval. |
+| Pre-merge CI source | [AI Governance checks #44466151813](https://github.com/im-tnyx/Tio-Money/actions/runs/44466151813) **SUCCESS** on source head `d3bcbad8a33a7d9dbc692c50c35d1209c2133d85`: Python syntax, **29/29 governance tests**, Markdown relative links, prohibited co-author commit scan. This is source-level evidence, not an independent identity/approval/branch-protection verification. |
+| Owner permission record | The owner gave **separate explicit permission to merge PR #2 subject to six findings, current checks and unchanged scope** in the connected 2026-11-18/19 project conversation. GitHub subsequently reports the actual merge; earlier no-permission assertions in this task preceded that separate instruction. Owner authorization for **PR #1** and any **new PR** remains `NOT_GRANTED`. |
+| Updated agent/provenance | Previous verified governance working session: **ChatGPT (GPT-6)** from the dated checkpoints above, not from Git author. Post-merge reconciliation working agent: **ChatGPT (GPT-6)**, separately recorded in [Issue #6](https://github.com/im-tnyx/Tio-Money/issues/6) and [post-merge task](post-merge-reconciliation-20261119.md). GitHub PR author and authenticated account are not model/agent evidence. |
+| Scope | Governance docs, issue/PR templates and read-only workflow, supporting Python helper/tests and decision documentation. **No** Phase 0 app, financial SQLite schema, SMS access, Auth, Supabase, permissions or protected-branch settings were merged via PR #2. |
+| Branch-protection and native QA | Actual GitHub branch protection/rulesets could not be independently read through the connector. This governance task does not establish device QA, real SQLite migration QA or installed Android/iOS results. |
+| Archive/next step | Terminal state recorded **without moving/renaming any task file**. Archive only via a separately scoped, reviewable link-safe operation, never inferred from merge success. Continue the independent [documentation correction PR](https://github.com/im-tnyx/Tio-Money/issues/6) in its own branch; leave [draft PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) untouched. |
+
+**Review:** No new independent security review is claimed for this docs-only reconciliation; disposition **DEFERRED**. The prior governance workflow is not tamper-proof and does not itself grant any owner permission. For future PRs, independent review is optional by default but known blocking findings and actual required GitHub settings remain binding.
+
+**Provenance:** Current documentation agent ChatGPT/GPT-6; previous verified governance agent ChatGPT/GPT-6. Historical `NOT_GRANTED` statuses refer to their earlier timestamps, not to a permanent prohibition on the completed PR #2 merge.
+
+**Rollback:** If the new cleanup is rejected, revert only the separate cleanup-branch documentation diff. No direct `main` changes, force push, branch deletion, authorization changes or automated merge are part of this checkpoint.
