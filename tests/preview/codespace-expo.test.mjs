@@ -1,0 +1,73 @@
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { test } from 'node:test';
+import {
+  isMobileCommand, metroReady, parseStartTicks, recordMatches,
+  tunnelReady, validExpoGoTunnel, validWhoami,
+} from '../../scripts/start-codespace-expo.mjs';
+
+async function withServer(handler, check) {
+  const server = createServer(handler);
+  await new Promise((ok) => server.listen(0, '127.0.0.1', ok));
+  try { await check(server.address().port); }
+  finally { await new Promise((ok) => server.close(ok)); }
+}
+
+test('validates Expo Go tunnel instead of trusting an arbitrary deep link', () => {
+  assert.equal(validExpoGoTunnel('exp://tunnel.on.expo.app'), true);
+  assert.equal(validExpoGoTunnel('exps://abc.exp.direct/path'), true);
+  for (const link of ['http://tunnel.on.expo.app', 'exp://127.0.0.1:8081',
+    'exp://on.expo.app.evil.example', 'exp://untrusted.example',
+    'exp://user:password@tunnel.on.expo.app', null]) {
+    assert.equal(validExpoGoTunnel(link), false);
+  }
+});
+
+test('failed or anonymous Expo CLI identity is not authenticated', () => {
+  assert.equal(validWhoami({ status: 0, stdout: 'tio-owner\n' }), true);
+  assert.equal(validWhoami({ status: 0, stdout: 'Not logged in\n' }), false);
+  assert.equal(validWhoami({ status: 1, stdout: 'tio-owner' }), false);
+  assert.equal(validWhoami({ status: null, error: new Error('timeout') }), false);
+});
+
+test('PID reuse, foreign cwd and unrelated Metro command are rejected', () => {
+  const rec = { pid: 200, startTicks: '9001' };
+  const proc = { startTicks: '9001', cwd: '/workspaces/Tio-Money', command: 'npm run mobile' };
+  assert.equal(recordMatches(rec, proc, '/workspaces/Tio-Money'), true);
+  assert.equal(recordMatches(rec, { ...proc, startTicks: '9002' }, '/workspaces/Tio-Money'), false);
+  assert.equal(recordMatches(rec, { ...proc, cwd: '/wrong' }, '/workspaces/Tio-Money'), false);
+  assert.equal(recordMatches(rec, { ...proc, command: 'npm run dev' }, '/workspaces/Tio-Money'), false);
+  assert.equal(isMobileCommand('node /usr/local/bin/npm run mobile'), true);
+  assert.equal(isMobileCommand('npm run mobile-other'), false);
+});
+
+test('Linux /proc start tick parser handles malformed input', () => {
+  assert.equal(parseStartTicks('invalid'), null);
+  assert.equal(parseStartTicks('1 (npm run mobile) S ' +
+    Array.from({ length: 19 }, (_, i) => String(i + 1)).join(' ')), '19');
+});
+
+test('Metro requires its exact status marker', async () => {
+  await withServer((req, res) => res.end(req.url === '/status'
+    ? 'packager-status:running' : ''), async (port) => assert.equal(await metroReady(port), true));
+  await withServer((_req, res) => res.end('not Metro'),
+    async (port) => assert.equal(await metroReady(port), false));
+});
+
+test('Expo deep-link endpoint rejects wrong or unavailable tunnel', async () => {
+  await withServer((_req, res) => {
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify({ url: 'exps://test.on.expo.app' }));
+  }, async (port) => assert.equal(await tunnelReady(port), true));
+  await withServer((_req, res) => {
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify({ url: 'exp://127.0.0.1:8081' }));
+  }, async (port) => assert.equal(await tunnelReady(port), false));
+  await withServer((_req, res) => { res.statusCode = 503; res.end('offline'); },
+    async (port) => assert.equal(await tunnelReady(port), false));
+});
+
+test('closed port is not Metro or tunnel-ready', async () => {
+  assert.equal(await metroReady(1), false);
+  assert.equal(await tunnelReady(1), false);
+});
