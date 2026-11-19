@@ -26,7 +26,7 @@ export const navigationTokens = {
   origin: size.dp0,
   itemHeight: size.dp48,
   borderWidth: size.dp1,
-  iconLabelGap: size.dp3,
+  iconLabelGap: size.dp1,
   labelFontSize: size.dp11,
   horizontalPadding: size.dp8,
   topPadding: size.dp1,

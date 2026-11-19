@@ -39,7 +39,7 @@ test('physical values have one owner and all reusable roles alias them', () => {
   );
   assert.ok(navigationTokens.fabDiameter >= buttonTokens.minimumHeight);
   assert.equal(navigationTokens.fabGap, size.dp12);
-  assert.equal(navigationTokens.iconLabelGap, size.dp3);
+  assert.equal(navigationTokens.iconLabelGap, size.dp1);
   assert.equal(navigationTokens.labelFontSize, typographyTokens.navLabelSize);
   assert.equal(buttonTokens.minimumHeight, size.dp48);
   assert.equal(buttonTokens.disabledOpacity, opacity.disabled);

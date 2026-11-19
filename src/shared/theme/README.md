@@ -45,7 +45,8 @@ is required.
 - Current bottom navigation: **50dp baseline total height** (top border 1dp +
   top pad 1dp + 48dp minimum-height tab row), plus actual OS bottom safe area
   when present. The tab icons remain 24dp, labels 11sp, and icon-label gap
-  **3dp (reduced from 5dp)** through `navigationTokens.iconLabelGap`.
+  **1dp (reduced from 5dp; superseding the intermediate 3dp)** through
+  `navigationTokens.iconLabelGap`, between each Google icon and its label.
   The floating circular disabled FAB has **50dp diameter (from 56dp)**,
   with an official Google Material Symbols Outlined `add` mark at 24dp
   and weight 200. These changes retain the 48dp tab touch targets,
