@@ -1,27 +1,44 @@
-/** Proposed mobile tokens from Document 03; contrast and owner review remain open. */
+import { size } from './primitives';
+
+/** Owner-approved existing UI scale: names are stable reusable roles. */
 export type ColorScheme = 'light' | 'dark';
 
 export const space = {
-  xxs: 4,
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
-  xxl: 32,
-  xxxl: 40,
+  xxs: size.dp4,
+  xs: size.dp8,
+  sm: size.dp12,
+  md: size.dp16,
+  lg: size.dp20,
+  xl: size.dp24,
+  xxl: size.dp32,
+  xxxl: size.dp40,
 } as const;
 
-export const radius = { xs: 8, sm: 12, md: 16, lg: 20, pill: 100 } as const;
+export const radius = {
+  xs: size.dp8,
+  sm: size.dp12,
+  md: size.dp16,
+  lg: size.dp20,
+  pill: size.dp100,
+} as const;
 
 export const typeScale = {
-  caption: 13,
-  body: 16,
-  section: 18,
-  title: 26,
-  display: 34,
+  caption: size.dp13,
+  body: size.dp16,
+  section: size.dp18,
+  title: size.dp26,
+  display: size.dp34,
 } as const;
 
+export const typographyTokens = {
+  navLabelSize: size.dp11,
+  relativeLineHeight: 1.35,
+  regularWeight: '400',
+  mediumWeight: '500',
+  boldWeight: '700',
+} as const;
+
+/** Semantic colors are resolved by theme mode, never copied into screens. */
 const light = {
   canvas: '#F7F8FC',
   card: '#FFFFFF',
@@ -51,6 +68,7 @@ const dark = {
   transfer: '#9AC6FF',
   warning: '#FFC77A',
 };
+
 
 export type ThemeColors = typeof light;
 export const palettes: Record<ColorScheme, ThemeColors> = { light, dark };
