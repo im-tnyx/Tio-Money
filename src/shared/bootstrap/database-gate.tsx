@@ -68,7 +68,7 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
       >
         Local data unavailable
       </Text>
-      <Text style={{ color: theme.colors.secondaryText, textAlign: 'center', lineHeight: 24 }}>
+      <Text style={{ color: theme.colors.secondaryText, textAlign: 'center', lineHeight: theme.recovery.messageLineHeight }}>
         {state.message}
       </Text>
       <ActionButton
