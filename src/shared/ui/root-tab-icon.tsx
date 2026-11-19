@@ -3,6 +3,12 @@ import { View } from 'react-native';
 
 import type { RootTabIconName } from '@/shared/navigation/root-destinations';
 
+const STATISTICS_BARS = [
+  { left: 3, height: 8 },
+  { left: 10, height: 14 },
+  { left: 17, height: 19 },
+] as const;
+
 /**
  * Native-drawn, font-independent tab icons.
  * A fixed 24dp coordinate system avoids platform-specific Unicode glyph fallback.
@@ -89,26 +95,21 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
           </Fragment>
         ))}
 
-      {name === 'statistics' && (
-        <>
-          {[{ left: 3, height: 8 }, { left: 10, height: 14 }, { left: 17, height: 19 }].map(
-            (bar) => (
-              <View
-                key={bar.left}
-                style={{
-                  position: 'absolute',
-                  left: bar.left,
-                  bottom: 3,
-                  width: 4,
-                  height: bar.height,
-                  borderRadius: 1,
-                  backgroundColor: color,
-                }}
-              />
-            ),
-          )}
-        </>
-      )}
+      {name === 'statistics' &&
+        STATISTICS_BARS.map((bar) => (
+          <View
+            key={bar.left}
+            style={{
+              position: 'absolute',
+              left: bar.left,
+              bottom: 3,
+              width: 4,
+              height: bar.height,
+              borderRadius: 1,
+              backgroundColor: color,
+            }}
+          />
+        ))}
 
       {name === 'accounts' && (
         <>
