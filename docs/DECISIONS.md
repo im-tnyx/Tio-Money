@@ -11,6 +11,7 @@
 | [TM-DEC-001](#tm-dec-001--english-only-initial-app) | 2026-11-18 | Initial mobile app user-facing language is **English only** | **Owner decided** | P0/MVP UI, copy, accessibility, validation |
 | [TM-DEC-002](#tm-dec-002--independent-review-optional-by-default) | 2026-11-19 | Independent review optional by default, known blockers and configured protections binding | **Owner decided; agent-transcribed** | All PRs; sensitive-scope guidance |
 | [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | All PR merges, including PR #2 (not authorized) |
+| [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) | 2026-11-19 | Five destinations and a standalone floating Add FAB | **Owner decided; agent-transcribed** | Phase 0 navigation shell only |
 
 ## TM-DEC-001 — English-only initial app
 
@@ -56,11 +57,21 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 **Supersedes:** wording implying an agent can **never** merge, or that owner implementation/proceed/review approval automatically permits merge. Does **not** authorize PR #2 or PR #1 to merge now, change financial/SMS/privacy invariants, permit force-push or evade required checks.
 
+## TM-DEC-004 — Five destinations and floating Add
+
+**Decision date:** 2026-11-19. **Authority:** Direct owner message in connected ChatGPT conversation for Phase 0 alignment (agent-transcribed in the [PR #1 RFC](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7001758473); that comment is **not** GitHub-authenticated owner merge authorization).
+
+**Decision:** The Phase 0 mobile bottom navigation contains **Home · Trans. · Stats. · Account · More** as five content destinations. The exactly **one** `+` is a **floating action button**, independent of and visually above the bottom bar; it must never be implemented as a content tab. `Trans.` routes to the future transaction timeline, `Stats.` routes to the reports/statistics placeholder, `Account` routes to accounts, and `More` provides access to Settings. The FAB opens the **same single Income / Expense / Transfer editor**; Home must not show three type-specific shortcut cards. In Phase 0, all save actions stay disabled and no invented balances or reports appear.
+
+**Supersedes:** Earlier draft screen/README/flow guidance describing four bottom destinations with a center Add **bar slot**. This is a navigation presentation decision only; it does not change the canonical finance ledger, migration policy, SMS/Expo Go limits, or [English-only initial app (TM-DEC-001)](#tm-dec-001--english-only-initial-app). No native module or financial feature is authorized.
+
+**Acceptance:** Five distinct navigable root destinations with accessible English labels; a separately floating single Add FAB; safe-area and screen-reader testing on both devices; legacy `/history` navigation remains recoverable. Formal design review and physical-device QA remain pending. **Owner permission to merge PR #1 is NOT granted by this decision.**
+
 ## Pending choices — not decisions
 
 | Topic | Evidence | Status |
 |---|---|---|
-| Final bottom-bar placement, colors and icons | [Screen spec](03-SCREEN-SPEC.md) | Proposal; owner sign-off pending |
+| Final iconography, colors and fine FAB placement | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) · [Screen spec](03-SCREEN-SPEC.md) | Five destinations + floating Add decided; visual/icon refinement still proposed |
 | Detailed ledger correction/idempotency strategy and device transaction behavior | [Database design](04-DATABASE-DESIGN.md) · [test plan](06-IMPLEMENTATION-TEST-PLAN.md) | Proposed / needs implementation validation |
 | Android native SMS capability and Play policy eligibility | [Architecture](05-TECH-ARCHITECTURE.md) | Conditional, not authorized |
 | Phase 0 Expo PR device QA and merge | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | Open draft at initial inspection; recheck live |
