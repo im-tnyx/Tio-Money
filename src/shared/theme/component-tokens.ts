@@ -52,6 +52,8 @@ export const navigationTokens = {
 
 export const buttonTokens = {
   minimumHeight: size.dp48,
+  noBorder: size.dp0,
+  enabledOpacity: opacity.enabled,
   outlineWidth: size.dp1,
   disabledOpacity: opacity.disabled,
   pressedOpacity: opacity.pressed,
