@@ -29,7 +29,7 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               borderTopWidth: size.dp2,
               borderLeftWidth: size.dp2,
               borderColor: color,
-              borderTopLeftRadius: 2,
+              borderTopLeftRadius: size.dp2,
               transform: [{ rotate: iconTokens.roofRotation }],
             }}
           />
@@ -44,8 +44,8 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
               borderRightWidth: size.dp2,
               borderBottomWidth: size.dp2,
               borderColor: color,
-              borderBottomLeftRadius: 2,
-              borderBottomRightRadius: 2,
+              borderBottomLeftRadius: size.dp2,
+              borderBottomRightRadius: size.dp2,
             }}
           />
           <View

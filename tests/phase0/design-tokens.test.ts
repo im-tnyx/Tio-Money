@@ -90,7 +90,28 @@ test('all current and future screen and shared UI surfaces own no raw visual siz
     'src/shared/bootstrap/database-gate.tsx',
   ];
   const fixedNumericStyle =
-    /\b(?:fontSize|lineHeight|minHeight|minWidth|maxHeight|maxWidth|width|height|left|right|top|bottom|gap|padding|paddingTop|paddingBottom|paddingHorizontal|paddingVertical|borderWidth|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|shadowOpacity|shadowRadius|elevation|zIndex)\s*:\s*-?\d+(?:\.\d+)?\b/g;
+    /\b(?:fontSize|lineHeight|minHeight|minWidth|maxHeight|maxWidth|width|height|left|right|top|bottom|gap|padding|paddingTop|paddingBottom|paddingHorizontal|paddingVertical|borderWidth|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|border(?:TopLeft|TopRight|BottomLeft|BottomRight|TopStart|TopEnd|BottomStart|BottomEnd|StartStart|StartEnd|EndStart|EndEnd)?Radius|shadowOpacity|shadowRadius|elevation|zIndex)\s*:\s*-?\d+(?:\.\d+)?\b/g;
+  for (const property of [
+    'borderRadius',
+    'borderTopLeftRadius',
+    'borderTopRightRadius',
+    'borderBottomLeftRadius',
+    'borderBottomRightRadius',
+    'borderTopStartRadius',
+    'borderTopEndRadius',
+    'borderBottomStartRadius',
+    'borderBottomEndRadius',
+    'borderStartStartRadius',
+    'borderStartEndRadius',
+    'borderEndStartRadius',
+    'borderEndEndRadius',
+  ]) {
+    assert.equal(
+      `${property}: 2`.match(fixedNumericStyle)?.length,
+      1,
+      `${property} must be covered by the numeric style guard`,
+    );
+  }
   for (const file of uiFiles) {
     const source = readFileSync(file, 'utf8');
     assert.equal(

@@ -67,6 +67,8 @@ independent of OS font glyph fallback.
 - `tests/phase0/design-tokens.test.ts`: token aliases, global icon role
   consistency, enforced absence of numeric visual size literals in the
   Phase 0 UI surfaces, system-appearance ownership and screen/logic split.
+  The visual-size guard includes every corner-specific React Native border radius,
+  not just `borderRadius`; native-drawn Home icon corners use `size.dp2`.
 - `tests/phase0/navigation-shell.test.ts`: five blank routes, disabled FAB,
   responsive More alignment and native splash.
 - `npm run check` and Android/iOS Metro export run in the Phase 0 workflow.
