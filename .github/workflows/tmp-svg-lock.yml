@@ -1,0 +1,33 @@
+name: Temporary SVG lockfile resolution
+
+on:
+  push:
+    branches:
+      - feat/phase-0-expo-foundation
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    if: startsWith(github.event.head_commit.message, 'chore(svg-lock):')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Resolve exact supported react-native-svg dependency graph
+        run: |
+          cp package-lock.json original-lock.json
+          npm install --package-lock-only --save-exact --ignore-scripts --no-audit --no-fund react-native-svg@15.16.0
+          node <<'NODE'
+          const fs = require('fs');
+          const oldLock = JSON.parse(fs.readFileSync('original-lock.json','utf8'));
+          const newLock = JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          const changed = Object.fromEntries(Object.entries(newLock.packages).filter(([name,obj]) => JSON.stringify(oldLock.packages[name]) !== JSON.stringify(obj)));
+          const removed = Object.keys(oldLock.packages).filter(name => !(name in newLock.packages));
+          console.log('TM_SVG_DELTA_START');
+          console.log(JSON.stringify({ lockVersion: newLock.lockfileVersion, changed, removed }));
+          console.log('TM_SVG_DELTA_END');
+          NODE
