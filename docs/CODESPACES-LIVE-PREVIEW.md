@@ -80,11 +80,15 @@ The push signal must receive **no secrets**. Privileged runner must never execut
 
 If security gates cannot be established, retain manual Codespaces startup indefinitely. No PR merge, deploy, branch deletion or GitHub settings changes follow from this proposal.
 
+## Source validation evidence (2026-11-19)
+
+[Phase 0 / preview GitHub Actions run #44480886934](https://github.com/im-tnyx/Tio-Money/actions/runs/44480886934) finished **SUCCESS** on source SHA `b317ec8d69b6fd8c3cebae33b638c3a13fdaac5e`. The locked-install and Expo compatibility commands passed; `npm run check` passed strict TypeScript, ESLint, Prettier, all **16/16** Phase 0 tests and **8/8** preview tests, including the `tnyx-23` app config and account check; Android and iOS Expo Router exports and SMS permission scan passed. `npx expo config --type public` succeeded but its CI output was redirected; project owner/slug/name were separately inspected in the committed `app.json`. Devcontainer JSON was successfully parsed in an independent static check, but an actual Codespace image pull, Node version inside the container, account login, tunnel and phone tests remain **NOT_VERIFIED**. A basic GitHub-tree check found **zero missing local link targets across 14 local references in the guide, task and index**, not a full governance CLI link test.
+
 ## Acceptance evidence
 
 | Acceptance | Recorded status |
 |---|---|
-| Node starter helper tests, static checks, Android/iOS Metro export | Report tested HEAD and observed results in stacked PR; a source commit alone is not a PASS |
+| Node starter helper tests, static checks, Android/iOS Metro export | **PASS on GitHub Actions run #44480886934**, exact tested source SHA `b317ec8d69b6fd8c3cebae33b638c3a13fdaac5e`: `npm ci`, Expo dependency check, TypeScript/ESLint/Prettier, 16 Phase 0 + 8 preview Node tests, Expo public config command, Android and iOS exports, no-SMS scan. This is NOT physical QA. |
 | Real signed Codespace Expo tunnel / Metro stop-resume | **NOT_VERIFIED** |
 | **Android:** same-account Expo Go Projects reopen without QR if offered, navigation, refresh, stop/restart | **NOT_VERIFIED** — physical device not available to the agent |
 | **iPhone:** SDK 58-compatible Expo Go, same-account login, Projects reopen, navigation/refresh, restart recovery | **NOT_VERIFIED** — physical device not available to the agent |
