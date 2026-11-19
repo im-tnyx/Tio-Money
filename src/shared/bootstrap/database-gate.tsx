@@ -12,9 +12,7 @@ import { ActionButton } from '@/shared/ui/action-button';
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 type BootstrapState =
-  | { status: 'loading' }
-  | { status: 'ready' }
-  | { status: 'error'; message: string };
+  { status: 'loading' } | { status: 'ready' } | { status: 'error'; message: string };
 
 export function DatabaseGate({ children }: { children: ReactNode }) {
   const theme = useAppTheme();
@@ -45,10 +43,7 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
 
   if (state.status === 'ready') {
     return (
-      <View
-        onLayout={revealOnLayout}
-        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
-      >
+      <View onLayout={revealOnLayout} style={{ flex: 1, backgroundColor: theme.colors.canvas }}>
         {children}
       </View>
     );
