@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
 
 import {
@@ -72,16 +73,20 @@ test('only the root theme provider chooses system dark/light colors', () => {
   );
 });
 
-test('presentation surfaces own no raw fixed dimensions or font sizes', () => {
+function collectPresentationFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return collectPresentationFiles(path);
+    return entry.isFile() && path.endsWith('.tsx') ? [path] : [];
+  });
+}
+
+test('all current and future screen and shared UI surfaces own no raw visual sizes', () => {
   const uiFiles = [
-    'src/shared/ui/blank-screen.tsx',
-    'src/shared/ui/root-tab-icon.tsx',
-    'src/shared/ui/root-tab-bar.tsx',
-    'src/shared/ui/floating-add-button.tsx',
-    'src/shared/ui/action-button.tsx',
-    'src/shared/ui/app-text.tsx',
+    ...collectPresentationFiles('src/app'),
+    ...collectPresentationFiles('src/shared/ui'),
+    ...collectPresentationFiles('src/features'),
     'src/shared/bootstrap/database-gate.tsx',
-    'src/app/(tabs)/_layout.tsx',
   ];
   const fixedNumericStyle =
     /\b(?:fontSize|lineHeight|minHeight|minWidth|maxHeight|maxWidth|width|height|left|right|top|bottom|gap|padding|paddingTop|paddingBottom|paddingHorizontal|paddingVertical|borderWidth|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|shadowOpacity|shadowRadius|elevation|zIndex)\s*:\s*-?\d+(?:\.\d+)?\b/g;
