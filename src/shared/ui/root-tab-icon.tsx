@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { View } from 'react-native';
 
 import type { RootTabIconName } from '@/shared/navigation/root-destinations';
@@ -62,7 +63,7 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
 
       {name === 'transactions' &&
         [4, 10, 16].map((top) => (
-          <View key={top}>
+          <Fragment key={top}>
             <View
               style={{
                 position: 'absolute',
@@ -85,7 +86,7 @@ export function RootTabIcon({ name, color }: { name: RootTabIconName; color: str
                 backgroundColor: color,
               }}
             />
-          </View>
+          </Fragment>
         ))}
 
       {name === 'statistics' && (
