@@ -1,0 +1,110 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { test } from 'node:test';
+
+import {
+  buttonTokens,
+  iconRoleSizes,
+  iconTokens,
+  navigationTokens,
+  shadowTokens,
+  tabIconShapes,
+} from '../../src/shared/theme/component-tokens';
+import { opacity, size } from '../../src/shared/theme/primitives';
+import { palettes, radius, space, typographyTokens, typeScale } from '../../src/shared/theme/tokens';
+
+test('physical values have one owner and all reusable roles alias them', () => {
+  assert.equal(space.xs, size.dp8);
+  assert.equal(space.sm, size.dp12);
+  assert.equal(space.xl, size.dp24);
+  assert.equal(radius.sm, size.dp12);
+  assert.equal(typeScale.body, size.dp16);
+  assert.equal(typeScale.title, size.dp26);
+  assert.equal(typographyTokens.navLabelSize, size.dp11);
+
+  assert.equal(navigationTokens.itemHeight, size.dp56);
+  assert.equal(navigationTokens.fabDiameter, size.dp56);
+  assert.equal(navigationTokens.fabGap, size.dp12);
+  assert.equal(navigationTokens.iconLabelGap, size.dp5);
+  assert.equal(navigationTokens.labelFontSize, typographyTokens.navLabelSize);
+  assert.equal(buttonTokens.minimumHeight, size.dp48);
+  assert.equal(buttonTokens.disabledOpacity, opacity.disabled);
+  assert.equal(shadowTokens.fab.opacity, opacity.fabShadow);
+});
+
+test('one shared icon size serves bottom nav and every future reusable component role', () => {
+  assert.equal(iconTokens.size, size.dp24);
+  assert.equal(iconTokens.stroke, size.dp2);
+  assert.deepEqual(Object.keys(iconRoleSizes).sort(), [
+    'bottomSheet',
+    'button',
+    'card',
+    'navigation',
+    'textField',
+    'topBar',
+  ]);
+  assert.ok(Object.values(iconRoleSizes).every((token) => token === iconTokens.size));
+  assert.equal(navigationTokens.fabMarkSize, iconTokens.size);
+  assert.equal(navigationTokens.fabMarkStroke, iconTokens.stroke);
+  assert.equal(navigationTokens.fabMarkOffset * 2 + iconTokens.stroke, iconTokens.size);
+  assert.equal(tabIconShapes.transactionRows.length, 3);
+  assert.equal(tabIconShapes.statisticBars.length, 3);
+  assert.equal(tabIconShapes.moreDots.length, 3);
+});
+
+test('only the root theme provider chooses system dark/light colors', () => {
+  const provider = readFileSync('src/shared/theme/theme-provider.tsx', 'utf8');
+  assert.match(provider, /useColorScheme\(\)/);
+  assert.match(provider, /systemScheme === 'dark' \? 'dark' : 'light'/);
+  assert.match(provider, /palettes\[scheme\]/);
+  assert.doesNotMatch(provider, /useState|AsyncStorage|setColorScheme/);
+  assert.notEqual(palettes.light.canvas, palettes.dark.canvas);
+  assert.notEqual(palettes.light.primaryText, palettes.dark.primaryText);
+  assert.equal(Object.keys(palettes.light).sort().join(','), Object.keys(palettes.dark).sort().join(','));
+});
+
+test('presentation surfaces own no raw fixed dimensions or font sizes', () => {
+  const uiFiles = [
+    'src/shared/ui/blank-screen.tsx',
+    'src/shared/ui/root-tab-icon.tsx',
+    'src/shared/ui/root-tab-bar.tsx',
+    'src/shared/ui/floating-add-button.tsx',
+    'src/shared/ui/action-button.tsx',
+    'src/shared/ui/app-text.tsx',
+    'src/shared/bootstrap/database-gate.tsx',
+    'src/app/(tabs)/_layout.tsx',
+  ];
+  const fixedNumericStyle =
+    /\b(?:fontSize|lineHeight|minHeight|minWidth|maxHeight|maxWidth|width|height|left|right|top|bottom|gap|padding|paddingTop|paddingBottom|paddingHorizontal|paddingVertical|borderWidth|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|shadowOpacity|shadowRadius|elevation|zIndex)\s*:\s*-?\d+(?:\.\d+)?\b/g;
+  for (const file of uiFiles) {
+    const source = readFileSync(file, 'utf8');
+    assert.equal(
+      source.match(fixedNumericStyle)?.length ?? 0,
+      0,
+      `${file} must consume central design tokens instead of numeric visual sizes`,
+    );
+  }
+});
+
+test('route screens are dumb blank UI and shell lifecycle/controller logic is external', () => {
+  const routes = ['index', 'transactions', 'reports', 'accounts', 'more'];
+  for (const route of routes) {
+    const source = readFileSync(`src/app/(tabs)/${route}.tsx`, 'utf8');
+    assert.match(source, /export default BlankScreen/);
+    assert.doesNotMatch(source, /useState|useEffect|useRouter|usePathname|Sqlite|SQLite|fetch\(/);
+  }
+
+  const shell = readFileSync('src/app/(tabs)/_layout.tsx', 'utf8');
+  const tabs = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
+  const fab = readFileSync('src/shared/ui/floating-add-button.tsx', 'utf8');
+  const navHook = readFileSync('src/shared/navigation/use-root-tab-navigation.ts', 'utf8');
+  const fabHook = readFileSync('src/shared/navigation/use-floating-add-position.ts', 'utf8');
+  const splashHook = readFileSync('src/shared/navigation/use-reveal-tabs-on-layout.ts', 'utf8');
+
+  assert.doesNotMatch(shell, /SplashScreen\.hideAsync|useCallback|usePathname|useRouter/);
+  assert.doesNotMatch(tabs, /useRouter|usePathname|router\.navigate/);
+  assert.doesNotMatch(fab, /useWindowDimensions|useSafeAreaInsets|useRouter|onPress=/);
+  assert.match(navHook, /usePathname|useRouter/);
+  assert.match(fabHook, /getFloatingAddPosition/);
+  assert.match(splashHook, /SplashScreen\.hideAsync/);
+});
