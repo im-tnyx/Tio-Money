@@ -95,3 +95,7 @@ If security gates cannot be established, retain manual Codespaces startup indefi
 | Automatic Codespaces wake/sync after approved push | **NOT_IMPLEMENTED / BLOCKED** |
 
 **Rollback:** use `--stop`, stop the owner-designated Codespace in GitHub UI and close/revert the preview-only stacked PR if rejected. Never reset/force-push or merge the app PR to work around preview problems.
+
+### 2026-11-19 process-ownership fix / fresh CI
+
+In the same stacked draft PR #4, commit `fe2003707c53ab5ef615ce547971cc27ebfde209` expanded ownership recognition to Node-managed `npm-cli.js run mobile` invocation forms, with new deterministic positive/negative smoke cases. [GitHub Actions run #44482368855](https://github.com/im-tnyx/Tio-Money/actions/runs/44482368855) completed **SUCCESS** **on that exact tested code SHA**: locked `npm ci`, Expo dependency check, `npm run check` (**16/16** existing app tests, **8/8** preview tests plus TypeScript/ESLint/Prettier), public Expo config, Android and iOS Metro exports, no restricted SMS-permission baseline. Basic local inspection of npm command-line variants informed the additional regression tests. **This is not evidence of an Expo-authenticated Codespace session or physical-device usability.** The subsequent checkpoint-only commit advances Git HEAD and requires current-head CI revalidation.
