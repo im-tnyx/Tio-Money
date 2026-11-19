@@ -4,7 +4,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 
 /**
  * Phase 0 intentionally shows no content or top app bar.
- * The five-tab shell and floating Add action are rendered by the parent layout.
+ * The five-tab shell and disabled floating Add icon are rendered by the parent layout.
  * Keep the themed canvas non-focusable; do not imply a finance feature exists.
  */
 export function BlankScreen() {
