@@ -1,26 +1,28 @@
 # TM-P0-ALIGN-20261119-001 — Phase 0 governance alignment and completion review
 
-> **Active scoped task, not a merge authorization.** Source of truth is live GitHub. The historical governance task and its checkpoints are preserved separately.
+> **Current verified status (2026-11-19): IN_REVIEW / NOT MERGED.** PR #1 was marked **Ready for Review** (not merged), and source HEAD `aaa09ad88fdcb9efa032f0f9b3c5e83f72785738` passed app/governance CI before this documentation-only alignment. Five blank tabs, disabled FAB, system dark/light, centralized icon/component sizes and dumb screen composition are authoritative; the earlier editor/Settings references below are **historical snapshots**, superseded by TM-DEC-005. [Documentation alignment RFC/technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7015156188). Owner merge authorization **NOT_GRANTED**; device QA, real SQLite and review disposition remain pending.
 
 | Required field | Verified value |
 |---|---|
 | Task ID | `TM-P0-ALIGN-20261119-001` |
-| Repository / PR | `im-tnyx/Tio-Money` · [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), **draft, unmerged** |
-| Lifecycle | **VALIDATING** — later review, device acceptance and owner authorization still pending |
+| Repository / PR | `im-tnyx/Tio-Money` · [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), **READY FOR REVIEW / NOT MERGED** at 2026-11-19 verification |
+| Lifecycle | **IN_REVIEW** — latest-source CI green, documentation reconciliation in progress; physical QA, reviewer-thread disposition and separate owner merge authorization still pending |
 | RFC | [Discussion and technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7001758473) |
 | Decision | Agent architect **PROCEED**, 2026-11-19, bounded integration + existing review fix + owner-requested navigation; **not** owner merge permission |
-| Owner decisions | [English-only TM-DEC-001](../../../docs/DECISIONS.md#tm-dec-001--english-only-initial-app); [five destinations + FAB TM-DEC-004](../../../docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add); optional review/mandatory owner merge TM-DEC-002/003 |
+| Owner decisions | [English-only TM-DEC-001](../../../docs/DECISIONS.md#tm-dec-001--english-only-initial-app); [five destinations + FAB TM-DEC-004](../../../docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add); [current blank shell, disabled FAB, system light/dark and shared visual-token clarification TM-DEC-005](../../../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab); optional review/mandatory owner merge TM-DEC-002/003 |
 | Working branch | `feat/phase-0-expo-foundation`, existing PR #1 |
 | Main verified | `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` merged governance PR #2 |
 | Initial Phase 0 HEAD | `1c0f3e21d3e7938c1af3d5003ae640cfcd1cfe8f` |
 | Integration merge | `5d464a66f425dd93bfddcfdfe89fdfa5d330d5a5` (two parents, first prior Phase 0 HEAD, second current governance main) |
 | Current working agent | ChatGPT, **GPT-6** (known from this execution; not derived from commit author) |
 | Previous verified working agent | Earlier Phase 0 ChatGPT GPT-6 session evidenced in this project's conversation; separate from GitHub PR author |
-| PR author / reviewers | GitHub PR author `im-tnyx` is not an agent identity; initial Copilot review **COMMENTED**, original blocking Node thread |
+| PR author / reviewers | GitHub PR author `im-tnyx` is not an agent identity; initial Copilot review **COMMENTED**, original Node engine thread **outdated but GitHub-unresolved** at latest inspection. No verified independent new-head approval |
 | Merge authorization | **NOT_GRANTED for PR #1**. No merge/auto-merge/branch deletion/force operations permitted |
 | Started / checkpoint | 2026-11-19T06:46:45.938Z UTC; mutable heads require re-verification |
 
-## Scope and technical contract
+## Original scope and technical contract (historical baseline; superseded for current Phase 0 editor/navigation)
+
+> The original editor and Settings references in this baseline predate the owner's later reduction to five blank tabs and a disabled FAB. They are kept as historical provenance only; current UI and token decisions are documented in the latest checkpoints below and TM-DEC-005.
 
 - Preserve the real Phase 0 source: Expo Router, SQLite FK startup/settings-only migration, domain-only typed ledger preflight, themes/UI, single unified editor with disabled Save, and no native SMS permissions.
 - Integrate **all** governance files from current main via an actual non-destructive two-parent merge commit, retaining Phase 0 workflow separately from AI governance workflow. Compare overlap `docs/00-INDEX.md` and preserve both the owner decisions register link and Phase 0 notes/link/status. Do not rewrite historic governance records.
@@ -154,3 +156,14 @@
 - **Iteration evidence:** Initial [App CI #44560650466](https://github.com/im-tnyx/Tio-Money/actions/runs/44560650466) failed Prettier in 4 files; formatting corrected. Follow-up [App CI #44561175140](https://github.com/im-tnyx/Tio-Money/actions/runs/44561175140) passed TypeScript/lint/Prettier but caught the last hardcoded FAB stroke radius via newly added token contract test; replaced it with a theme token. The subsequent exact-head App and governance checks above both passed. Earlier failures were fixed, **not concealed**.
 - **Testing limits/review:** Static tests/Metro smoke do not verify visual identity after refactor. Last user Android/iPhone screenshots visually verified **pre-refactor** native icons/FAB; fresh physical iPhone/Android app startup, auto dark/light switching, all five tabs, safe areas, disabled FAB and real SQLite startup require **manual recheck** before any merge. Independent new-head review **DEFERRED** under optional policy; prior Copilot Node review-thread status unchanged/not fabricated. Real GitHub required protections still binding.
 - **Ownership/merge/rollback:** Current ChatGPT (GPT-6), previous verified Phase 0 agent ChatGPT (GPT-6) from task record, not Git authorship. [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) **DRAFT / NOT MERGED**, owner explicit merge authorization **NOT_GRANTED**. Separate docs [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) and `main` untouched. Rollback only by normal feature-branch commit (no force push, no database resets). Next: check both workflows again on checkpoint-only new HEAD, recheck on-device before merge.
+
+
+### 2026-11-19 — documentation alignment after Ready for Review (owner “go”)
+
+- **Task authorization:** Direct owner “go” after focused comparison identified outdated original future screen spec, architecture, foundation CI evidence, governance decision-register status and task index. [RFC, scope, failure modes, rollback and technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7015156188). This authorizes **Markdown documentation correction only**, not a code change or PR merge.
+- **Verified base before docs edits:** PR #1 `feat/phase-0-expo-foundation` **READY FOR REVIEW / NOT MERGED**, reviewed source HEAD `aaa09ad88fdcb9efa032f0f9b3c5e83f72785738`; `main` `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`; governance [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) **MERGED** 2026-11-19 at that SHA (6/6 review threads resolved when verified). Parallel docs [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains unmerged.
+- **Markdown change ownership:** `docs/03-SCREEN-SPEC.md` and `docs/05-TECH-ARCHITECTURE.md` now explicitly separate actual current **native splash → five blank tabs + disabled More-aligned FAB** from original active-editor/four-tab/future-screen illustrations. Current architecture documents one shared **24dp icon-size owner**, component aliases, system-following light/dark, presentation-only route screens, navigation/safe-area/splash hooks and non-screen SQLite. Original detailed future product specifications and anchors are preserved.
+- **Additional alignment:** `docs/07-PHASE-0-FOUNDATION-NOTES.md` now cites the source [app CI #44562328304](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328304) **SUCCESS 24/24 tests, Android 1179/iOS 1185 modules**, and [governance CI #44562328037](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328037) **SUCCESS 29/29**. `docs/DECISIONS.md`, `.ai/current.md`, README/doc hub and task index distinguish PR #1 Ready-for-Review and PR #2 Merged. Earlier checkpoint records remain historically unchanged where date-scoped.
+- **Risks/limits:** PR #7 also edits `docs/DECISIONS.md` and `.ai/current.md`; *future normal integration may need manual diff reconciliation* without overwriting its governance-completion record. This task never changes PR #7, app source, SQLite, finance/security/privacy platform permissions, CI workflows, or `main`. Prior Android/iOS screenshots preceded token refactor; fresh latest-head device light/dark, safe-area, disabled FAB and real SQLite tests are still **NOT_VERIFIED**, separate from CI.
+- **Independent review:** `DEFERRED` under optional owner policy (no passing independent reviewer verdict fabricated); original Node-engine Copilot thread GitHub-unresolved/outdated requires disposition. Owner PR #1 merge permission **NOT_GRANTED**, and this owner's “go” never grants merge/auto-merge.
+- **Verification/rollback:** Check **exact final documentation HEAD** with GitHub app and governance workflows, including Markdown relative targets, 24+ app tests and 29 governance tests; compare changed filenames to Markdown-only intended scope. Rollback by a normal reviewed feature-branch commit if needed. **No force push, reset, direct main write, PR #7 edit or merge**. Code review can continue, but PR is not merge-ready until remaining gates and separate owner permission.
