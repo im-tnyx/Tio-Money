@@ -129,10 +129,10 @@ For iPhone use Expo Go from the App Store; for Android use the Expo Go app and i
 
 **Language:** Initial UI, validation and accessibility text are **English only**, with no MVP language selector per [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app). Stable message keys remain ready for future translations. **Environment / privacy:** P0 has no backend and requires **no secrets**. `.env.example` explains `EXPO_PUBLIC_*` flags; those flags are public in app bundles, so never put banking credentials, API keys or encryption secrets there. The default `app.json` declares **no SMS permissions**. Automatic Android SMS requires a separately approved custom native build; automatic iPhone inbox access is not offered.
 
-**Architecture boundaries:** [Document 05](docs/05-TECH-ARCHITECTURE.md) · [Phase 0–7 plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) · [Foundation decisions](docs/07-PHASE-0-FOUNDATION-NOTES.md). The SQLite bootstrap currently migrates only a local settings table; balances, financial event posting and encryption are **not** built. Keep local database files out of Git.
+**Architecture boundaries:** [Document 05](docs/05-TECH-ARCHITECTURE.md) · [Phase 0–7 plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) · [Foundation notes](docs/07-PHASE-0-FOUNDATION-NOTES.md) · [Core Theme ownership](src/shared/theme/README.md). The current UI automatically follows system **light/dark** via typed semantic palettes; **all reusable fixed UI dimensions, native-drawn 24dp icon shapes, tab/FAB geometry, typography and spacing are centrally owned design tokens**, with shared icon-size roles available to future top bars/buttons/sheets/cards/fields. Five route screens are **blank/presentation-only**; routing, splash lifecycle and safe-area behavior are handled in shared controllers/hooks, not screen business logic. Future feature-screen specifications remain proposals, not implemented routes. SQLite bootstrap currently migrates only a local settings table; balances, financial event posting and encryption are **not** built. Keep local database files out of Git.
 
 > [!NOTE]
-> The dependency lockfile is committed and the previous PR-head CI was green, but fresh integration CI and Android/iPhone Expo Go device QA require recorded evidence. **Phase 0 is not complete** until those gates are verified.
+> PR #1 is **READY FOR REVIEW / NOT MERGED**. The tokenized source HEAD `aaa09ad` passed [24/24 app tests and Android/iOS Metro CI](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328304) plus [29/29 governance tests](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328037); the documentation-only follow-up requires its own final-head validation. Earlier Android/iPhone screenshots verified icons/FAB **before** token refactoring, not a fresh physical QA pass on the newest branch. System appearance, installed-device SQLite and review-thread disposition remain pending; separate owner authorization is mandatory before any merge.
 
 ## 🚀 How the product is developed
 
@@ -154,6 +154,6 @@ flowchart LR
 <div align="center">
 
 **Tio Money** · Designed for clarity, correctness & privacy  
-<sub>Phase 0 scaffold in draft review · November 2026 · Original product design</sub>
+<sub>Phase 0 scaffold ready for code review, not merged · November 2026 · Original future product design preserved</sub>
 
 </div>
