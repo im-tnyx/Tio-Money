@@ -36,16 +36,16 @@ export function ActionButton({
       disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => ({
-        minHeight: 48,
+        minHeight: theme.buttons.minimumHeight,
         paddingHorizontal: theme.space.lg,
         paddingVertical: theme.space.sm,
         borderRadius: theme.radius.sm,
         backgroundColor,
-        borderWidth: variant === 'secondary' ? 1 : 0,
+        borderWidth: variant === 'secondary' ? theme.buttons.outlineWidth : theme.navigation.origin,
         borderColor: theme.colors.border,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: isDisabled ? 0.48 : pressed ? 0.8 : 1,
+        opacity: isDisabled ? theme.buttons.disabledOpacity : pressed ? theme.buttons.pressedOpacity : 1,
       })}
     >
       {loading ? (
@@ -55,7 +55,7 @@ export function ActionButton({
           style={{
             color: isPrimary ? theme.colors.brandText : theme.colors.primaryText,
             fontSize: theme.typeScale.body,
-            fontWeight: '700',
+            fontWeight: theme.typography.boldWeight,
             textAlign: 'center',
           }}
         >
