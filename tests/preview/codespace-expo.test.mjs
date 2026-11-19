@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve, join } from 'node:path';
 import { test } from 'node:test';
 import {
   isMobileCommand, metroReady, parseStartTicks, recordMatches,
@@ -23,10 +26,13 @@ test('validates Expo Go tunnel instead of trusting an arbitrary deep link', () =
   }
 });
 
-test('failed or anonymous Expo CLI identity is not authenticated', () => {
-  assert.equal(validWhoami({ status: 0, stdout: 'tio-owner\n' }), true);
+test('only the existing Tio Money owner account can start a signed Expo tunnel', () => {
+  assert.equal(validWhoami({ status: 0, stdout: 'tnyx-23\n' }), true);
+  assert.equal(validWhoami({ status: 0, stdout: 'tnyx-23\n' }, 'tnyx-23'), true);
+  assert.equal(validWhoami({ status: 0, stdout: 'tnyx' }), false);
+  assert.equal(validWhoami({ status: 0, stdout: 'another-account' }), false);
   assert.equal(validWhoami({ status: 0, stdout: 'Not logged in\n' }), false);
-  assert.equal(validWhoami({ status: 1, stdout: 'tio-owner' }), false);
+  assert.equal(validWhoami({ status: 1, stdout: 'tnyx-23' }), false);
   assert.equal(validWhoami({ status: null, error: new Error('timeout') }), false);
 });
 
@@ -70,4 +76,16 @@ test('Expo deep-link endpoint rejects wrong or unavailable tunnel', async () => 
 test('closed port is not Metro or tunnel-ready', async () => {
   assert.equal(await metroReady(1), false);
   assert.equal(await tunnelReady(1), false);
+});
+
+
+test('Expo public identity points only to existing tnyx-23/tio-money slug', () => {
+  const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+  const expo = JSON.parse(readFileSync(join(projectRoot, 'app.json'), 'utf8')).expo;
+  assert.equal(expo.name, 'Tio Money');
+  assert.equal(expo.slug, 'tio-money');
+  assert.equal(expo.owner, 'tnyx-23');
+  assert.equal(expo.extra?.eas?.projectId, undefined,
+    'Do not invent or link an EAS UUID before authenticating the existing project');
+  assert.equal(expo.updates?.url, undefined);
 });

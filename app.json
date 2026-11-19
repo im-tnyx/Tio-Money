@@ -2,6 +2,7 @@
   "expo": {
     "name": "Tio Money",
     "slug": "tio-money",
+    "owner": "tnyx-23",
     "scheme": "tiomoney",
     "version": "0.0.1",
     "platforms": ["android", "ios"],

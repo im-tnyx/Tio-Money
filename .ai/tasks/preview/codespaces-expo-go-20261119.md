@@ -36,3 +36,14 @@ Own only `.devcontainer/devcontainer.json`, `scripts/start-codespace-expo.mjs`, 
 - **Exact next safe action:** open stacked **draft** PR and observe head CI results; owner tests actual SDK-compatible Expo Go on Android/iPhone and records acceptance separately. Stage B remains disabled pending owner/security gates.
 
 [Task lifecycle](../README.md) · [Agent contract](../../../AGENTS.md) · [Owner decisions](../../../docs/DECISIONS.md) · [Preview operating guide](../../../docs/CODESPACES-LIVE-PREVIEW.md)
+
+## 2026-11-19 add-on — existing Expo Go project owner identity
+
+- **Owner-reported existing Expo account/project:** `tnyx-23` / `@tnyx-23/tio-money`, phone display **Tio-Money**; unrelated `@tnyx-23/tnyx` (**Tio-TNYX**) explicitly protected. Existing project visibility is **OWNER_REPORTED**, not independently authenticated in an Expo API session.
+- **Persistent discussion/technical decision:** [Issue #3 addendum](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7002783624) extends the same Stage A technical **PROCEED**, with no new project, PR, credential, Codespace or privileged worker. Owner merge permission remains **NOT_GRANTED**.
+- **Current branch baseline before this add-on:** `chore/codespaces-expo-go-stage-a` at `1a5c666abf38fbd9014df4137f2458518263f8f5`, Phase 0 PR #1 still draft at `790f1cfe4b961b95cc3b7ec5aace8359cbda421c`; no Phase 0 branch modification. GitHub connector only, no local Codespace state visible.
+- **Source modifications:** add `expo.owner = tnyx-23` to preview-branch `app.json` without changing name, slug or native IDs; starter accepts only `npx expo whoami` for exactly the configured owner; add wrong-account and static project-identity regression tests; expand preview guide. Explicitly preserve Tio-TNYX app IDs/EAS UUID/workspace Codespaces/workflows.
+- **EAS UUID evidence:** Existing UUID **NOT_VERIFIED** because no authenticated Expo project connection is available. Deliberately **do not add** `extra.eas.projectId`, EAS Update or run interactive `eas init`; no duplicate project creation. Authentication/project identity is a manual owner check via authenticated Expo UI when needed.
+- **Acceptance:** Android/iPhone separately open the **existing** Tio-Money Projects entry while Codespace signed into `tnyx-23`; assess Fast Refresh and stop/restart recovery. All device/tunnel/physical Codepace outcomes **NOT_VERIFIED** until owner evidence. No claim of existing EAS UUID association.
+- **Testing:** preview identity tests and public Expo config to be checked on the final PR HEAD, not assumed. Review, required CI and PR-specific merge permission remain separate gates.
+- **Exact next action:** verify preview branch CI, owner checks authenticated Expo CLI account and Expo Go project without touching Tio-TNYX, and conduct both-device QA; leave privileged Stage B disabled.

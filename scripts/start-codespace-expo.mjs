@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const CONFIGURED_EXPO_OWNER = JSON.parse(readFileSync(join(ROOT, 'app.json'), 'utf8')).expo.owner;
 const STATE = join(homedir(), '.cache', 'tio-money-expo-preview');
 const PID_FILE = join(STATE, 'metro.json');
 const LOCK_FILE = join(STATE, 'startup.lock');
@@ -35,11 +36,11 @@ export function validExpoGoTunnel(raw) {
   }
 }
 
-export function validWhoami(result) {
-  if (result.status !== 0 || result.error) return false;
-  const output = String(result.stdout || '').trim();
-  return /^[a-z0-9][a-z0-9_.-]{0,63}$/i.test(output)
-    && !/^(unknown|anonymous|not.logged.in)$/i.test(output);
+export function validWhoami(result, expectedOwner = CONFIGURED_EXPO_OWNER) {
+  if (result.status !== 0 || result.error || typeof expectedOwner !== 'string') return false;
+  if (!/^[a-z0-9][a-z0-9_.-]{0,63}$/i.test(expectedOwner)) return false;
+  // Exact-account equality is required: do not connect Tio Money under Tio-TNYX.
+  return String(result.stdout || '').trim() === expectedOwner;
 }
 
 const wait = (ms) => new Promise((done) => setTimeout(done, ms));
@@ -162,7 +163,7 @@ function requireExpoAccount() {
     env: { ...process.env, EXPO_NO_TELEMETRY: '1' },
   });
   if (!validWhoami(result)) {
-    throw new Error('Expo login not verified. Run npx expo login inside the Codespace, then retry. Never share credentials.');
+    throw new Error('Expo CLI must be signed in as the configured Tio Money owner (tnyx-23). Run npx expo login in this Codespace, then retry. Never share credentials.');
   }
 }
 

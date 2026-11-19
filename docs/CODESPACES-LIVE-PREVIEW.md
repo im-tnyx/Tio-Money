@@ -12,15 +12,37 @@ The starter runs `npm run mobile` (`expo start --tunnel --go`), owns only the de
 
 For SDK 58 the Expo tunnel is an **Expo-account-signed tunnel**; a legacy ngrok helper is neither needed nor installed. See [SDK 58's tunnel notes](https://expo.dev/changelog/sdk-58) and [Expo Go same-account instructions](https://docs.expo.dev/troubleshooting/expo-go-sign-in-required/).
 
+## Existing Expo project identity — strict no-duplicate linking
+
+**Owner-confirmed Expo Go target (not independently authenticated from Expo's account API):** account **`tnyx-23`**, project **`@tnyx-23/tio-money`**, phone Projects display **Tio-Money**. The local source configuration is `expo.name = "Tio Money"`, `expo.slug = "tio-money"` and `expo.owner = "tnyx-23"`. The phone display may use the existing Expo account project's listing name, while `expo.name` intentionally stays "Tio Money" per the application requirement.
+
+**Protected unrelated identity: `@tnyx-23/tnyx` (display Tio-TNYX).** Its EAS UUID, app identifiers, Tio Workspace source, Codespaces and workflows are out of scope and must never be copied, renamed, recreated, relinked or otherwise modified.
+
+The exact **existing** Tio-Money EAS UUID could not be retrieved from an authenticated Expo dashboard in this GitHub-connected session: **NOT_VERIFIED**. Hence `expo.extra.eas.projectId` is deliberately **absent**. Expo Go's account-signed SDK 58 tunnel does **not** require enabling EAS Update or creating another project. **Never run bare or interactive `eas init`, `eas project:init`, `eas update:configure` or `eas build` for this preview:** some commands can create or reconfigure project resources. If separate EAS linkage is later genuinely necessary, the owner first inspects **Expo account tnyx-23 → Projects → Tio-Money → Project details** and verifies its UUID belongs to `@tnyx-23/tio-money`, **not** `@tnyx-23/tnyx`. Only then, with appropriate scoped approval and a checked current config, use the documented existing-project linking procedure `eas init --id <verified-existing-Tio-Money-UUID>`, or a reviewed equivalent config update. Do not use `--force` to overwrite an identity.
+
+In the Codespace, after private `npx expo login` run **`npx expo whoami`**, which must return exactly **`tnyx-23`**; the managed starter checks this before it starts Metro and **fails closed** if the login is absent or belongs to another account. Then run `npx expo config --type public` and check owner/slug/name. This confirms local configuration and CLI login, **not** server-side EAS UUID association. On the phone, remain signed into `tnyx-23` and tap **Tio-Money**, never Tio-TNYX. If the target cannot connect, use the current private tunnel link fallback and report it as NOT_VERIFIED; do not relink the other project.
+
+**Linkage verification register:**
+
+| Evidence | Status |
+|---|---|
+| GitHub `app.json` name and slug + explicit owner `tnyx-23` | **CONFIGURED IN STAGE A**; CI public Expo config must confirm |
+| Owner reports existing Expo Go project `@tnyx-23/tio-money` | **OWNER_REPORTED**, no authenticated Expo dashboard read by agent |
+| Existing Tio-Money EAS project UUID from Expo | **NOT_VERIFIED / NOT_CONFIGURED**; no UUID guessed or created |
+| Codespace `npx expo whoami` returns `tnyx-23` | **NOT_VERIFIED** until owner runs on the authenticated Codespace |
+| Actual active tunnel appears under Expo Go **Tio-Money** | **NOT_VERIFIED** |
+| Tio-TNYX project remains untouched | **NO CHANGES REQUESTED OR MADE** to workspace project/repository/configuration |
+
+
 ## One-time owner setup (after agreeing the preview integration branch)
 
 1. Check the chosen branch contains *both* the Expo app and these preview scripts. `main` currently has governance docs only; the active app is draft PR #1 on `feat/phase-0-expo-foundation`. The additive preview implementation is on `chore/codespaces-expo-go-stage-a` as a **stacked draft PR**. Coordinate with Phase 0 before choosing a branch. **Do not merge PR #1 just to create a Codespace.**
 2. Open GitHub's **Code → Codespaces** for Tio Money; manually create **one** Codespace on the agreed app-containing preview branch. Do not create duplicates. Choose a modest machine and short idle timeout; do not assume a stopped Codespace costs nothing in retained storage.
 3. If installation did not finish, run `npm ci --no-audit --no-fund` in the Codespace. Confirm `node -v` shows a compatible Node 22 release and `npx expo install --check` passes.
-4. Run `npx expo login` *inside* the Codespace. Sign in privately using the method it provides. The first automatic `postStartCommand` can fail before login; this is expected and **must not** be treated as a healthy tunnel. Do not share Expo passwords, access tokens, Codespaces secrets or tunnel URLs in chat, Git or Actions logs.
+4. Run `npx expo login` *inside* the Codespace. Sign in privately using the method it provides. Run `npx expo whoami` and require **tnyx-23** before proceeding; do not use the unrelated Tio-TNYX project's account config. The first automatic `postStartCommand` can fail before login; this is expected and **must not** be treated as a healthy tunnel. Do not share Expo passwords, access tokens, Codespaces secrets or tunnel URLs in chat, Git or Actions logs.
 5. Install an **SDK 58-compatible Expo Go** on your Android phone and iPhone; sign into Expo Go using the **same Expo account** as the Codespace CLI (required on a physical iPhone). An unavailable/older incompatible iOS Expo Go build is a blocker; do not claim success from account sign-in alone.
 6. In the Codespace run `node scripts/start-codespace-expo.mjs`, then `node scripts/start-codespace-expo.mjs --status`. A successful starter message proves **local Metro and Expo CLI tunnel-link health only**, not physical reachability.
-7. Inside Expo Go, look for **Tio Money** in **Projects / Recent Projects** and open it directly. Try that entry on later launches without a new QR scan. This is a best-effort account flow, **not** a guarantee that the entry persists, the link remains stable, or reconnects never occur.
+7. Inside Expo Go, look for the existing **Tio-Money** (not **Tio-TNYX**) in **Projects / Recent Projects** and open it directly. Try that entry on later launches without a new QR scan. This is a best-effort account flow, **not** a guarantee that the entry persists, the link remains stable, or reconnects never occur.
 
 **Fallback if Projects does not show Tio Money:** recover the **current** Expo Go link privately from the Codespace's Expo CLI session/log and open it on your own phone. Do not publish or transmit the signed link in a GitHub comment. If interactive CLI output is easier, first stop the managed server using `--stop`, then run `npm run mobile` in the Codespace terminal, open the Expo deep link and later stop that interactive process before returning to the managed starter. Never launch a second Metro against an occupied port.
 
