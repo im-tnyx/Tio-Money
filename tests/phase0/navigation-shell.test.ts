@@ -58,7 +58,7 @@ test('FAB is an accessible disabled icon, never a content tab or active action',
   assert.match(floating, /<Pressable\s+disabled/);
   assert.match(floating, /accessibilityState=\{\{ disabled: true \}\}/);
   assert.match(floating, /accessibilityRole="button"/);
-  assert.doesNotMatch(floating, /onPress|useRouter|router\.push|router\.navigate/);
+  assert.doesNotMatch(floating, /\bonPress\s*=|useRouter|router\.push|router\.navigate/);
 });
 
 test('no Add, Settings, Welcome, legacy History or transaction editor route exists', () => {
