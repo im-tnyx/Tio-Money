@@ -11,7 +11,13 @@ import {
   tabIconShapes,
 } from '../../src/shared/theme/component-tokens';
 import { opacity, size } from '../../src/shared/theme/primitives';
-import { palettes, radius, space, typographyTokens, typeScale } from '../../src/shared/theme/tokens';
+import {
+  palettes,
+  radius,
+  space,
+  typographyTokens,
+  typeScale,
+} from '../../src/shared/theme/tokens';
 
 test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(space.xs, size.dp8);
@@ -60,7 +66,10 @@ test('only the root theme provider chooses system dark/light colors', () => {
   assert.doesNotMatch(provider, /useState|AsyncStorage|setColorScheme/);
   assert.notEqual(palettes.light.canvas, palettes.dark.canvas);
   assert.notEqual(palettes.light.primaryText, palettes.dark.primaryText);
-  assert.equal(Object.keys(palettes.light).sort().join(','), Object.keys(palettes.dark).sort().join(','));
+  assert.equal(
+    Object.keys(palettes.light).sort().join(','),
+    Object.keys(palettes.dark).sort().join(','),
+  );
 });
 
 test('presentation surfaces own no raw fixed dimensions or font sizes', () => {
