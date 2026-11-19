@@ -2,10 +2,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  ADD_TRANSACTION_ROUTE,
-  ROOT_DESTINATIONS,
-} from '@/shared/navigation/root-destinations';
+import { ADD_TRANSACTION_ROUTE, ROOT_DESTINATIONS } from '@/shared/navigation/root-destinations';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
 import { AppText } from './app-text';
