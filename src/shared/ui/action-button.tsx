@@ -41,11 +41,15 @@ export function ActionButton({
         paddingVertical: theme.space.sm,
         borderRadius: theme.radius.sm,
         backgroundColor,
-        borderWidth: variant === 'secondary' ? theme.buttons.outlineWidth : theme.navigation.origin,
+        borderWidth: variant === 'secondary' ? theme.buttons.outlineWidth : theme.buttons.noBorder,
         borderColor: theme.colors.border,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: isDisabled ? theme.buttons.disabledOpacity : pressed ? theme.buttons.pressedOpacity : 1,
+        opacity: isDisabled
+          ? theme.buttons.disabledOpacity
+          : pressed
+            ? theme.buttons.pressedOpacity
+            : theme.buttons.enabledOpacity,
       })}
     >
       {loading ? (
