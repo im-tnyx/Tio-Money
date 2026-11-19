@@ -15,10 +15,7 @@ export default function RootTabsLayout() {
   }, []);
 
   return (
-    <View
-      onLayout={revealTabsOnLayout}
-      style={{ flex: 1, backgroundColor: theme.colors.canvas }}
-    >
+    <View onLayout={revealTabsOnLayout} style={{ flex: 1, backgroundColor: theme.colors.canvas }}>
       <View style={{ flex: 1 }}>
         <Slot />
       </View>
