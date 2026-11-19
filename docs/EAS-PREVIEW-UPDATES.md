@@ -1,0 +1,36 @@
+# Tio Money — EAS preview updates (non-production, manual)
+
+> **Preparation only — not published.** This feature is a separate stacked draft PR above the working Codespaces preview PR #4. It does not enable automatic OTA publishing, deploy a release, configure an Expo token, create an EAS build or guarantee Expo Go's grey **Projects** tile becomes active. Published Tio-Money EAS Update groups remain empty in the owner's last screenshot.
+
+[Technical RFC / PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7004990185) · [Codespaces Stage A guide](CODESPACES-LIVE-PREVIEW.md) · [Task checkpoint](../.ai/tasks/preview/eas-preview-updates-20261119.md)
+
+## Identity, isolation and setup
+
+Only link the **already-existing** Expo project `@tnyx-23/tio-money` with `projectId=722e6857-1159-4414-a024-6a4351e7d3e1`. Its matching update endpoint is `https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1`. `app.json` retains the app name, route scheme, owner, slug and existing `extra.releaseStage`; it adds a fingerprint-based `runtimeVersion` and `updates.url`. `expo-updates ~58.0.22` is installed with locked npm transitive dependencies. `eas.json` configures **one** internal `preview` profile for Android APK and the isolated `pr-preview` update channel. It includes no production profile or app signing credentials.
+
+**Tio-TNYX is separate and protected.** Do not copy its project ID, `tnyx` slug, signing identifiers, bundle/package IDs, tokens or active workflows. Do not create another Expo project and do not run bare `eas init`. The Codespaces `expo start --tunnel --go` experience remains separate and can continue while this draft is reviewed.
+
+## Why Updates page and Expo Go Projects behave differently
+
+The owner's **Tio-TNYX** Dashboard shows two manual preview EAS Update groups (one Android, one iOS). The owner's **Tio-Money** Dashboard showed none. A *Development Servers* Expo Go card launching Tio Money is live Metro/Expo Go, not a published EAS Update. Adding the correct EAS project UUID or changing a local config does not upload an update or change the Expo account's remote Update groups.
+
+Expo's [SDK Update documentation](https://docs.expo.dev/build/updates/) states that updates published with `runtimeVersion` cannot be loaded in Expo Go. The [expo-updates library guide](https://docs.expo.dev/versions/latest/sdk/updates/) also discusses limited Expo Go previewing; do **not** assume Tio-TNYX's Projects-card appearance proves that its fingerprint-runtime updates load in Expo Go. A reliable preview OTA path uses **a reviewed internal preview build** with compatible native libraries and the same fingerprint runtime. The EAS Update preview route is not a replacement for the existing QR-free Codespaces Expo Go route.
+
+## Safe validation before any publishing
+
+1. Owner reviews the stacked PR, then after a **separately authorized merge/integration** uses one clean Codespace or CI checkout and runs `npm ci --no-audit --no-fund`, `npm run check`, `npx expo install --check` and `npx expo config --type public`. Check exact `owner`, `slug`, `updates.url`, `runtimeVersion` and existing UUID against **this** project, never Tio-TNYX.
+2. To support actual OTA delivery, first separately decide app identifiers, iOS/Android signing, and create a reviewed **internal preview build** including `expo-updates`. This is a **native change** and cannot be delivered to an old binary using an OTA. Do not run `eas build` or `eas update` until explicitly authorized for that operation and applicable costs/credentials are reviewed. Do not publish finance user data, access credentials or unreviewed env values in JS bundles.
+3. A later, **JS-only**, owner-authored, *non-draft* PR targeting `main` can be selected manually in GitHub Actions → **Tio Money manual EAS PR preview** → **Run workflow**, after a trusted workflow has been merged to `main` with PR-specific owner authorization and the environment gates below. The workflow only publishes on EAS branch **`pr-preview`**, environment **`preview`**. It rejects PR changes to `app.json`, dependency manifests, EAS config or native directories and refuses project-ID drift.
+4. After **separate owner authorization to publish**, check the result in [Tio Money Update groups](https://expo.dev/accounts/tnyx-23/projects/tio-money/updates) and **Branches**. Verify both Android/iOS publication metadata and real compatibility on the installed internal preview build. This draft preparation itself creates **no** remote Update group.
+
+## Manual workflow security gates (not yet enabled)
+
+The proposed workflow uses `workflow_dispatch` only, checks actor `im-tnyx`, requires dispatch from trusted default `main`, requires an owner-authored repository-local open non-draft PR targeting `main`, checks the exact immutable PR head and a JS-only changed-path allowlist, installs locked dependencies and tests before a manually initiated non-production EAS update. Its GitHub token has read-only repository access; the separately configured **`EXPO_TOKEN`** is referenced **only** in the final publish step.
+
+Before merging/using the workflow, the owner must verify the **private repo's** actual GitHub protection/required reviews and ability to restrict a newly-created **`tio-money-eas-preview-trusted`** environment to exact trusted default branch. Store a newly scoped Tio-Money Expo automation token **in that restricted environment only**. No token value should appear in PRs, Git, chats, Codespaces logs or workflows, and never reuse Tio-TNYX tokens. If plan/environment gates cannot be verified, **do not activate** the workflow; manual owner-run publication after a separate explicit authorization and reviewed code is the fallback.
+
+**Do not run this preview workflow on this initial EAS-configuration PR:** the workflow's native-affecting change guard must block it. For a new preview of this baseline, independently authorize a compatible native build and a subsequent JS-only reviewable update PR. This is intentionally not an automated deploy or push-driven Codespaces wake/sync. That separate Stage B feature remains **BLOCKED** until independently reviewed trust/permissions/tokens and owner instructions.
+
+## Review, rollback and observed limitations
+
+**Independent review: DEFERRED**; platform/update distribution and secret-handling changes strongly merit independent review before activation. Required GitHub settings/reviews and known blockers remain binding. No PR merge, EAS publish/build, environment secret configuration or main-branch workflow activation is authorized by the user's request to add source configuration. If rejected, close/revert this isolated draft PR without force pushing Phase 0 or PR #4. The owner has confirmed working Tio-Money phone launch from Codespaces Development Servers; Expo Go Projects tile, EAS builds, EAS Update groups, compatible native runtime and auto-sync are still **NOT_VERIFIED**.

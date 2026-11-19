@@ -70,3 +70,10 @@ Older governance/Phase 0 rows above are historical snapshots, not overwritten by
 **Preview validation follow-up, 2026-11-19:** [Task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-validation-checkpoint--current-working-chatgpt-gpt-6) · [stacked draft PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) · [source CI SUCCESS on `b317ec8d`](https://github.com/im-tnyx/Tio-Money/actions/runs/44480886934) (16 Phase 0 + 8 preview tests and platform exports). Actual Codespace/tunnel, owner-authenticated EAS UUID and both physical phones **NOT_VERIFIED**. Stage B blocked; owner PR merge permission not granted. Historical earlier rows remain unchanged.
 
 **Process fix + new source CI evidence (2026-11-19):** Preview [task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-owner-identity-and-managed-process-final-source-checkpoint); [source test run #44482368855](https://github.com/im-tnyx/Tio-Money/actions/runs/44482368855) **SUCCESS** at `fe2003707c53ab5ef615ce547971cc27ebfde209` (16 app + 8 preview tests, Node/Expo checks and both bundles). New checkpoint commit requires fresh head CI. No live Expo device/Codespace/EAS UUID verification, no merge authorization or Stage B activation.
+
+
+## EAS preview-only task — separate stacked draft (2026-11-19)
+
+| Task | Owner / agent | Branch / expected PR | Scope & next gate |
+|---|---|---|---|
+| [TM-EAS-PREVIEW-20261119-001](tasks/preview/eas-preview-updates-20261119.md) | ChatGPT GPT-6; previous EAS task agent UNKNOWN_NOT_VERIFIED; [scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7004990185) | `feat/eas-preview-updates-foundation` **stacked on Stage A PR #4**, no merges | SDK 58 EAS preview configuration + manual owner-gated publish workflow *source only*. No EAS build/update/token or trusted worker activated. Independently review, test exact head, obtain separate owner approval before publishing or merging. |
