@@ -1,19 +1,16 @@
-import { useRouter } from 'expo-router';
 import { Pressable, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FLOATING_ADD_SIZE, getFloatingAddPosition } from '@/shared/navigation/fab-layout';
-import { ADD_TRANSACTION_ROUTE } from '@/shared/navigation/root-destinations';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
 import { AppText } from './app-text';
 
 /**
- * A sibling of both content and the tab bar, within the full-screen root.
- * This keeps the button's touch area inside its parent on Android and iOS.
+ * Visual-only Phase 0 FAB. No onPress, route or financial action exists.
+ * It stays above the rightmost More tab, inside the full-screen hit-test area.
  */
 export function FloatingAddButton() {
-  const router = useRouter();
   const theme = useAppTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -29,11 +26,11 @@ export function FloatingAddButton() {
 
   return (
     <Pressable
-      onPress={() => router.push(ADD_TRANSACTION_ROUTE)}
-      accessibilityLabel="Add transaction"
-      accessibilityHint="Opens a single editor with Income, Expense and Transfer tabs"
+      disabled
+      accessibilityLabel="Add transaction (unavailable)"
       accessibilityRole="button"
-      style={({ pressed }) => ({
+      accessibilityState={{ disabled: true }}
+      style={{
         position: 'absolute',
         right,
         bottom,
@@ -49,8 +46,7 @@ export function FloatingAddButton() {
         shadowOpacity: 0.18,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 5 },
-        opacity: pressed ? 0.82 : 1,
-      })}
+      }}
     >
       <AppText style={{ fontSize: 30, fontWeight: '400', color: theme.colors.brandText }}>
         +
