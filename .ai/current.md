@@ -1,7 +1,20 @@
 # 🧭 Current task index
 
-> **Latest task-index reconciliation 2026-11-19 (Phase 0 feature branch).** Governance PR #2 is merged on verified main `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. The earlier governance-task row below is retained as historical snapshot, **not current PR #2 status**. Phase 0 remains draft, and live GitHub refs always take precedence.
-\n> **Historical governance snapshot 2026-11-19T05:34:43.459Z UTC (before its checkpoint commit).** Compare live GitHub branches/PRs/checks before any write or merge. This multi-task index is not proof of current owner authorization. All earlier V2/CI checkpoints remain preserved in the task history.
+## Current verified handoff (2026-11-19) — replaces the historical snapshot below
+
+| Task | PR / branch | Verified status | Last tested source and next safe action |
+|---|---|---|---|
+| **TM-P0-ALIGN-20261119-001** | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · `feat/phase-0-expo-foundation` | **READY FOR REVIEW / OPEN / NOT MERGED**. Five blank selectable tabs + disabled floating `+` over More; shared theme/icon-size tokens and automatic OS light/dark; screens presentation-only. **Owner merge authorization NOT_GRANTED.** | Before this docs-only update, source HEAD `aaa09ad88fdcb9efa032f0f9b3c5e83f72785738`; [app CI #44562328304](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328304) passed 24/24 tests and Android/iOS bundles; [governance CI #44562328037](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328037) passed 29/29 tests. Recheck final docs HEAD. Physical QA of latest tokenized Android/iPhone, system light/dark and real-device SQLite **NOT_VERIFIED**; [Phase 0 task](tasks/phase0/phase0-alignment-20261119.md) and [doc-alignment RFC](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7015156188). |
+| **TM-GOV-20261118-001** | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · `chore/ai-context-governance` | **COMPLETED / MERGED**, not archived. Actual `main` merge SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, merged 2026-11-19 06:16:11 UTC; **6/6** review threads resolved when inspected. | Earlier no-permission/open-thread records below were correct only at their own timestamps. PR #2 had **separate owner authorization**; that authorization is **not transferable** to PR #1. [Governance task history](tasks/governance/ai-context-setup.md) remains unchanged. |
+| **TM-GOV-CLEANUP-20261119-001** | [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) · `docs/governance-post-merge-reconciliation-20261119` | **DRAFT / NOT MERGED**; separate documentation reconciliation. **Owner merge authorization NOT_GRANTED.** | PR #7 also edits `docs/DECISIONS.md` and `.ai/current.md`. Do not edit/merge PR #7 from Phase 0 work; eventual integration must reconcile its governance checkpoint with PR #1's later Ready-for-Review state without overwriting history. |
+
+**Provenance and review:** Current documentation authoring agent ChatGPT GPT-6, verified from current session; prior Phase 0 working agent ChatGPT GPT-6 from recorded task, never inferred from Git author. Independent new-head review `DEFERRED` (optional policy); the original Node engine review thread on PR #1 remains **outdated but unresolved** in GitHub and requires a valid disposition. Live refs and actual configured GitHub checks/review protections always override this timestamped document. **No current PR #1 or PR #7 merge permission.**
+
+## Archived pre-merge index snapshot (historical; not current status)
+
+> **Historical task-index reconciliation snapshot (before PR #1 was marked Ready for Review).** Governance PR #2 was already merged at main `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`; the older PR #1 Draft and PR #2 open/Not Granted rows below are retained only as earlier checkpoint statements, **not present-day PR status**. Latest verified table above and live GitHub refs take precedence.
+
+> **Historical governance snapshot 2026-11-19T05:34:43.459Z UTC (before its checkpoint commit).** Compare live GitHub branches/PRs/checks before any write or merge. This multi-task index is not proof of current owner authorization. All earlier V2/CI checkpoints remain preserved in the task history.
 
 | Task | Task file | Working branch | PR at snapshot | Verified owner / current agent | Status | Last verified checkpoint | Next safe action |
 |---|---|---|---|---|---|---|---|
