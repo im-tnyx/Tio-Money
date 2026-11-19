@@ -1,10 +1,9 @@
-import { Pressable, useWindowDimensions } from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FLOATING_ADD_SIZE, getFloatingAddPosition } from '@/shared/navigation/fab-layout';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
-import { AppText } from './app-text';
 
 /**
  * Visual-only Phase 0 FAB. No onPress, route or financial action exists.
@@ -48,9 +47,34 @@ export function FloatingAddButton() {
         shadowOffset: { width: 0, height: 5 },
       }}
     >
-      <AppText style={{ fontSize: 30, fontWeight: '400', color: theme.colors.brandText }}>
-        +
-      </AppText>
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={{ width: 24, height: 24 }}
+      >
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 11,
+            width: 24,
+            height: 2,
+            borderRadius: 1,
+            backgroundColor: theme.colors.brandText,
+          }}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            left: 11,
+            top: 0,
+            width: 2,
+            height: 24,
+            borderRadius: 1,
+            backgroundColor: theme.colors.brandText,
+          }}
+        />
+      </View>
     </Pressable>
   );
 }
