@@ -1,0 +1,26 @@
+name: Temporary SVG Prettier output
+
+on:
+  push:
+    branches:
+      - feat/phase-0-expo-foundation
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    if: startsWith(github.event.head_commit.message, 'chore(svg-format):')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Print deterministic Prettier formatting
+        run: |
+          npm ci --no-audit --no-fund
+          npx prettier src/shared/ui/root-tab-icon.tsx --write
+          echo 'TM_PRETTIER_START'
+          cat src/shared/ui/root-tab-icon.tsx
+          echo 'TM_PRETTIER_END'
