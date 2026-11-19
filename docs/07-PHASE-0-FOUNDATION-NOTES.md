@@ -21,7 +21,7 @@
 | :--- | :--- | :--- |
 | Runtime | Expo SDK 58 / RN 0.88.1 / React + React DOM 19.3.0 / TS strict | Locked engines support **Node `^22.13.0 || ^24.3.0 || >=26.0.0`**; `.nvmrc` pins 22.16.0; `react-dom` occurs once and matches React; Expo Go device QA pending |
 | Routes | Expo Router `Stack` + `Slot`; **five blank tabs** with a **disabled floating `+` icon above More** | **Home · Trans. · Stats. · Account · More**; [TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), no extra app screen routes |
-| App status | **Empty themed canvas only**; no top app bar, editor, Settings, Welcome, forms, cards or Save controls | The FAB is a disabled icon with no press handler; all finance workflows remain future scope |
+| App status | **Native splash → Home's blank canvas + five bottom tabs + disabled FAB**; no app top bar, editor, Settings, Welcome, loading text, forms or cards | Splash remains during SQLite bootstrap on successful startup; only exceptional database failure may show safe retry recovery |
 | Theme | Provisional semantic light/dark tokens from [Screen Spec §03](03-SCREEN-SPEC.md#03--tio-money-visual-language--proposed-tokens) | Final palette, contrast and user override awaiting owner/device review |
 | Persistence | `expo-sqlite` opens one local file; FK ON verified before/after versioned migration | Only `app_settings` table exists; no ledger/postings/mutable balance cache. Write-coordinator and real migration QA are Phase 2 |
 | Migration version | `PRAGMA user_version` (v1) + single bootstrap transaction | Future upgrades must be tested on actual on-disk DB; no silent deletion/reset |
