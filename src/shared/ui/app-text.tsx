@@ -22,8 +22,11 @@ export function AppText({
       style={[
         {
           fontSize: theme.typeScale[variant],
-          lineHeight: Math.ceil(theme.typeScale[variant] * 1.35),
-          fontWeight: variant === 'body' || variant === 'caption' ? '400' : '700',
+          lineHeight: Math.ceil(theme.typeScale[variant] * theme.typography.relativeLineHeight),
+          fontWeight:
+            variant === 'body' || variant === 'caption'
+              ? theme.typography.regularWeight
+              : theme.typography.boldWeight,
           color: muted ? theme.colors.secondaryText : theme.colors.primaryText,
           flexShrink: 1,
         },
