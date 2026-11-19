@@ -26,8 +26,8 @@ export function getFloatingAddPosition({
 }: FabPositionInput): { right: number; bottom: number } {
   const leftPadding = Math.max(leftInset, horizontalPadding);
   const rightPadding = Math.max(rightInset, horizontalPadding);
-  const tabWidth =
-    Math.max(0, windowWidth - leftPadding - rightPadding) / ROOT_DESTINATIONS.length;
+  const availableWidth = Math.max(0, windowWidth - leftPadding - rightPadding);
+  const tabWidth = availableWidth / ROOT_DESTINATIONS.length;
 
   return {
     // More is the fifth tab; align the FAB center to its center, not to a fixed margin.
