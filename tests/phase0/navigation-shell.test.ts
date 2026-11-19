@@ -110,11 +110,13 @@ test('floating disabled icon remains centered over More and above bar with safe 
 test('successful launch reveals only five blank tabs after the native splash', () => {
   const bootstrap = readFileSync('src/shared/bootstrap/database-gate.tsx', 'utf8');
   const root = readFileSync('src/app/_layout.tsx', 'utf8');
+  const tabs = readFileSync('src/app/(tabs)/_layout.tsx', 'utf8');
 
   assert.match(bootstrap, /SplashScreen\.preventAutoHideAsync\(\)/);
-  assert.match(bootstrap, /SplashScreen\.hideAsync\(\)/);
   assert.match(bootstrap, /if \(state\.status === 'loading'\) return null/);
-  assert.match(bootstrap, /onLayout=\{revealOnLayout\}/);
+  assert.match(bootstrap, /if \(state\.status === 'ready'\) return/);
+  assert.match(tabs, /SplashScreen\.hideAsync\(\)/);
+  assert.match(tabs, /onLayout=\{revealTabsOnLayout\}/);
   assert.doesNotMatch(bootstrap, /ActivityIndicator|Preparing your local workspace/);
   assert.match(root, /<Stack\.Screen name="\(tabs\)" \/>/);
   assert.doesNotMatch(root, /name="settings"|name="transaction\/new"|name="welcome"/);
