@@ -1,9 +1,11 @@
+import { navigationTokens } from '@/shared/theme/component-tokens';
+
 import { ROOT_DESTINATIONS } from './root-destinations';
 
 /** Shared geometry keeps the Add FAB centered over the final More tab. */
-export const NAV_ITEM_HEIGHT = 56;
-export const FLOATING_ADD_SIZE = 56;
-export const NAV_BORDER_WIDTH = 1;
+export const NAV_ITEM_HEIGHT = navigationTokens.itemHeight;
+export const FLOATING_ADD_SIZE = navigationTokens.fabDiameter;
+export const NAV_BORDER_WIDTH = navigationTokens.borderWidth;
 
 export type FabPositionInput = {
   windowWidth: number;
