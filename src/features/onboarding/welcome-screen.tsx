@@ -16,7 +16,7 @@ export function WelcomeScreen() {
       </AppText>
       <StatePanel
         title="Account setup is next"
-        description="Language choice and opening balances are scheduled for Phase 1 and Phase 2. This page is only a route placeholder."
+        description="Account setup and opening balances are planned for later phases. The initial app uses English only; this page is a route placeholder."
       />
       <ActionButton label="Explore the foundation" onPress={() => router.replace('/')} />
     </ScreenContainer>
