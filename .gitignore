@@ -1,6 +1,7 @@
 # Dependencies, Expo artifacts and generated native projects
 node_modules/
 .expo/
+expo-env.d.ts
 dist/
 web-build/
 android/

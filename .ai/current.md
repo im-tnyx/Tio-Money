@@ -58,3 +58,11 @@ Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assist
 **Before the next write:** fetch live `main`, both branch HEADs, both PR states and changed paths. If these conflict with this snapshot, update the task evidence rather than silently assuming continuity.
 
 [Agent contract](../AGENTS.md) · [Task protocol](tasks/README.md) · [Decisions](../docs/DECISIONS.md)
+
+## New preview task — additive checkpoint (2026-11-19)
+
+| Task | Agent / ownership | Status | Next action |
+|---|---|---|---|
+| [`TM-DEV-PREVIEW-20261119-001`](tasks/preview/codespaces-expo-go-20261119.md) | ChatGPT GPT-6; new isolated `chore/codespaces-expo-go-stage-a` stacked over Phase 0; previous preview-task agent `UNKNOWN_NOT_VERIFIED` | [RFC Issue #3: agent Stage A PROCEED, Stage B BLOCKED](https://github.com/im-tnyx/Tio-Money/issues/3); stacked draft, device QA **NOT_VERIFIED**, merge **NOT_GRANTED** | Validate actual CI and physical Expo Go Android/iPhone; no privileged worker or merge without owner authority |
+
+Older governance/Phase 0 rows above are historical snapshots, not overwritten by this separate preview-task addition. Verify live GitHub state.
