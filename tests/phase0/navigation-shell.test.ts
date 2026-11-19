@@ -26,6 +26,10 @@ test('exactly five English bottom tabs remain', () => {
   assert.equal(ROOT_DESTINATIONS.length, 5);
   assert.equal(new Set(ROOT_DESTINATIONS.map((item) => item.href)).size, 5);
   assert.ok(ROOT_DESTINATIONS.every((item) => item.accessibleName.length > 0));
+  assert.deepEqual(
+    ROOT_DESTINATIONS.map((item) => item.icon),
+    ['home', 'transactions', 'statistics', 'accounts', 'more'],
+  );
 });
 
 test('each tab is a blank themed screen with no top/header/finance preview', () => {
@@ -120,4 +124,36 @@ test('successful launch reveals only five blank tabs after the native splash', (
   assert.doesNotMatch(bootstrap, /ActivityIndicator|Preparing your local workspace/);
   assert.match(root, /<Stack\.Screen name="\(tabs\)" \/>/);
   assert.doesNotMatch(root, /name="settings"|name="transaction\/new"|name="welcome"/);
+});
+
+test('tab bar uses clear native-drawn icons instead of platform-dependent font glyphs', () => {
+  const tabBar = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
+  const icon = readFileSync('src/shared/ui/root-tab-icon.tsx', 'utf8');
+  const destinations = readFileSync('src/shared/navigation/root-destinations.ts', 'utf8');
+  const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
+    dependencies: Record<string, string>;
+  };
+
+  assert.match(tabBar, /<RootTabIcon/);
+  assert.match(tabBar, /name=\{item\.icon\}/);
+  assert.doesNotMatch(tabBar, /\{item\.glyph\}/);
+  assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
+  assert.match(icon, /accessibilityElementsHidden/);
+  assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
+  for (const name of ['home', 'transactions', 'statistics', 'accounts', 'more']) {
+    assert.ok(icon.includes(`name === '${name}'`), `${name} should have a native icon`);
+  }
+  assert.doesNotMatch(icon, /<Text|<AppText|IconFont|Image/);
+  assert.equal(packageJson.dependencies['@expo/vector-icons'], undefined);
+  assert.equal(packageJson.dependencies['react-native-svg'], undefined);
+});
+
+test('FAB plus is drawn from two centered lines rather than font metrics', () => {
+  const floating = readFileSync('src/shared/ui/floating-add-button.tsx', 'utf8');
+  assert.match(floating, /accessibilityLabel="Add transaction \(unavailable\)"/);
+  assert.match(floating, /style=\{\{ width: 24, height: 24 \}\}/);
+  assert.match(floating, /left: 0,\s*top: 11,\s*width: 24,\s*height: 2,/);
+  assert.match(floating, /left: 11,\s*top: 0,\s*width: 2,\s*height: 24,/);
+  assert.doesNotMatch(floating, /<AppText|fontSize: 30/);
+  assert.doesNotMatch(floating, /\bonPress\s*=|useRouter|router\.push/);
 });
