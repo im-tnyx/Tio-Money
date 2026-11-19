@@ -1,10 +1,11 @@
-/** Bilingual message contract. User-selected language is deferred to Phase 1. */
-const en = {
+/** English-only MVP copy (TM-DEC-001). Typed keys keep future localization possible. */
+export const en = {
   appName: 'Tio Money',
   home: 'Home',
-  history: 'History',
-  reports: 'Reports',
+  transactions: 'Transactions',
+  stats: 'Statistics',
   accounts: 'Accounts',
+  more: 'More',
   settings: 'Settings',
   add: 'Add',
   addTransaction: 'Add transaction',
@@ -25,38 +26,10 @@ const en = {
   retry: 'Try again',
 } as const;
 
-type Messages = { [K in keyof typeof en]: string };
-
-const hi: Messages = {
-  appName: 'टियो मनी',
-  home: 'होम',
-  history: 'इतिहास',
-  reports: 'रिपोर्ट',
-  accounts: 'खाते',
-  settings: 'सेटिंग्स',
-  add: 'जोड़ें',
-  addTransaction: 'लेन-देन जोड़ें',
-  income: 'आय',
-  expense: 'खर्च',
-  transfer: 'ट्रांसफ़र',
-  save: 'सेव करें',
-  saveAnother: 'सेव करें और फिर जोड़ें',
-  amount: 'राशि',
-  category: 'श्रेणी',
-  fromAccount: 'स्रोत खाता',
-  toAccount: 'प्राप्तकर्ता खाता',
-  dateTime: 'तारीख और समय',
-  note: 'नोट (वैकल्पिक)',
-  fee: 'ट्रांसफ़र शुल्क',
-  noHistory: 'अभी कोई लेन-देन नहीं',
-  featurePending: 'यह सुविधा तैयार की जा रही है',
-  retry: 'फिर कोशिश करें',
-};
-
 export type TranslationKey = keyof typeof en;
-export type Locale = 'en' | 'hi';
+/** A future catalog may implement these stable keys in another locale; MVP has none. */
+export type MessageCatalog = { readonly [K in TranslationKey]: string };
 
-const dictionaries: Record<Locale, Messages> = { en, hi };
-export function t(key: TranslationKey, locale: Locale = 'en'): string {
-  return dictionaries[locale][key];
+export function t(key: TranslationKey): string {
+  return en[key];
 }
