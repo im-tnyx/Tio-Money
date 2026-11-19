@@ -7,9 +7,9 @@ export const ROOT_DESTINATIONS = [
   { href: '/reports', label: 'Stats.', accessibleName: 'Statistics', icon: 'statistics' },
   { href: '/accounts', label: 'Account', accessibleName: 'Accounts', icon: 'accounts' },
   { href: '/more', label: 'More', accessibleName: 'More', icon: 'more' },
-] as const satisfies ReadonlyArray<{
+] as const satisfies readonly {
   href: string;
   label: string;
   accessibleName: string;
   icon: RootTabIconName;
-}>;
+}[];
