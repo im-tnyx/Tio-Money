@@ -14,7 +14,7 @@
 ---
 
 > [!IMPORTANT]
-> **Phase 0 code review stage.** The feature branch now contains an Expo Router UI shell and SQLite bootstrap **source**, not a working finance tracker. Native SMS, posted money, backups and production security are not implemented. The committed dependency lockfile and GitHub Actions checks are tracked in the Phase 0 notes; Android/iPhone Expo Go and real-device SQLite tests remain unverified. Product documents remain drafts.
+> **Phase 0 navigation-only stage.** The feature branch shows **only five blank themed screens** under Home, Trans., Stats., Account and More, plus a **disabled floating `+` icon** above More. There is **no app top bar, Add editor, Settings, Welcome, History or other feature route**. Expo Router and local SQLite bootstrap remain non-visible foundations, not a working finance tracker. Native SMS, posted money, backups and production security are not implemented. The committed dependency lockfile and GitHub Actions checks are tracked in the Phase 0 notes; Android/iPhone Expo Go and real-device SQLite tests remain unverified. Product documents remain drafts.
 
 ## 🧭 Find the answer you need
 
@@ -33,7 +33,7 @@
 
 | Rule | Why it matters |
 | :--- | :--- |
-| **One floating `+` action** | Five bottom destinations stay distinct; FAB opens one Income / Expense / Transfer editor ([TM-DEC-004](DECISIONS.md#tm-dec-004--five-destinations-and-floating-add)) |
+| **Disabled `+` icon (Phase 0)** | Five bottom destinations have blank screens; one right-aligned FAB stays disabled, with no editor or extra route ([TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab)) |
 | **Transfer principal ≠ expense** | Moving money between your own accounts must not inflate spending |
 | **Transfer fee = expense** | Real bank/card/wallet charges belong in the spending report |
 | **Credit card ≠ ordinary cash account** | Outstanding liabilities must be modeled explicitly |
@@ -41,7 +41,9 @@
 | **Reference ≠ copy** | Provided screens are inspiration for fields/flow, not a UI to clone |
 | **Expo Go ≠ native SMS access** | Android native integration requires a separate custom-build and policy path |
 
-## 🗺 Product flow at a glance
+## 🗺 Future product flow at a glance
+
+> **Planning diagram only.** Its Add/editor, Save, import and Settings features **do not exist in the present Phase 0 app**. The actual current UI is the five blank tabs and one disabled FAB.
 
 ```mermaid
 flowchart TD
@@ -104,7 +106,7 @@ flowchart LR
   BUILD --> VERIFY["✅ Evidence before status change"]
 ```
 
-**Confirmed owner product decisions:** initial app copy, accessibility text and validation are **English only**, with no MVP language selector. See [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). The Phase 0 navigation is [five destinations + floating FAB (TM-DEC-004)](DECISIONS.md#tm-dec-004--five-destinations-and-floating-add). Neither decision authorizes a PR merge.
+**Confirmed owner product decisions:** initial app copy, accessibility text and validation are **English only**, with no MVP language selector. See [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). The current Phase 0 surface is [five blank destinations and a disabled floating FAB (TM-DEC-005)](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), superseding editor/Settings previews from TM-DEC-004. Neither decision authorizes a PR merge.
 
 **Next:** review the [technical architecture](05-TECH-ARCHITECTURE.md) and the [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md), then resolve owner decisions before coding. New files should follow the [documentation quality standard](90-DOCS-STYLE-GUIDE.md).
 
