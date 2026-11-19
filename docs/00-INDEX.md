@@ -33,7 +33,7 @@
 
 | Rule | Why it matters |
 | :--- | :--- |
-| **One `+` action** | Home stays focused; transaction types appear inside one editor |
+| **One floating `+` action** | Five bottom destinations stay distinct; FAB opens one Income / Expense / Transfer editor ([TM-DEC-004](DECISIONS.md#tm-dec-004--five-destinations-and-floating-add)) |
 | **Transfer principal ≠ expense** | Moving money between your own accounts must not inflate spending |
 | **Transfer fee = expense** | Real bank/card/wallet charges belong in the spending report |
 | **Credit card ≠ ordinary cash account** | Outstanding liabilities must be modeled explicitly |
@@ -46,10 +46,11 @@
 ```mermaid
 flowchart TD
   O["📲 Setup · INR and accounts (English UI)"] --> H["🏠 Home"]
-  H --> ADD["➕ Add"]
-  H --> HIS["📜 History"]
-  H --> REP["📊 Reports"]
-  H --> ACC["🏦 Accounts"]
+  H --> TRANS["🧾 Trans."]
+  H --> STATS["📊 Stats."]
+  H --> ACC["🏦 Account"]
+  H --> MORE["⚙ More"]
+  H -.-> ADD["➕ Floating Add FAB"]
   ADD --> TYPE{"Income / Expense / Transfer"}
   TYPE --> VALID["Validate and preview money movement"]
   VALID --> SAVE["🗄 Atomic local save"]
@@ -103,7 +104,7 @@ flowchart LR
   BUILD --> VERIFY["✅ Evidence before status change"]
 ```
 
-**Confirmed owner language decision:** initial app copy, accessibility text and validation are **English only**, with no MVP language selector. See [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). This does not approve any app implementation or merge.
+**Confirmed owner product decisions:** initial app copy, accessibility text and validation are **English only**, with no MVP language selector. See [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). The Phase 0 navigation is [five destinations + floating FAB (TM-DEC-004)](DECISIONS.md#tm-dec-004--five-destinations-and-floating-add). Neither decision authorizes a PR merge.
 
 **Next:** review the [technical architecture](05-TECH-ARCHITECTURE.md) and the [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md), then resolve owner decisions before coding. New files should follow the [documentation quality standard](90-DOCS-STYLE-GUIDE.md).
 
