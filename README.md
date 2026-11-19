@@ -16,7 +16,7 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Scaffold-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-Bootstrap%20Only-003B57?style=flat-square&logo=sqlite&logoColor=white)
 
-**[📚 Docs Hub](docs/00-INDEX.md)** · **[🎯 PRD](docs/01-PRD.md)** · **[🧭 Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Ledger](docs/04-DATABASE-DESIGN.md)** · **[🏗 Architecture](docs/05-TECH-ARCHITECTURE.md)** · **[🧪 Implementation & Tests](docs/06-IMPLEMENTATION-TEST-PLAN.md)** · **[✍️ Style](docs/90-DOCS-STYLE-GUIDE.md)**
+**[🤖 Agent Rules](AGENTS.md)** · **[📌 Owner Decisions](docs/DECISIONS.md)** · **[📚 Docs Hub](docs/00-INDEX.md)** · **[🎯 PRD](docs/01-PRD.md)** · **[🧭 Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Ledger](docs/04-DATABASE-DESIGN.md)** · **[🏗 Architecture](docs/05-TECH-ARCHITECTURE.md)** · **[🧪 Implementation & Tests](docs/06-IMPLEMENTATION-TEST-PLAN.md)** · **[✍️ Style](docs/90-DOCS-STYLE-GUIDE.md)**
 
 </div>
 
@@ -36,7 +36,7 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 
 The owner-provided screenshots are **references for fields and interaction**, **not a UI to copy**. Tio Money will have its **own** visual language and screen design.
 
-- **One primary `+` action on Home** — no separate Income / Expense / Transfer shortcut tiles.
+- **One floating `+` action above the five-destination bottom bar** — no separate Income / Expense / Transfer shortcut tiles or Add content tab. See [TM-DEC-004](docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add).
 - `+` opens one transaction form with the tabs **Income | Expense | Transfer**.
 - **Fees** appear only when needed on a transfer and are accounted for separately as an expense.
 - **Save** stores the transaction and returns; **Save & Add Another** supports faster repeated entry.
@@ -110,12 +110,12 @@ flowchart LR
 
 ## 🛠 Phase 0 · Developer setup (scaffold under review)
 
-The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** project scaffold. The app currently opens placeholder Home, History, Reports, Accounts and Settings routes and a single central `+` editor with **Income | Expense | Transfer** tabs. **Save is disabled**; financial data and genuine account setup are scheduled for later phases.
+The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** project scaffold. Its **Home · Trans. · Stats. · Account · More** destinations and independent **floating `+` FAB** open a unified preview with **Income | Expense | Transfer** tabs. **Save is disabled**; financial data and genuine account setup are scheduled for later phases.
 
-**Requirements:** Node.js 22.13+ (the repo provides `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry.
+**Requirements:** Node.js **`^22.13.0 || ^24.3.0 || >=26.0.0`** (the repo pins a known-compatible **22.16.0** in `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry. Node 23, 25 and Node 24.0–24.2 are not supported by the locked Expo/React Native engines.
 
 ```bash
-nvm use                   # or install/use a compatible Node 22 release
+nvm use                   # uses the known-compatible .nvmrc Node 22.16.0
 npm ci                    # reproducible install from committed package-lock.json
 npx expo install --check  # confirm managed Expo SDK compatibility
 npm run check             # strict TypeScript, ESLint, Prettier, unit tests
@@ -125,12 +125,12 @@ npx expo start --clear    # scan QR code in Expo Go
 
 For iPhone use Expo Go from the App Store; for Android use the Expo Go app and its QR scanner. **Do not assume Expo Go compatibility solely from package versions**: test an actual device and record the SDK, OS and result. This environment has not established a physical-device pass. If SDK 58 Expo Go is not available on a particular store/device, do not downgrade packages ad hoc; check the [Expo SDK 58 release notes](https://expo.dev/changelog/sdk-58) and obtain an appropriate compatible client.
 
-**Environment / privacy:** P0 has no backend and requires **no secrets**. `.env.example` explains `EXPO_PUBLIC_*` flags; those flags are public in app bundles, so never put banking credentials, API keys or encryption secrets there. The default `app.json` declares **no SMS permissions**. Automatic Android SMS requires a separately approved custom native build; automatic iPhone inbox access is not offered.
+**Language:** Initial UI, validation and accessibility text are **English only**, with no MVP language selector per [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app). Stable message keys remain ready for future translations. **Environment / privacy:** P0 has no backend and requires **no secrets**. `.env.example` explains `EXPO_PUBLIC_*` flags; those flags are public in app bundles, so never put banking credentials, API keys or encryption secrets there. The default `app.json` declares **no SMS permissions**. Automatic Android SMS requires a separately approved custom native build; automatic iPhone inbox access is not offered.
 
 **Architecture boundaries:** [Document 05](docs/05-TECH-ARCHITECTURE.md) · [Phase 0–7 plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) · [Foundation decisions](docs/07-PHASE-0-FOUNDATION-NOTES.md). The SQLite bootstrap currently migrates only a local settings table; balances, financial event posting and encryption are **not** built. Keep local database files out of Git.
 
 > [!NOTE]
-> The dependency lockfile is committed, but final CI and Android/iPhone Expo Go device QA require recorded evidence. **Phase 0 is not complete** until those gates are verified.
+> The dependency lockfile is committed and the previous PR-head CI was green, but fresh integration CI and Android/iPhone Expo Go device QA require recorded evidence. **Phase 0 is not complete** until those gates are verified.
 
 ## 🚀 How the product is developed
 
@@ -152,6 +152,6 @@ flowchart LR
 <div align="center">
 
 **Tio Money** · Designed for clarity, correctness & privacy  
-<sub>Documentation phase · 18 November 2026 · Original product design, not a reference-app clone</sub>
+<sub>Phase 0 scaffold in draft review · November 2026 · Original product design</sub>
 
 </div>
