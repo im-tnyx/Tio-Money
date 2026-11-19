@@ -92,7 +92,7 @@ test('floating disabled icon remains centered over More and above bar with safe 
     const horizontalPadding = 8;
     const topPadding = 1;
     const minimumBottomPadding = 0;
-    const floatingGap = 12;
+    const floatingGap = 16;
     const position = getFloatingAddPosition({
       ...device,
       horizontalPadding,

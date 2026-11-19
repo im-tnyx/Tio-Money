@@ -50,7 +50,8 @@ is required.
   The floating circular disabled FAB has **50dp diameter (from 56dp)**,
   with an official Google Material Symbols Outlined `add` mark at 24dp
   and default weight 400 (FAB-only). These changes retain the 48dp tab touch targets,
-  More-centered FAB positioning and 12dp FAB-to-bar separation.
+  More-centered FAB positioning and **16dp FAB-to-bar separation** (increased
+  from 12dp for better clearance).
 - The five bottom-tab glyphs are **Google Material Symbols Outlined, weight
   200 maximum** (home, book_2, bar_chart_4_bars, account_balance and
   more_horiz) with exact official local SVG assets, licensed Apache 2.0.
@@ -61,7 +62,7 @@ is required.
   Google Material Symbols Outlined `add` SVG (default weight 400) and behavior.
 - Bottom bar adds the OS safe-area bottom inset to the 50dp baseline and
   remains safe-area-aware on Android and iPhone. The floating disabled FAB stays
-  centered over More, separated from the visible bar by 12dp, based on the
+  centered over More, separated from the visible bar by 16dp, based on the
   shared `minimumBottomPadding` role rather than an unrelated horizontal
   inset. These measured insets are runtime values, **not visual token literals**.
 - All five routes remain empty and selectable. No top bar, onboarding,

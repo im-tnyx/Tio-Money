@@ -31,7 +31,7 @@ export const navigationTokens = {
   horizontalPadding: size.dp8,
   topPadding: size.dp1,
   minimumBottomPadding: size.dp0,
-  fabGap: size.dp12,
+  fabGap: size.dp16,
   fabDiameter: size.dp50,
   fabMarkSize: iconTokens.size,
 } as const;
