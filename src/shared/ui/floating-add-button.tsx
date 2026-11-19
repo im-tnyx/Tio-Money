@@ -29,10 +29,10 @@ export function FloatingAddButton() {
         justifyContent: 'center',
         borderRadius: theme.radius.pill,
         backgroundColor: theme.colors.brand,
-        shadowColor: '#000000',
+        shadowColor: theme.colors.shadow,
         shadowOpacity: theme.shadows.fab.opacity,
         shadowRadius: theme.shadows.fab.radius,
-        shadowOffset: { width: theme.space.xxs - theme.space.xxs, height: theme.shadows.fab.offsetY },
+        shadowOffset: { width: theme.navigation.origin, height: theme.shadows.fab.offsetY },
       }}
     >
       <View
