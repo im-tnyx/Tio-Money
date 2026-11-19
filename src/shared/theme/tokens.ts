@@ -71,6 +71,5 @@ const dark = {
   warning: '#FFC77A',
 };
 
-
 export type ThemeColors = typeof light;
 export const palettes: Record<ColorScheme, ThemeColors> = { light, dark };
