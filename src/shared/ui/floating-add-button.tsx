@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FLOATING_ADD_SIZE, getFloatingAddPosition } from '@/shared/navigation/fab-layout';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
-
 /**
  * Visual-only Phase 0 FAB. No onPress, route or financial action exists.
  * It stays above the rightmost More tab, inside the full-screen hit-test area.
