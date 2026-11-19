@@ -33,27 +33,21 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
     };
   }, [attempt]);
 
-  const revealOnLayout = useCallback(() => {
-    // Only hide after a ready tab layout (or an exceptional recovery view) mounts.
+  const revealErrorOnLayout = useCallback(() => {
+    // A failed database must expose recovery instead of trapping the user on splash.
     void SplashScreen.hideAsync().catch(() => undefined);
   }, []);
 
   // No loading screen, spinner or text is rendered between splash and tabs.
   if (state.status === 'loading') return null;
 
-  if (state.status === 'ready') {
-    return (
-      <View onLayout={revealOnLayout} style={{ flex: 1, backgroundColor: theme.colors.canvas }}>
-        {children}
-      </View>
-    );
-  }
+  if (state.status === 'ready') return <>{children}</>;
 
   // Display error recovery only if the local database actually fails to start.
   // No database is erased and the normal launch remains splash -> five blank tabs.
   return (
     <View
-      onLayout={revealOnLayout}
+      onLayout={revealErrorOnLayout}
       style={{
         flex: 1,
         backgroundColor: theme.colors.canvas,
