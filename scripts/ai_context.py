@@ -187,15 +187,32 @@ def split_link(href: str) -> tuple[str, str] | None:
 
 
 def require_safe_references(content: str, *, relocated: bool = False) -> None:
-    """Refuse unknown relative resources when their containing document is moved."""
+    """Fail closed on relative non-Markdown targets when copying/moving a task."""
     definitions, _ = reference_definitions(content)
-    if relocated:
-        for target in definitions.values():
-            if not split_link(target) and not (
-                target.startswith(('#', '/', '//', '?')) or
-                re.match(r'^[a-z][a-z0-9+.-]*:', target, re.I)
-            ):
-                raise GovernanceError(f'Unsupported relative reference during relocation: {target!r}')
+    if not relocated:
+        return
+
+    def require_supported(href: str, kind: str) -> None:
+        if split_link(href):
+            return
+        if href.startswith(('#', '/', '?')) or re.match(r'^[a-z][a-z0-9+.-]*:', href, re.I):
+            return
+        raise GovernanceError(f'Unsupported relative {kind} during relocation: {href!r}')
+
+    for target in definitions.values():
+        require_supported(target, 'reference')
+
+    for line, active in non_fenced_lines(content):
+        if not active or REF_START.match(line):
+            continue
+        code_ranges = [(m.start(), m.end()) for m in INLINE_CODE.finditer(line)]
+        for match in LINK.finditer(line):
+            if any(match.start() < end and match.end() > start for start, end in code_ranges):
+                continue
+            target = match.group(2)
+            if target.startswith('<') and target.endswith('>'):
+                target = target[1:-1]
+            require_supported(target, 'inline link')
 
 
 def relative_link(root: Path, href: str, old_dir: Path, new_dir: Path,
@@ -421,8 +438,18 @@ def check_transition(args) -> None:
         raise GovernanceError('ASSIGNED requires RFC, proceed decision and verified branch')
     if after == 'IN_PROGRESS' and not starting:
         raise GovernanceError('IN_PROGRESS requires RFC, proceed decision and verified branch')
-    if after == 'IN_REVIEW' and not (args.review_recorded and args.pr_recorded):
-        raise GovernanceError('IN_REVIEW requires recorded PR and independent review request')
+    if after == 'IN_REVIEW':
+        review_status = getattr(args, 'review_disposition', '') or (
+            'PERFORMED' if getattr(args, 'review_recorded', False) else '')
+        allowed = {'PERFORMED', 'SKIPPED', 'UNAVAILABLE', 'DEFERRED'}
+        if not args.pr_recorded or review_status not in allowed:
+            raise GovernanceError('IN_REVIEW requires PR and recorded review disposition (not mandatory review)')
+        if review_status == 'PERFORMED' and not getattr(args, 'review_recorded', False):
+            raise GovernanceError('PERFORMED needs a self-attested reviewer/review request')
+        if review_status != 'PERFORMED' and not getattr(args, 'review_evidence', '').strip():
+            raise GovernanceError('Skipped/unavailable/deferred review requires a recorded rationale or source')
+        # Operator flags do not prove independent approval or bypass GitHub
+        # required reviewers, branch protection, checks or known blockers.
     if before == 'BLOCKED' and after in {'ASSIGNED', 'IN_PROGRESS', 'IN_REVIEW'}:
         if not starting:
             raise GovernanceError('BLOCKED recovery requires RFC, PROCEED and verified branch')
@@ -477,7 +504,10 @@ def main(argv=None) -> int:
     t.add_argument('--rfc-recorded', action='store_true')
     t.add_argument('--proceed-recorded', action='store_true')
     t.add_argument('--branch-verified', action='store_true')
-    t.add_argument('--review-recorded', action='store_true', help='self-attested independent review request')
+    t.add_argument('--review-recorded', action='store_true', help='self-attested review was performed/requested')
+    t.add_argument('--review-disposition', default='', choices=['PERFORMED', 'SKIPPED', 'UNAVAILABLE', 'DEFERRED'],
+                   help='review outcome, NOT proof of GitHub approval')
+    t.add_argument('--review-evidence', default='', help='reason/source if review skipped, unavailable or deferred')
     t.add_argument('--pr-recorded', action='store_true', help='self-attested PR link')
     t.add_argument('--recovery-record', default='', metavar='FILE', help='self-attested JSON blocker/risk/state evidence')
     t.add_argument('--owner-merge-approved', action='store_true')

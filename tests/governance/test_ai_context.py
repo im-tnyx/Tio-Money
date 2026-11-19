@@ -285,6 +285,8 @@ class GovernanceTests(unittest.TestCase):
             rfc_recorded=kw.get('rfc', False), proceed_recorded=kw.get('proceed', False),
             branch_verified=kw.get('branch', False), review_recorded=kw.get('review', False),
             pr_recorded=kw.get('pr', False), recovery_record=kw.get('recovery', ''),
+            review_disposition=kw.get('review_disposition', ''),
+            review_evidence=kw.get('review_evidence', ''),
             owner_merge_approved=kw.get('merge', False), terminal_verified=kw.get('terminal', False))
 
     def test_blocked_review_requires_all_recovery_evidence(self):
@@ -369,6 +371,81 @@ class GovernanceTests(unittest.TestCase):
         self.assertIn('[gov]: archive/2026/case-001.md', actual)
         self.assertEqual(module.validate_links(self.root, module.all_markdown(self.root)), [])
 
+
+
+    def test_inline_nonmarkdown_archive_links_fail_closed(self):
+        self.create()
+        source = self.root / '.ai/tasks/governance/case-001.md'
+        original = source.read_text()
+        for link in ('![Diagram](../../assets/diagram.png)',
+                     '[Fixture](../../tests/example.json)'):
+            with self.subTest(link=link):
+                source.write_text(original + '\n' + link + '\n')
+                args = SimpleNamespace(task='.ai/tasks/governance/case-001.md',
+                                       year='2026', apply=True, verified_terminal=True)
+                with self.assertRaisesRegex(module.GovernanceError,
+                                            'Unsupported relative inline link'):
+                    module.archive_task(self.root, args)
+                self.assertTrue(source.is_file())
+                self.assertFalse((self.root / '.ai/archive/2026/case-001.md').exists())
+        source.write_text(original)
+
+    def test_inline_nonmarkdown_nested_copy_rejected(self):
+        template = self.root / '.ai/tasks/TEMPLATE.md'
+        original = template.read_text()
+        template.write_text(original + '\n![Diagram](../assets/image.png)\n')
+        with self.assertRaisesRegex(module.GovernanceError,
+                                    'Unsupported relative inline link'):
+            self.create(apply=True)
+        self.assertFalse((self.root / '.ai/tasks/governance/case-001.md').exists())
+
+    def test_inline_code_and_remote_inline_links_remain_allowed(self):
+        self.create()
+        source = self.root / '.ai/tasks/governance/case-001.md'
+        source.write_text(source.read_text() +
+                          '\n`![example](../../../fake.png)`\n' +
+                          '[Remote](https://example.invalid/diagram.png)\n' +
+                          '[Section](#task-name)\n')
+        args = SimpleNamespace(task='.ai/tasks/governance/case-001.md',
+                               year='2026', apply=True, verified_terminal=True)
+        module.archive_task(self.root, args)
+        dest = self.root / '.ai/archive/2026/case-001.md'
+        self.assertTrue(dest.exists())
+        self.assertIn('`![example](../../../fake.png)`', dest.read_text())
+
+    def test_review_is_optional_but_disposition_required(self):
+        with self.assertRaisesRegex(module.GovernanceError, 'review disposition'):
+            module.check_transition(self.transition(before='VALIDATING', after='IN_REVIEW', pr=True))
+        for status in ('SKIPPED', 'UNAVAILABLE', 'DEFERRED'):
+            with self.subTest(status=status):
+                with self.assertRaisesRegex(module.GovernanceError, 'recorded rationale'):
+                    module.check_transition(self.transition(before='VALIDATING', after='IN_REVIEW',
+                                                            pr=True, review_disposition=status))
+                module.check_transition(self.transition(before='VALIDATING', after='IN_REVIEW',
+                                                        pr=True, review_disposition=status,
+                                                        review_evidence='Task checkpoint: recorded status and reason'))
+        with self.assertRaisesRegex(module.GovernanceError, 'self-attested reviewer'):
+            module.check_transition(self.transition(before='VALIDATING', after='IN_REVIEW',
+                                                    pr=True, review_disposition='PERFORMED'))
+        module.check_transition(self.transition(before='VALIDATING', after='IN_REVIEW',
+                                                pr=True, review_disposition='PERFORMED', review=True))
+        with self.assertRaises(module.GovernanceError):
+            module.check_transition(self.transition(before='VALIDATING', after='IN_REVIEW',
+                                                    pr=False, review_disposition='SKIPPED',
+                                                    review_evidence='documented skip'))
+
+    def test_blocked_recovery_review_skipped_still_needs_all_recovery_gates(self):
+        record = self.recovery(last_active_state='IN_REVIEW')
+        common = dict(before='BLOCKED', after='IN_REVIEW',
+                      pr=True, review_disposition='SKIPPED',
+                      review_evidence='Recorded in task checkpoint')
+        for missing in ('rfc', 'proceed', 'branch', 'recovery'):
+            vals = dict(common, rfc=True, proceed=True, branch=True, recovery=record)
+            vals.pop(missing)
+            with self.subTest(missing=missing), self.assertRaises(module.GovernanceError):
+                module.check_transition(self.transition(**vals))
+        module.check_transition(self.transition(**dict(common, rfc=True, proceed=True,
+                                                       branch=True, recovery=record)))
 
 if __name__ == '__main__':
     unittest.main()
