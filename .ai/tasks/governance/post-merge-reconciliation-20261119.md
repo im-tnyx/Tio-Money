@@ -1,11 +1,11 @@
 # TM-GOV-CLEANUP-20261119-001 — Post-merge governance documentation reconciliation
 
-**State:** IN_PROGRESS (documentation-only, new review PR pending)  
+**State:** IN_REVIEW (documentation-only, [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7); owner merge authorization NOT_GRANTED)  
 **Repository:** `im-tnyx/Tio-Money`  
 **Task source / RFC / technical PROCEED:** [Issue #6](https://github.com/im-tnyx/Tio-Money/issues/6) (direct 2026-11-19 owner chat instruction, agent-transcribed), **not merge authorization**.  
 **Current working agent:** ChatGPT using GitHub connector; **model GPT-6**, identified in the active session.  
 **Previous verified governance agent:** ChatGPT (GPT-6), from the earlier governance task's recorded checkpoints, **not inferred from Git authorship**.  
-**Working branch:** `docs/governance-post-merge-reconciliation-20261119`; created from verified `main` commit `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`.  
+**Working branch:** `docs/governance-post-merge-reconciliation-20261119`; created from verified `main` commit `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7), base `main`, current scope docs-only.  
 **Parallel work:** [Draft PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), head `b2c9a346174abbf9246a1d56fe0aa6a5bb0f3ab8` at task start, is **unmerged and out of this task's ownership**.
 
 ## Bounded change and evidence
@@ -15,7 +15,7 @@
 - **Current owner-approved Phase 0 shell:** native splash → blank Home, five blank navigable tabs `Home · Trans. · Stats. · Account · More`, right-over-More **disabled** floating `+` icon with no handler/editor/modal; no in-app top bar, onboarding, Settings, History redirect or other content screens. Exceptional SQLite bootstrap failure can still expose safe recovery; normal startup has no intermediate loading UI. This is owner decision **TM-DEC-005**, following earlier five-tab/FAB placement decision **TM-DEC-004**, originally captured on [draft PR #1](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7006286494); any older editor flow is **future-state design**, not current Phase 0.
 - **Safety:** Preserve root architecture, finance invariants, optional independent review with recorded disposition, known blocker/required GitHub protection enforcement, strict no `Co-authored-by:` trailers, mandatory documented RFC/PROCEED and **explicit action-specific owner merge permission** for each PR. PR #2's historical merge permission was **granted for that PR under conditions**; this new cleanup task has **no merge approval**.
 - **No source changes:** `src/`, Expo app/routes, package/config, database/schema, workflows, restricted native SMS permissions, Auth, Supabase and protected-branch settings are excluded. No direct `main` writes, force pushes, resets, branch deletions or automatic merges.
-- **Review:** Independent review `DEFERRED` (optional under policy; recommended for sensitive code, but this is documentation-only); no fabricated review, and actual GitHub-required checks remain binding.
+- **Review:** Independent review `DEFERRED` (optional under policy; recommended for sensitive code, but this is documentation-only); no fabricated review, and actual GitHub-required checks remain binding. [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains open/unmerged.
 - **Acceptance/testing plan:** owner decision precedence correct; current vs historical statuses clearly separated; links resolve; only allowlisted Markdown/task files changed; governance syntax, 29+ Python tests, supported Markdown links and co-author scan PASS at exact new PR HEAD. Source/static validation is **not** real-device Expo Go verification.
 - **Rollback:** normal follow-up feature-branch revert if owner requests; never modify `main` or PR #1 as a side effect.
 
