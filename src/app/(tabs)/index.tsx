@@ -1,3 +1,3 @@
-import { HomeScreen } from '@/features/dashboard/home-screen';
+import { BlankScreen } from '@/shared/ui/blank-screen';
 
-export default HomeScreen;
+export default BlankScreen;
