@@ -77,7 +77,7 @@ Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discus
 
 Resolve contradictions by recording both references in [DECISIONS](docs/DECISIONS.md) or the task and requesting an owner decision where necessary. Never silently choose a feature-changing interpretation. A new explicit owner decision controls over superseded text; amend affected docs in a scoped PR. Tool/platform security requirements still apply.
 
-**Current owner decision:** Initial app UI, accessibility copy and validation text are **English only**; no MVP language selector. Retain localization-ready typed resources and separate number/date formatting. Hindi and other languages are future scope. See [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app).
+**Current owner decisions:** Initial app UI, accessibility copy and validation text are **English only**; no MVP language selector. Retain localization-ready typed resources and separate number/date formatting. Hindi and other languages are future scope. See [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app). Current Phase 0 UI is the blank five-tab shell with disabled More-aligned FAB and direct splash transition, not the future transaction editor; see [TM-DEC-005](docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab).
 
 ## 5. Permission and branch safety
 
@@ -105,7 +105,7 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 
 ## 7. Financial and privacy invariants
 
-- Exactly **one central `+` action** opens a unified **Income | Expense | Transfer** editor; never three Home shortcut cards.
+- **Current Phase 0 override (TM-DEC-005):** On successful startup, native splash transitions directly to a **blank Home screen with five selectable bottom tabs** — **Home · Trans. · Stats. · Account · More** — and **exactly one disabled floating `+` icon above More on the right**. No app top bar, visible cards, loading text/spinner, Settings, Welcome, History or Add/editor screens; the FAB has no press handler or route. A genuine SQLite bootstrap failure can show minimal safe retry feedback. **Future product contract only:** a separately scoped later phase may enable one unified **Income | Expense | Transfer** editor; never three Home shortcut cards. [TM-DEC-004](docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add) governs FAB position, while the newer [TM-DEC-005](docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) governs current disabled behavior. No merge permission is implied.
 - Internal transfer principal is **neither income nor expense**; actual optional transfer fees are expenses. A fee and its transfer post atomically.
 - Cash, bank and funded wallet are **assets**; credit cards are **liabilities**. Net worth, balances, reports and history derive from **one balanced journal**.
 - Amounts use safe-integer **paise**; no floating-point accumulation. Corrections and import confirmation follow the canonical ledger contract.
