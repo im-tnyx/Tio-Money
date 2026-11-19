@@ -1,6 +1,22 @@
 # Tio Money — verified post-merge sync (manual only)
 
-**Source of truth:** [root agent contract](../AGENTS.md), [active task index](../.ai/current.md) and the live GitHub PR. This guide does **not** merge branches, deploy, grant future implementation access, or waive separate owner merge approval. Only use it after GitHub confirms an **owner-authorized** merge into `main`.
+**Source of truth:** [root agent contract](../AGENTS.md), [active task index](../.ai/current.md), [owner decision register](../docs/DECISIONS.md) and live GitHub PR. This is a **manual, authorization-gated procedure**: the preflight is for a specifically authorized agent before merging, and the sync steps are for after GitHub confirms MERGED. This document itself grants no merge, deployment or branch-settings permission. **PR #2 is not authorized to merge by this update.**
+
+## Authorized agent merge preflight (before any merge)
+
+**An agent may merge only after an explicit owner instruction** which identifies **repository, specific PR number, permission to merge and any conditions**. Authenticate the owner/source; an agent-authored PR summary is not owner authorization. Generic requests to implement, fix, review or open a PR do **not** authorize merging.
+
+1. Verify authentic owner merge instruction, exact PR and any conditions. If unclear or absent, **STOP**.
+2. Re-fetch live PR state, HEAD SHA and base. Confirm repository and target branch **`main`**.
+3. Confirm all **configured required** GitHub checks, required reviews and protected-branch rules are satisfied. The default *optional independent review* policy does not override actual GitHub settings.
+4. Check every **known unresolved blocking finding**. Do not merge with unresolved blocking high/medium findings.
+5. Compare actual current diff/HEAD against owner-authorized scope and reviewed scope (when review was performed). **Material scope changes after authorization require renewed owner approval**; do not infer it from previous discussion.
+6. Select only an owner- and GitHub-allowed **non-force merge method**. **Never enable auto-merge without separate explicit owner permission.**
+7. Only the specifically authorized agent may then execute the merge. If an applicable check fails, protection blocks, permission is unclear or scope changed, **STOP and seek renewed permission**.
+8. Verify GitHub reports actual `MERGED` state, timestamp, target branch and resulting `merge_commit_sha`. Record that SHA even for squash merges; do not claim success from invocation alone.
+9. Follow the post-merge sync steps below. Update `.ai/current.md`, agent/handoff and archive only after the verified terminal outcome.
+
+**Do not merge PR #2 under this policy-update instruction.**
 
 ## 1. Independently confirm the actual merge
 
@@ -64,4 +80,4 @@ Record the next verified agent, prior verified agent, affected branch, exact nex
 
 The Phase 0 `feat/phase-0-expo-foundation` branch and draft [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) are **independent**. Do not switch into its worktree, force-push, rebase, merge, delete or copy over its files. If governance PR #2 merges first, the Phase 0 task owner may plan a **separate, reviewed, authorized** safe integration of current `main` into their branch (after clean status/conflict assessment). Do not treat doc merge as permission to merge the app PR or to alter active app code.
 
-**Never automatically:** force-push, hard-reset, clean untracked files, delete branches, rebase another agent's branch, merge a pending PR, alter required checks or approve a PR.
+**Never automatically:** force-push, hard-reset, clean untracked files, delete branches, rebase another agent's branch, merge a pending PR, alter required checks or approve a PR. **An agent merge is allowed solely after the explicit, verified owner authorization and preflight above; it is never an inferred/scheduled action.**

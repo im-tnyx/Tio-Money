@@ -14,7 +14,8 @@
 | Implementation status | Discussion + documented proceed decision required; owner implementation signoff optional |
 | Proceed decision | `PROCEED` with decision maker, source, date, scope and conditions; not necessarily an owner approval |
 | Optional owner implementation approval | Direct owner source/date/scope when given; otherwise `NOT_REQUIRED` for ordinary scope |
-| Merge approval | **Separate later decision**, never inherited |
+| Merge authorization | Separate later owner instruction naming repo, PR, explicit merge permission and conditions; authorized agent may execute after preflight |
+| Independent review | Optional by default; `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED` with reason/source and actual evidence if performed |
 
 ## Product and end-to-end flow
 - Problem, why necessary, user intent, explicit non-goals:
@@ -42,6 +43,6 @@
 - Decision source, date, scope and conditions:
 - Agent transcription vs direct owner action:
 - Task link / implementation branch / PR (only after verified):
-- Explicit note: **owner implementation approval is optional; explicit owner approval to merge every PR is mandatory and separate**.
+- Explicit note: **owner implementation signoff and independent review are optional by default** (review strongly recommended for sensitive work). Known blockers and configured required reviews/checks remain mandatory. **Owner merge authorization is always separate**, and agent execution is allowed only with specific instruction and verified preflight. This template grants no such authority.
 
 [Discussion guide](README.md) · [Agent contract](../../AGENTS.md)

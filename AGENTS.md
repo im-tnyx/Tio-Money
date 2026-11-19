@@ -26,10 +26,12 @@ flowchart TD
     F -->|Yes| G["Confirm scope, agent, branch and acceptance tests"]
     G --> H["Read only relevant core docs and source"]
     H --> I["Implement scoped changes"]
-    I --> J["Validate and independently review at inspected SHA"]
+    I --> J["Validate, record review disposition, address blocking findings"]
     J --> K{"Separate owner merge approval?"}
     K -->|No| J
-    K -->|Yes| L["Verify merge, handoff and archive"]
+    K -->|Yes| L["Recheck protections, scope, blockers and owner conditions"]
+    L --> M["Agent may merge with allowed method; verify merged SHA"]
+    M --> N["Post-merge sync, handoff and archive"]
 ```
 
 1. Read this file, then `.ai/current.md`; select **one assigned task**, not the entire archive.
@@ -38,9 +40,9 @@ flowchart TD
 4. Before implementation, discuss purpose and UX, end-to-end data/failure behavior, module/API ownership, architecture dependencies, realistic privacy/security/platform risks, alternatives, rollback and testable acceptance criteria. Store a durable GitHub Issue/Discussion or existing PR record, not only a chat.
 5. Require a **documented decision to proceed** after the RFC, with source, date, agreed scope, exclusions and any risk conditions. **Owner implementation approval is optional** for ordinary scoped tasks; when provided, record it precisely. An unresolved material policy, financial, privacy or security decision must be escalated and blocked rather than assumed safe. A discussion by itself is not a decision to proceed.
 6. After the documented proceed decision (owner signoff if provided), finalize scoped task, non-goals, assigned agent and verified branch. Read only relevant [core summaries](.ai/core/README.md), canonical source documents and actual code; implement **only** the authorized slice. A material new risk or scope expansion returns to discussion.
-7. Run proportionate validation; report actual commands, inspected SHA, results and skipped tests. Obtain independent review or document explicit owner-accepted deferral. `COMMENTED` is **not** formal `APPROVED`; reviewer failures/limits are **not** a security or code pass.
+7. Run proportionate validation; report exact commands, inspected SHA, results and skipped tests. **Independent review is optional by default**, but strongly recommended for ledger, migration, security, privacy, authentication and sensitive platform work. Record **PERFORMED, SKIPPED, UNAVAILABLE or DEFERRED** with source/reason and actual review evidence when applicable. Never fabricate a review result. Known blocking findings and actual GitHub-required reviewers/checks remain binding.
 8. Update task record and compact index with observed HEAD, review finding severity, exact changed paths, results and safe handoff. Re-review after material fixes.
-9. Require **separate, express owner merge approval** for the exact PR; verify merge and only then archive a terminal task. **Never auto-merge.** Record the decision and tests in the [GitHub PR contract](.github/PULL_REQUEST_TEMPLATE.md); follow [independent review guidance](.github/REVIEW_GUIDE.md). A form/checkmark is not merge authorization.
+9. Require a **separate, explicit, action-specific owner authorization** naming the **repository, PR number, permission to merge and any conditions**. An agent **MAY perform the merge only after this authorization**, not before. Re-fetch current PR/HEAD/base `main`, check actual required GitHub protections and CI, remaining blocking findings and authorized scope; material changes or unclear/failed conditions require renewed owner authorization. Use only a permitted non-force method, verify GitHub merged state and resulting SHA, then follow [post-merge sync](.github/POST-MERGE-SYNC.md) and update handoff/archive. **Auto-merge requires separate explicit permission.** This instruction is NOT authorization to merge PR #2.
 
 Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discussion / approved decision → relevant core files → actual source`**. Summaries route to authoritative specifications; they do not override the owner's decisions.
 
@@ -50,7 +52,7 @@ Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discus
 
 **Decision states:** `PROCEED` (recorded technical decision, **not owner approval**), optional owner `APPROVED_FOR_IMPLEMENTATION`, `CHANGES_REQUESTED`, `DEFERRED`, `REJECTED`, or `BLOCKED_PENDING_DECISION`. Record **who decided what, where, when, exact scope/behavior and conditions**; identify agent-transcribed chat instructions separately from an owner-posted decision. **The RFC and explicit proceed decision are mandatory; owner implementation approval is optional.** Material unsettled product/security/privacy policy decisions block until settled by the proper authority; new scope/risk reopens discussion.
 
-**Separate gates:** a documented technical decision permits bounded implementation where no separate restricted-operation authorization is required; optional owner implementation approval does not imply merge authorization. Independent review and applicable checks must then assess the **actual current commit SHA**, with finding severity, unresolved threads and fix evidence. Owner merge approval must be **separately and unmistakably** recorded before merging; successful CI or a bot `COMMENTED` review never grants merge authority. An unavailable reviewer is `REVIEW_PENDING` or `INCONCLUSIVE`, not `PASS`.
+**Separate gates:** a documented technical decision permits bounded implementation where no restricted-operation authorization is required; optional owner implementation signoff is **not** merge permission. **Independent review is optional by default**, with stronger recommendation for finance, migrations, security, privacy, authentication and sensitive platforms. Record the review disposition accurately; never bypass known blocking findings or actual GitHub required checks/reviews. Every merge requires owner authorization **specific to `im-tnyx/Tio-Money` (or the actual repository), the PR number, explicit merge action and attached conditions**. An agent may carry it out **only after** validating identity, current HEAD/base, protected-branch conditions and scope. An unavailable review is not a passing review; a bot `COMMENTED` is not GitHub `APPROVED`.
 
 [Task state machine](.ai/tasks/README.md) · [Handoff template](.ai/tasks/TEMPLATE.md) · [Discussion template](.ai/discussions/TEMPLATE.md)
 
@@ -71,7 +73,7 @@ Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discus
 | What must the product do? | Explicit current owner decisions, then accepted PRD and approved architecture decisions |
 | What is proposed? | Draft specs and future-state examples; not implementation approval |
 | Who may edit what? | Bounded owner authorization, assigned task, and verified branch/file ownership |
-| Can it merge or deploy? | **Separate express owner approval** for the specific PR/release |
+| Can it merge or deploy? | **Separate express, action-specific owner permission** identifying repo, PR, permitted action and conditions; agent execution permitted only after safeguards |
 
 Resolve contradictions by recording both references in [DECISIONS](docs/DECISIONS.md) or the task and requesting an owner decision where necessary. Never silently choose a feature-changing interpretation. A new explicit owner decision controls over superseded text; amend affected docs in a scoped PR. Tool/platform security requirements still apply.
 
@@ -81,13 +83,13 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 
 **Allowed within a verified scoped task after mandatory discussion and documented proceed decision:** read/review, bounded documentation or ordinary implementation, feature branch, tests, review PR and task checkpoints. **Owner pre-implementation signoff is optional**, but specifically restricted operations still require any applicable separate authority. No implicit right to merge.
 
-**Never permitted without separate explicit owner authorization:** merge/auto-merge, production deployment/publishing, modification of protected repository settings, force-push, branch deletion and irreversible/high-impact actions. Schema/accounting, Auth/Supabase, cloud finance-data movement, native SMS permissions, privacy/security-sensitive scope changes and third-party costs require the documented RFC and all applicable product/security/restricted-operation approvals; do not mistake optional *general implementation signoff* for bypassing these risk gates.
+**Never permitted without separate explicit owner authorization:** merge, enable auto-merge, production deployment/publishing, modification of protected repository settings, force-push, branch deletion and irreversible/high-impact actions. **Owner-authorized agent merge is allowed** following [the safety preflight](.github/POST-MERGE-SYNC.md#authorized-agent-merge-preflight-before-any-merge); without a specific owner instruction, it is strictly forbidden. Schema/accounting, Auth/Supabase, cloud finance-data movement, native SMS permissions, privacy/security-sensitive scope changes and third-party costs require the documented RFC and all applicable product/security/restricted-operation approvals; do not mistake optional *general implementation signoff* for bypassing these risk gates.
 
 - Start from a verified base (normally latest `main`). Confirm the target branch does not contain unknown work before reuse.
 - Never commit directly to `main`; if branch creation fails, **stop** rather than falling back.
 - Keep unrelated branches untouched. A docs PR cannot be treated as consent to modify the Phase 0 app branch or merge PR #1.
 - Before **each** shared-file write or PR update, recheck live HEAD, relevant PR and parallel ownership. Resolve conflicts rather than overwriting other agents' notes.
-- PRs remain reviewable; separate owner approval is required for merge even if CI passes.
+- PRs remain reviewable; independent review is optional unless actual GitHub settings require it. Owner merge authorization is **always** required even if CI passes. Resolve or properly disposition known blocking findings; never override configured required checks/reviews.
 
 ## 6. Application engineering boundaries
 
@@ -114,7 +116,7 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 ## 8. Validation, provenance, ownership and handoff
 
 - For code: typecheck, lint, relevant unit/integration tests, transaction invariants, platform/build checks and real device evidence when applicable. For docs: links (including copied/moved task links), Mermaid syntax where practical, consistency, privacy and changed-file scope.
-- Log **exact commands, observed results, environment, tested commit SHA, review method/verdict/severity/open threads and omitted checks**. Independent review is required by policy unless a specific owner-approved deferral is documented; a green CI or failed Codex quota review is not real-device/independent verification.
+- Log **exact commands, observed results, environment, tested commit SHA, review disposition (`PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`), method/verdict when performed, open findings and omitted checks**. Independent review is **optional** unless configured branch protection/review requirements make it mandatory; particularly recommend it for ledger, migrations, security, privacy, authentication and sensitive platform work. A green CI or failed/quota-limited external review does not prove independent verification.
 - Record a stable task ID; agent/tool and actual model (or `UNKNOWN_NOT_VERIFIED`); current and previous *verified* agents; UTC checkpoints; branch; base and observed HEAD; scope; changed paths; blockers; decision references; PR; next safe step.
 - **Never infer the model or working agent from Git commit/PR author.** Commit author, PR author, reviewer and owner are separate roles.
 - A task is not complete just because an agent stopped. Archive only after verified terminal state (for merge work, verify merge and resulting SHA). Open PR tasks remain active or under review.

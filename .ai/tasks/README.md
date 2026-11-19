@@ -31,8 +31,8 @@ flowchart LR
 | `APPROVED → ASSIGNED` | Verified agent/feature ownership, RFC/proceed decision, working branch/base HEAD and file conflicts resolved |
 | `ASSIGNED → IN_PROGRESS` | Reverified RFC/proceed decision, scope/assignee/branch, settled restricted-operation decisions, tests defined |
 | `IN_PROGRESS → VALIDATING` | Implementation diff and checked SHA, commands + actual results, known limitations |
-| `VALIDATING → IN_REVIEW` | PR URL + current inspected SHA, independent review requested, severity and remaining findings recorded |
-| `IN_REVIEW → COMPLETED` | Actual reviewed SHA, checks/findings addressed (or owner-approved review deferral), **explicit separate owner merge approval for every PR**, verified terminal state and residual risks |
+| `VALIDATING → IN_REVIEW` | PR URL + inspected SHA, **review disposition** (`PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`) and rationale; independent review optional by default; known blockers and GitHub-required checks remain in force |
+| `IN_REVIEW → COMPLETED` | Actual review disposition (reviewed SHA only if performed), no unresolved blocking findings, all configured required checks/reviews and branch protection satisfied, **explicit action-specific owner merge permission** (repo, PR number, merge action, conditions) and verified GitHub merged status/result SHA; agent may merge only after authorization and safety preflight |
 | `COMPLETED → ARCHIVED` | Verified terminal outcome, retained agent/checkpoint/PR history, repaired inbound and outbound links, index reconciled |
 
 **Allowed exceptional transitions:** `PROPOSED → CANCELLED`; `DISCUSSION → DEFERRED/CANCELLED`; `DECISION_PENDING → CHANGES_REQUESTED/DEFERRED/BLOCKED/CANCELLED`; `CHANGES_REQUESTED → DISCUSSION/CANCELLED`; `APPROVED → DISCUSSION/CANCELLED`; `ASSIGNED → BLOCKED/DISCUSSION/CANCELLED`; `IN_PROGRESS → BLOCKED/DISCUSSION/CANCELLED`; `VALIDATING → IN_PROGRESS/BLOCKED`; `IN_REVIEW → IN_PROGRESS/BLOCKED`; `BLOCKED → DISCUSSION/DECISION_PENDING/ASSIGNED/IN_PROGRESS/IN_REVIEW/CANCELLED`; `DEFERRED → DISCUSSION/CANCELLED`. No work may resume from `BLOCKED` without rechecking the prior proceed decision, risk, ownership and branch gates. `CANCELLED` and `ARCHIVED` are terminal.
@@ -43,9 +43,9 @@ Return to **DISCUSSION** if a new feature, meaningful scope expansion, financial
 
 ## Recovery from BLOCKED — explicit evidence gate
 
-The `check-transition` CLI now rejects `BLOCKED → ASSIGNED / IN_PROGRESS / IN_REVIEW` without **all** applicable, self-attested evidence: prior RFC, recorded `PROCEED` decision (owner implementation signoff remains optional), verified branch, blocker disposition and explanation, applicable risk/approval clearance and consistent last active task state. Entering `IN_REVIEW` also requires a recorded PR and independent-review request. A direct `VALIDATING → IN_REVIEW` requires that PR/review evidence too.
+The `check-transition` CLI rejects `BLOCKED → ASSIGNED / IN_PROGRESS / IN_REVIEW` without **all** applicable self-attested evidence: prior RFC, recorded `PROCEED`, verified branch, blocker disposition/evidence, risk/approval clearance and coherent last active task state. Entering `IN_REVIEW` also requires a recorded PR **and review disposition**, **not** a completed independent review. A direct `VALIDATING → IN_REVIEW` requires the same PR/disposition evidence. Record `--review-disposition PERFORMED` (with `--review-recorded`), or `SKIPPED / UNAVAILABLE / DEFERRED` plus `--review-evidence` containing a reason/source. These flags are operator assertions and cannot waive actual required GitHub reviews or checks.
 
-For supported automated checks, supply `--rfc-recorded --proceed-recorded --branch-verified`; for review also `--pr-recorded --review-recorded`; recovery requires `--recovery-record FILE` with:
+For supported self-attestation, supply `--rfc-recorded --proceed-recorded --branch-verified`; for PR review status also `--pr-recorded --review-disposition SKIPPED --review-evidence "recorded task rationale"` (or a supported other status). Recovery additionally requires `--recovery-record FILE` with:
 
 ```json
 {
@@ -65,6 +65,8 @@ For `EXPLICITLY_ACCEPTED`, include an `acceptance_authority` reference, not only
 3. Before archival, verify terminal PR/owner status; inspect the dry run: `python3 scripts/ai_context.py archive-task --task .ai/tasks/governance/my-task.md --year 2026`. After independent verification, `--apply --verified-terminal` rewrites outgoing links in the moved task and incoming links from indexed docs/registry/decisions. The flag is only an **operator assertion**, **not** a GitHub approval check.
 4. Review the diff, validate local links (`python3 scripts/ai_context.py check-links`, optional `--anchors` for conventional heading IDs), update status/text in the task index and agent registry without overwriting historical checkpoints, and record tested SHA and final disposition. The helper does not edit status text or create owner authorizations.
 5. **Manual fallback:** calculate link paths from the destination folder; update every incoming reference using repository-wide search; validate link destinations and anchors; then review a diff. Use fixtures to prove path changes before applying to real tasks.
+
+**Merge policy:** Explicit owner merge authorization must name repository, PR number, permission to merge and conditions; agent execution is permitted only after current HEAD/base/protections/known-blocker checks. A skipped independent review is not permission to bypass actual GitHub-required reviewers. Auto-merge requires separate express authorization. See [authorized merge preflight](../../.github/POST-MERGE-SYNC.md#authorized-agent-merge-preflight-before-any-merge).
 
 **Commit attribution policy:** No `Co-authored-by:` trailers in *any* new commits, including Claude/Codex/Cursor/ChatGPT. Verify actual commit messages before PR review via `python3 scripts/ai_context.py check-commits --base <base> --head <head>`. Record the checked range and result; do not infer agent identity from commit metadata. This helper is not a configured branch-protection check.
 

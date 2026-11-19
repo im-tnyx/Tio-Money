@@ -16,7 +16,10 @@
 | Model | Actually exposed model or `UNKNOWN_NOT_VERIFIED` |
 | Previous verified agent | Actual prior working agent or `UNKNOWN_NOT_VERIFIED` |
 | Git commit author / PR author | Observed separately, not proof of agent/model |
-| Reviewer / owner | Verified separately, not interchangeable with agent |
+| Reviewer / owner | Verified separately, not interchangeable with agent; independent review is optional unless GitHub-required |
+| Review disposition | `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, source/reason, reviewer & SHA if performed; blockers preserved |
+| Merge authorization | Owner identity/evidence, repository, specific PR, explicit permission to merge, conditions, current authorized SHA/scope; `NOT_GRANTED` until verified |
+| Merge executor | Owner or agent specifically authorized for the PR; never assume agent rights |
 | Working branch | Live verified branch |
 | Base / inspected HEAD | Immutable actual SHAs; snapshot time |
 | Started at / last checkpoint (UTC) | Actual ISO 8601 UTC timestamps or `UNKNOWN_NOT_VERIFIED` |
@@ -34,7 +37,8 @@
 - Acceptance tests **defined before coding**:
 - Canonical [decision register](../../docs/DECISIONS.md), RFC/proceed decision maker, source and conditions (plus optional owner signoff):
 - Proceed gate: move from `DECISION_PENDING` to `APPROVED` after a durable, bounded `PROCEED` technical decision (owner implementation signoff optional); unresolved high-risk/restricted decisions block.
-- Independent merge approval: **not granted** unless later explicitly recorded.
+- Independent **review** is optional by default; strongly recommend for financial/security/privacy/auth/migration/platform changes. Record review status and never bypass unresolved blocking findings or required GitHub review settings.
+- **Separate owner merge authorization:** `NOT_GRANTED` unless source confirms repo, PR number, permission to merge and conditions. Agent merge is permitted only after explicit instruction and current-HEAD/protection revalidation. This template is not authorization.
 
 ## Scope, ownership and integration
 
@@ -58,20 +62,20 @@
 - **Test commands, executed environment, observed results and tested SHA:**
 - **Commit-message audit (base/head, zero forbidden co-author trailers; GitHub/local evidence):**
 - **Checks not run / limitations:**
-- **Independent reviewer, reviewed SHA, finding severity and open threads:**
-- **Owner merge approval (separate) and conditions:**
+- **Independent review disposition (`PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`), reason/source, reviewer and SHA if performed, outstanding blocking findings:**
+- **Owner merge authorization: evidence source, verified owner, repository, PR number, explicit merge permission, conditions and authorized SHA/scope (or `NOT_GRANTED`):**
 - **Remaining work, blockers and risk:**
 - **What next agent must not change:**
 - **Next agent should read first:**
 - **Exact next safe action:**
 
-## Independent review and terminal archive gate
+## Optional independent review, authorized merge and terminal archive gate
 
-- Reviewer identity + link, review type `APPROVED` / `COMMENTED` / independent analysis:
+- Independent review disposition `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, reason/source (reviewer identity, link, reviewed SHA and actual type if performed):
 - Actual inspected commit and findings severity:
-- Fix SHA and evidence, unresolved review threads, re-review after material changes:
+- Fix SHA and evidence for **known blocking findings**; existing GitHub-required reviews/checks and their status; material-change reassessment:
 - Required versus optional CI; scanner/service limits distinguished from app findings:
-- Explicit owner **merge** decision and evidence:
+- Explicit owner **merge** authorization: verified source, repo, PR, permission and conditions; **agent merge allowed only after current-state/protection checks**:
 - Verified merge/terminal status/resulting SHA and residual risks:
 - Archive only after terminal state verified and all incoming/outgoing Markdown links repaired.
 

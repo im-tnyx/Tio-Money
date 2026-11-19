@@ -57,19 +57,20 @@
 
 **Failed checks, skipped checks, and reasons:**
 
-## 5. Independent review and findings
+## 5. Optional independent review, GitHub protections and known blocking findings
 
 | Field | Evidence |
 |---|---|
-| Independent reviewer (human / Copilot / Codex / other agent) | Identity and link, or `REVIEW_PENDING` |
-| Review type | Actual GitHub `APPROVED` / `COMMENTED` / independent assessment / unavailable |
+| Independent review disposition | `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, reason/source |
+| Reviewer, only if performed | Human / Copilot / Codex / agent; identity, link and inspected SHA |
+| Review type if performed | Actual GitHub `APPROVED` / `COMMENTED` / `CHANGES_REQUESTED` or independent assessment |
 | Inspected PR HEAD SHA | Immutable SHA and changed scope |
-| Verdict | `PASS / CHANGES_REQUESTED / INCONCLUSIVE / REVIEW_PENDING` |
+| Verdict only if performed | `PASS / CHANGES_REQUESTED / INCONCLUSIVE`; otherwise `NOT_APPLICABLE` (never pretend PASS) |
 | Blocking high / medium findings | Thread URLs, fix SHA, test evidence |
 | Non-blocking issues / questions | Links and follow-up owner |
 | Unresolved threads and re-review request | Exact links/status; never silently resolve |
 
-**Important:** Bot `COMMENTED` is not GitHub formal approval; failed/quota-limited reviews are not successful independent reviews.
+**Important:** Independent review is **optional by default**; strongly recommended for ledger, migrations, security/privacy, authentication and sensitive platform work. Never bypass known blocking findings or actual GitHub-required reviewers/checks. Bot `COMMENTED` is not formal approval; a skipped, failed or unavailable review is not a passing review.
 
 ## 6. Risks, rollback and recovery
 
@@ -81,9 +82,9 @@
 
 ## 7. Separate OWNER MERGE APPROVAL — mandatory, not inherited
 
-**Owner authorization for merging THIS PR:** `NOT_GRANTED` until the owner explicitly records permission for this PR; link exact owner statement, UTC/date and conditions here only after verification.
+**Owner authorization for merging THIS PR:** `NOT_GRANTED` until authentic, separately verified owner permission identifies **repository, PR number, explicit permission to merge, and conditions**. Record source, verified owner, date, authorized SHA/scope and conditions. An agent may perform the merge **only after** these facts and the [current-HEAD/protection/blocker preflight](POST-MERGE-SYNC.md#authorized-agent-merge-preflight-before-any-merge) are verified. Renew owner authorization for material scope changes. Only a GitHub-allowed non-force merge method; record actual resulting merge SHA. Auto-merge requires **separate explicit owner authorization**.
 
-**Do not merge** because implementation has proceeded, tests pass, a bot commented, reviewers approved, or a checkbox is checked. This contract does not configure GitHub branch protection automatically.
+**Do not merge** based on implementation, optional independent review, green tests, a bot comment, or a checked box. This template does not configure branch protection or authorize PR #2 to merge.
 
 ## 8. After verified merge (manual only)
 
