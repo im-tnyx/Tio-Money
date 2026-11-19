@@ -12,6 +12,7 @@
 | [TM-DEC-002](#tm-dec-002--independent-review-optional-by-default) | 2026-11-19 | Independent review optional by default, known blockers and configured protections binding | **Owner decided; agent-transcribed** | All PRs; sensitive-scope guidance |
 | [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | All PR merges, including PR #2 (not authorized) |
 | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) | 2026-11-19 | Five destinations and a standalone floating Add FAB | **Owner decided; agent-transcribed** | Phase 0 navigation shell only |
+| [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Only five blank tab screens; disabled visual FAB, no other screens | **Owner decided; agent-transcribed** | Phase 0 visible UI, supersedes DEC-004 editor/Settings availability |
 
 ## TM-DEC-001 — English-only initial app
 
@@ -66,6 +67,18 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 **Supersedes:** Earlier draft screen/README/flow guidance describing four bottom destinations with a center Add **bar slot**. This is a navigation presentation decision only; it does not change the canonical finance ledger, migration policy, SMS/Expo Go limits, or [English-only initial app (TM-DEC-001)](#tm-dec-001--english-only-initial-app). No native module or financial feature is authorized.
 
 **Acceptance:** Five distinct navigable root destinations with accessible English labels; a separately floating single Add FAB; safe-area and screen-reader testing on both devices; legacy `/history` navigation remains recoverable. Formal design review and physical-device QA remain pending. **Owner permission to merge PR #1 is NOT granted by this decision.**
+
+## TM-DEC-005 — Phase 0 empty navigation shell and disabled FAB
+
+**Decision date:** 2026-11-19. **Authority:** Direct owner instructions in the connected ChatGPT project conversation (agent-transcribed; [PR #1 scope discussion](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7006286494)). This is not GitHub-authenticated permission to merge.
+
+**Decision:** For the **current Phase 0 user interface only**, display five bottom navigation destinations **Home · Trans. · Stats. · Account · More**, with **completely empty screen bodies and no top app bar**. Preserve the single `+` floating icon at the **right above More**, but it is **disabled and has no press handler, action or modal route**. No Add Transaction editor, no Settings page, no Welcome page, no old History route, no cards, placeholder text, mock balances or other feature screens. Bottom navigation itself remains selectable to switch among the five blank screens.
+
+**Scope precedence:** This latest direct owner direction **supersedes TM-DEC-004 solely for current Phase 0 FAB interactivity and editor/Settings/History availability**. TM-DEC-004's five-destination labels and More-aligned FAB placement remain valid. Earlier feature specs and documents describe **future-phase product intent**, not a present UI release contract. Any later editor/Settings/onboarding implementation requires a new scoped task. The old removed routes should not be advertised as working. No automatic SMS, financial posting, permission or database schema change is authorized.
+
+**Foundation remains intact:** Preserve non-visible Expo Router/TypeScript, theme tokens, SQLite startup/settings-only migrations and safe error recovery, domain interfaces, tests, privacy controls and governance. The platform status bar is not an app top bar. The disabled FAB is accessibility-labeled as unavailable.
+
+**Acceptance:** Exactly five blank, selectable screen routes with no top app toolbar; exactly one disabled FAB icon above More, with no `onPress` and no target route; no other app screen routes; CI checks pass; physical Android/iPhone Expo Go and on-device SQLite testing remain separately **NOT_VERIFIED**. This decision **does not authorize PR #1 to be merged**.
 
 ## Pending choices — not decisions
 
