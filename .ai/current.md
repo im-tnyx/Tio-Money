@@ -1,5 +1,19 @@
 # 🧭 Current task index
 
+> **Latest verified governance status — 2026-11-19:** [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) is **MERGED** into `main` at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` (2026-11-19 06:16:11 UTC), and **six of six review threads were resolved** when checked. [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) remains **DRAFT / UNMERGED** at inspected HEAD `b2c9a346174abbf9246a1d56fe0aa6a5bb0f3ab8`. Live GitHub refs always supersede this document's timestamped snapshots. The active documentation-only reconciliation is separately scoped by [Issue #6](https://github.com/im-tnyx/Tio-Money/issues/6).
+
+## Current task register — verified terminal status and active follow-up
+
+| Task | Task / decision evidence | Branch / PR | Status | Agent provenance and exact next action |
+|---|---|---|---|---|
+| `TM-GOV-CLEANUP-20261119-001` | [Post-merge reconciliation task](tasks/governance/post-merge-reconciliation-20261119.md) · [RFC / technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/6) | `docs/governance-post-merge-reconciliation-20261119`; documentation-only draft PR pending | **IN_PROGRESS** — correct five governance/documentation gaps, **not authorized to merge** | Current ChatGPT GPT-6; previous verified governance agent ChatGPT GPT-6. Verify fresh governance CI on exact proposed PR HEAD; owner review/permission needed for any merge. |
+| `TM-GOV-20261118-001` | [Governance task and verified post-merge checkpoint](tasks/governance/ai-context-setup.md#verified-post-merge-reconciliation--2026-11-19) | `chore/ai-context-governance`; [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) | **COMPLETED / MERGED**, **not archived** — 2026-11-19 06:16:11 UTC; `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`; **6/6 threads resolved** at inspection | Earlier verified ChatGPT GPT-6 governance checkpoints, not Git commit authorship. [Pre-merge CI #44466151813](https://github.com/im-tnyx/Tio-Money/actions/runs/44466151813) succeeded (29/29 governance tests). No further merge action; archive only via separately scoped procedure. |
+| `TM-P0-ALIGN-20261119-001` | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · [TM-DEC-005](../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | `feat/phase-0-expo-foundation`; [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | **DRAFT / NOT MERGED**, latest observed `b2c9a346174abbf9246a1d56fe0aa6a5bb0f3ab8`, owner merge authorization **NOT_GRANTED** | Other branch owner's separate work: native splash → five blank tabs and disabled FAB above More. Physical Android/iPhone Expo Go and on-device SQLite **NOT_VERIFIED**. Do not modify this branch as part of the governance cleanup. |
+
+**Status semantics:** PR #2's earlier `IN_REVIEW` and `NOT_GRANTED` statements below were correct *before the later owner-authorized merge*, not current assertions. The historical pre-merge records are preserved for audit, not rewritten as if their dates changed. GitHub branch protection/ruleset configuration is **NOT_VERIFIED** by the connector.
+
+## Historical task register — preserved pre-merge snapshot
+
 > **Latest verified snapshot 2026-11-19T05:34:43.459Z UTC (before this new checkpoint commit).** Compare live GitHub branches/PRs/checks before any write or merge. This multi-task index is not proof of current owner authorization. All earlier V2/CI checkpoints remain preserved in the task history.
 
 | Task | Task file | Working branch | PR at snapshot | Verified owner / current agent | Status | Last verified checkpoint | Next safe action |
