@@ -7,9 +7,21 @@ import { opacity, size } from './primitives';
  */
 export const iconTokens = {
   size: size.dp24,
+  origin: size.dp0,
   stroke: size.dp2,
   fineStroke: size.dp1_5,
   roofRotation: '45deg',
+} as const;
+
+/** Canonical glyph geometry used by the five native-drawn tab icons. */
+export const tabIconShapes = {
+  transactionRows: [size.dp4, size.dp10, size.dp16],
+  statisticBars: [
+    { left: size.dp3, height: size.dp8 },
+    { left: size.dp10, height: size.dp14 },
+    { left: size.dp17, height: size.dp19 },
+  ],
+  moreDots: [size.dp3, size.dp10, size.dp17],
 } as const;
 
 export const iconRoleSizes = {
@@ -23,6 +35,7 @@ export const iconRoleSizes = {
 
 /** Safe-area padding remains dynamic; these values own fixed UI geometry. */
 export const navigationTokens = {
+  origin: size.dp0,
   itemHeight: size.dp56,
   borderWidth: size.dp1,
   iconLabelGap: size.dp5,
