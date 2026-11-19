@@ -1,5 +1,15 @@
 # 🧭 Current task index
 
+## 2026-11-20 — Merge-gate staging: Android owner UI PASS, no merge authority
+
+**Latest verified source before this docs-only gate checkpoint:** PR #1 `feat/phase-0-expo-foundation` → `main`, HEAD `ed0be0850b34d6f42140107aa5d7adb30eb77e47`, main `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. [Phase 0 CI #44602177612](https://github.com/im-tnyx/Tio-Money/actions/runs/44602177612) **SUCCESS** and [governance CI #44602177693](https://github.com/im-tnyx/Tio-Money/actions/runs/44602177693) **SUCCESS** on exactly that HEAD. The original Copilot Node-engine finding was checked against `package.json`, `package-lock.json`, locked Expo/RN engines and README, then replied to with [evidence](https://github.com/im-tnyx/Tio-Money/pull/1#discussion_r4634398174) and **administratively RESOLVED** on GitHub (one resolved review thread, zero known outstanding). This is `FIX_VERIFIED` from a source/CI self-audit, **not** independent approval; existing formal review is still `COMMENTED`. Latest-head independent review **DEFERRED** under optional-by-default policy; recommend for SQLite/native bootstrap.
+
+**Android owner report:** Owner explicitly says current UI was checked on a real Android device and looks correct. Mark **`OWNER_REPORTED_ANDROID_UI_SMOKE_PASS`** (2026-11-20), refining the previous unspecified-device smoke report. Prior `ExpoSQLite` error is no longer being seen per owner; do not mark it active. This is not a complete Android QA matrix and does **not** prove DB `PRAGMA` settings, migration persistence, cold restart, accessibility, system light/dark, or iPhone execution. Android model, OS/Expo Go version, exact device-tested SHA and evidence logs/screenshots were not provided.
+
+**Merge-gate decision: STAGED / HOLD — NOT AUTHORIZED TO MERGE.** Live PR reported `mergeable:true`, 237 ahead / 0 behind at inspected pre-doc SHA; full protection/rulesets endpoints returned 403 (not certifiable). The current Phase 0 UI is **five blank tabs and a disabled FAB** per TM-DEC-005; root `AGENTS.md` Section 7's active Add-editor language applies to the future finance feature, not this Phase 0 UI (scoped clarification; no AGENTS edit). Outstanding: full iPhone device QA, any remaining Android theme/accessibility/safe-area and actual SQLite FK/`user_version`/restart proof, verification of GitHub-required branch gates, exact-final-HEAD CI and a **fresh explicit owner instruction authorizing merge of `im-tnyx/Tio-Money` PR #1**. No merge, auto-merge, main write, PR #7 edit, force push, history rewrite or branch deletion; review after material new changes.
+
+---
+
 ## 2026-11-20 pre-merge handoff — latest verified implementation source (not a merge)
 
 | Task | PR/branch | Latest verified source | Acceptance / next action |
