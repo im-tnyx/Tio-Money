@@ -1,4 +1,4 @@
-/** Owner navigation decision for the Phase 0 shell, recorded in TM-DEC-004. */
+/** Owner-approved Phase 0 bottom navigation. Every destination has empty content. */
 export const ROOT_DESTINATIONS = [
   { href: '/', label: 'Home', accessibleName: 'Home', glyph: '⌂' },
   { href: '/transactions', label: 'Trans.', accessibleName: 'Transactions', glyph: '≡' },
@@ -6,5 +6,3 @@ export const ROOT_DESTINATIONS = [
   { href: '/accounts', label: 'Account', accessibleName: 'Accounts', glyph: '▤' },
   { href: '/more', label: 'More', accessibleName: 'More', glyph: '•••' },
 ] as const;
-
-export const ADD_TRANSACTION_ROUTE = '/transaction/new' as const;
