@@ -36,7 +36,7 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 
 The owner-provided screenshots are **references for fields and interaction**, **not a UI to copy**. Tio Money will have its **own** visual language and screen design.
 
-- **One floating `+` action above the five-destination bottom bar, aligned over **More** on the right** — no separate Income / Expense / Transfer shortcut tiles or Add content tab. See [TM-DEC-004](docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add).
+- **One floating `+` action above the five-destination bottom bar, aligned over More on the right** — no separate Income / Expense / Transfer shortcut tiles or Add content tab. See [TM-DEC-004](docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add).
 - `+` opens one transaction form with the tabs **Income | Expense | Transfer**.
 - **Fees** appear only when needed on a transfer and are accounted for separately as an expense.
 - **Save** stores the transaction and returns; **Save & Add Another** supports faster repeated entry.
