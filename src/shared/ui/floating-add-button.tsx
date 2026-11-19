@@ -1,7 +1,6 @@
-import { Pressable, View, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, View } from 'react-native';
 
-import { FLOATING_ADD_SIZE, getFloatingAddPosition } from '@/shared/navigation/fab-layout';
+import { useFloatingAddPosition } from '@/shared/navigation/use-floating-add-position';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
 /**
@@ -10,17 +9,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
  */
 export function FloatingAddButton() {
   const theme = useAppTheme();
-  const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const { right, bottom } = getFloatingAddPosition({
-    windowWidth: width,
-    leftInset: insets.left,
-    rightInset: insets.right,
-    bottomInset: insets.bottom,
-    horizontalPadding: theme.space.xs,
-    topPadding: theme.space.xs,
-    floatingGap: theme.space.sm,
-  });
+  const { right, bottom } = useFloatingAddPosition();
 
   return (
     <Pressable
@@ -32,43 +21,43 @@ export function FloatingAddButton() {
         position: 'absolute',
         right,
         bottom,
-        zIndex: 20,
-        elevation: 6,
-        width: FLOATING_ADD_SIZE,
-        height: FLOATING_ADD_SIZE,
+        zIndex: theme.shadows.fab.zIndex,
+        elevation: theme.shadows.fab.elevation,
+        width: theme.navigation.fabDiameter,
+        height: theme.navigation.fabDiameter,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: theme.radius.pill,
         backgroundColor: theme.colors.brand,
         shadowColor: '#000000',
-        shadowOpacity: 0.18,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: theme.shadows.fab.opacity,
+        shadowRadius: theme.shadows.fab.radius,
+        shadowOffset: { width: theme.space.xxs - theme.space.xxs, height: theme.shadows.fab.offsetY },
       }}
     >
       <View
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
-        style={{ width: 24, height: 24 }}
+        style={{ width: theme.navigation.fabMarkSize, height: theme.navigation.fabMarkSize }}
       >
         <View
           style={{
             position: 'absolute',
-            left: 0,
-            top: 11,
-            width: 24,
-            height: 2,
-            borderRadius: 1,
+            left: theme.navigation.fabMarkOffset - theme.navigation.fabMarkOffset,
+            top: theme.navigation.fabMarkOffset,
+            width: theme.navigation.fabMarkSize,
+            height: theme.navigation.fabMarkStroke,
+            borderRadius: theme.navigation.borderWidth,
             backgroundColor: theme.colors.brandText,
           }}
         />
         <View
           style={{
             position: 'absolute',
-            left: 11,
-            top: 0,
-            width: 2,
-            height: 24,
+            left: theme.navigation.fabMarkOffset,
+            top: theme.navigation.fabMarkOffset - theme.navigation.fabMarkOffset,
+            width: theme.navigation.fabMarkStroke,
+            height: theme.navigation.fabMarkSize,
             borderRadius: 1,
             backgroundColor: theme.colors.brandText,
           }}
