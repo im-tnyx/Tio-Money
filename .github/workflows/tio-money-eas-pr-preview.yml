@@ -104,6 +104,53 @@ jobs:
           npm run check
           npx expo install --check
 
+      - name: Install pinned and verify EAS CLI before Expo token is available
+        env:
+          EAS_CLI_VERSION: "27.4.1"
+          EAS_CLI_ROOT: ${{ runner.temp }}/tio-money-verified-eas-cli
+        run: |
+          set -euo pipefail
+          # Expo discourages EAS CLI inside the mobile app dependency tree.
+          # Isolate its npm dependencies from the SDK 58 app and Expo token.
+          mkdir -p "$EAS_CLI_ROOT"
+          node - "$EAS_CLI_ROOT/package.json" "$EAS_CLI_VERSION" <<'NODE'
+          const fs = require('node:fs');
+          const [file, version] = process.argv.slice(2);
+          fs.writeFileSync(file, JSON.stringify({
+            name: 'tio-money-verified-eas-cli',
+            private: true,
+            version: '0.0.0',
+            dependencies: { 'eas-cli': version }
+          }, null, 2) + '\n');
+          NODE
+          npm install --prefix "$EAS_CLI_ROOT" --package-lock-only \
+            --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          # npm ci verifies tarball integrity against this isolated lockfile.
+          npm ci --prefix "$EAS_CLI_ROOT" \
+            --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          # Fail closed if npm cannot validate available registry signatures.
+          ( cd "$EAS_CLI_ROOT" && npm audit signatures --registry=https://registry.npmjs.org )
+          node - "$EAS_CLI_ROOT/package-lock.json" "$EAS_CLI_VERSION" <<'NODE'
+          const fs = require('node:fs');
+          const [file, expected] = process.argv.slice(2);
+          const lock = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (lock.packages?.['']?.dependencies?.['eas-cli'] !== expected ||
+              lock.packages?.['node_modules/eas-cli']?.version !== expected) {
+            throw Error('EAS CLI isolated lockfile version mismatch');
+          }
+          for (const [path, pkg] of Object.entries(lock.packages)) {
+            if (path && pkg.resolved?.startsWith('https://registry.npmjs.org/') &&
+                !pkg.integrity?.startsWith('sha512-')) {
+              throw Error('Missing sha512 npm package integrity for ' + path);
+            }
+          }
+          NODE
+          node - "$EAS_CLI_ROOT/node_modules/eas-cli/package.json" "$EAS_CLI_VERSION" <<'NODE'
+          const [file, expected] = process.argv.slice(2);
+          if (require(file).version !== expected) throw Error('Installed EAS CLI version mismatch');
+          NODE
+          "$EAS_CLI_ROOT/node_modules/.bin/eas" --version
+
       - name: Publish non-production PR preview OTA (explicit owner dispatch only)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -115,7 +162,7 @@ jobs:
             echo "::error::Missing environment-scoped EXPO_TOKEN; owner must configure it securely"
             exit 1
           fi
-          npx eas-cli@latest update \
+          "$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas" update \
             --branch pr-preview \
             --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
             --environment preview \
