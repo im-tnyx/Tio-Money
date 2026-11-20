@@ -199,7 +199,17 @@ test('trusted main snapshot validation precedes any Codespace start or SSH', () 
 test('remote script imports verified immutable bundle without remote Git credentials or force operations', () => {
   assert.match(sync, /expected_remote="https:\/\/github\.com\/im-tnyx\/Tio-Money"/);
   assert.match(sync, /git status --porcelain=v1 --untracked-files=normal/);
-  assert.match(sync, /git fetch --no-tags origin "\$target_sha"/);
+  assert.ok(sync.includes('git bundle verify "$bundle_path"'));
+  assert.ok(sync.includes('git fetch --no-tags "$bundle_path" "refs/tio-preview/selected"'));
+  assert.ok(sync.includes(`trap 'rm -f -- "$bundle_path"' EXIT`));
+  assert.ok(sync.includes('! -f "$bundle_path" || -L "$bundle_path"'));
+  assert.ok(!sync.includes('git fetch --no-tags origin "$target_sha"'));
+  assert.ok(worker.includes('git rev-parse --is-shallow-repository'));
+  assert.ok(worker.includes('git fetch --no-tags origin "$TARGET_SHA"'));
+  assert.ok(worker.includes('git bundle create "$bundle" refs/tio-preview/selected'));
+  assert.ok(worker.includes('git bundle verify "$bundle"'));
+  assert.ok(worker.includes('base64 -d > "$1"'));
+  assert.ok(worker.includes('bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle"'));
   assert.match(sync, /"\$fetched_sha" != "\$target_sha"/);
   assert.match(sync, /git -c advice\.detachedHead=false switch --detach "\$target_sha"/);
   assert.match(sync, /scripts\/start-codespace-expo\.mjs --stop/);
