@@ -1,5 +1,15 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #14 conditional merge authority / new Codex findings
+
+- **Owner authorized** merge of `im-tnyx/Tio-Money` **PR #14** into `main`, **only if all current checks, protections, applicable reviews and outstanding findings are verified satisfied**. No authority for auto-merge, force-push, deletion or PR #16/#22.
+- Latest reviewed `c6d9473d9fed0d83982e0cf4e93cb3e16626bfef` had three green GitHub check runs and `main` branch API showed `protected:false`, but **Codex added two unresolved P2** findings to `docs/01-PRD.md` after earlier preflight. Correct in original PR branch; verify exact new HEAD and review/comment status again.
+- **Remediation:** add Bank-linked Wallet reference to first-run (after Bank exists) and Accounts add/edit/archive flows, without additional financial account/balance/postings. [Task](tasks/product/local-first-product-contract-20261120.md) records source and limitations. Current branch remains PR #14; dependent stacked PR #16/#22 require later reconciliation.
+- **Pending at this checkpoint:** final CI, PR review findings, protections preflight and actual GitHub merge result. No merge is claimed here.
+
+---
+
+
 ## 2026-11-20 — PR #14 opening-account P2 merge-gate remediation
 
 - **Owner request:** bring [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) to merge gate (fix/review/CI; **not merge authorization**). Technical PROCEED remains bounded to finance-product documentation in [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13) and the [task](tasks/product/local-first-product-contract-20261120.md).
