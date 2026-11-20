@@ -36,11 +36,19 @@ if [[ -n "$(git status --porcelain=v1 --untracked-files=normal)" ]]; then
   exit 1
 fi
 
-if [[ "$bundle_path" != "/tmp/tio-money-preview-${target_sha}.bundle" || ! -f "$bundle_path" || -L "$bundle_path" ]]; then
+if [[ ! "$bundle_path" =~ ^/tmp/tio-money-preview-${target_sha}-[1-9][0-9]*\.bundle$ || ! -f "$bundle_path" || -L "$bundle_path" ]]; then
   echo "Refusing preview: missing or unexpected immutable source bundle." >&2
   exit 1
 fi
 trap 'rm -f -- "$bundle_path"' EXIT
+# Reject malformed, oversized or non-private temporary files before import.
+bundle_bytes="$(stat -c '%s' -- "$bundle_path")"
+if (( bundle_bytes < 1 || bundle_bytes > 134217728 )) ||
+   [[ "$(stat -c '%a' -- "$bundle_path")" != "600" ||
+      "$(stat -c '%u' -- "$bundle_path")" != "$(id -u)" ]]; then
+  echo "Refusing preview: source bundle size, permissions or ownership invalid." >&2
+  exit 1
+fi
 before_sha="$(git rev-parse HEAD)"
 echo "Importing selected PR #${pr_number} immutable commit ${target_sha} from trusted runner."
 git bundle verify "$bundle_path" >/dev/null
