@@ -1,5 +1,18 @@
 # Tio Money — EAS preview updates (non-production, manual)
 
+## Actions form — platform selection (pending merge)
+
+The non-production workflow display name is **TIO MONEY EXPO PR REVIEW**. Use **GitHub Actions → Run workflow** on the trusted `main` branch and select an **open, owner-authored, non-draft, JS/assets-only PR targeting main**. The `pr_number` field identifies that PR. The `platform` dropdown has **exactly three choices**:
+
+- `android` — publish the JS/assets OTA update for Android.
+- `ios` — publish the JS/assets OTA update for iOS.
+- `all` (default) — publish for Android and iOS.
+
+The workflow calls the fixed, previously reviewed EAS CLI using `eas update --platform "<selected value>" --branch pr-preview --environment preview --non-interactive`. Invalid platform values fail before any Expo token is accessed. This selection **does not build an APK/IPA**, configure signing or guarantee the published update can load in Expo Go; compatible installed development/internal preview builds may still be required under the SDK 58 fingerprint runtime policy. Publishing consumes remote EAS services and still requires a separate explicit owner authorization, validated environment restrictions and scoped `EXPO_TOKEN`.
+
+The Android/iOS/All selection is for **publishing OTA previews**, not for deciding which phone is used to run manual device tests. The previous one-field workflow form is the historical version, and the new form only appears on `main` after this change is separately reviewed and merged.
+
+
 > **Preparation only — not published.** PR #4 is merged. This feature is an open, ready-for-review PR #5 targeting `main`. It does not enable automatic OTA publishing, deploy a release, configure an Expo token, create an EAS build or guarantee Expo Go's grey **Projects** tile becomes active. Published Tio-Money EAS Update groups remain empty in the owner's last screenshot.
 
 [Technical RFC / PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7004990185) · [Codespaces Stage A guide](CODESPACES-LIVE-PREVIEW.md) · [Task checkpoint](../.ai/tasks/preview/eas-preview-updates-20261119.md)
@@ -33,7 +46,7 @@ Expo's [SDK Update documentation](https://docs.expo.dev/build/updates/) states t
 
 1. Owner reviews the stacked PR, then after a **separately authorized merge/integration** uses one clean Codespace or CI checkout and runs `npm ci --no-audit --no-fund`, `npm run check`, `npx expo install --check` and `npx expo config --type public`. Check exact `owner`, `slug`, `updates.url`, `runtimeVersion` and existing UUID against **this** project, never Tio-TNYX.
 2. To support actual OTA delivery, first separately decide app identifiers, iOS/Android signing, and create a reviewed **internal preview build** including `expo-updates`. This is a **native change** and cannot be delivered to an old binary using an OTA. Do not run `eas build` or `eas update` until explicitly authorized for that operation and applicable costs/credentials are reviewed. Do not publish finance user data, access credentials or unreviewed env values in JS bundles.
-3. A later, **JS-only**, owner-authored, *non-draft* PR targeting `main` can be selected manually in GitHub Actions → **Tio Money manual EAS PR preview** → **Run workflow**, after a trusted workflow has been merged to `main` with PR-specific owner authorization and the environment gates below. The workflow only publishes on EAS branch **`pr-preview`**, environment **`preview`**. It rejects PR changes to `app.json`, dependency manifests, EAS config or native directories and refuses project-ID drift.
+3. A later, **JS-only**, owner-authored, *non-draft* PR targeting `main` can be selected manually in GitHub Actions → **TIO MONEY EXPO PR REVIEW** → **Run workflow**, after a trusted workflow has been merged to `main` with PR-specific owner authorization and the environment gates below. The workflow only publishes on EAS branch **`pr-preview`**, environment **`preview`**. It rejects PR changes to `app.json`, dependency manifests, EAS config or native directories and refuses project-ID drift.
 4. After **separate owner authorization to publish**, check the result in [Tio Money Update groups](https://expo.dev/accounts/tnyx-23/projects/tio-money/updates) and **Branches**. Verify both Android/iOS publication metadata and real compatibility on the installed internal preview build. This draft preparation itself creates **no** remote Update group.
 
 ## Manual workflow security gates (not yet enabled)
