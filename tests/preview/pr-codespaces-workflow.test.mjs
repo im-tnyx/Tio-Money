@@ -234,3 +234,19 @@ test('PR metadata HTTP diagnostic stays read-only, safe and before Codespace act
   assert.ok(!worker.includes('echo "$GH_TOKEN"'));
   assert.ok(!worker.includes('secrets.EXPO_TOKEN'));
 });
+
+test('manual dispatch PR is a strict positive integer string, not a rounded numeric input', () => {
+  const inputDefinition = worker.match(/workflow_dispatch:\s*\n\s*inputs:\s*\n\s*pr_number:\s*\n(?:\s{8}[^\n]+\n){3}/);
+  assert.ok(inputDefinition, 'workflow_dispatch pr_number input must exist');
+  assert.match(inputDefinition[0], /^\s*type: string$/m);
+  assert.doesNotMatch(inputDefinition[0], /^\s*type: number$/m);
+  assert.ok(worker.includes('if [[ ! "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]; then'));
+  const validPR = /^[1-9][0-9]*$/;
+  for (const input of ['1', '18', '99999']) assert.ok(validPR.test(input), input);
+  for (const input of ['18.0', '0', '-18', '01', '1e3', '18/../../', '', '18 ']) {
+    assert.equal(validPR.test(input), false, input);
+  }
+  assert.match(worker, /github\.actor == 'im-tnyx'/);
+  assert.match(worker, /github\.ref == 'refs\/heads\/main'/);
+  assert.match(worker, /github\.run_attempt == '1'/);
+});
