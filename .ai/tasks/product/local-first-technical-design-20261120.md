@@ -9,7 +9,7 @@
 | Previous agent for this new task | UNKNOWN_NOT_VERIFIED |
 | Persistent RFC | [Issue #15](https://github.com/im-tnyx/Tio-Money/issues/15) |
 | Technical decision | **PROCEED for documentation-only drafting**, agent-recorded, based on owner current-chat "Go"; no authenticated GitHub-owner merge approval |
-| Owner decisions source | [TM-DEC-006–009](../../docs/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) in **open PR #14**, not merged |
+| Owner decisions source | [TM-DEC-006–009](../../../docs/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) in **open PR #14**, not merged |
 | Stacked PR A base | [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce` |
 | Main at task start | `fd154db417b1979d39f855317f252eed37c36e9d` |
 | Working branch | `docs/local-first-finance-architecture-20261120`, from PR #14 head; target PR A feature branch, **not main** |
