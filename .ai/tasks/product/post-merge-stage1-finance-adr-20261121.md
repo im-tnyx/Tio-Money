@@ -9,8 +9,8 @@
 | Branch | `docs/postmerge-stage1-finance-adrs-20261121` |
 | Source request | "Naye main ke saath post-merge documentation reconciliation... finance ADRs finalize" and "all screen dump screen rahega koi bhi logic screen m nahi rahega verify ke baad go" |
 | Decision maker | ChatGPT GPT-6 agent technical PROCEED for docs; owner directive **TM-DEC-011** for screen boundaries, transcribed |
-| State | **IN_PROGRESS / validation pending**; no PR created at this checkpoint |
-| Independent review | **DEFERRED** pending draft PR and Codex/finance architecture review; no invented approval |
+| State — 2026-11-21 checkpoint | **IN_REVIEW / Draft PR #24** — [PR #24](https://github.com/im-tnyx/Tio-Money/pull/24), base `main`. Initial GitHub checks passed at `0929c4099feb34910e5099b677ed02e9654faad7`; any subsequent commit requires new exact-head checks. **NOT MERGED**. |
+| Independent review | **DEFERRED / requested next**; no formal independent APPROVED review claimed. Automated Codex review to be requested on exact new head. |
 | Merge authorization | **NOT GRANTED** for any new PR; separately required by AGENTS.md |
 
 ## Verified preconditions
@@ -36,5 +36,5 @@ Finance risk: preserve exact native currency, balanced postings, link-only bank 
 
 ## Current working checkpoint
 
-- 2026-11-21: Issue #23 created, technical PROCEED recorded. New branch from verified main. Drafted two new specs and scoped reconciliation. PR creation, final link audit, CI, review and handoff status **pending at this checkpoint**.
+- 2026-11-21: RFC Issue #23 recorded technical PROCEED, new branch from verified main, and [Draft PR #24](https://github.com/im-tnyx/Tio-Money/pull/24) opened. Initial exact-HEAD GitHub checks (Phase 0 static, AI governance, preview signal) **3/3 SUCCESS** on `0929c4099feb34910e5099b677ed02e9654faad7`. Read-only docs audit on that head scanned **16 changed Markdown files, 291 internal relative file paths (0 missing), 82 section-anchor references** and 7 cross-document anchors; no forbidden co-author commit trailer, no diff-added trailing whitespace. 157 external URL occurrences NOT live-HTTP-tested. This task checkpoint itself will advance HEAD; recheck CI and reviewer findings before merge gate.
 - All screens remain blank in current actual app; future Stage 1 is a **design-only** planning contract.
