@@ -211,3 +211,23 @@ test('dedicated preview identity gate fails closed for owner editing Codespace a
   );
   assert.throws(() => requireDedicatedPreviewCodespace(null, previewName, previewId), /allowlist/);
 });
+
+test('PR metadata HTTP diagnostic stays read-only, safe and before Codespace activation', () => {
+  const fetch = worker.indexOf('pr_status="$(curl --silent --show-error --max-time 20');
+  const check = worker.indexOf('jq -e --arg repo "$GITHUB_REPOSITORY"');
+  const start = worker.indexOf('"/user/codespaces/${codespace}/start"');
+  assert.ok(fetch > 0 && fetch < check && check < start);
+  assert.ok(worker.includes('GH_TOKEN: ${{ github.token }}'));
+  assert.ok(worker.includes('--header "Authorization: Bearer ${GH_TOKEN}"'));
+  assert.ok(worker.includes('if [[ "$pr_status" != "200" ]]'));
+  assert.ok(worker.includes('gsub(/[^[:alnum:]._,;= -]/, "?", value)'));
+  for (const name of [
+    'x-accepted-github-permissions',
+    'x-github-request-id',
+    'x-github-api-version-selected',
+  ]) assert.ok(worker.includes(name), name);
+  assert.ok(worker.includes('Codespace activation denied'));
+  assert.ok(!worker.includes('set -x'));
+  assert.ok(!worker.includes('echo "$GH_TOKEN"'));
+  assert.ok(!worker.includes('secrets.EXPO_TOKEN'));
+});
