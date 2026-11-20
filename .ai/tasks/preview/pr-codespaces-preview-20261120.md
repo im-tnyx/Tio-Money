@@ -15,6 +15,12 @@
 5. `docs/PR-CODESPACES-PREVIEW.md` — owner flow, trust/activation/cost/limitations.
 6. `tests/preview/pr-codespaces-workflow.test.mjs` — source-level security invariants included in existing `npm run check` → `npm run preview:test`.
 
+## 2026-11-20 — SSHD P2 security finding and PR #12 merge reconciliation
+
+- **Owner instruction:** Align PR #10 branch with main after PR #12 was merged and address independent [P2 SSHD supply-chain comment](https://github.com/im-tnyx/Tio-Money/pull/10#issuecomment-7037523880). No PR #10 merge/privileged dispatch authorization.
+- **P2 finding:** Dev Container SSHD feature `:1` could move across minor/patch updates; option `version: "latest"` is **currently unused** in the official feature manifest, so merely changing that option cannot pin the feature. Pin feature key to reviewed exact patch `ghcr.io/devcontainers/features/sshd:1.1.0` and remove unused option. Test must assert the actual JSON key and reject floating `latest`. Upstream docs: https://github.com/devcontainers/features/blob/main/src/sshd/devcontainer-feature.json and https://github.com/devcontainers/features/pkgs/container/features%2Fsshd .
+- **Review disposition:** Source fix applied and static test updated; exact-HEAD CI and reviewer re-review required after the main integration. This does not prove container rebuild, digest verification or secure remote SSH. Dedicated owner-approved preview-only Codespace, GitHub Environment variables/restrictions and token scope remain unverified. **PR #10 owner merge permission is NOT GRANTED**; no EAS actions, Codespace wake, SSH, token or main modification.
+
 ## Explicit exclusions and safety
 
 No user app UI or ledger/Auth/SQLite code changes; no Expo project/UUID changes, EAS Update, preview APK, Expo credentials, private finance data, secret values, new Codespace creation, `main` merge, privileged workflow dispatch, bypass of GitHub protection, or Tio-Workspace modifications. Existing Expo Go grey Projects card is **NOT_FIXED / NOT_VERIFIED**; the feature targets the observed working account-signed Development Servers path and can wake on **owner push**, not on phone tap. No claim of permanent always-on availability.
