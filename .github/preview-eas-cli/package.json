@@ -4,5 +4,8 @@
   "version": "0.0.0",
   "dependencies": {
     "eas-cli": "27.4.1"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
   }
 }
