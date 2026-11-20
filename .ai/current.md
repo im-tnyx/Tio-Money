@@ -1,12 +1,33 @@
 # 🧭 Current task index
 
-## 2026-11-20 — Phase B finance architecture documentation (stacked draft)
+## 2026-11-20 — PR #16 reconciliation after PR #14 squash merge
 
-- **Draft PR:** [#16](https://github.com/im-tnyx/Tio-Money/pull/16), open/unmerged. **Task:** [TM-DOC-ARCH-20261120-002](tasks/product/local-first-technical-design-20261120.md). **RFC:** [Issue #15](https://github.com/im-tnyx/Tio-Money/issues/15). Current agent ChatGPT GPT-6; previous agent for new task UNKNOWN_NOT_VERIFIED.
-- **Owner source:** chat "Go" after bounded PR B documentation proposal; agent technical **PROCEED** recorded for docs **only**, not owner PR merge authorization.
-- **Base:** open [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), head `659915ba8c9766082ccc945809b8879df3b5b6ce`; initial `main` `fd154db417b1979d39f855317f252eed37c36e9d`. Branch `docs/local-first-finance-architecture-20261120` **stacked on PR A**, not yet merged. Latest inspected PR #16 head before checkpoint: `a11beb5dae4f6207c9bf22318fd17a58e0a2e4b5`.
-- **File ownership:** `docs/02-USER-FLOWS.md`, `docs/03-SCREEN-SPEC.md`, `docs/04-DATABASE-DESIGN.md`, `docs/05-TECH-ARCHITECTURE.md`, this index and new task record; no actual SQL/source/auth/provider integration.
-- **Review and authority:** independent review DEFERRED, finance ADRs unresolved, merge authorization NOT_GRANTED for either PR. Verify current PR/CI/diff/HEAD before any further action. Older PR status rows below are dated historical records.
+- **Owner requested:** safely reconcile [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) onto new `main`, rerun CI and review. This is **not** permission to merge PR #16.
+- **Verified PR #14:** squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`. Existing PR #16 branch HEAD before reconciliation: `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`.
+- **Integration:** non-force two-parent branch merge into PR #16 with `main` as second parent, main tree authoritative except PR B's **six owned Markdown paths**. Reconcile only Bank-linked Wallet non-ledger reference, Investment/Loan historical opening wording in docs 02–05; preserve original `main` index and PR #14 P2 fixes. **No application, SQL, theme, bottom-navigation or cloud changes.**
+- **Documentation task:** [TM-DOC-ARCH-20261120-002](tasks/product/local-first-technical-design-20261120.md) tracks code exclusions, exact method, source and future ADR gates. [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) is a dependent separate branch, **not edited**.
+- **Gate:** PR #16 retarget to `main`, exact-head CI and review required; no independent approval assumed. **Owner merge authorization NOT_GRANTED** for PR #16 and PR #22.
+
+---
+
+
+## 2026-11-20 — PR #14 conditional merge authority / new Codex findings
+
+- **Owner authorized** merge of `im-tnyx/Tio-Money` **PR #14** into `main`, **only if all current checks, protections, applicable reviews and outstanding findings are verified satisfied**. No authority for auto-merge, force-push, deletion or PR #16/#22.
+- Latest reviewed `c6d9473d9fed0d83982e0cf4e93cb3e16626bfef` had three green GitHub check runs and `main` branch API showed `protected:false`, but **Codex added two unresolved P2** findings to `docs/01-PRD.md` after earlier preflight. Correct in original PR branch; verify exact new HEAD and review/comment status again.
+- **Remediation:** add Bank-linked Wallet reference to first-run (after Bank exists) and Accounts add/edit/archive flows, without additional financial account/balance/postings. [Task](tasks/product/local-first-product-contract-20261120.md) records source and limitations. Current branch remains PR #14; dependent stacked PR #16/#22 require later reconciliation.
+- **Pending at this checkpoint:** final CI, PR review findings, protections preflight and actual GitHub merge result. No merge is claimed here.
+
+---
+
+
+## 2026-11-20 — PR #14 opening-account P2 merge-gate remediation
+
+- **Owner request:** bring [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) to merge gate (fix/review/CI; **not merge authorization**). Technical PROCEED remains bounded to finance-product documentation in [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13) and the [task](tasks/product/local-first-product-contract-20261120.md).
+- **Before remediation:** PR A HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce`; one unresolved non-independent [P2 review thread](https://github.com/im-tnyx/Tio-Money/pull/14#discussion_r4644772021): generic opening amount conflicts with bank-linked Wallet/no-asset and Investment/Loan opening semantics.
+- **Proposed resolution:** group-conditional opening rules, explicit non-posting bank reference, single balanced opening equity for funded/card/loan/investment historical positions, zero-value no-op, six additional test IDs. Preserve all unapproved multi-currency/valuation/migration ADR blockers.
+- **Branch constraints:** work only on PR #14 documentation branch; staged PR [#16](https://github.com/im-tnyx/Tio-Money/pull/16) and [#22](https://github.com/im-tnyx/Tio-Money/pull/22) depend on PR A and require later safe reconciliation. No merging of any PR, no `main` change, no device/code/SQL changes.
+- **Gate record:** independently reviewed/CI and resolved status must be re-verified at exact updated HEAD; protection rules API not reliably readable; owner PR-specific merge authorization **NOT_GRANTED**.
 
 ---
 

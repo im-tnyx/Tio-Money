@@ -45,7 +45,7 @@ flowchart TD
 
 | Capability | Interface / ownership | Security and failure boundary |
 | :--- | :--- | :--- |
-| `AccountGroupCatalog` + `AccountSetupUseCase` | Feature/app layer selects typed built-in group descriptor, validates fields and posts atomic opening journal through repository | Group identity is UI metadata; domain chooses asset/liability class |
+| `AccountGroupCatalog` + `AccountSetupUseCase` | Feature/app layer selects typed group descriptor and validates fields; **non-ledger Bank-linked Wallet reference** writes metadata only, while positive ledger-bearing opening positions post one atomic balanced opening-equity event | Group identity is UI metadata; domain chooses asset/liability class; reference has **no separate ledger balance** and zero positions create no postings |
 | `LedgerCommandPort` | Domain builds balanced events; adapter enforces idempotent transaction-safe SQLite write | Single source of truth, no UI-computed balances, rollback on failure |
 | `AccountLinkRepository` | Links compatible bank/wallet/card/loan/investment records by stable ID | Reject archived/invalid links, do not duplicate bank-linked UPI assets |
 | `CardBillingService` | Due/statement schedule and user-confirmed local repayment use cases | **No real bank autopay**, no silent scheduled posting, no card secrets |
@@ -108,6 +108,7 @@ flowchart TD
 | `TM-ARCH-006` | No backup or Supabase/Auth dependency in Stage 1 release graph |
 | `TM-ARCH-007` | Stage 2 encrypted archive is validated and recoverable before any cloud-sync scope |
 | `TM-ARCH-008` | Stage 3 login only on opt-in, RLS isolation and local continuity after logout (future separate auth threat model) |
+| `TM-ARCH-009` | Bank-linked Wallet references create only typed link metadata and never duplicate a Bank asset; historical Investment/Loan openings are distinct from new funding/disbursement transactions |
 
 **Unresolved architecture decisions:** [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) `TM-ADR-018–023` plus earlier `TM-ADR-011–017`; storage encryption/backup keys; future sync tenant policy. Mark these **BLOCKED before coding**, not silently approved from this document. The [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) remains an older draft to reconcile in the separate PR C.
 

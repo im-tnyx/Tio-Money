@@ -9,13 +9,13 @@
 | Previous agent for this new task | UNKNOWN_NOT_VERIFIED |
 | Persistent RFC | [Issue #15](https://github.com/im-tnyx/Tio-Money/issues/15) |
 | Technical decision | **PROCEED for documentation-only drafting**, agent-recorded, based on owner current-chat "Go"; no authenticated GitHub-owner merge approval |
-| Owner decisions source | [TM-DEC-006–009](../../../docs/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) in **open PR #14**, not merged |
-| Stacked PR A base | [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce` |
+| Owner decisions source | [TM-DEC-006–009](../../../docs/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) in **PR #14**, since merged into `main` 2026-11-20 |
+| Historical stacked PR A base | At task creation, [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) was Draft at `659915ba8c9766082ccc945809b8879df3b5b6ce`; **it later squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`** |
 | Main at task start | `fd154db417b1979d39f855317f252eed37c36e9d` |
-| Working branch | `docs/local-first-finance-architecture-20261120`, from PR #14 head; target PR A feature branch, **not main** |
-| Lifecycle | **IN_REVIEW** — [Draft PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), stacked on open Draft PR #14; **NOT MERGED** |
+| Working branch | `docs/local-first-finance-architecture-20261120`, originally from PR #14 head; **reconciled with new `main` by non-force merge commit and PR #16 base retarget to `main`** on 2026-11-20 (verify live GitHub state) |
+| Lifecycle | **RECONCILING** — [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), draft until exact-head CI and review gate; **NOT MERGED** |
 | Independent review | DEFERRED; not performed. Strongly recommended before financial schema/security implementation |
-| Merge permission | **NOT_GRANTED** for PR #14 or any PR B; separate explicit owner instruction naming repo and PR required |
+| Merge permission | PR #14 was separately authorized and **merged**; **NOT_GRANTED for PR #16 or PR #22**, separate PR-specific permission required |
 
 ## RFC, scope and exclusions
 
@@ -59,3 +59,15 @@
 - **Independent review:** `DEFERRED`, not performed; accounting/FX/identity finance ADRs remain unresolved, not signed off.
 - **Merge authorization:** `NOT_GRANTED` for both PR #14 and PR #16. Reverify actual configured protections and new HEAD before any future merge attempt.
 - **Follow-up checkpoint:** this task/index update itself advances HEAD and requires rechecking CI if review-ready; next agent must not treat historical snapshots as live state.
+
+### 2026-11-20 — Safe reconciliation after verified PR #14 squash merge
+
+- **User instruction:** reconcile PR #16 with new `main`, rerun CI/review. This allows only branch integration, PR-base change, documentation consistency fixes and review; **NO permission to merge PR #16**, auto-merge, force-push or alter `main`/PR #22.
+- **Merge source:** [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) verified `MERGED` at squash `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`; prior PR #16 head `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b` (main diverged due to squash; old PR A branch is not the new main).
+- **Reconciliation method:** create a **two-parent commit** with parent 1 = exact old PR #16 HEAD, parent 2 = exact current `main` merge SHA, based on main's Git tree. Re-apply only six PR B-owned Markdown files, preserving **every other file exactly as new main**, including newly approved PRD and account-group corrections. This is a **non-force fast-forward** of PR #16's branch, not a history rewrite, no reset/rebase.
+- **Content alignment:** update proposed Account/Wallet create flows, Screens and conceptual Ledger/Architecture to honor PR #14's group-conditional opening equity; bank-linked Wallet is a **non-ledger reference**, zero opening/journal, Investments/Loans historic openings never duplicate bank movements. These are **future contracts only**, no implementation.
+- **`.ai/current.md` conflict handling:** preserve exact `main` text/historic checkpoints and prepend compact new PR #16 state; no overwrite of PR #14 merge-related provenance.
+- **Expected review target:** retarget existing PR #16 to `main` **after** branch becomes descendant of new main. Validate that PR diff is exactly the six owned Markdown files, all internal paths/anchors exist, commit trailers comply and CI matches exact HEAD.
+- **Downstream:** [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) branch remains **untouched**. Its base will advance indirectly with PR #16; separately reconcile it **later** and do not claim its current mergeability/tests.
+- **Review:** independent review previously `DEFERRED`; GitHub automated reviewer/CI results must be read **after** the new head and (if requested) ready-for-review transition. No review approvals are fabricated. Finance/identity ADR blockers remain future implementation gates.
+- **Owner merge authorization:** **NOT_GRANTED for PR #16**, even when CI/review pass.

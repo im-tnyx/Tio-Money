@@ -28,17 +28,17 @@
 | Step | Visible design and acceptance |
 | :--- | :--- |
 | Choose Account Group | Six built-in rows: Cash, Bank, Wallet, Credit Card, Investment, Loan, with a short definition. May hide templates in Settings, never delete existing accounts |
-| Shared fields | Name, opening amount/outstanding label, ISO currency, description; label changes to group semantics |
-| Cash | Only shared fields; amount is asset opening, no income |
+| Shared fields | Name and description; currency is selected for ledger-bearing accounts but **inherited from the linked Bank** for reference Wallets. Opening position is **group-conditional**, not a mandatory universal field |
+| Cash | Name, native currency, optional description and nonnegative opening asset amount; a positive opening balances against opening equity, never Income |
 | Bank | Shared + bank provider (optional), UPI, debit card, cheque, internet banking capability checkboxes; explain all methods use the same balance |
-| Wallet | Funded / bank-linked reference; show bank link selector only for bank-linked type; forbid duplicate independent balance |
+| Wallet | **Funded:** show nonnegative opening asset amount and own currency. **Bank-linked reference:** require eligible linked Bank selection, derive currency and show **no editable opening amount or separate balance/journal**; add/edit/archive reference metadata only |
 | Credit Card | Opening outstanding, total limit, statement cycle/day, next due, linked bank payment source, description, tracking-only auto-payment preference |
-| Investment | Asset kind, invested amount, current value + valuation date, funding account, optional units; show cost/value as separate concepts |
-| Loan | Borrowed / Given, outstanding principal, interest rate/basis, installment, next due, linked account; label asset/owed status accurately |
+| Investment | Asset kind, **historical opening cost basis** vs separately dated current valuation, funding account and optional units. Registering an existing position must not debit funding Bank a second time; valuation stays non-posting, report policy ADR-gated |
+| Loan | Borrowed / Given, historical outstanding principal (liability vs receivable), rate basis, installment, next due and eligible account link; no bank movement on historical opening; distinguish separately confirmed new disbursement |
 
 **Form behavior:** dynamic fields derive from a typed **group definition**, not bank/payment provider names; required, optional and derived fields visually distinct. A derived balance, available credit, Net Worth or rate is never editable. Validation errors appear by field and screen-reader announcement; on group switch warn before discarding incompatible draft fields. Prevent silent account-class change on edit.
 
-**Account detail:** group label + asset/liability context, running ledger-derived balance, status, linked accounts, sorted transactions, financial correction/history. **Credit card availability is an estimated value** (limit − posted outstanding − known holds + adjustments); if issuer holds aren't known, say so.
+**Account detail:** ledger-bearing kinds display group label, asset/liability context, ledger-derived balance, status, linked accounts, posted transactions and correction/history. **Bank-linked Wallet reference** displays the linked Bank account and its shared balance as a *view*, **not an independent asset**; editing or archiving the reference leaves Bank postings untouched. **Credit card availability is an estimated value** (limit − posted outstanding − known holds + adjustments); if issuer holds aren't known, say so.
 
 ### SCREEN 12 · Card Bill & Loan Installment · `TM-S12` · future local Stage 1
 
@@ -79,6 +79,7 @@
 | `TM-SCR-AG-003` | Card outstanding, limit, available and due/statement labels remain distinct |
 | `TM-SCR-AG-004` | “Automatic Payment” clearly marked **tracking only** and creates no external payment |
 | `TM-SCR-AG-005` | Loan and Investment show cost/valuation or principal/interest separately |
+| `TM-SCR-AG-006` | Bank-linked Wallet reference requires Bank selector, inherits currency, has no opening amount and changes no bank balance on edit/archive |
 | `TM-SCR-FX-001` | Identical Main/Sub disabled, FX refresh on meaningful currency use |
 | `TM-SCR-FX-002` | Stale quote has source/time; no quote shows unavailable, no fake rate |
 | `TM-SCR-STAGE-001` | Stage 1 no signup, backup or Supabase controls rendered |

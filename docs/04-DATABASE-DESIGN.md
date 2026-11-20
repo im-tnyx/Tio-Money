@@ -31,13 +31,14 @@ Maintain the **single append-only, balanced journal** for Income, Expense, Trans
 | :--- | :--- | :--- |
 | Cash | Asset | Booked physical cash postings |
 | Bank | Asset | One bank balance even with UPI, debit card, cheque and internet banking capabilities |
-| Funded Wallet | Asset | Independently funded wallet postings; bank-linked UPI is a reference **without a duplicate financial asset** |
+| Funded Wallet | Asset | Independently funded wallet postings |
+| Bank-linked Wallet reference | **Non-ledger metadata** | References existing eligible Bank ID; inherits Bank currency, creates **no financial account, journal postings, independent opening amount or second Net Worth asset** |
 | Credit Card | Liability | Card outstanding from signed postings; credit limit and due dates are non-posting metadata |
 | Investment | Asset / cost-basis holdings and value projection | Funded purchase asset vs optional **dated valuation**. Market price may change Net Worth *estimate*, not income or principal booked by itself |
 | Loan Borrowed | Liability | Outstanding principal from postings; scheduled EMI separate from executed payment |
 | Loan Given | Asset / receivable | Principal receivable from postings; collections separate from interest income |
 
-**Opening balance:** one atomic opening-equity journal with correctly signed asset/liability effects, not salary/spending; negative openings and archived account corrections require validation. Loan direction conversion (receivable ↔ liability) or card ↔ cash group change **cannot** mutate an existing ledger class silently.
+**Conditional opening positions:** Cash/Bank/funded Wallet with positive opening asset, Credit Card with positive opening liability, historical Investment cost asset and historical Borrowed/Given Loan outstanding liability/receivable produce **one** correctly signed, atomic journal against opening equity. Zero openings and non-ledger bank-linked Wallet references produce **metadata only; no zero-value or duplicate opening postings**. Historical Investment or Loan registration must not post a second Bank withdrawal/disbursement; any *new* purchase/disbursement is a separately confirmed financial event. Investment market valuation is dated non-posting metadata pending finance ADR. Negative openings and archived account corrections require validation. Loan direction conversion (receivable ↔ liability) or Card ↔ Cash group change **cannot** silently mutate ledger class.
 
 ### 00.2 Proposed relational extension — conceptual, not runnable DDL
 
@@ -46,7 +47,7 @@ Maintain the **single append-only, balanced journal** for Income, Expense, Trans
 | `account_group_definitions`: stable group key, label, visibility/order, version | Built-in typed UI templates; hiding must not delete/recategorize accounts; avoid user-custom ledger classes without ADR |
 | `financial_accounts` extension: group key, classification, native_currency_code, archived_at | Immutable stable ID; unique user account identity independent of display name; account currency never silently changes |
 | `bank_payment_capabilities`: financial_account_id + method enum, enabled | UPI, debit card, cheque, internet banking; **no card credentials or virtual duplicate balance** |
-| `account_links`: source_id, target_id, purpose, active status | Bank-linked wallet references, intended card payment source, loan/investment funding; FK-valid, avoid self/cyclic/archived invalid links |
+| `account_links`: source_id, target_id, purpose, active status | Bank-linked Wallet references are **metadata pointing to Bank**, not a second `financial_accounts`/`ledger_accounts` asset; intended Card payment source and Loan/Investment funding links are separately typed; FK-valid, avoid self/cyclic/archived invalid links |
 | `credit_card_terms`: account_id, limit_minor, statement cycle rule, due-date rule, autopay_tracking_mode | **Only tracking/reminders**, no payment authorization; derived outstanding/available not stored as mutable truth |
 | `credit_card_statements` (future optional): statement ID, period, issuer-reported balance, minimum due, due date | Reconcile statement snapshots vs live posted outstanding; distinguish input from computed amounts; not automatically a ledger event |
 | `investment_holdings`: holding ID, account_id, instrument kind, native currency, quantity/cost basis | Purchase/redemption policy and realized gain accounting **BLOCKED pending ADR** |
@@ -83,6 +84,7 @@ If multi-currency ledger design is not approved before Stage 1 finance implement
 | `TM-DB-GROUP-002` | Loan Given and Borrowed have opposing classification and correct principal ledger effects |
 | `TM-DB-GROUP-003` | Card payment + transfer fee + EMI post atomically; no double expense |
 | `TM-DB-GROUP-004` | Investment purchase/cost and dated valuation cannot double-count net worth |
+| `TM-DB-GROUP-005` | Bank-linked Wallet reference creation/archive produces no independent `ledger_accounts`, opening postings or changes to linked Bank/Net Worth; historical Investment/Loan opening does not create a second Bank disbursement |
 | `TM-DB-FX-001` | Different ISO minor scales and rates convert exactly; numeric drift prevented |
 | `TM-DB-FX-002` | Historical booked money unchanged when cached or refreshed FX quote changes |
 | `TM-DB-FX-003` | Cross-currency writes **fail closed** unless approved currency-journal policy exists |

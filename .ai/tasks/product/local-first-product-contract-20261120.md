@@ -57,3 +57,22 @@
 - This follow-up checkpoint adds `.ai/current.md` and updates task; the final HEAD must be rechecked.
 - Independent review **DEFERRED** / not performed. Financial and identity architecture details blocked on future ADRs. No unproven CI/QA claims.
 - **Owner PR #14 merge authorization: NOT_GRANTED.** Do not merge or enable auto-merge.
+
+### 2026-11-20 — PR #14 merge-gate P2 remediation (scoped docs only)
+
+- **Owner current request:** "Merge gate le jaye" for PR #14. Technical PROCEED: fix the known [P2 opening-contract review finding](https://github.com/im-tnyx/Tio-Money/pull/14#discussion_r4644772021) and re-run exact-HEAD documentation/CI checks; **not** authorization to merge.
+- **Source of review:** a GitHub `COMMENTED` review submitted through PR author's `im-tnyx` account, **not independent approval**. Before edit, P2 thread `PRRT_kwDOVy5U3s66EVYx` was unresolved and current PR HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce`.
+- **Fix contract:** shared Opening Amount is conditional; funded Cash/Bank/Wallet opens via balanced opening equity, bank-linked wallet references do not create money/journals, Card opens liability, historical Investment cost asset/valuation is separate, historical Borrowed/Given Loans open liability/receivable; new purchases/disbursements are **separate financial events**. Zero positions produce metadata with no zero journal postings. Test IDs `TM-AG-011…016` protect net worth and idempotency.
+- **Financial boundary:** historical as-of reconciliation, investment market-value accounting, loan interest, precise FX and SQL schema remain **BLOCKED pending later finance ADRs**; no runnable SQL or financial app implementation changed.
+- **Paths permitted:** `docs/08-ACCOUNT-GROUPS-SPEC.md`, `docs/01-PRD.md`, this task file and compact `.ai/current.md` checkpoint only. Do not alter PR B #16 or PR C #22 branches; they must be re-synchronized after PR A advances.
+- **Review disposition:** initial reviewer COMMENTED / non-independent. P2 to be objectively verified and answered on the review thread; do not claim formal APPROVED. **Owner merge authorization NOT_GRANTED**.
+- **Pre-commit checks:** source patch invariants reviewed; final HEAD link/CI and mergeability to be rechecked after update.
+
+### 2026-11-20 — Conditional merge authorization and Codex review remediation
+
+- **Owner authorization source:** current connected ChatGPT instruction: "I authorize the agent to merge PR #14 of im-tnyx/Tio-Money into main, provided all current required GitHub checks, branch protections, applicable review requirements, and outstanding findings are verified and satisfied." This **is** PR-specific authorization with conditions, **not** permission for force-push, auto-merge, branch deletion or bypass.
+- **Current stage before merge:** new [Codex automated review](https://github.com/im-tnyx/Tio-Money/pull/14) of `c6d9473d9fed0d83982e0cf4e93cb3e16626bfef` added **two unresolved P2** PRD findings about omitted bank-linked Wallet references; these must be corrected and threads dispositioned **before merging**.
+- **Fix scope:** `docs/01-PRD.md` first-run and Accounts scope explicitly include bank-linked Wallet references as **non-financial metadata** with eligible Bank link, derived currency, no additional opening/ledger/asset; archive a reference cannot archive/delete/change Bank. No executable implementation.
+- **GitHub branch introspection at inspection:** `GET /branches/main` reported `protected:false`, `protection.enabled:false`, required status checks empty, and `GET /pulls/14` `mergeable_state:clean`, requested reviewer list empty. Detailed branch-protection endpoint 403 (integration permission) and rulesets endpoint 403 (private repo plan limitation). Do not falsely claim those endpoints were inspected. Recheck at exact HEAD/base and stop if changed or additional constraints appear.
+- **Review disposition:** prior agent-authored P2 resolved by documented fix; Codex `COMMENTED` is **automated review** not formal `APPROVED`. Independent human review not performed, optional by project governance absent required branch rules. New P2 findings require author-side evidence and explicit disposition; do not resolve blindly.
+- **CI and merge:** all previous-head CI was successful but does not certify this new commit. Verify latest check runs, new review threads, PR scope and mergeability before any merge. Only execute GitHub merge if **every owner condition** is verified. Record actual merged SHA afterward, never infer from API invocation.

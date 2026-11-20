@@ -33,16 +33,16 @@ flowchart TD
   E --> F{"Validation and finance rules?"}
   F -->|No| G["Explain error, preserve draft"]
   G --> E
-  F -->|Yes| H["Atomic local SQLite account + opening journal"]
+  F -->|Yes| H["Atomic local metadata + conditional opening journal"]
   H --> I["Account detail + reconciled summaries"]
   I --> J["Edit metadata / archive, preserve ledger history"]
 ```
 
 - **Settings → Account Groups** controls built-in template ordering/visibility; a hidden group neither deletes old accounts nor changes historic ledger classification. **Accounts → Add Account** creates records. Multiple accounts per group supported; custom groups remain future design-gated.
-- **Cash:** name, opening amount, account currency, description. **Bank:** these plus optional provider and capabilities (UPI, debit card, cheque, internet banking). Modes describe ways to access the **same bank balance**, not separate ledgers. **Funded Wallet:** independently held balance; **bank-linked UPI reference** must not double count the bank asset.
+- **Cash:** name, opening asset amount, account currency, description. **Bank:** these plus optional provider and capabilities (UPI, debit card, cheque, internet banking). Modes describe ways to access the **same bank balance**, not separate ledgers. **Funded Wallet:** an independently held opening asset if nonzero. **Bank-linked Wallet reference:** requires an existing eligible Bank, inherits its currency, and has **no independent opening amount, ledger account, journal posting or second Net Worth asset**. Account create/edit/archive for a reference changes metadata only, never the linked Bank ledger.
 - **Card:** card name, opening outstanding (debt), currency, credit limit, derived available credit, statement/due-cycle settings, optional linked bank account and description. “Automatic Payment” records a **tracking preference**, reminder and future payment choice, never posts or initiates a bank debit. A **Pay Bill** workflow displays source account and amount, and posts a bank-to-card repayment **only after explicit local confirmation**.
-- **Investment:** type/holding, cost, latest user-entered value + valuation date, funding account; purchase principal becomes an asset, **not Expense**. Net worth valuation versus cost-basis posting requires finance ADR.
-- **Loan:** Borrowed / Given, principal, outstanding, rate basis, installment and linked account; repayment must show principal and interest separately. Loan disbursal is debt/receivable movement, not salary or spending.
+- **Investment:** type/holding, historical opening cost basis, optional dated valuation and linked funding account. An existing position is recognized against opening equity **without a second bank withdrawal**; a *new* purchase is a separately confirmed asset transfer, **not Expense**. Net worth valuation versus cost-basis posting requires finance ADR.
+- **Loan:** Borrowed / Given, original principal and historical opening outstanding, rate basis, installment and linked account; opening principal is liability (borrowed) or receivable (given) against opening equity with **no duplicate disbursement**. New disbursal is a separately confirmed debt/receivable movement, not salary or spending. Repayment must split principal and interest.
 - Group switching before save warns about fields that would be dropped. Changing a saved account between incompatible ledger classes or converting loan direction **is not a simple rename**; disallow until a reviewed migration event.
 - Account archive removes it from new payment/transfer pickers but preserves history; card outstanding/loan principal and category reports must reconcile after edits, refunds and restores.
 
@@ -55,6 +55,8 @@ flowchart TD
 | `TM-FLOW-AG-005` | Investment buy ₹3,000 | Bank −₹3,000, investment cost asset +₹3,000, Expense unchanged |
 | `TM-FLOW-AG-006` | Create fails during opening journal | Roll back account and all postings; retry idempotently |
 | `TM-FLOW-AG-007` | Group hidden or account archived | No historic erasure; existing summaries remain explainable |
+| `TM-FLOW-AG-008` | Add/edit/archive a Bank-linked Wallet reference | Bank account and Net Worth remain unchanged; metadata-only creation and no opening journal |
+| `TM-FLOW-AG-009` | Register historical Loan or Investment opening then record a real new disbursement/purchase | Opening equity not a second funding-bank transaction; actual new event posts only on confirmation |
 
 ### 00.2 Main/Sub Currency — refresh-on-use interaction
 
