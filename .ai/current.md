@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 immutable compare API shape correction
+
+- **Task:** [TM-OPS-PREVIEW-COMPARE-HEAD-20261121-001](tasks/preview/preview-compare-head-shape-20261121.md), [RFC #29](https://github.com/im-tnyx/Tio-Money/issues/29), branch `fix/preview-compare-head-commit-shape`. Source failure: [manual run #44806734241](https://github.com/im-tnyx/Tio-Money/actions/runs/44806734241) and [#44806945990](https://github.com/im-tnyx/Tio-Money/actions/runs/44806945990); PR-read/label gate passed, but snapshot validator assumed nonexistent `compare.head_commit`, despite GitHub Compare API returning `commits[]` and 17 files.
+- **Starting `main`:** `cff662ebd00f5333c348a45c2bc7c196961ae4dd`. Narrow correction validates the **last returned commit SHA** plus a positive, fully returned `total_commits`; preserves exact base SHA, captured/current immutable PR head, file count, path safety and privileged worker gates. No change to PR #18, `tio-preview`, tokens, workflow permissions, owner SSH/Codespace, Android UI or finance docs.
+- **Checkpoint:** prior to final fix PR SHA and exact-head CI. Independent review `DEFERRED` per optional TM-DEC-002, recommended for security-sensitive validator. No owner merge authorization for this fix PR; **no actual Codespace Preview success or manual privileged workflow run**. Validate live GitHub state before a future merge.
+
+---
+
 ## 2026-11-21 — Codespaces preview labeled PR Issues API HTTP 403 (RFC #27)
 
 - **Task:** [TM-OPS-CODESPACES-ISSUES-READ-20261121-001](tasks/preview/codespaces-preview-issues-read-20261121.md), [RFC #27](https://github.com/im-tnyx/Tio-Money/issues/27), branch `fix/codespaces-preview-issues-read`. [Manual run #44805243638](https://github.com/im-tnyx/Tio-Money/actions/runs/44805243638) received `INPUT_PR=18`, then HTTP 403 after PR metadata fetch at labeled `GET /issues`. GitHub documents `Issues: read` for that API; current trusted worker only granted Contents/Pull requests read. This is a narrow root-cause hypothesis backed by endpoint permissions, **not a verified successful Codespace run**.
