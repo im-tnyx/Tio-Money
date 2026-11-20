@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #16 Codex P1 investment valuation review
+
+- Codex automated review of `0b80af9a6d959e682ec0ece3dc1ff45c59223957` reported **P1**: non-posting market valuation cannot silently change **canonical journal-derived Net Worth**. [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) remains Ready for Review, **not merged**.
+- Bounded docs correction in `docs/04-DATABASE-DESIGN.md` and `docs/05-TECH-ARCHITECTURE.md`: distinguish immutable posted Net Worth from a **separately labelled unposted portfolio valuation estimate**, ADR-gated balanced revaluation, tests `TM-DB-VAL-001` / `TM-ARCH-010`. No new tables/code/cloud/UI/nav.
+- The commit created by this checkpoint requires new exact-head CI and P1 thread response/disposition. **Owner merge authorization NOT_GRANTED** for PR #16; dependent PR #22 remains untouched.
+
+---
+
+
 ## 2026-11-20 — PR #16 follow-up review consistency correction
 
 - Before this checkpoint: [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was **OPEN / Ready for Review / main-based**, SHA `53886aed3e28c9402cfb8f9402e536c8f8f638af`, all three CI checks green. **Codex re-review requested**, but not yet finalized at observation.

@@ -89,3 +89,11 @@
 - **Fix:** explicitly include reference Wallets in future Accounts inventory, use **group-conditional opening** fields and linked Bank selector, preserve linked Bank on reference archive, and update historical PR #1 status without claiming device QA. No bottom navigation, app code, database migration or PR #22 branch modification.
 - **Evidence:** new-HEAD CI, Codex review, Markdown links, changed-file scope and branch status must be **reverified**; pre-fix `53886aed...` tests were **3/3 green**, but do not apply to subsequent edits.
 - **Authority:** user asked PR #16 reconciliation, new CI and review—not merge. Owner merge authorization remains **NOT_GRANTED**.
+
+### 2026-11-20 — Codex P1 review finding and guarded valuation contract
+
+- **Exact review:** [Codex automated PR #16 review](https://github.com/im-tnyx/Tio-Money/pull/16), P1 inline thread `PRRT_kwDOVy5U3s66FxtB` (comment `4645396323`) at HEAD `0b80af9a6d959e682ec0ece3dc1ff45c59223957`. Finding: a non-posting market-value input was described as changing **Net Worth estimate**, conflicting with the immutable balanced-journal-derived Net Worth invariant in `AGENTS.md`.
+- **Correction:** in `docs/04-DATABASE-DESIGN.md` and `docs/05-TECH-ARCHITECTURE.md`, make two metrics explicit: **canonical Net Worth from posted assets/liabilities** (investment at booked cost absent an approved valuation posting) versus **separate dated, unposted Portfolio market-value estimate**. No market-price update can change canonical Net Worth, earnings, original amount or journal. Any future recognized valuation effect requires **approved balanced valuation entries + historical/reporting ADR**, still BLOCKED for implementation.
+- **Coverage:** acceptance `TM-DB-VAL-001` and `TM-ARCH-010` test separation. No code, schema changes, cloud operations or tab/navigation edits.
+- **Review disposition:** this P1 is **addressed in documentation subject to exact-new-HEAD validation and reviewer thread disposition**. Do **not** claim reviewer `APPROVED` or independent sign-off. Rerun PR CI/Code Review on new commit; any findings after that must be evaluated.
+- **Owner request:** PR #16 safe reconciliation, CI and review only. **No PR #16 merge authorization.**

@@ -50,7 +50,7 @@ flowchart TD
 | `AccountLinkRepository` | Links compatible bank/wallet/card/loan/investment records by stable ID | Reject archived/invalid links, do not duplicate bank-linked UPI assets |
 | `CardBillingService` | Due/statement schedule and user-confirmed local repayment use cases | **No real bank autopay**, no silent scheduled posting, no card secrets |
 | `LoanScheduleService` | Draft installments and user-confirmed principal/interest allocation | Plan != posted event; compounding/interest ADR before implementation |
-| `InvestmentValuationPort` | Dated value inputs, cost/current estimates and holdings projection | Never silently convert quote refresh into profit or posted funds |
+| `InvestmentValuationPort` | Dated **unposted** market-value inputs and separately labelled portfolio estimate; cost-basis asset remains journal-derived | Quote refresh/market estimate **cannot** change canonical ledger Net Worth, Income or Expense without a future approved **balanced valuation posting** ADR |
 | `FxQuotePort` / `FxCachePort` | Trigger refresh on meaningful currency use, check pair/source/timestamps, save last-known quote locally | Network sends currency codes only; cache stale UI; request timeout/rate limit; no hidden account uploads |
 | `CurrencyProjection` | Pure exact-decimal display conversion (when a validated quote exists) | No floating-point journal math, no original amount mutation |
 | `BackupProvider` (Stage 2 only) | Encrypted archive export/import via user-selected Drive/iCloud/file provider | Explicit user action, key custody, file authentication, restore dry-run and failure recovery |
@@ -109,6 +109,7 @@ flowchart TD
 | `TM-ARCH-007` | Stage 2 encrypted archive is validated and recoverable before any cloud-sync scope |
 | `TM-ARCH-008` | Stage 3 login only on opt-in, RLS isolation and local continuity after logout (future separate auth threat model) |
 | `TM-ARCH-009` | Bank-linked Wallet references create only typed link metadata and never duplicate a Bank asset; historical Investment/Loan openings are distinct from new funding/disbursement transactions |
+| `TM-ARCH-010` | Investment market quote changes only a **separate unposted portfolio estimate**; canonical journal-derived Net Worth remains unchanged until an approved balanced valuation event is explicitly posted |
 
 **Unresolved architecture decisions:** [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) `TM-ADR-018–023` plus earlier `TM-ADR-011–017`; storage encryption/backup keys; future sync tenant policy. Mark these **BLOCKED before coding**, not silently approved from this document. The [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) remains an older draft to reconcile in the separate PR C.
 

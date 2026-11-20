@@ -34,7 +34,7 @@ Maintain the **single append-only, balanced journal** for Income, Expense, Trans
 | Funded Wallet | Asset | Independently funded wallet postings |
 | Bank-linked Wallet reference | **Non-ledger metadata** | References existing eligible Bank ID; inherits Bank currency, creates **no financial account, journal postings, independent opening amount or second Net Worth asset** |
 | Credit Card | Liability | Card outstanding from signed postings; credit limit and due dates are non-posting metadata |
-| Investment | Asset / cost-basis holdings and value projection | Funded purchase asset vs optional **dated valuation**. Market price may change Net Worth *estimate*, not income or principal booked by itself |
+| Investment | Asset at **journal-booked cost basis**; separate dated market-value projection | An independently entered market price is a **non-posted portfolio estimate**, **not** a change to journal-derived Net Worth, income, or principal. Official Net Worth can reflect a different valuation **only after** an approved ADR defines balanced valuation postings and reproducible reporting |
 | Loan Borrowed | Liability | Outstanding principal from postings; scheduled EMI separate from executed payment |
 | Loan Given | Asset / receivable | Principal receivable from postings; collections separate from interest income |
 
@@ -51,7 +51,7 @@ Maintain the **single append-only, balanced journal** for Income, Expense, Trans
 | `credit_card_terms`: account_id, limit_minor, statement cycle rule, due-date rule, autopay_tracking_mode | **Only tracking/reminders**, no payment authorization; derived outstanding/available not stored as mutable truth |
 | `credit_card_statements` (future optional): statement ID, period, issuer-reported balance, minimum due, due date | Reconcile statement snapshots vs live posted outstanding; distinguish input from computed amounts; not automatically a ledger event |
 | `investment_holdings`: holding ID, account_id, instrument kind, native currency, quantity/cost basis | Purchase/redemption policy and realized gain accounting **BLOCKED pending ADR** |
-| `investment_valuations`: holding/account ID, market value, as-of timestamp, source | Dated projections, **not double-entry cash journal** unless explicit valuation accounting ADR |
+| `investment_valuations`: holding/account ID, market value, as-of timestamp, source | **Unposted, dated portfolio estimate** kept separate from the canonical journal and **excluded from ledger-derived Net Worth**; any recognized revaluation requires separately approved balanced journal treatment and reporting ADR |
 | `loan_terms`: account_id, borrowed/given, principal, rate + basis, start/maturity, schedule policy | Authoritative principal remains ledger; loan terms/schedules do not post money |
 | `loan_installments`: installment ID, due, planned principal/interest/fee, status, confirmed_event_id | Confirmed event only on explicit posted repayment; no due-date auto-debit |
 | `currency_preferences`: main ISO code, optional distinct sub ISO code, updated_at | Device-local preference, not replacement for original account currencies |
@@ -67,7 +67,7 @@ Maintain the **single append-only, balanced journal** for Income, Expense, Trans
 - **FX provider is not ledger source of truth.** Refresh on user currency use; store accepted quote provenance/time locally. UI conversions are projections; original booked transaction amount/currency **never overwritten**, reports must disclose historic-vs-current valuation basis.
 - **Card:** purchase = expense + liability, bank bill payment = asset decrease + liability decrease, not second expense; limit metadata is not an asset; available is calculated estimate and cannot rely on unknown issuer holds.
 - **Loan:** borrowed principal disbursement = bank asset + loan liability, not income; EMI with principal 3,000 and interest 1,000 = bank −4,000, debt −3,000, interest expense +1,000. Given-loan principal repayment is not income; earned interest is separately classified after recognition ADR.
-- **Investment:** transfer from bank to holding acquisition is asset exchange, not expense; valuation records require timestamp and an accepted cost-basis/market-value policy; do not double-count invested cost and current value.
+- **Investment:** transfer from bank to holding acquisition is an asset exchange, not Expense. Journal-derived **Net Worth = posted asset balances − posted liabilities**, with investment assets at their **booked cost** unless an explicit future valuation journal has been approved and posted. Dated, **non-posting** market-value inputs may produce only a separately titled **Portfolio market-value estimate** with as-of date; they **must not silently alter canonical Net Worth, income, expenses or balances**. A future ADR must define any valuation clearing/gain or loss entries, double-entry balancing, and historical reports before journal Net Worth can change. Never count cost and market value as two separate assets.
 - **Atomicity / idempotency:** creation and opening journal commit together; card repayment, EMI, transfer fees and refunds save as one balanced command or not at all. Duplicate Save/import confirmation retries must not re-post. Existing unresolved `TM-ADR-011` client-request persistence and `TM-ADR-013/014` refund/date semantics remain blocking.
 
 ### 00.4 Safe migration and compatibility proposal — not approved
@@ -83,8 +83,9 @@ If multi-currency ledger design is not approved before Stage 1 finance implement
 | `TM-DB-GROUP-001` | Six group templates map to valid accounting classes; same funded bank cannot double-count payment modes |
 | `TM-DB-GROUP-002` | Loan Given and Borrowed have opposing classification and correct principal ledger effects |
 | `TM-DB-GROUP-003` | Card payment + transfer fee + EMI post atomically; no double expense |
-| `TM-DB-GROUP-004` | Investment purchase/cost and dated valuation cannot double-count net worth |
+| `TM-DB-GROUP-004` | Investment purchase/cost and dated valuation cannot double-count journal-derived Net Worth; unposted value is shown separately |
 | `TM-DB-GROUP-005` | Bank-linked Wallet reference creation/archive produces no independent `ledger_accounts`, opening postings or changes to linked Bank/Net Worth; historical Investment/Loan opening does not create a second Bank disbursement |
+| `TM-DB-VAL-001` | Change a dated investment estimate from ₹3,000 to ₹3,400 **without** an approved valuation journal: canonical Net Worth and booked income/expense remain unchanged; only the separately labelled unposted portfolio estimate changes, with source/as-of time |
 | `TM-DB-FX-001` | Different ISO minor scales and rates convert exactly; numeric drift prevented |
 | `TM-DB-FX-002` | Historical booked money unchanged when cached or refreshed FX quote changes |
 | `TM-DB-FX-003` | Cross-currency writes **fail closed** unless approved currency-journal policy exists |
