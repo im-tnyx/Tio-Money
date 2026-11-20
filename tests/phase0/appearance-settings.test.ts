@@ -31,10 +31,13 @@ test('UI copy is centralized and English, with accessible radio choices', () => 
   assert.equal(en.generalSettings, 'General Settings');
   assert.equal(en.appearance, 'Appearance');
   const screen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
-  assert.match(screen, /accessibilityRole="radio"/);
-  assert.match(screen, /accessibilityState=\{\{ checked: selected \}\}/);
-  assert.match(screen, /APPEARANCE_OPTIONS\.map/);
+  const sheet = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
+  assert.match(screen, /accessibilityRole="button"/);
+  assert.match(sheet, /accessibilityRole="radio"/);
+  assert.match(sheet, /accessibilityState=\{\{ checked: selected \}\}/);
+  assert.match(sheet, /APPEARANCE_OPTIONS\.map/);
   assert.doesNotMatch(screen, /useState|setState|setItemSync|openDatabase/);
+  assert.doesNotMatch(sheet, /useState|setState|setItemSync|openDatabase/);
 });
 
 test('persistence and global application stay out of presentation', () => {
@@ -50,4 +53,39 @@ test('persistence and global application stay out of presentation', () => {
   assert.match(root, /appearanceStore=\{appearancePreferenceStore\}/);
   assert.match(root, /theme\.scheme === 'dark' \? 'light' : 'dark'/);
   assert.doesNotMatch(root, /setColorScheme/);
+});
+
+test('More uses a full-width Appearance row and ViewModel-owned accessible bottom sheet', () => {
+  const screen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
+  const sheet = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
+  const viewModel = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
+  const contract = readFileSync('src/features/settings/more-contract.ts', 'utf8');
+  const route = readFileSync('src/features/settings/more-route.tsx', 'utf8');
+
+  assert.match(screen, /<AppText variant="section">\{t\('generalSettings'\)\}<\/AppText>/);
+  assert.match(screen, /width: '100%'/);
+  assert.match(screen, /onAction\(\{ type: 'appearance.open' \}\)/);
+  assert.match(screen, /d="m9 18 6-6-6-6"/);
+  assert.match(screen, /<AppearanceSheet state=\{state\} onAction=\{onAction\} \/>/);
+  assert.doesNotMatch(screen, /APPEARANCE_OPTIONS\.map/);
+
+  assert.match(sheet, /<Modal/);
+  assert.match(sheet, /visible=\{state\.appearanceSheetVisible\}/);
+  assert.match(sheet, /animationType="slide"/);
+  assert.match(sheet, /onRequestClose=\{dismiss\}/);
+  assert.match(sheet, /accessibilityViewIsModal/);
+  assert.match(sheet, /onPress=\{dismiss\}/);
+  assert.match(sheet, /accessibilityRole="radiogroup"/);
+  assert.match(sheet, /borderTopWidth: theme\.navigation\.borderWidth/);
+  assert.match(sheet, /selected=\{state\.appearance === option\}/);
+
+  assert.match(contract, /appearanceSheetVisible: boolean/);
+  assert.match(contract, /type: 'appearance.open'/);
+  assert.match(contract, /type: 'appearance.dismiss'/);
+  assert.match(viewModel, /useState\(false\)/);
+  assert.match(viewModel, /setAppearanceSheetVisible\(true\)/);
+  assert.match(viewModel, /setAppearanceSheetVisible\(false\)/);
+  assert.match(viewModel, /selectPreference\(action\.preference\)/);
+  assert.match(route, /<MoreScreen state=\{state\} onAction=\{onAction\} \/>/);
+  assert.doesNotMatch(screen + sheet, /useState|setState|Storage\.|appearanceStore|router\.push/);
 });

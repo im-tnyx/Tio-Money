@@ -1,91 +1,15 @@
 import { Pressable, ScrollView, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
-import {
-  APPEARANCE_OPTIONS,
-  type AppearancePreference,
-} from '@/shared/theme/appearance-preference';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
+import { AppearanceSheet } from './appearance-sheet';
 import type { MoreAction, MoreUiState } from './more-contract';
 
-const labels = {
-  system: 'appearanceSystem',
-  light: 'appearanceLight',
-  dark: 'appearanceDark',
-} as const;
-
-const descriptions = {
-  system: 'appearanceSystemHint',
-  light: 'appearanceLightHint',
-  dark: 'appearanceDarkHint',
-} as const;
-
-function AppearanceOption({
-  value,
-  selected,
-  onAction,
-}: {
-  value: AppearancePreference;
-  selected: boolean;
-  onAction: (action: MoreAction) => void;
-}) {
-  const theme = useAppTheme();
-  return (
-    <Pressable
-      onPress={() => onAction({ type: 'appearance.select', preference: value })}
-      accessibilityRole="radio"
-      accessibilityLabel={t(labels[value])}
-      accessibilityHint={t(descriptions[value])}
-      accessibilityState={{ checked: selected }}
-      style={{
-        minHeight: theme.buttons.minimumHeight,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.space.md,
-        paddingVertical: theme.space.sm,
-        gap: theme.space.sm,
-        borderTopWidth: theme.navigation.borderWidth,
-        borderTopColor: theme.colors.border,
-      }}
-    >
-      <View
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        style={{
-          width: theme.icons.size,
-          height: theme.icons.size,
-          borderRadius: theme.radius.pill,
-          borderWidth: theme.buttons.outlineWidth,
-          borderColor: selected ? theme.colors.brand : theme.colors.secondaryText,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {selected ? (
-          <View
-            style={{
-              width: theme.space.sm,
-              height: theme.space.sm,
-              borderRadius: theme.radius.pill,
-              backgroundColor: theme.colors.brand,
-            }}
-          />
-        ) : null}
-      </View>
-      <View style={{ flex: 1, gap: theme.space.xxs }}>
-        <AppText>{t(labels[value])}</AppText>
-        <AppText variant="caption" muted>
-          {t(descriptions[value])}
-        </AppText>
-      </View>
-    </Pressable>
-  );
-}
-
-/** Dumb presentation: state and actions arrive from the Route/ViewModel. */
+/** Dumb presentation: bottom-sheet visibility and actions belong to the ViewModel. */
 export function MoreScreen({
   state,
   onAction,
@@ -94,6 +18,7 @@ export function MoreScreen({
   onAction: (action: MoreAction) => void;
 }) {
   const theme = useAppTheme();
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
@@ -107,39 +32,55 @@ export function MoreScreen({
         }}
       >
         <AppText variant="title">{t('more')}</AppText>
-        <View style={{ gap: theme.space.sm }}>
+        <View style={{ width: '100%', gap: theme.space.sm }}>
           <AppText variant="section">{t('generalSettings')}</AppText>
-          <View
+          <Pressable
+            onPress={() => onAction({ type: 'appearance.open' })}
+            accessibilityRole="button"
+            accessibilityLabel={t('appearance')}
+            accessibilityHint={t('appearanceHint')}
+            accessibilityState={{ expanded: state.appearanceSheetVisible }}
             style={{
+              width: '100%',
+              minHeight: theme.buttons.minimumHeight,
               backgroundColor: theme.colors.card,
               borderColor: theme.colors.border,
               borderWidth: theme.navigation.borderWidth,
               borderRadius: theme.radius.md,
-              overflow: 'hidden',
+              paddingHorizontal: theme.space.md,
+              paddingVertical: theme.space.md,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: theme.space.sm,
             }}
           >
-            <View style={{ padding: theme.space.md, gap: theme.space.xxs }}>
-              <AppText variant="section">{t('appearance')}</AppText>
-              <AppText variant="caption" muted>
-                {t('appearanceHint')}
-              </AppText>
-            </View>
-            {APPEARANCE_OPTIONS.map((option) => (
-              <AppearanceOption
-                key={option}
-                value={option}
-                selected={state.appearance === option}
-                onAction={onAction}
+            <AppText>{t('appearance')}</AppText>
+            <Svg
+              width={theme.iconRoles.card}
+              height={theme.iconRoles.card}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Path
+                d="m9 18 6-6-6-6"
+                stroke={theme.colors.secondaryText}
+                strokeWidth={theme.icons.stroke}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
-            ))}
-          </View>
-          {state.error ? (
+            </Svg>
+          </Pressable>
+          {state.error && !state.appearanceSheetVisible ? (
             <View accessibilityLiveRegion="polite">
               <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
             </View>
           ) : null}
         </View>
       </ScrollView>
+      <AppearanceSheet state={state} onAction={onAction} />
     </SafeAreaView>
   );
 }

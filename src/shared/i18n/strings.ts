@@ -9,6 +9,8 @@ export const en = {
   settings: 'Settings',
   generalSettings: 'General Settings',
   appearance: 'Appearance',
+  close: 'Close',
+  closeAppearance: 'Close Appearance',
   appearanceHint: 'Choose how Tio Money looks on this device.',
   appearanceSystem: 'System',
   appearanceSystemHint: 'Follow device appearance',

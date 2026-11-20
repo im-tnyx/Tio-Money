@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 Appearance row and bottom-sheet UI revision
+
+- **Owner design:** [RFC #17 approved follow-up](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344). After safe non-force reconciliation with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6`, More → General Settings becomes unboxed section text with a full-width Appearance row/chevron; selection UI moves into a stateless native bottom sheet with the same radio rows/dividers.
+- **Architecture:** `MoreScreen` and `AppearanceSheet` hold no mutable state; `useMoreViewModel` and typed `MoreUiState/MoreAction` own presentation transitions, existing global theme persistence untouched. Only English strings, feature code, tests and docs change. No new dependency, native app config, finance data or privileged workflow dispatch.
+- **Preview safety:** `tio-preview` temporarily removed before branch commits to prevent automatic Codespaces activation. Draft PR #18 remains **NOT MERGE AUTHORIZED**. Original UI device QA does **not** prove revised bottom-sheet acceptance; exact-head CI and device recheck required.
+
+---
+
 ## 2026-11-21 — PR #18 safe reconciliation with merged EAS/preview fixes (owner UI revision)
 
 - **Owner request:** Reconcile branch `feat/more-general-settings-appearance` with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6` **before** implementing accessible Appearance bottom sheet redesign. [RFC #17 decision](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344), [original UI task](tasks/ui/more-appearance-20261120.md).

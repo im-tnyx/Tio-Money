@@ -31,3 +31,12 @@
 - **Preview safety:** temporarily disable `tio-preview` before branch update so the automatic privileged `workflow_run` cannot start a Codespace, then only restore after observing safe skip. Manual preview dispatch is NOT performed by reconciliation.
 - **Exact-head acceptance:** run/check GitHub Phase 0, governance and preview signal at new SHA; review diff, safety findings, `main` ancestry, UI structure and owner device-test gaps. This task log is a historical checkpoint; GitHub live state overrides it.
 - **Review disposition:** independent review `DEFERRED` (optional under TM-DEC-002); no independent approval claimed. **Merge authorization for PR #18 NOT_GRANTED**.
+
+## 2026-11-21 — Owner-approved More Appearance row and bottom-sheet revision
+
+- **Owner request:** UI previously device checked; reconcile PR #18 to merged main first, then change **General Settings** to plain section text, one full-width **Appearance** card with chevron, and open a native bottom sheet showing existing System/Light/Dark circular radios, hints and dividers.
+- **RFC and technical PROCEED:** [issue #17 follow-up](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344). PR #18 stays Draft; no new route, no data/finance changes.
+- **Starting UI SHA:** `0dda6cfc1196e69fcfb6ef4c54ea7662616ec3da`; latest main `a83c608c8cd6399712813d884e9179babb535ee6` is already a second parent after non-force merge; 0 behind. `tio-preview` temporarily removed before source push, so no unsolicited Codespaces execution. No direct main write, force push or privileged EAS dispatch.
+- **Ownership:** `MoreScreen` renders the plain General Settings header, full-width Appearance row and chevron; new stateless `AppearanceSheet` renders native modal/accessible radio options and top dividers; `more-contract.ts` defines open/dismiss/select; `use-more-view-model.ts` owns modal open state. Existing theme provider/kv-store persistence and all five tabs remain untouched.
+- **Safety and acceptance:** native safe-area modal and backdrop/Android Back/Close dismiss, original options and save error retained. Updated structural tests forbid screen-owned state and enforce token use/accessibility. GitHub exact-head CI and owner Android+iPhone retest needed; review disposition `DEFERRED` (independent optional), no approval invented.
+- **Owner merge authorization:** `NOT_GRANTED`; a separate PR #18-specific action is mandatory.
