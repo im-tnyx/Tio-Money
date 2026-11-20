@@ -49,6 +49,9 @@ test('EAS CLI has its own committed full dependency lock and registry integritie
   const lock = readJson('.github/preview-eas-cli/package-lock.json');
   assert.equal(manifest.private, true);
   assert.deepEqual(manifest.dependencies, { 'eas-cli': '27.4.1' });
+  assert.deepEqual(manifest.devDependencies, { typescript: '5.9.3' });
+  assert.equal(lock.packages[''].devDependencies.typescript, '5.9.3');
+  assert.equal(lock.packages['node_modules/typescript'].version, '5.9.3');
   assert.equal(lock.lockfileVersion, 3);
   assert.equal(lock.packages[''].dependencies['eas-cli'], manifest.dependencies['eas-cli']);
   assert.equal(lock.packages['node_modules/eas-cli'].version, '27.4.1');
