@@ -17,6 +17,21 @@
 > [!IMPORTANT]
 > **Product planning, not delivered code.** Version 0.1 is a working requirements draft dated 2026-11-18. Final app name, visual assets, screen design and mobile store approvals remain to be determined. Screenshots provided by the owner are **functional references only**, not UI assets to clone.
 
+## 0. Owner product-direction update · 2026-11-20
+
+> [!IMPORTANT]
+> **Future requirements only; none of the features below is shipped in Phase 0.** The current app is the five blank tabs and disabled Add described in [TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). This section records newer owner instructions that **supersede conflicting older P0/P1 scope wording below**; existing INR-only SQL remains a draft and must not be implemented unchanged for mixed currencies.
+
+| Ordered stage | Scope | Identity / remote data |
+| :--- | :--- | :--- |
+| **Stage 1 — Complete local app** | Cash, Bank, Wallet, Credit Card, Investment and Loan account groups; dynamic forms; core ledger/transactions/reports; Main + optional Sub Currency | SQLite primary, **no app signup**, offline tracking; **FX-rate requests only** need internet |
+| **Stage 2 — Backup/restore** | Optional encrypted user-directed backup to Google Drive/iCloud Drive/file provider; integrity and restore testing | No Tio Money login; file-provider accounts/permissions may apply; **not live sync** |
+| **Stage 3 — Optional Supabase** | User-selected cloud sync, migration, conflicts, multiple devices | Signup/signin only after opt-in; on-device SQLite remains working store |
+
+**Account-group contract:** [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md) defines fields, classification and testable flows. **Currency contract:** [10 — Currency](10-CURRENCY-SPEC.md) defines conditional Sub Currency, exchange-rate refresh at **every relevant use**, cached offline fallback and blocked finance decisions. **Identity:** [TM-DEC-009](DECISIONS.md#tm-dec-009--conditional-identity-only-for-opt-in-supabase). **Governance RFC:** [Issue #13](https://github.com/im-tnyx/Tio-Money/issues/13).
+
+**Existing planning labels:** P0/P1/P2 and Releases A–D below represent older feature-work packages, not permission to implement Stage 2 or 3 early. Detailed implementation milestone, SQL, user flows and screen-spec synchronization will follow in separately reviewed documentation PRs.
+
 ## ✨ Executive snapshot
 
 | Product | Experience | Delivery |
@@ -62,7 +77,7 @@ An offline-first, easy-to-use personal money tracker that lets people record inc
 - Reading a user's iPhone SMS inbox automatically.
 - Promising Android SMS access in Expo Go or guaranteeing Play Store SMS permission approval.
 - Automatic bank balance verification / direct banking credentials collection.
-- Investing, tax filing, loans marketplace, multi-user business bookkeeping.
+- Brokerage order execution, automatic investment/loan-provider connections, tax filing, loan marketplaces and multi-user business bookkeeping. **Manual Investment and Loan tracking are included in the future complete local app**, subject to ledger ADRs.
 - Pixel-perfect cloning of the reference screenshots.
 
 ## 2. Users and use cases
@@ -95,7 +110,7 @@ Example needs:
 ### 4.1 First-run setup (P0)
 
 - Initial onboarding has **no language selector**; use English UI copy and default INR currency.
-- Create first owned account (Cash / Bank / Wallet / Credit Card).
+- Create a first owned account using the applicable [Account Group](08-ACCOUNT-GROUPS-SPEC.md): Cash, Bank, funded Wallet, Credit Card, Investment or Loan. **Do not imply this is implemented in the current blank Phase 0 shell.**
 - Enter opening balance; credit cards use a clearly identified opening outstanding liability.
 - App can be used without signup.
 - Request permissions only when a feature needs them, with clear privacy explanations.
@@ -144,7 +159,7 @@ Transfer tab:
 
 ### 4.5 Accounts (P0)
 
-- Add/edit/archive Cash, Bank, Wallet, Credit Card account types.
+- Add/edit/archive Cash, Bank, funded Wallet, Credit Card, Investment and Loan groups in the complete local app. Use group-specific dynamic setup fields per [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); group names are **not** interchangeable with ledger account classes.
 - Display current balance or credit card outstanding, with correct sign conventions.
 - One UPI ID linked to a bank account must not create a second owned-funds balance unless it represents an actual separately funded wallet.
 - Transactions tied to archived accounts remain in history.
@@ -178,11 +193,11 @@ Privacy:
 
 ### 4.8 Settings (P0/P1)
 
-- Theme, default account, data export, app lock and import settings; **no language control in the initial MVP** (future localization is separately scoped).
+- Account Groups, Main Currency, optional distinct Sub Currency, theme, default account, data export, app lock and import settings; **no language control in the initial MVP** (future localization is separately scoped). The app remains locally usable without signup; currency-rate fetching is the Stage 1 network exception.
 - Export CSV; optional PDF later.
 - Clear description of backup/restore and data loss risks.
 - Biometric/PIN protection as a security milestone; do not imply app-lock equals database encryption.
-- Optional encrypted backup and cross-device sync are later phases.
+- Encrypted Google Drive/iCloud-compatible **backup/restore belongs exclusively to Stage 2**, after the complete local app. **Supabase live sync belongs exclusively to opt-in Stage 3**, with conditional signup/signin; neither is present in Stage 1.
 
 ### 4.9 Budget and recurring entries (P2)
 
@@ -248,6 +263,8 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 
 ## 6. MVP phases
 
+**Owner-stage precedence (2026-11-20):** Stage 1 = fully local functional finance app including groups and currency; Stage 2 = optional encrypted backup/restore; Stage 3 = optional Supabase + conditional identity. The historical "Release A–D" items below are **sub-milestone proposals** and must be reconciled in Document 06 before a new implementation task. **No hidden cloud dependency** is allowed in Stage 1.
+
 ### Release A — Expo Go compatible core (P0)
 
 - Original Tio Money UI and bottom navigation.
@@ -274,7 +291,7 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 ### Release D — polish / later scope
 
 - Budgets, reminders, receipts/photos, recurring and instalment entries.
-- App lock, stronger local encryption strategy (may require custom build), optional secure backup/sync, PDF reports.
+- App lock, stronger local encryption strategy (may require custom build), PDF reports. **Backup is Stage 2; Supabase sync is Stage 3**, not an interchangeable polish feature.
 
 ## 7. Non-functional requirements
 
@@ -306,26 +323,29 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 
 ## 9. Suggested data entities (detailed schema comes next)
 
-- `accounts` — type (asset/liability), opening balance or liability, currency and metadata.
+- `accounts` — stable identity, group/subtype, ledger classification, opening posting, currency, metadata; dynamic group-specific details without mutable authoritative balance caches.
 - `categories` — income, expense, bank charges and custom category labels.
 - `transactions` — principal, type, from/to accounts, category, timestamps, source and status.
 - `transaction_links` or `transfer_group_id` — transfer/fee/refund relationships.
 - `import_candidates` — parsed SMS/CSV suggestions with confirmation, duplicate and ignore statuses.
 - `budgets` — later release.
-- `app_settings` — theme, privacy/import preferences and defaults; future locale preference is not a P0 UI requirement.
+- `app_settings` — theme, privacy/import preferences, default/Main/Sub Currency selections; future locale preference is not a P0 UI requirement.
+- `account_group_definitions` / typed account detail records — conceptual owner of dynamic setup metadata, payment capability flags, credit card billing data, investment holdings/valuations and loan terms. **Not approved SQL.**
+- `exchange_rate_cache` — pair, quoted rate, provider, publication/fetch time, quality and stale status; used only in currency projections, not to mutate source transaction amounts.
+- Future Stage 2 backup manifests and Stage 3 sync identity/conflict records are **out of current schema scope**.
 
 **Open technical design task:** Choose a canonical signed ledger/journal representation before implementing balance calculations for assets, liabilities and linked fee postings. The initial two-account shortcut schema is not sufficient for all credit-card cases without explicit ledger rules.
 
 ## 10. Open decisions (to be resolved in later documents, not blockers)
 
 - Final marketing name and brand palette (Tio Money is the working name).
-- Exactly where the + button appears (floating button vs middle navigation item).
+- Future interactive behavior of the **single More-aligned floating +** after the present disabled Phase 0 (its existing placement is already owner-decided).
 - Whether Save & Add Another should preserve last-used account, category and transaction type.
 - Full receipt/attachment scope and cost.
 - CSV formats/banks supported at launch.
 - Which Android SMS permissions, if any, qualify under Play policy for the final distributed app.
-- Backup/sync strategy and encryption boundary.
-- Currency expansion beyond INR.
+- Stage 2 backup encryption/key custody, restore replace/merge policy and provider adapter feasibility; Stage 3 sync conflict rules/tenant isolation.
+- Multi-currency signed journal, FX precision, exchange-rate provider, conversion time basis, original vs display amount, cross-currency movements and Main Currency switching; **block implementation until ADR**.
 
 ## 11. Documentation and build sequence
 
@@ -335,6 +355,9 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 4. `docs/04-DATABASE-DESIGN.md` — SQLite ledger schema, relationships, migration plan.
 5. `docs/05-TECH-ARCHITECTURE.md` — React Native / Expo Go boundary, modules and service layer.
 6. `docs/06-IMPLEMENTATION-TEST-PLAN.md` — milestones, test suites, performance and store release.
+7. [`docs/08-ACCOUNT-GROUPS-SPEC.md`](08-ACCOUNT-GROUPS-SPEC.md) — product-level account setup and group rules.
+8. [`docs/10-CURRENCY-SPEC.md`](10-CURRENCY-SPEC.md) — currency UX, FX refresh and unresolved accounting decisions.
+9. **Planned, not yet created:** Stage 2/3 backup-and-sync technical spec in a subsequent documentation PR.
 
 **Status:** Initial planning draft. UX specifics and implementation details can evolve, but money math and platform constraints should remain explicit and testable.
 

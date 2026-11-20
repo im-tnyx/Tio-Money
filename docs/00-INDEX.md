@@ -14,13 +14,28 @@
 ---
 
 > [!IMPORTANT]
-> **Current Phase 0 source (PR #1 Ready for Review / not merged, 2026-11-20):** Five blank selectable screens and one disabled Google SVG Add over More; no top bar/editor/Settings/onboarding/finance posting/SMS. **Current visual tokens:** five Google Material Symbols Outlined SVG tab icons (`home`, `book_2`, `bar_chart_4_bars`, `account_balance`, `more_horiz`) at weight **200** and size **24dp**; floating disabled Google `add` icon at weight **400**, size **24dp**; circular FAB **50dp**; nav baseline **50dp plus actual OS bottom inset** (1dp border + 1dp top padding + 48dp tab hit row); icon/label gap **1dp**; FAB-to-navigation vertical clearance **16dp**. FAB remains over the More tab, not at a fixed right-edge inset. **Current pre-merge source evidence (2026-11-20):** On branch `feat/phase-0-expo-foundation`, source HEAD `c90d1c00462de5e4a5b007a87dade6641a106f40` passed [Phase 0 App CI #44600432345](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432345) (npm/Expo checks, strict TypeScript, lint, Prettier, unit tests, Android/iOS Metro) and [governance CI #44600432365](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432365) (Python tests, links and commit attribution). **Owner reports testing current UI on a physical device and no longer encountering the previous `ExpoSQLite` error.** Record as **OWNER_REPORTED_DEVICE_SMOKE_PASS**; device platform/model/OS/client version and full cold-restart evidence were **not provided**. On-device SQLite PRAGMA checks, migration persistence, both-platform signoff, accessibility/contrast matrix and formal M0 acceptance remain **NOT_VERIFIED**. This is not a new CI or independent device-test claim. See [Phase 0 Foundation Notes](07-PHASE-0-FOUNDATION-NOTES.md). Owner device smoke is reported, but full two-platform/SQLite QA and PR-specific merge permission are still pending. Future screen specs remain proposals.
+> **Historical Phase 0 source snapshot (pre-merge PR #1, dated 2026-11-20; PR #1 later MERGED):** Five blank selectable screens and one disabled Google SVG Add over More; no top bar/editor/Settings/onboarding/finance posting/SMS. **Current visual tokens:** five Google Material Symbols Outlined SVG tab icons (`home`, `book_2`, `bar_chart_4_bars`, `account_balance`, `more_horiz`) at weight **200** and size **24dp**; floating disabled Google `add` icon at weight **400**, size **24dp**; circular FAB **50dp**; nav baseline **50dp plus actual OS bottom inset** (1dp border + 1dp top padding + 48dp tab hit row); icon/label gap **1dp**; FAB-to-navigation vertical clearance **16dp**. FAB remains over the More tab, not at a fixed right-edge inset. **Current pre-merge source evidence (2026-11-20):** On branch `feat/phase-0-expo-foundation`, source HEAD `c90d1c00462de5e4a5b007a87dade6641a106f40` passed [Phase 0 App CI #44600432345](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432345) (npm/Expo checks, strict TypeScript, lint, Prettier, unit tests, Android/iOS Metro) and [governance CI #44600432365](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432365) (Python tests, links and commit attribution). **Owner reports testing current UI on a physical device and no longer encountering the previous `ExpoSQLite` error.** Record as **OWNER_REPORTED_DEVICE_SMOKE_PASS**; device platform/model/OS/client version and full cold-restart evidence were **not provided**. On-device SQLite PRAGMA checks, migration persistence, both-platform signoff, accessibility/contrast matrix and formal M0 acceptance remain **NOT_VERIFIED**. This is not a new CI or independent device-test claim. See [Phase 0 Foundation Notes](07-PHASE-0-FOUNDATION-NOTES.md). Owner device smoke is reported, but full two-platform/SQLite QA and PR-specific merge permission are still pending. Future screen specs remain proposals.
+
+## 🧭 New owner product direction · 2026-11-20
+
+> [!IMPORTANT]
+> **Stage 1:** complete **local SQLite** finance app (Cash, Bank, Wallet, Credit Card, Investment, Loan, full transaction/reporting system and conditional Main/Sub Currency with online **exchange-rate lookup only**). **Stage 2:** optional encrypted Google Drive/iCloud Drive backup and restore. **Stage 3:** optional Supabase synchronization with signup/signin **only after opt-in**. This is **future specification**, not current Phase 0 implementation. See [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13).
+
+| New product specification | Responsible contract |
+| :--- | :--- |
+| [08 · Account Groups](08-ACCOUNT-GROUPS-SPEC.md) | Dynamic Cash/Bank/Wallet/Card/Investment/Loan setup, account links and financial boundaries |
+| [10 · Currency & Exchange Rates](10-CURRENCY-SPEC.md) | Main + optional distinct Sub Currency, refresh-on-use, stale offline fallback, unresolved ledger ADRs |
+| Backup and optional Supabase technical design | **Planned for later documentation PR**; **not implemented**, no login/remote storage today |
+
+**GitHub state verified 2026-11-20:** [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) and [Governance PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) are **merged**. References below to PR #1 "ready for review" are preserved as **historical pre-merge evidence**, not current status. Real-device SQLite/iPhone QA is not established by a merge.
 
 ## 🧭 Find the answer you need
 
 | **You want to…** | **Read this first** | **You'll get** |
 | :--- | :--- | :--- |
 | Review confirmed owner decisions | [📌 Decision register](DECISIONS.md) | English-only initial app; approvals versus pending proposals |
+| Define the new account-group system | [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md) | Six group forms, payment options, card/loan/investment rules and open ADRs |
+| Define currency behavior | [10 — Currency & FX](10-CURRENCY-SPEC.md) | Main/Sub Currency selection, refresh-on-use and offline fallback |
 | Understand the product and MVP scope | [🎯 01 — Product Requirements](01-PRD.md) | Goals, screen contracts, scope, and acceptance criteria |
 | Understand the exact `+` transaction experience | [🧭 02 — User Flows](02-USER-FLOWS.md) | Journey diagrams, fields, fee behavior, edge cases |
 | Create new documentation consistent with the product | [✍️ 90 — Style & Quality Guide](90-DOCS-STYLE-GUIDE.md) | Page anatomy, diagrams, status labeling, quality checklist |
@@ -66,9 +81,11 @@ flowchart TD
 
 | Artifact | Stage | Next action |
 | :--- | :--- | :--- |
-| Product requirements | 📝 Initial draft | Owner review, versioned decisions |
+| Product requirements | 📝 Initial draft + 2026-11-20 owner-direction overlay | Reconcile future stage scope across flows/DB/architecture/test plan |
 | Detailed flows | 📝 Initial draft | Confirm Save & Add Another and fee exceptions |
 | Documentation design language | 📝 Initial standard | Apply to new and existing pages |
+| [Account groups](08-ACCOUNT-GROUPS-SPEC.md) | 📝 New draft | Review loan/valuation/card billing ADRs before implementation |
+| [Currency & FX](10-CURRENCY-SPEC.md) | 📝 New draft | Approve multi-currency ledger and FX provider ADRs before implementation |
 | [Screen specification](03-SCREEN-SPEC.md) | 📝 Current shell documented + future feature draft | Review future palette, fee disclosure and new feature approvals separately from already-decided five-tab navigation |
 | [Data model / ledger](04-DATABASE-DESIGN.md) | 📝 Initial draft | Review journal schema, reversal policy, credit-card postings |
 | [Technical architecture](05-TECH-ARCHITECTURE.md) | 🧱 Current Phase 0 and future proposal separated | Verify remaining SQLite/device acceptance, future ledger architecture and platform gates |
