@@ -54,7 +54,7 @@ function AppearanceOption({
         borderTopColor: theme.colors.border,
       }}
     >
-      <AppearanceOptionIcon preference={value} color={theme.colors.secondaryText} />
+      <AppearanceOptionIcon name={value} color={theme.colors.secondaryText} />
       <View style={{ flex: 1 }}>
         <AppText>{t(labels[value])}</AppText>
       </View>

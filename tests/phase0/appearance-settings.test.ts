@@ -76,7 +76,7 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /accessibilityViewIsModal/);
   assert.match(sheet, /onPress=\{dismiss\}/);
   assert.match(sheet, /accessibilityRole="radiogroup"/);
-  assert.match(sheet, /<AppearanceOptionIcon preference=\{value\}/);
+  assert.match(sheet, /<AppearanceOptionIcon name=\{value\}/);
   assert.match(sheet, /color=\{theme\.colors\.secondaryText\}/);
   assert.match(sheet, /showDivider=\{index > 0\}/);
   assert.match(sheet, /borderTopWidth: showDivider \? theme\.navigation\.borderWidth/);
