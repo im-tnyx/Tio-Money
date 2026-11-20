@@ -250,3 +250,17 @@ test('manual dispatch PR is a strict positive integer string, not a rounded nume
   assert.match(worker, /github\.ref == 'refs\/heads\/main'/);
   assert.match(worker, /github\.run_attempt == '1'/);
 });
+
+test('trusted worker scopes issue-label enumeration to issues: read without write escalation', () => {
+  const permissionBlock = worker.match(/^permissions:\n((?:  [a-z-]+: (?:read|write)\n)+)/m);
+  assert.ok(permissionBlock, 'top-level permissions block must exist');
+  assert.deepEqual(
+    permissionBlock[1].trim().split('\n').map((entry) => entry.trim()),
+    ['contents: read', 'pull-requests: read', 'issues: read'],
+  );
+  assert.ok(worker.includes('issues?state=open&labels=tio-preview&per_page=100'));
+  assert.ok(worker.includes('if [[ "${#active[@]}" -ne 1 || "${active[0]:-}" != "$selected" ]]'));
+  assert.match(worker, /github\.actor == 'im-tnyx'/);
+  assert.match(worker, /github\.run_attempt == '1'/);
+  assert.doesNotMatch(permissionBlock[1], /write/);
+});
