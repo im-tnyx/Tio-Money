@@ -1,0 +1,19 @@
+name: Tio Money preview push signal
+
+# Unprivileged: every non-main push emits only an authenticated GitHub
+# workflow_run event. This job never checks out or executes the branch.
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Signal immutable GitHub push
+        run: echo "Owner-approved preview selection is checked by the trusted main-branch worker"
