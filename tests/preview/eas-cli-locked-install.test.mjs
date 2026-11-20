@@ -29,7 +29,15 @@ test('CI verifies isolated committed EAS CLI using npm ci and registry signature
   const signatures = spawnSync('npm', [
     'audit', 'signatures', '--registry=https://registry.npmjs.org'
   ], { cwd: target, encoding: 'utf8', timeout: 180000, maxBuffer: 4 * 1024 * 1024 });
-  assert.equal(signatures.status, 0, signatures.stderr || signatures.error?.message);
+  // npm audit signatures sometimes reports registry verification failures on
+  // stdout, not stderr. Preserve the fail-closed gate and surface a bounded
+  // diagnostic rather than an unexplained "1 !== 0" assertion.
+  const diagnostic = [signatures.stdout, signatures.stderr, signatures.error?.message]
+    .filter(Boolean)
+    .join('\n')
+    .replace(/[\x00-\x08\x0b-\x1f\x7f]/g, '?')
+    .slice(-4000);
+  assert.equal(signatures.status, 0, `npm audit signatures failed: ${diagnostic || 'no diagnostic output'}`);
 
   const installed = JSON.parse(readFileSync(join(target, 'node_modules/eas-cli/package.json'), 'utf8'));
   assert.equal(installed.version, '27.4.1');
