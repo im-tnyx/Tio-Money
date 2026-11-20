@@ -274,7 +274,7 @@ jobs:
           # Authenticate only on the trusted runner. Never forward the token to
           # the Codespace or execute PR-provided scripts on this runner.
           gh auth setup-git
-          git fetch --no-tags origin "$TARGET_SHA"
+          git fetch --no-tags --unshallow origin "$TARGET_SHA"
           test "$(git rev-parse FETCH_HEAD^{commit})" = "$TARGET_SHA"
           git update-ref refs/tio-preview/selected "$TARGET_SHA"
           bundle="$RUNNER_TEMP/tio-money-preview.bundle"
