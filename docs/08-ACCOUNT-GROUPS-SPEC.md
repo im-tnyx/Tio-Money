@@ -17,7 +17,7 @@
 
 ## 01 · Product contract and terminology
 
-**Account Group** is a UI/setup template, not an accounting class. Every persisted account maps to one or more financial `ASSET`/`LIABILITY` ledger representations; an Investment can require valuation records and a Loan can be asset (given) or liability (taken). Reports must derive from the same canonical balanced journal; UI fields and descriptive metadata never become independent authoritative mutable balances.
+**Account Group** is a UI/setup template, not an accounting class. Every **ledger-bearing** financial account maps to an appropriate `ASSET`/`LIABILITY` ledger representation; a **bank-linked Wallet reference** is non-ledger metadata pointing to an existing Bank asset and must not create an independent balance, journal account or opening event. An Investment can require dated valuation records and a Loan can be an asset (given) or liability (borrowed). Reports derive from the same canonical balanced journal; UI fields, linked references and descriptive metadata never become independent authoritative mutable balances.
 
 | User path | Behavior |
 | :--- | :--- |
