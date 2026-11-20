@@ -2,7 +2,9 @@
 
 ## 2026-11-21 — Verified post-merge source of truth + Stage 1 finance ADR planning
 
-**Latest PR checkpoint:** [Draft PR #24](https://github.com/im-tnyx/Tio-Money/pull/24) opened to `main` from `docs/postmerge-stage1-finance-adrs-20261121`. First reviewed head `0929c4099feb34910e5099b677ed02e9654faad7` passed 3/3 GitHub checks and 16-file Markdown diff/link checks; a later task/handoff checkpoint commit advances branch head, therefore **new SHA checks/review are still required**. Owner merge authority **NOT GRANTED** for PR #24.
+**2026-11-21 follow-up:** On prior HEAD `e8c53ba35391527e54b9c28a4905b778cd2b4efd`, Phase 0 static job initially failed an **isolated EAS CLI registry npm-ci test**; controlled failed-job rerun **PASS**. New minor-unit consistency patch updated AGENTS, feature boundary, Architecture and Test Plan only; CI/review must be reconfirmed on the next HEAD. PR #24 remains **NOT MERGED**.
+
+**Latest PR checkpoint:** [PR #24 — Ready for Review](https://github.com/im-tnyx/Tio-Money/pull/24) opened to `main` from `docs/postmerge-stage1-finance-adrs-20261121`. First reviewed head `0929c4099feb34910e5099b677ed02e9654faad7` passed 3/3 GitHub checks and 16-file Markdown diff/link checks; a later task/handoff checkpoint commit advances branch head, therefore **new SHA checks/review are still required**. Owner merge authority **NOT GRANTED** for PR #24.
 
 
 - **Verified live GitHub baseline:** `im-tnyx/Tio-Money` `main` = `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) merged at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`, [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) at `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. Their three task **top lifecycle rows** were reconciled; all dated older Draft/unmerged sections are historical only. No claim of a local Codespace `git pull`, device QA, file archival or new executable ledger.

@@ -111,7 +111,7 @@ The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Scr
 | **Existing More-aligned floating `+` placement is frozen**; future single Income / Expense / Transfer editor only after separate approval; no three Home shortcut tiles | **Owner-decided UI freeze (TM-DEC-010); future action is not yet implemented** | Keep exact bottom-nav geometry, icon spacing, current disabled Phase 0 FAB; authorize editor activation separately, **never relocate the FAB** |
 | Cash, bank and funded wallet are assets; credit card is a liability | **Proposed ledger contract** | Class-aware postings; no fabricated card “cash balance” |
 | Transfer principal excluded from income/expenses; linked fees count once as expenses | **Product rule in draft PRD** | Every release gate asserts it numerically |
-| Balanced, append-only journal; integer paise; reversal-based correction | **Architecture / database proposal** | Finalize ADR and validate real-device SQLite behavior before Phase 3 |
+| Balanced append-only journal; **currency-specific integer minor units** (INR paise); reversal-based corrections | **DESIGN ACCEPTED invariants; runnable schema not yet accepted** | Resolve remaining TM-ADR-011–023 policy/schema gates; test real-device SQLite before Stage 1 finance posting |
 | **Five fixed bottom tabs + separate floating Add above More** | **Owner-decided and implemented Phase 0 baseline; no visual change allowed** | Keep tab labels/icons/size/spacing/safe areas exactly; future Add activation requires separate scope |
 | Cross-platform pasted/selected text and CSV statement import | **P1 planned** | Never post a parser suggestion without user confirmation |
 | Native Android SMS inbox integration | **Conditional, policy-gated** | Separate custom Expo build; **not available in Expo Go** |
@@ -152,8 +152,8 @@ flowchart TD
 | Area | Mandatory acceptance contract |
 | :--- | :--- |
 | Type safety | `tsconfig` `strict: true`; discriminated event/account types; no unchecked `any` for amounts, ports or parsing |
-| Amounts | Parse decimal **strings** into positive safe-integer **paise**; reject negatives, zero principal, >2 decimal places, unsafe integer overflow and unsupported currency; never use floating-point sums |
-| Journal | Every posted event has ≥2 positive postings, one currency, matched account/category types and `Σ debit = Σ credit`, including reversals |
+| Amounts | Parse decimal **strings** to safe-integer native **ISO currency-specific minor units** (INR paise; zero- and three-decimal currencies tested); reject wrong precision, negatives/zero where prohibited, scientific notation, overflow and unsupported codes. Never sum booked money using floating point |
+| Journal | Every posted event has ≥2 strictly positive postings, matched account/category types and **debit = credit within each native currency**; single-currency posting is the initially safe contract. Mixed-currency events require separately approved balanced FX clearing/gain/rounding ADR before acceptance |
 | Event lifecycle | Preview and Save invoke the **same journal builder**. Submission tokens are persisted uniquely after the schema decision; correction uses reversal + replacement atomically |
 | SQLite | Migrations versioned and crash-tested; `PRAGMA foreign_keys = ON` verified on the actual write connection; prepared/bound statements for user data |
 | Concurrency | **Proposed:** one serialized write coordinator on a controlled connection. Prove that writes cannot interleave; do not assume `withTransactionAsync()` isolates unrelated async queries. If using `withExclusiveTransactionAsync()`, independently enable/check FKs on its connection before the transaction |

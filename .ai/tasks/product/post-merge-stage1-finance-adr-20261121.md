@@ -9,7 +9,7 @@
 | Branch | `docs/postmerge-stage1-finance-adrs-20261121` |
 | Source request | "Naye main ke saath post-merge documentation reconciliation... finance ADRs finalize" and "all screen dump screen rahega koi bhi logic screen m nahi rahega verify ke baad go" |
 | Decision maker | ChatGPT GPT-6 agent technical PROCEED for docs; owner directive **TM-DEC-011** for screen boundaries, transcribed |
-| State — 2026-11-21 checkpoint | **IN_REVIEW / Draft PR #24** — [PR #24](https://github.com/im-tnyx/Tio-Money/pull/24), base `main`. Initial GitHub checks passed at `0929c4099feb34910e5099b677ed02e9654faad7`; any subsequent commit requires new exact-head checks. **NOT MERGED**. |
+| State — 2026-11-21 checkpoint | **IN_REVIEW / Ready for Review** — [PR #24](https://github.com/im-tnyx/Tio-Money/pull/24), base `main`; **NOT MERGED**. After a checkpoint at `e8c53ba35391527e54b9c28a4905b778cd2b4efd`, Phase 0 CI initially failed from isolated EAS CLI npm-ci subprocess (unrelated preview test); **controlled retry of the same failed job passed**. Any subsequent commit requires new exact-head checks. |
 | Independent review | **DEFERRED / requested next**; no formal independent APPROVED review claimed. Automated Codex review to be requested on exact new head. |
 | Merge authorization | **NOT GRANTED** for any new PR; separately required by AGENTS.md |
 
@@ -38,3 +38,9 @@ Finance risk: preserve exact native currency, balanced postings, link-only bank 
 
 - 2026-11-21: RFC Issue #23 recorded technical PROCEED, new branch from verified main, and [Draft PR #24](https://github.com/im-tnyx/Tio-Money/pull/24) opened. Initial exact-HEAD GitHub checks (Phase 0 static, AI governance, preview signal) **3/3 SUCCESS** on `0929c4099feb34910e5099b677ed02e9654faad7`. Read-only docs audit on that head scanned **16 changed Markdown files, 291 internal relative file paths (0 missing), 82 section-anchor references** and 7 cross-document anchors; no forbidden co-author commit trailer, no diff-added trailing whitespace. 157 external URL occurrences NOT live-HTTP-tested. This task checkpoint itself will advance HEAD; recheck CI and reviewer findings before merge gate.
 - All screens remain blank in current actual app; future Stage 1 is a **design-only** planning contract.
+
+### 2026-11-21 — Currency precision consistency and CI diagnostic
+
+- Audit found inherited `AGENTS.md` and architecture/test language implying **all currencies use INR paise**; scoped correction now distinguishes legacy INR examples from future currency-specific native safe integers, ISO exponent/precision and separately **blocked FX-clearing journal implementation** under `TM-ADR-018`.
+- [Phase 0 CI run #44796588235](https://github.com/im-tnyx/Tio-Money/actions/runs/44796588235) on `e8c53ba35391527e54b9c28a4905b778cd2b4efd` first failed at `tests/preview/eas-cli-locked-install.test.mjs:32`, because external isolated `npm ci` exited 1 (stderr not surfaced by assertion). Typecheck/lint/format/normal unit tests and navigation cases passed. A GitHub API **rerun of only failed job** (attempt 2) **passed without test bypass**. No runtime source/test/workflow files were changed. This new doc commit changes head and needs fresh checks; do **not** reuse the older CI as current-head evidence.
+- Scope remains Markdown only; current five screen files and bottom tab geometry remain unchanged. Finance ADR implementation choices still BLOCKED; no owner PR #24 merge authorization.

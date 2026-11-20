@@ -17,7 +17,7 @@ src/
 │   ├── imports/
 │   └── settings/
 ├── domain/
-│   ├── money/          # Validated safe-integer paise
+│   ├── money/          # Validated currency-specific integer minor units (INR paise)
 │   ├── ledger/         # Single canonical journal / projections contract
 │   └── contracts/
 ├── data/

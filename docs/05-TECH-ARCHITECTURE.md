@@ -139,7 +139,7 @@ flowchart TD
 - **Current Phase 0:** Home and the other four tabs are blank; the single floating `+` above More is **disabled and has no handler/editor route**. **Future product contract only:** once separately authorized, enable a single unified **Income | Expense | Transfer** editor, never three Home shortcut cards. Do not advertise the future editor as implemented.
 - Transfer principal between tracked accounts is not reported as income/expense. **Optional transfer fee is an expense**, including bank/wallet/card-related real charges.
 - A credit card is a **liability**, not a cash balance.
-- All money is stored in **integer paise**, never JS floating-point ledger totals.
+- **Legacy INR-only examples** use integer paise; planned Stage 1 monetary amounts require exact **currency-specific native integer minor units with ISO currency/exponent**, never JS floating-point ledger totals. Mixed-currency journal posting remains **BLOCKED** until accepted TM-ADR-018 FX clearing/rounding and migration rules.
 - Reports, history and balances are derived from the **same balanced journal**.
 - No import candidate affects account balances until confirmed and posted.
 - Expo Go must run P0 with **zero SMS native-module dependency**.
@@ -370,7 +370,7 @@ A ₹5,000 SBI → HDFC transfer with ₹50 fee charged to **SBI** yields these 
 
 ```ts
 type Id = string;
-type MoneyMinor = number; // safe integer paise, validated by domain
+type MoneyMinor = number; // INR-only sample: safe integer paise; Stage 1 needs native ISO units
 type TransactionType = "income" | "expense" | "transfer";
 
 type TransferFee = {
@@ -407,7 +407,7 @@ type JournalDraft = {
 // safe-integer overflow, reversal rules and strong input validation.
 ```
 
-**Use a branded or runtime-validated integer money type** in production. JavaScript `number` is acceptable only for **safe integers**; reject non-integers/overflow. Parse strings such as `"5000.50"` by decimal string decomposition, not floating-point multiplication. INR only in P0.
+**Legacy INR-only illustrative code above, NOT an approved Stage 1 multi-currency domain interface.** Production must use a branded/runtime-validated native minor-unit type **coupled to immutable ISO currency and exponent**, with versioned currency metadata. JavaScript `number` is acceptable only for **safe integers**; reject non-integers/overflow and currency-incompatible decimals. Parse `"5000.50"` by decimal-string decomposition, not floating-point multiplication. The old example's `currency: "INR"` cannot book mixed-currency transfers; see [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx). Current Phase 0 has **no posting engine**.
 
 ### 5.4 Core use cases
 
@@ -584,7 +584,7 @@ Keep the candidate type separate from the `JournalDraft`. Parsers can fail, date
 ## 10 · Localization, appearance and accessibility
 
 - **MVP language decision:** English-only user-facing text, validation and accessibility labels; **no language selector**. Keep typed semantic string resources future-localization-ready; Hindi and other translations are later features ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
-- **Numbers:** Indian grouping, rupee symbol, negative sign, currency label; user display may vary but ledger amounts remain integer paise.
+- **Numbers:** INR display examples use Indian grouping and rupee symbol, but future per-currency display must honor the immutable ISO currency/exponent and locale while journal amounts stay **native safe-integer minor units**. ViewModel mappers format values; **screens never compute currency/ledger math**.
 - **Dates:** Store timestamps consistently (UTC epoch milliseconds), render using chosen device locale/timezone; reports group by the user-selected local calendar period.
 - **Theme:** Shared light/dark token resolver described in [Screen Design](03-SCREEN-SPEC.md). Candidate tokens are not yet approved or accessibility-tested.
 - **Fonts:** prefer system fonts for MVP unless the owner specifically approves an alternative; keep number/date formatting separate from message translation.
