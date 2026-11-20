@@ -1,0 +1,191 @@
+name: Tio Money trusted PR Codespaces preview
+
+# workflow_run loads this file from main, not from the pushed feature branch.
+# The owner selects one PR with the tio-preview label. A one-time manual run
+# loads the first commit; later owner pushes to that PR sync automatically.
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Owner-authored, repo-local PR selected for Expo Go preview
+        required: true
+        type: number
+  workflow_run:
+    workflows:
+      - Tio Money preview push signal
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: tio-money-codespaces-pr-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (
+        (github.event_name == 'workflow_dispatch' && github.actor == 'im-tnyx') ||
+        (github.event_name == 'workflow_run' &&
+         github.event.workflow_run.event == 'push' &&
+         github.event.workflow_run.conclusion == 'success' &&
+         github.event.workflow_run.head_repository.full_name == 'im-tnyx/Tio-Money' &&
+         github.event.workflow_run.actor.login == 'im-tnyx' &&
+         github.event.workflow_run.head_branch != 'main')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: tio-money-codespaces-trusted
+    steps:
+      - name: Resolve exactly one owner-selected immutable PR head
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR: ${{ inputs.pr_number }}
+          PUSH_SHA: ${{ github.event.workflow_run.head_sha }}
+          PUSH_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          selected=""
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ ! "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]; then
+              echo "::error::PR number must be positive."
+              exit 1
+            fi
+            selected="$INPUT_PR"
+          else
+            if [[ ! "$PUSH_SHA" =~ ^[0-9a-f]{40}$ || -z "$PUSH_BRANCH" ]]; then
+              echo "::error::Untrusted or malformed push metadata."
+              exit 1
+            fi
+            mapfile -t matches < <(
+              gh api --paginate "repos/${GITHUB_REPOSITORY}/commits/${PUSH_SHA}/pulls?per_page=100" \
+                --jq '.[] | select(.state == "open") | .number'
+            )
+            if [[ "${#matches[@]}" -eq 0 ]]; then
+              echo "No open PR for this owner push; no preview change."
+              exit 0
+            fi
+            if [[ "${#matches[@]}" -ne 1 ]]; then
+              echo "::error::Ambiguous PRs for immutable push SHA; refusing preview."
+              exit 1
+            fi
+            selected="${matches[0]}"
+          fi
+
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${selected}" > "$RUNNER_TEMP/preview-pr.json"
+          jq -e --arg repo "$GITHUB_REPOSITORY" '
+            .state == "open" and .number > 0 and
+            .user.login == "im-tnyx" and
+            .head.repo.full_name == $repo and
+            .base.repo.full_name == $repo and
+            .base.ref == "main" and
+            .head.ref != "main" and
+            (.head.sha | test("^[0-9a-f]{40}$")) and
+            any(.labels[]?; .name == "tio-preview")
+          ' "$RUNNER_TEMP/preview-pr.json" >/dev/null || {
+            if [[ "$EVENT_NAME" != "workflow_dispatch" ]]; then
+              echo "Push does not target a labeled owner-authored main-bound PR; skipping."
+              exit 0
+            fi
+            echo "::error::Only an open owner-authored main-bound PR with the tio-preview label may be selected."
+            exit 1
+          }
+
+          pr_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/preview-pr.json")"
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            if [[ "$PUSH_SHA" != "$pr_sha" ||
+                  "$PUSH_BRANCH" != "$(jq -r '.head.ref' "$RUNNER_TEMP/preview-pr.json")" ]]; then
+              echo "::error::PR moved after push or branch mismatch; refusing stale code."
+              exit 1
+            fi
+          fi
+
+          mapfile -t active < <(
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=tio-preview&per_page=100" \
+              --jq '.[] | select(.pull_request != null) | .number'
+          )
+          if [[ "${#active[@]}" -ne 1 || "${active[0]:-}" != "$selected" ]]; then
+            echo "::error::Exactly one open PR may carry tio-preview. Remove the label from other PRs."
+            exit 1
+          fi
+
+          printf 'selected=true\npr_number=%s\nhead_sha=%s\n' "$selected" "$pr_sha" >> "$GITHUB_OUTPUT"
+          echo "Approved exact preview source: PR #$selected at $pr_sha"
+
+      - name: Checkout trusted main-branch sync implementation
+        if: steps.pr.outputs.selected == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Discover and start only the intended existing Codespace
+        id: codespace
+        if: steps.pr.outputs.selected == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          PREFERRED_CODESPACE: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "::error::Missing CODESPACES_TOKEN in the main-restricted environment."
+            exit 1
+          fi
+          mapfile -t matches < <(
+            gh api --paginate '/user/codespaces?per_page=100' \
+              --jq '.codespaces[] | select(.repository.full_name == "im-tnyx/Tio-Money") | .name'
+          )
+          codespace=""
+          if [[ -n "$PREFERRED_CODESPACE" ]]; then
+            for item in "${matches[@]}"; do
+              if [[ "$item" == "$PREFERRED_CODESPACE" ]]; then codespace="$item"; fi
+            done
+            if [[ -z "$codespace" ]]; then
+              echo "::error::Selected Codespace not found under the Tio-Money repository."
+              exit 1
+            fi
+          elif [[ "${#matches[@]}" -eq 1 ]]; then
+            codespace="${matches[0]}"
+          else
+            echo "::error::Expected one Tio-Money Codespace, or configure environment variable TIO_MONEY_PREVIEW_CODESPACE."
+            exit 1
+          fi
+          state="$(gh api "/user/codespaces/${codespace}" --jq '.state')"
+          if [[ "$state" != "Available" ]]; then
+            gh api --method POST "/user/codespaces/${codespace}/start" >/dev/null
+          fi
+          for attempt in $(seq 1 120); do
+            state="$(gh api "/user/codespaces/${codespace}" --jq '.state')"
+            if [[ "$state" == "Available" ]]; then
+              printf 'name=%s\n' "$codespace" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [[ "$state" == "Deleted" ]]; then
+              echo "::error::Codespace was deleted."
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "::error::Codespace not available after 10 minutes."
+          exit 1
+
+      - name: Sync exact PR source and bring up Expo Go tunnel
+        if: steps.pr.outputs.selected == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+          TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          # SSH receives this script from the trusted main checkout. Never
+          # execute a PR-provided shell script in the privileged Actions runner.
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" \
+            < .github/scripts/sync-pr-codespaces-preview.sh
