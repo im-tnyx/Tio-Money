@@ -1,6 +1,7 @@
 // TEMPORARY CI-only lockfile generation: remove after downloading and committing
 // a real isolated dependency lock. No credentials or Expo publication is accessed.
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
