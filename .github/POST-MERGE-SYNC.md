@@ -1,6 +1,6 @@
 # Tio Money — verified post-merge sync (manual only)
 
-**Source of truth:** [root agent contract](../AGENTS.md), [active task index](../.ai/current.md), [owner decision register](../docs/DECISIONS.md) and live GitHub PR. This is a **manual, authorization-gated procedure**: the preflight is for a specifically authorized agent before merging, and the sync steps are for after GitHub confirms MERGED. This document itself grants no merge, deployment or branch-settings permission. **PR #2 is not authorized to merge by this update.**
+**Source of truth:** [root agent contract](../AGENTS.md), [active task index](../.ai/current.md), [owner decision register](../docs/DECISIONS.md) and live GitHub PR. This is a **manual, authorization-gated procedure**: the preflight is for a specifically authorized agent before merging, and the sync steps are for after GitHub confirms MERGED. This document itself grants no merge, deployment or branch-settings permission. **Historical distinction:** This procedure itself did not authorize PR #2; the owner later gave separate PR-specific permission and GitHub verifies PR #2 **MERGED** at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` on 2026-11-19. Every **new** PR still requires its own separate owner authorization.
 
 ## Authorized agent merge preflight (before any merge)
 
@@ -16,7 +16,7 @@
 8. Verify GitHub reports actual `MERGED` state, timestamp, target branch and resulting `merge_commit_sha`. Record that SHA even for squash merges; do not claim success from invocation alone.
 9. Follow the post-merge sync steps below. Update `.ai/current.md`, agent/handoff and archive only after the verified terminal outcome.
 
-**Do not merge PR #2 under this policy-update instruction.**
+**Current status:** PR #2 is already merged; this historical preflight must **not** be construed as permission to merge PR #1 or any new PR.
 
 ## 1. Independently confirm the actual merge
 
@@ -78,6 +78,6 @@ Record the next verified agent, prior verified agent, affected branch, exact nex
 
 ## 6. Preserve parallel branches, especially Phase 0
 
-The Phase 0 `feat/phase-0-expo-foundation` branch and draft [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) are **independent**. Do not switch into its worktree, force-push, rebase, merge, delete or copy over its files. If governance PR #2 merges first, the Phase 0 task owner may plan a **separate, reviewed, authorized** safe integration of current `main` into their branch (after clean status/conflict assessment). Do not treat doc merge as permission to merge the app PR or to alter active app code.
+The Phase 0 `feat/phase-0-expo-foundation` branch and draft [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) are **independent**. Do not switch into its worktree, force-push, rebase, merge, delete or copy over its files. Governance PR #2 **already merged**; the Phase 0 task must separately verify the current base and any prior safe integration without assuming it authorizes PR #1 to merge. Any future integration is an independently reviewed, scoped operation. Do not treat doc merge as permission to merge the app PR or to alter active app code.
 
 **Never automatically:** force-push, hard-reset, clean untracked files, delete branches, rebase another agent's branch, merge a pending PR, alter required checks or approve a PR. **An agent merge is allowed solely after the explicit, verified owner authorization and preflight above; it is never an inferred/scheduled action.**
