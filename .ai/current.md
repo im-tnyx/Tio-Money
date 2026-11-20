@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #21 trusted Codespaces diagnostic, P3 index handoff
+
+- **Task:** [TM-OPS-PR403-20261120-001](tasks/preview/preview-pr-read-403-20261120.md), [RFC #19](https://github.com/im-tnyx/Tio-Money/issues/19), [PR #21](https://github.com/im-tnyx/Tio-Money/pull/21) on `fix/preview-pr-read-403-diagnostics` → `main`. **OPEN / READY FOR REVIEW / NOT MERGED** when inspected; diagnostic-only, not an HTTP 403 repair.
+- **Verified predecessor snapshot:** PR head `cd3b9b82133d3c19c9ac8b60590fd26c0a06061d` against `main` `f4332eb338ca75e27a5b35ff57511f522a4bb96a`, 0 behind, four prior changed paths. At that **previous head**, [Phase 0 CI](https://github.com/im-tnyx/Tio-Money/actions/runs/44793001234) and [AI governance CI](https://github.com/im-tnyx/Tio-Money/actions/runs/44793001467) were **SUCCESS**. **This P3 index correction creates a newer head: recheck exact-head CI rather than reusing those results.**
+- **Review:** [Review #5997655461](https://github.com/im-tnyx/Tio-Money/pull/21#pullrequestreview-5997655461) is `COMMENTED`, not GitHub `APPROVED`; its [P3 index-registration finding](https://github.com/im-tnyx/Tio-Money/pull/21#discussion_r4646297484) is addressed by this checkpoint, pending new-head verification and thread disposition. Original P2 token-in-argv concern was addressed in the previous head via piped stdin `curl --config -`. Independent review is **optional under TM-DEC-002**, not a blanket gate. No independent approval is claimed.
+- **Boundary:** Existing owner/main/label/immutable source gates and Codespace identity protections remain. Root GitHub PR-read HTTP 403 is **UNKNOWN**, and no successful live privileged diagnostic/SSH/device test has occurred. **Owner PR #21 merge permission NOT_GRANTED**; `main` was not modified by this branch update. Treat these SHA/status statements as an observed checkpoint and consult GitHub for the current state.
+
+---
+
 ## 2026-11-20 — PR #22 ready-for-review checkpoint (reconciled on main)
 
 - [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) **OPEN / Ready for Review / not merged**, targeting `main` at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, reconciled HEAD `4e741cf716bcb6020d6e1128a28fc995fd00eb37` before this checkpoint. Original history preserved by non-force two-parent commit; GitHub diff exactly six Markdown files, 0 behind.
