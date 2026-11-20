@@ -65,7 +65,21 @@ test('EAS CLI has its own committed full dependency lock and registry integritie
 
 test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated', () => {
   const text = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
+  assert.match(text, /^name: TIO MONEY EXPO PR REVIEW$/m);
   assert.match(text, /workflow_dispatch:/);
+  const dispatchInputs = text.split('workflow_dispatch:')[1].split('\npermissions:')[0];
+  assert.deepEqual(
+    [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
+    ['pr_number', 'platform'],
+  );
+  assert.ok(dispatchInputs.includes('type: number'));
+  assert.match(
+    dispatchInputs,
+    /      platform:\n        description: Select OTA target platform \(no native build\)\n        required: true\n        default: all\n        type: choice\n        options:\n          - android\n          - ios\n          - all\n/,
+  );
+  assert.match(text, /case "\$TARGET_PLATFORM" in\s*\n\s*android\|ios\|all\)/);
+  assert.match(text, /--platform "\$TARGET_PLATFORM"/);
+  assert.doesNotMatch(text, /"\.\/\.github\/.*build_preview|\beas build --platform\b/);
   assert.doesNotMatch(text, /^\s+push:\s*$/m);
   assert.doesNotMatch(text, /^\s+pull_request:\s*$/m);
   assert.doesNotMatch(text, /workflow_run:/);
