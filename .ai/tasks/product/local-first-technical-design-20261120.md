@@ -13,7 +13,7 @@
 | Stacked PR A base | [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce` |
 | Main at task start | `fd154db417b1979d39f855317f252eed37c36e9d` |
 | Working branch | `docs/local-first-finance-architecture-20261120`, from PR #14 head; target PR A feature branch, **not main** |
-| Lifecycle | IN_PROGRESS → validation → Draft PR / IN_REVIEW |
+| Lifecycle | **IN_REVIEW** — [Draft PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), stacked on open Draft PR #14; **NOT MERGED** |
 | Independent review | DEFERRED; not performed. Strongly recommended before financial schema/security implementation |
 | Merge permission | **NOT_GRANTED** for PR #14 or any PR B; separate explicit owner instruction naming repo and PR required |
 
@@ -49,3 +49,13 @@
 - **Review:** DEFERRED, not performed; no blocker claimed fixed.
 - **Merge:** NOT_GRANTED; task go is not PR-specific merge permission.
 - **Next step:** review standalone PR B diff against PR A branch, confirm finance ADR gates and acceptance tests, verify checks, await explicit future authorization for any merge.
+
+### 2026-11-20 · Draft PR #16 and documentation validation
+
+- **PR:** [#16](https://github.com/im-tnyx/Tio-Money/pull/16) open Draft, head before handoff checkpoint `a11beb5dae4f6207c9bf22318fd17a58e0a2e4b5`, target PR A branch, not `main`.
+- **Diff:** GitHub comparison to parent PR A `659915ba8c9766082ccc945809b8879df3b5b6ce`: exactly six Markdown paths, 2 commits ahead, 0 behind. Both commit messages had **zero prohibited co-author trailers**.
+- **Links:** examined changed Markdown links relative to the branch tree; one incorrect task decision link was corrected in the second commit, then **0 missing local relative targets** on `a11beb5d`.
+- **CI at inspection:** Phase 0 checks `in_progress` on inspected SHA ([run 44746915295](https://github.com/im-tnyx/Tio-Money/actions/runs/44746915295)); preview push signal **success** ([run 44746821946](https://github.com/im-tnyx/Tio-Money/actions/runs/44746821946)). **Do not infer final-head CI success from earlier run.** No app/device/SQLite integration tests performed in this task.
+- **Independent review:** `DEFERRED`, not performed; accounting/FX/identity finance ADRs remain unresolved, not signed off.
+- **Merge authorization:** `NOT_GRANTED` for both PR #14 and PR #16. Reverify actual configured protections and new HEAD before any future merge attempt.
+- **Follow-up checkpoint:** this task/index update itself advances HEAD and requires rechecking CI if review-ready; next agent must not treat historical snapshots as live state.
