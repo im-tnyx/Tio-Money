@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #16 final merge-gate P3 cleanup
+
+- **Owner requested merge-gate verification, not merge:** [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was OPEN / Ready for Review (non-draft), targeting `main` `582893d0915622623f8c6b3fb9da0f1bbb0a4a60` at HEAD `b81f4813a43af9de408eeddf1a850752ce64b7ca`. Owner's GitHub review is `COMMENTED`, **not `APPROVED`**.
+- **Two subsequent P3 findings:** Screen 03 still said Phase 0 shell not yet merged, and [task](tasks/product/local-first-technical-design-20261120.md) still said `RECONCILING` / Draft. Corrected with approved historical PR #1 merge and actual PR #16 lifecycle. No code, bottom-tabs or cloud change.
+- **This branch edit requires new HEAD validation:** verify all PR CI and Codex status, resolve addressed P3 threads with documented evidence, preserve six Markdown scope and unchanged `main`; **PR #16 merge NOT AUTHORIZED**. PR #22 remains separate Draft requiring reconciliation.
+
+---
+
+
 ## 2026-11-20 — PR #16 Codex P1 investment valuation review
 
 - Codex automated review of `0b80af9a6d959e682ec0ece3dc1ff45c59223957` reported **P1**: non-posting market valuation cannot silently change **canonical journal-derived Net Worth**. [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) remains Ready for Review, **not merged**.

@@ -13,8 +13,8 @@
 | Historical stacked PR A base | At task creation, [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) was Draft at `659915ba8c9766082ccc945809b8879df3b5b6ce`; **it later squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`** |
 | Main at task start | `fd154db417b1979d39f855317f252eed37c36e9d` |
 | Working branch | `docs/local-first-finance-architecture-20261120`, originally from PR #14 head; **reconciled with new `main` by non-force merge commit and PR #16 base retarget to `main`** on 2026-11-20 (verify live GitHub state) |
-| Lifecycle | **RECONCILING** — [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), draft until exact-head CI and review gate; **NOT MERGED** |
-| Independent review | DEFERRED; not performed. Strongly recommended before financial schema/security implementation |
+| Lifecycle | **OPEN / Ready for Review (non-draft)** — [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), base `main`, review findings under remediation; **NOT MERGED**. Final GitHub CI/review must be rechecked after this documentation checkpoint advances HEAD. |
+| Independent review | **Automated Codex review PERFORMED** at `b81f4813a43af9de408eeddf1a850752ce64b7ca`: no open Codex findings then; a separate owner-authored GitHub `COMMENTED` review was submitted, **not `APPROVED`**. Independent human approval **NOT VERIFIED**; verify any new findings after the next commit. |
 | Merge permission | PR #14 was separately authorized and **merged**; **NOT_GRANTED for PR #16 or PR #22**, separate PR-specific permission required |
 
 ## RFC, scope and exclusions
@@ -35,9 +35,9 @@
 - Dynamic group, loan, investment, card payment-tracking and FX refresh flows have deterministic expected outcomes and failure states.
 - Existing INR-only SQL labelled incompatible with unapproved future multi-currency journal; no executable DDL promoted to released schema.
 - One balanced journal, atomicity, idempotency, reversal, transfers/fees and class semantics preserved.
-- All changed-file relative Markdown links resolve; only intended Markdown paths differ against parent PR A.
+- All changed-file relative Markdown links resolve; only intended six Markdown paths differ against **current `main`** (original comparison against PR A is retained below as historical).
 - Test final-head GitHub actions/commit messages if available; documentation validation ≠ app or device QA.
-- **Rollback:** close unmerged stacked Draft PR; it does not modify PR A or main.
+- **Rollback:** close the unmerged, now `main`-targeted PR without modifying `main` or PR #22; do not delete branches without separate authorization.
 
 ### 2026-11-20 · Initial checkpoint · ChatGPT GPT-6
 
@@ -97,3 +97,12 @@
 - **Coverage:** acceptance `TM-DB-VAL-001` and `TM-ARCH-010` test separation. No code, schema changes, cloud operations or tab/navigation edits.
 - **Review disposition:** this P1 is **addressed in documentation subject to exact-new-HEAD validation and reviewer thread disposition**. Do **not** claim reviewer `APPROVED` or independent sign-off. Rerun PR CI/Code Review on new commit; any findings after that must be evaluated.
 - **Owner request:** PR #16 safe reconciliation, CI and review only. **No PR #16 merge authorization.**
+
+### 2026-11-20 — Final merge-gate preparation: two P3 documentation findings
+
+- **Owner instruction:** move PR #16 to the **merge gate** after review; this is **not** authorization to execute a merge. PR author/owner submitted a GitHub `COMMENTED` review at previous HEAD `b81f4813a43af9de408eeddf1a850752ce64b7ca`; it was not a formal `APPROVED` review. A separate automated Codex review at that HEAD reported no new findings, but GitHub subsequently received two unresolved **P3** inline comments.
+- **Finding one:** [review thread](https://github.com/im-tnyx/Tio-Money/pull/16) on `docs/03-SCREEN-SPEC.md` (GitHub thread `PRRT_kwDOVy5U3s66G1Bn`, comment `4645852180`) identified a legacy statement that the Phase 0 source existed only in an unmerged feature branch. Corrected to `main`/merged PR #1, **without claiming full iPhone/SQLite device QA**.
+- **Finding two:** `PRRT_kwDOVy5U3s66G1Bv`, comment `4645852198`, identified the top task table as incorrectly listing `RECONCILING`/Draft although PR #16 was already **OPEN / Ready for Review**, `main`-based with green prior-HEAD CI. Updated the current lifecycle and review field; older dated snapshots remain historical.
+- **Scope:** the Screen Spec, this task and compact `.ai/current.md` only. No account/FX behavior, ledger code, database migration, production config, protected bottom tabs, PR #22 branch or `main` updates.
+- **Next evidence:** exact new-HEAD GitHub Actions, link/anchor validation, review-thread author-side replies/dispositions and fresh automated Codex summary. Do not equate thread resolution with independent approval.
+- **Merge:** **NOT AUTHORIZED** for PR #16, despite review and clean branch status. Require separate express owner PR-specific merge permission after completing the gate.

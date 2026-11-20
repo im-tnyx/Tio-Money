@@ -101,7 +101,7 @@
 
 ### Current implemented Phase 0 visual contract
 
-**Only the following behavior exists on the Phase 0 feature branch** (not yet merged):
+**Only the following behavior is implemented in the Phase 0 shell on `main`** (merged through PR #1 on 2026-11-19; full cross-platform installed-device/SQLite QA remains unverified):
 
 - Five blank navigable screens with labels **Home · Trans. · Stats. · Account · More**; no body text, cards, placeholders, transaction form or app-level top bar.
 - Exactly one **disabled** circular floating `+` placed right-above the **More** tab's center, outside the bottom bar, with no `onPress` or editor route.
