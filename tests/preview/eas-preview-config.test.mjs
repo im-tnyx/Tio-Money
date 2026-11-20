@@ -28,6 +28,7 @@ test('preview build is internal and not a production release', () => {
   assert.equal(eas.build.preview.android.buildType, 'apk');
   assert.equal(eas.build.production, undefined);
   assert.equal(eas.submit, undefined);
+  assert.deepEqual(eas.cli, { version: '27.4.1' });
 });
 
 test('SDK 58 expo-updates is checked into both manifests with resolved transitive entries', () => {
@@ -53,7 +54,14 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /github\.ref == 'refs\/heads\/main'/);
   assert.match(text, /tio-money-eas-preview-trusted/);
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
-  assert.match(text, /eas-cli@latest update/);
+  assert.doesNotMatch(text, /eas-cli@latest/);
+  assert.match(text, /EAS_CLI_VERSION: "27\\.4\\.1"/);
+  assert.match(text, /npm ci --prefix/);
+  assert.match(text, /npm audit signatures/);
+  assert.match(text, /--ignore-scripts/);
+  assert.match(text, /--registry=https:\\/\\/registry\\.npmjs\\.org/);
+  assert.match(text, /node_modules\\/\\.bin\\/eas" update/);
+  assert.match(text, /EXPO_TOKEN: \\$\\{\\{ secrets\\.EXPO_TOKEN \\}\\}/);
   assert.match(text, /--branch pr-preview/);
   assert.match(text, /--environment preview/);
   assert.doesNotMatch(text, /--branch production|--channel production/);
