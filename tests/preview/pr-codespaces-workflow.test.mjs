@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { Buffer } from 'node:buffer';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -196,16 +199,75 @@ test('trusted main snapshot validation precedes any Codespace start or SSH', () 
   assert.ok(selected > 0 && selected < start && start < ssh);
 });
 
-test('remote script refuses unsafe source and never force resets or changes git refs', () => {
+test('remote script imports verified immutable bundle without remote Git credentials or force operations', () => {
   assert.match(sync, /expected_remote="https:\/\/github\.com\/im-tnyx\/Tio-Money"/);
   assert.match(sync, /git status --porcelain=v1 --untracked-files=normal/);
-  assert.match(sync, /git fetch --no-tags origin "\$target_sha"/);
+  assert.ok(sync.includes('git bundle verify "$bundle_path"'));
+  assert.ok(sync.includes('git fetch --no-tags "$bundle_path" "refs/tio-preview/selected"'));
+  assert.ok(sync.includes(`trap 'rm -f -- "$bundle_path"' EXIT`));
+  assert.ok(sync.includes('! -f "$bundle_path" || -L "$bundle_path"'));
+  assert.ok(!sync.includes('git fetch --no-tags origin "$target_sha"'));
+  assert.ok(worker.includes('git rev-parse --is-shallow-repository'));
+  assert.ok(worker.includes('git fetch --no-tags origin "$TARGET_SHA"'));
+  assert.ok(worker.includes('git bundle create "$bundle" refs/tio-preview/selected'));
+  assert.ok(worker.includes('git bundle verify "$bundle"'));
+  assert.ok(worker.includes('printf -v remote_upload_command'));
+  assert.ok(worker.includes('base64 < "$bundle" | gh codespace ssh'));
+  assert.ok(worker.includes('"$remote_upload_command"'));
+  assert.ok(worker.includes('ulimit -f 262144'));
+  assert.ok(worker.includes('bundle_bytes > 134217728'));
+  assert.ok(worker.includes('GH_TOKEN: ${{ github.token }}'));
+  assert.ok(worker.includes('GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}'));
+  assert.doesNotMatch(worker, /bash -c 'umask 077/);
+  assert.ok(sync.includes('stat -c \'%a\''));
+  assert.ok(sync.includes('stat -c \'%u\''));
+
+  assert.ok(worker.includes('bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle"'));
   assert.match(sync, /"\$fetched_sha" != "\$target_sha"/);
   assert.match(sync, /git -c advice\.detachedHead=false switch --detach "\$target_sha"/);
   assert.match(sync, /scripts\/start-codespace-expo\.mjs --stop/);
   assert.match(sync, /scripts\/start-codespace-expo\.mjs --status/);
   assert.doesNotMatch(sync, /git\s+(?:push|reset|clean|checkout\s+-f|switch\s+-C)/);
   assert.doesNotMatch(sync, /curl\s+[^\n]*\|\s*bash/);
+});
+
+test('SSH remote upload survives OpenSSH command joining and refuses file overwrite', () => {
+  const prepare = worker.slice(
+    worker.indexOf('      - name: Prepare exact immutable PR source bundle'),
+    worker.indexOf('      - name: Discover and start only the verified preview-only Codespace'),
+  );
+  const transfer = worker.slice(worker.indexOf('      - name: Sync exact PR source'));
+  assert.ok(prepare.includes('GH_TOKEN: ${{ github.token }}'));
+  assert.ok(!prepare.includes('CODESPACES_TOKEN'));
+  assert.ok(transfer.includes('GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}'));
+  assert.ok(!transfer.includes('git fetch'));
+  assert.ok(transfer.includes('remote_bundle="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}.bundle"'));
+  assert.ok(sync.includes('tio-money-preview-${target_sha}-[1-9][0-9]*\\.bundle'));
+  const builder = worker.match(/^\s*printf -v remote_upload_command \\\n\s*'[^'\n]+' \\\n\s*"\$remote_bundle" "\$remote_bundle" "\$remote_bundle" "\$remote_bundle"/m);
+  assert.ok(builder, 'remote upload must build exactly one escaped command');
+  const temp = mkdtempSync(join(tmpdir(), 'tio-preview-ssh-'));
+  const path = join(temp, 'bundle with spaces.bundle');
+  try {
+    const build = spawnSync('bash', [
+      '-c',
+      `set -euo pipefail\nremote_bundle="$1"\n${builder[0]}\nprintf '%s' "$remote_upload_command"`,
+      'preview-test',
+      path,
+    ], { encoding: 'utf8' });
+    assert.equal(build.status, 0, build.stderr);
+    const encoded = Buffer.from('immutable private bundle regression').toString('base64');
+    const run = spawnSync('bash', ['-c', build.stdout], { input: encoded, encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stderr);
+    assert.equal(readFileSync(path, 'utf8'), 'immutable private bundle regression');
+    assert.equal(statSync(path).mode & 0o777, 0o600);
+    const retry = spawnSync('bash', ['-c', build.stdout], {
+      input: Buffer.from('malicious overwrite').toString('base64'), encoding: 'utf8',
+    });
+    assert.notEqual(retry.status, 0, 'existing bundle must never be replaced');
+    assert.equal(readFileSync(path, 'utf8'), 'immutable private bundle regression');
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
+  }
 });
 
 test('Codespaces SSHD feature uses reviewed exact patch, no ignored latest option', () => {
