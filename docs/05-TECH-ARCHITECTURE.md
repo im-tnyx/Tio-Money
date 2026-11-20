@@ -18,6 +18,99 @@
 > [!IMPORTANT]
 > **Implementation status (PR #1, 2026-11-19):** A **limited Phase 0 foundation and blank five-tab UI shell are implemented in source** and ready for code review, **not merged or production/device accepted**. Native splash → only Home · Trans. · Stats. · Account · More (blank bodies), disabled floating `+` over More, no app top bar/editor/Settings/onboarding. Expo Router, system dark/light theme, centralized TypeScript visual tokens and settings-only Expo SQLite initialization exist; financial posting, account balances, future screen workflows and Android SMS are **not implemented**. The broad architecture and routes described below are **future proposals**, not present behavior. Current contracts: [owner TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md), [Core Theme README](../src/shared/theme/README.md). Owner-reported current-device UI smoke shows no repeat of the previous `ExpoSQLite` startup failure; full both-platform device/SQLite PRAGMA-migration-restart QA and separate owner merge permission remain required; reference screenshots are not code or styles to reproduce.
 
+
+## 00 · Technical architecture alignment — 2026-11-20
+
+> [!IMPORTANT]
+> **Documentation-only future design.** [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) and [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) set this stage order: **Stage 1 complete local SQLite app with optional FX quote requests only → Stage 2 encrypted user-directed Drive/iCloud backup → Stage 3 optional Supabase sync with signup/signin only after explicit opt-in**. Existing Phase 0 source is still the blank five-tab shell + disabled FAB + settings-only SQLite migration; no financial journal, FX provider, backup, authentication or remote sync is implemented. Original "no P0 cloud/network" paragraphs below mean no **account data** networking; FX quotes are a narrowly scoped future **public pair-metadata exception**, not backend financial storage.
+
+### 00.1 Stage 1 module ownership and data movement
+
+```mermaid
+flowchart TD
+  UI["Future Accounts / Transactions / Reports / Currency UI"] --> APP["Feature controllers + application use cases"]
+  APP --> DOMAIN["Pure finance domain: money, journal, account classes"]
+  APP --> RP["Repository & FX quote ports"]
+  REPO["SQLite adapters: journal, group metadata, FX cache"] --> RP
+  REPO --> DB[("Local SQLite canonical ledger")]
+  FX["FX provider adapter: base/quote only"] --> RP
+  FX -. "HTTPS currency pair only, no user ledger" .-> PUB["External quote provider"]
+  DB --> PROJ["Ledger projections: balances, reports, net worth"]
+  PROJ --> APP
+  DB -. "Stage 2 only; user-controlled encrypted backup" .-> BACKUP["File provider adapter"]
+  DB -. "Stage 3 only; explicit opt-in" .-> SYNC["Supabase sync/Auth adapter"]
+```
+
+**Module contracts (names proposed; no new folders or packages are created by this PR):**
+
+| Capability | Interface / ownership | Security and failure boundary |
+| :--- | :--- | :--- |
+| `AccountGroupCatalog` + `AccountSetupUseCase` | Feature/app layer selects typed built-in group descriptor, validates fields and posts atomic opening journal through repository | Group identity is UI metadata; domain chooses asset/liability class |
+| `LedgerCommandPort` | Domain builds balanced events; adapter enforces idempotent transaction-safe SQLite write | Single source of truth, no UI-computed balances, rollback on failure |
+| `AccountLinkRepository` | Links compatible bank/wallet/card/loan/investment records by stable ID | Reject archived/invalid links, do not duplicate bank-linked UPI assets |
+| `CardBillingService` | Due/statement schedule and user-confirmed local repayment use cases | **No real bank autopay**, no silent scheduled posting, no card secrets |
+| `LoanScheduleService` | Draft installments and user-confirmed principal/interest allocation | Plan != posted event; compounding/interest ADR before implementation |
+| `InvestmentValuationPort` | Dated value inputs, cost/current estimates and holdings projection | Never silently convert quote refresh into profit or posted funds |
+| `FxQuotePort` / `FxCachePort` | Trigger refresh on meaningful currency use, check pair/source/timestamps, save last-known quote locally | Network sends currency codes only; cache stale UI; request timeout/rate limit; no hidden account uploads |
+| `CurrencyProjection` | Pure exact-decimal display conversion (when a validated quote exists) | No floating-point journal math, no original amount mutation |
+| `BackupProvider` (Stage 2 only) | Encrypted archive export/import via user-selected Drive/iCloud/file provider | Explicit user action, key custody, file authentication, restore dry-run and failure recovery |
+| `SyncProvider` / `IdentityProvider` (Stage 3 only) | Opt-in remote synchronization + login/signup shown **only after selection** | Explicit consent, tenant-bound authorization/RLS, conflict resolution and local data control; **not added now** |
+
+**Dependency rule:** UI may call only feature APIs; features use application/domain ports; SQLite, FX HTTP and future cloud adapters implement ports. The domain must not import HTTP, platform, Expo or Supabase SDKs. Background refresh is **not** implied. Exchange-rate **provider selection, rates/fee plan, licensing, key handling and retry thresholds require a separate ADR** before implementation.
+
+### 00.2 Local-only privacy and identity state machine
+
+```mermaid
+flowchart TD
+  A["Launch (local-only)"] --> B["Open local SQLite"]
+  B --> C["Use all supported local finance features; no app auth"]
+  C --> D{"Currency-dependent action and distinct Sub?"}
+  D -->|No| C
+  D -->|Yes| E["Attempt public FX quote; no financial data sent"]
+  E --> F["Valid fresh quote OR stale local fallback OR unavailable"]
+  F --> C
+  C -. "Stage 2, future only" .-> G["Optional encrypted backup/restore"]
+  C -. "Stage 3, future only" .-> H["User explicitly enables Supabase sync"]
+  H --> I["Signup / Signin + informed consent"]
+  I --> J["Tenant-isolated remote sync; local SQLite remains primary"]
+```
+
+**Identity architecture:** Stage 1 device-local accounts are financial account records, **not identity accounts**. No user email, password, remote UID or forced account registration is needed for local usage. Cloud backup provider's Google/Apple account or OS permissions are distinct from Tio Money identity. **Only Stage 3** introduces app authentication following the user choosing Supabase sync; all local data remains available when sync is declined or signed out (unless explicit data-deletion action). Later sync must define durable local record IDs, user-ownership linking, consent-to-upload boundary, encrypted sensitive fields policy, remote deletion, tenant isolation, token lifecycle, recovery and conflicts in a separately reviewed threat model.
+
+### 00.3 Stage 1 FX request lifecycle
+
+- **Trigger** once per meaningful currency-dependent action (app foreground when active Sub, selected pair change, conversion/relevant transaction/report open or manual Refresh Now). Do not issue HTTP on every React render or keypress.
+- **Validate** supported pair and server result format, positive exact decimal rate, effective/published timestamp and provider. Deduplicate simultaneous identical requests. If user changes pair during fetch, old response must not update new pair UI.
+- **Store** quote and metadata in SQLite as non-authoritative cache with last successful fetch and accepted provider timestamp. Distinguish provider-published vs locally-fetched freshness.
+- **Display** fresh latest-published quote when available; if offline/rate-limited use last valid cached quote with **stale badge/time**; if no quote exists mark estimated conversion **unavailable**. Local original-currency transactions must continue.
+- **Privacy:** HTTPS quote requests limited to pair; never send transaction amount, account ID, merchant, ledger rows, device contacts or email for pricing. Avoid embedding a secret API key in a publicly shipped mobile binary; cost/auth strategy requires prior provider ADR.
+- **Math:** no currency-specific journal engine is authorized by quote fetching alone. Currency-aware ledger, historic conversion methodology, rounding, holding valuation and FX gains require [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) ADRs.
+
+### 00.4 Stage-gated backup, future authentication and threat model
+
+| Stage | Data movement | User experience | Unresolved security design |
+| :--- | :--- | :--- | :--- |
+| 1: Local | Finance journal stored only in SQLite; quote pairs may leave device | No app signup; offline financial features; FX optional online | Local physical-device data protection, at-rest encryption claims **not made**, database integrity/recovery and FX provider privacy |
+| 2: Backup | User-directed **encrypted, authenticated** backup file to Google Drive/iCloud/file provider | Choose save, verify and restore; OS/provider account may be necessary, **no Tio signup** | Password/key loss, key-derivation/versioning, restore replace/merge, rollback/dry-run, corruption and partial restore, provider permissions/metadata |
+| 3: Sync | Optional explicitly consented remote finance-data sync to Supabase | Only opting-in users signup/signin; local default unchanged | Tenant RLS, ownership assertions, publishable vs secret keys, session/token lifecycle, encryption and sync conflicts, rekey/delete/sign-out, user data portability |
+
+**Future Supabase design safety floor:** no mobile client service-role/secret keys; owner-scoped row policies even when `TO authenticated` is specified; user-editable metadata cannot grant access; view/RPC policy review; tenant isolation and staged deletion/conflict simulations. This is **not an implementation recipe or completed security audit**. Confirm current product docs before Stage 3 implementation.
+
+### 00.5 Verification/acceptance trace (future code gates)
+
+| ID | Required outcome |
+| :--- | :--- |
+| `TM-ARCH-001` | Stage 1 local app never requires app login; FX failure does not block local same-currency entry |
+| `TM-ARCH-002` | Data-flow capture shows only currency pair/provider metadata goes to FX endpoint |
+| `TM-ARCH-003` | Group/card/loan/investment workflows post via one balanced journal; no UI SQL and no mutable balance caches |
+| `TM-ARCH-004` | Card “autopay” tracking cannot trigger remote debit or local payment posting without confirmation |
+| `TM-ARCH-005` | Quote latest-published/stale/unavailable states, request coalescing and race rejection are tested |
+| `TM-ARCH-006` | No backup or Supabase/Auth dependency in Stage 1 release graph |
+| `TM-ARCH-007` | Stage 2 encrypted archive is validated and recoverable before any cloud-sync scope |
+| `TM-ARCH-008` | Stage 3 login only on opt-in, RLS isolation and local continuity after logout (future separate auth threat model) |
+
+**Unresolved architecture decisions:** [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) `TM-ADR-018–023` plus earlier `TM-ADR-011–017`; storage encryption/backup keys; future sync tenant policy. Mark these **BLOCKED before coding**, not silently approved from this document. The [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) remains an older draft to reconcile in the separate PR C.
+
 ## 01 · Executive architecture at a glance
 
 **Recommended approach:** React Native + Expo + TypeScript, feature-oriented Clean Architecture, a **pure TypeScript financial domain**, and **Expo SQLite** as the local source of truth. Android SMS reading is an **optional native integration**, never a dependency of the core money tracker.
@@ -34,7 +127,7 @@
 | Import | Shared candidate parser + review + de-duplication | Cross-platform consistency and privacy |
 | Android SMS | Local native module **only in custom development/release build**, subject to Play policy | Expo Go cannot load custom SMS inbox modules |
 | iPhone | Manual entry, user-selected text/CSV | No automatic third-party SMS inbox access |
-| Cloud | **None required for P0** | No signup, backend, banking credentials or network dependency |
+| Cloud | **None required for current Phase 0 or local-finance-data storage** | Future Stage 1 allows **only optional currency-pair FX requests**, not financial cloud upload, login or remote ledger |
 
 ### 1.1 Non-negotiable boundaries
 

@@ -17,6 +17,80 @@
 > [!IMPORTANT]
 > **Proposed architecture, not an implemented database.** This is the first detailed SQLite/ledger design. SQL is a starting contract for engineering review, **not a completed migration or proof of financial correctness**. No actual data, banking integration, balance synchronization, encryption or SMS inbox access has been implemented.
 
+
+## 00 · Finance data-model reconciliation — 2026-11-20 / documentation only
+
+> [!CAUTION]
+> **Do not implement the INR-only v1 SQL below for the newly requested multi-currency/loan/investment product without a reviewed ADR.** It is a historical **four-subtype, INR-only proposal**: `financial_accounts.subtype` permits only `cash/bank/funded_wallet/credit_card` and `CHECK(currency = 'INR')`; `ledger_postings.amount_minor` assumes paise. **No SQLite migrations, tables, live data or authoritative new schema are changed in this documentation PR.** Owner Stage 1 scope is defined in [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Existing current Phase 0 only has settings-only bootstrap, not a posted finance journal.
+
+### 00.1 Canonical source of truth and new group mapping
+
+Maintain the **single append-only, balanced journal** for Income, Expense, Transfer, fees, opening equity, credit liabilities, loan principal/interest and investment funding. UI group fields are metadata; they do **not** create independent editable balances. Built-in groups are Cash, Bank, Wallet, Credit Card, Investment and Loan. Mapping to accounting classes must be explicit:
+
+| UI account group | Financial ledger ownership | Source of truth / exception |
+| :--- | :--- | :--- |
+| Cash | Asset | Booked physical cash postings |
+| Bank | Asset | One bank balance even with UPI, debit card, cheque and internet banking capabilities |
+| Funded Wallet | Asset | Independently funded wallet postings; bank-linked UPI is a reference **without a duplicate financial asset** |
+| Credit Card | Liability | Card outstanding from signed postings; credit limit and due dates are non-posting metadata |
+| Investment | Asset / cost-basis holdings and value projection | Funded purchase asset vs optional **dated valuation**. Market price may change Net Worth *estimate*, not income or principal booked by itself |
+| Loan Borrowed | Liability | Outstanding principal from postings; scheduled EMI separate from executed payment |
+| Loan Given | Asset / receivable | Principal receivable from postings; collections separate from interest income |
+
+**Opening balance:** one atomic opening-equity journal with correctly signed asset/liability effects, not salary/spending; negative openings and archived account corrections require validation. Loan direction conversion (receivable ↔ liability) or card ↔ cash group change **cannot** mutate an existing ledger class silently.
+
+### 00.2 Proposed relational extension — conceptual, not runnable DDL
+
+| Candidate entity / owned columns | Purpose and constraints |
+| :--- | :--- |
+| `account_group_definitions`: stable group key, label, visibility/order, version | Built-in typed UI templates; hiding must not delete/recategorize accounts; avoid user-custom ledger classes without ADR |
+| `financial_accounts` extension: group key, classification, native_currency_code, archived_at | Immutable stable ID; unique user account identity independent of display name; account currency never silently changes |
+| `bank_payment_capabilities`: financial_account_id + method enum, enabled | UPI, debit card, cheque, internet banking; **no card credentials or virtual duplicate balance** |
+| `account_links`: source_id, target_id, purpose, active status | Bank-linked wallet references, intended card payment source, loan/investment funding; FK-valid, avoid self/cyclic/archived invalid links |
+| `credit_card_terms`: account_id, limit_minor, statement cycle rule, due-date rule, autopay_tracking_mode | **Only tracking/reminders**, no payment authorization; derived outstanding/available not stored as mutable truth |
+| `credit_card_statements` (future optional): statement ID, period, issuer-reported balance, minimum due, due date | Reconcile statement snapshots vs live posted outstanding; distinguish input from computed amounts; not automatically a ledger event |
+| `investment_holdings`: holding ID, account_id, instrument kind, native currency, quantity/cost basis | Purchase/redemption policy and realized gain accounting **BLOCKED pending ADR** |
+| `investment_valuations`: holding/account ID, market value, as-of timestamp, source | Dated projections, **not double-entry cash journal** unless explicit valuation accounting ADR |
+| `loan_terms`: account_id, borrowed/given, principal, rate + basis, start/maturity, schedule policy | Authoritative principal remains ledger; loan terms/schedules do not post money |
+| `loan_installments`: installment ID, due, planned principal/interest/fee, status, confirmed_event_id | Confirmed event only on explicit posted repayment; no due-date auto-debit |
+| `currency_preferences`: main ISO code, optional distinct sub ISO code, updated_at | Device-local preference, not replacement for original account currencies |
+| `fx_rate_cache`: base/quote ISO, **exact decimal rate string**, source, effective/published time, fetched time | Validated **latest published** quote and old/stale versions; provider freshness is not tick-by-tick guaranteed |
+| Existing `ledger_events`/`ledger_postings` | Continue one immutable canonical journal; any per-currency or FX-clearing schema **BLOCKED pending ADR** |
+
+**Data integrity guidance:** unique account+capability keys; Foreign Keys ON for each SQLite connection; `CHECK` validators for positive limits and allowed enum/status; UTC timestamps; indexed pair/time quote lookups; prepare idempotent migrations. **Do not store full bank/card credentials, OTPs, PINs, CVVs or API provider secrets.** No generic arbitrary key/value EAV record may authorize new financial postings. Normalize typed money/decimal precision at domain boundary.
+
+### 00.3 Monetary, FX and report invariants
+
+- **No mixed-unit sums.** Integer paise cannot represent all ISO currency scales. Adopt currency-specific integer minor-unit + exact decimal quotes or a reviewed precise equivalent after the FX ADR; never book JS float amounts.
+- **Journal is balanced** by approved currency-aware rules for each event. Single-currency cash/card/loan examples continue to use the existing one-currency posting contract; **cross-currency transfers and FX gain/loss are blocked until the new design includes clearing legs, fee currency, rounding and reproducible conversion evidence**.
+- **FX provider is not ledger source of truth.** Refresh on user currency use; store accepted quote provenance/time locally. UI conversions are projections; original booked transaction amount/currency **never overwritten**, reports must disclose historic-vs-current valuation basis.
+- **Card:** purchase = expense + liability, bank bill payment = asset decrease + liability decrease, not second expense; limit metadata is not an asset; available is calculated estimate and cannot rely on unknown issuer holds.
+- **Loan:** borrowed principal disbursement = bank asset + loan liability, not income; EMI with principal 3,000 and interest 1,000 = bank −4,000, debt −3,000, interest expense +1,000. Given-loan principal repayment is not income; earned interest is separately classified after recognition ADR.
+- **Investment:** transfer from bank to holding acquisition is asset exchange, not expense; valuation records require timestamp and an accepted cost-basis/market-value policy; do not double-count invested cost and current value.
+- **Atomicity / idempotency:** creation and opening journal commit together; card repayment, EMI, transfer fees and refunds save as one balanced command or not at all. Duplicate Save/import confirmation retries must not re-post. Existing unresolved `TM-ADR-011` client-request persistence and `TM-ADR-013/014` refund/date semantics remain blocking.
+
+### 00.4 Safe migration and compatibility proposal — not approved
+
+**Proposed process:** first approve [Account Groups](08-ACCOUNT-GROUPS-SPEC.md), [Currency](10-CURRENCY-SPEC.md) and finance ADRs; then test migrations on copies of real/fixture databases (including existing settings-only `user_version=1`), with reversible application-level backup/recovery plan where feasible, startup integrity/FK checks, and no silent reset/data loss. SQLite migrations cannot be assumed rollbackable after shipping; define a tested forward recovery and explicit user messaging. Do **not** disable constraints to force a legacy subtype into a new one.
+
+If multi-currency ledger design is not approved before Stage 1 finance implementation, a valid *proposed fallback for explicit owner decision* is INR-only journal plus conversion **display-only**, with cross-currency account posting disabled. It is **not** automatically approved by this document.
+
+### 00.5 Acceptance and ADR trace
+
+| ID | Test / gate |
+| :--- | :--- |
+| `TM-DB-GROUP-001` | Six group templates map to valid accounting classes; same funded bank cannot double-count payment modes |
+| `TM-DB-GROUP-002` | Loan Given and Borrowed have opposing classification and correct principal ledger effects |
+| `TM-DB-GROUP-003` | Card payment + transfer fee + EMI post atomically; no double expense |
+| `TM-DB-GROUP-004` | Investment purchase/cost and dated valuation cannot double-count net worth |
+| `TM-DB-FX-001` | Different ISO minor scales and rates convert exactly; numeric drift prevented |
+| `TM-DB-FX-002` | Historical booked money unchanged when cached or refreshed FX quote changes |
+| `TM-DB-FX-003` | Cross-currency writes **fail closed** unless approved currency-journal policy exists |
+| `TM-DB-SAFE-001` | Opening write FK failure leaves no account or postings; double-tap is idempotent |
+| `TM-DB-SAFE-002` | Upgrade from settings-only schema does not silently reset data or break history |
+
+**ADR backlog (all unresolved, not approved):** `TM-ADR-018` currency-aware journal/cross-currency FX and report basis; `TM-ADR-019` typed group + bank-linked wallet model; `TM-ADR-020` card billing statements/available/repayment tracking; `TM-ADR-021` loan schedule/accrual and interest recognition; `TM-ADR-022` investment cost basis/valuation/realized gains; `TM-ADR-023` provider FX precision/privacy/rate-limit policy. Existing `TM-ADR-011–017` remain independent. Each needs reviewed choices, migration semantics and deterministic tests **before coding**.
+
 ## 01 · Executive decision: use a balanced journal
 
 **Recommendation: append-only, double-entry postings.** Do not make mutable balances on transaction rows the source of truth. A financial event contains two or more signed-effect postings to ledger accounts. **Total debits must equal total credits for each event.**
@@ -158,6 +232,9 @@ erDiagram
 **Design reconciliation:** Earlier PRD text describes a “transfer record linked to a fee expense record.” In this canonical proposal, the **transfer metadata and the distinct expense posting are linked to the same event**, posted in one SQLite transaction; the expense remains visible in Reports. This satisfies the intended *business outcome* while avoiding duplicate transaction rows. If product review requires a separately editable fee transaction, add a linked child-event projection/contract in a subsequent ADR — never create a second charge silently.
 
 ## 04 · SQLite schema proposal (v1)
+
+> [!WARNING]
+> **Legacy INR-only / four-subtype SQL design, NOT the approved schema for the 2026-11-20 six-group + Sub Currency product.** Study [Section 00](#00--finance-data-model-reconciliation--2026-11-20--documentation-only) and resolve its ADRs before writing migrations. Nothing here authorizes mixed-currency posting or mutating the existing settings-only Phase 0 database.
 
 **Engine:** Expo SQLite with `PRAGMA foreign_keys = ON` enabled for every database connection. A tested migration runner owns all schema changes. The fragments below describe one logical v1 schema; production migrations must include transaction-safe setup, verification and rollout.
 

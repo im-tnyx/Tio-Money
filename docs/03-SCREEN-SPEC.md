@@ -17,6 +17,74 @@
 > [!IMPORTANT]
 > **Current-versus-future contract (verified on PR #1, 2026-11-19):** The **Phase 0 navigation shell is implemented as source**, not as a completed finance app: native splash → five blank selectable screens (**Home · Trans. · Stats. · Account · More**) with **one disabled floating `+` over More** and **no app top bar, Add editor, Settings, onboarding, History or other feature route**. The older four-destination/active-Add flow, ten feature-screen designs and the mockups below are **future product proposals only**, superseded for current Phase 0 by [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). No ledger posting or SMS access is shipped. Final color contrast, full installed-device accessibility matrix, real SQLite PRAGMA/migration/restart QA and merge approval remain unverified; owner reports the current device UI renders with no recurring `ExpoSQLite` error. The owner-supplied mockups are functional references, **not assets or styling to copy**. [Current core theme ownership](../src/shared/theme/README.md) is authoritative for implemented dimensions and system dark/light behavior.
 
+
+## 00 · Future Stage 1 screen contract — 2026-11-20
+
+> [!IMPORTANT]
+> **UI specification only.** The current verified Phase 0 screen shell stays **five blank tabs** (Home · Trans. · Stats. · Account · More) with a **disabled floating + above More**, no additional feature screens, no active Settings or onboarding. The screen designs below are **future**; no change to current Phase 0. Stage order: [TM-DEC-006](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) / [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Keep existing system-selected light/dark Phase 0 theme tokens; do not imply a manually selectable theme works now. Initial language is **English only**.
+
+### SCREEN 11 · Accounts → Add Account · `TM-S11` · future local Stage 1
+
+| Step | Visible design and acceptance |
+| :--- | :--- |
+| Choose Account Group | Six built-in rows: Cash, Bank, Wallet, Credit Card, Investment, Loan, with a short definition. May hide templates in Settings, never delete existing accounts |
+| Shared fields | Name, opening amount/outstanding label, ISO currency, description; label changes to group semantics |
+| Cash | Only shared fields; amount is asset opening, no income |
+| Bank | Shared + bank provider (optional), UPI, debit card, cheque, internet banking capability checkboxes; explain all methods use the same balance |
+| Wallet | Funded / bank-linked reference; show bank link selector only for bank-linked type; forbid duplicate independent balance |
+| Credit Card | Opening outstanding, total limit, statement cycle/day, next due, linked bank payment source, description, tracking-only auto-payment preference |
+| Investment | Asset kind, invested amount, current value + valuation date, funding account, optional units; show cost/value as separate concepts |
+| Loan | Borrowed / Given, outstanding principal, interest rate/basis, installment, next due, linked account; label asset/owed status accurately |
+
+**Form behavior:** dynamic fields derive from a typed **group definition**, not bank/payment provider names; required, optional and derived fields visually distinct. A derived balance, available credit, Net Worth or rate is never editable. Validation errors appear by field and screen-reader announcement; on group switch warn before discarding incompatible draft fields. Prevent silent account-class change on edit.
+
+**Account detail:** group label + asset/liability context, running ledger-derived balance, status, linked accounts, sorted transactions, financial correction/history. **Credit card availability is an estimated value** (limit − posted outstanding − known holds + adjustments); if issuer holds aren't known, say so.
+
+### SCREEN 12 · Card Bill & Loan Installment · `TM-S12` · future local Stage 1
+
+| Card bill area | Behavior |
+| :--- | :--- |
+| Statement | Show statement generation date/billing period; distinguish user-entered issuer amount from computed spend |
+| Due date | Show actual known date/rule; 28–31-day months, holidays, overdue status and timezone must not produce impossible dates |
+| Total / outstanding / available | Label all individually. Credit limit is **not spendable asset** |
+| Pay from | Optional eligible bank account ID, explicitly chosen/confirmed at payment time |
+| Automatic Payment | Toggle labelled **“Track bank autopay (reminders only)”**; do **not** imply Tio Money schedules or debits payments. No date-based auto-post |
+| Pay Bill | Full / partial / user-entered amount → preview bank −, card liability −, **new expense 0**, explicit Confirm; receipt/history after atomic local commit |
+
+**Loan installment detail:** amount + principal + interest + fees (if known), linked account, due date; preview exactly which postings change. Schedule alone is not a booked payment. If interest allocation unknown, **block posting as if it were known**; allow user to correct/confirm, not silently allocate.
+
+### SCREEN 13 · Settings → Currency · `TM-S13` · future local Stage 1
+
+- Show Main Currency picker and optional Sub Currency control. Sub picker is active **only for currency different from Main**; reject identical pair, not an API call.
+- Currency card displays **1 Sub = X Main**, ISO codes, rate provider, **published/effective at** and **fetched at** times, freshness/stale label, Refresh Now.
+- On app foreground, pair change, entering conversion, relevant report/transaction action → request latest available published rate. Show loading/nonblocking state; avoid request storms. Cached rate must visibly say **stale**, not “Live”.
+- If internet/provider unavailable and cache exists, still show original amounts and approximate cached conversion with time. If no cache, show **Rate unavailable** and omit converted amount; regular same-currency local entry remains accessible.
+- Changing display currency never rewrites saved account/transaction original currency. For unsupported cross-currency posting, show explanatory unavailable state until the ledger ADR is approved.
+- Accessibility: speak base/quote and “estimated, last fetched ...”; never rely on color alone for stale/error. Format account currency-specific decimal scale, dates in device locale while initial UI labels remain English.
+
+### SCREEN 14 · Local Data & Future Cloud Choices · `TM-S14` · stage-gated
+
+**Stage 1:** only local privacy/storage information, no signup, no inactive cloud controls or false backup indicator. Warn that uninstall/device loss can destroy not-backed-up data.
+
+**Stage 2 (not visible now):** optional “Backup to Google Drive / iCloud Drive / file provider” and “Restore from encrypted backup” surfaces, with confirmation of content, encryption/passphrase risk, timestamps, validation and restore replace-vs-merge warnings. No Tio Money account required.
+
+**Stage 3 (not visible now):** separate optional “Enable Supabase Sync” user choice; **only** on this path present app signup/signin and informed consent. Show explicit upload and conflict expectations, local-only exit and signout outcomes. Never open login on ordinary app launch.
+
+### UI acceptance trace
+
+| ID | Required visible outcome |
+| :--- | :--- |
+| `TM-SCR-AG-001` | Group selects only permitted fields; Cash has no card-specific inputs |
+| `TM-SCR-AG-002` | UPI/debit card capabilities do not render duplicate account balances |
+| `TM-SCR-AG-003` | Card outstanding, limit, available and due/statement labels remain distinct |
+| `TM-SCR-AG-004` | “Automatic Payment” clearly marked **tracking only** and creates no external payment |
+| `TM-SCR-AG-005` | Loan and Investment show cost/valuation or principal/interest separately |
+| `TM-SCR-FX-001` | Identical Main/Sub disabled, FX refresh on meaningful currency use |
+| `TM-SCR-FX-002` | Stale quote has source/time; no quote shows unavailable, no fake rate |
+| `TM-SCR-STAGE-001` | Stage 1 no signup, backup or Supabase controls rendered |
+
+**Implementation/design gates:** dynamic input semantics and card due-date policy require accepted [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); FX refresh, precision and reporting require [10 — Currency](10-CURRENCY-SPEC.md); balance/transfer rules require [04 — Ledger](04-DATABASE-DESIGN.md). This section is not approved pixel-level UI or a claim that these routes exist.
+
 ## 01 · Executive design direction
 
 **Personality:** calm · contemporary · trustworthy · precise · approachable. Finance tools must make **the movement of money** more obvious than decoration.
@@ -380,7 +448,7 @@ If credit card is selected, the UI clarifies **“Adds to card outstanding”**,
 
 ### SCREEN 06 · Accounts `TM-S06` · P0
 
-- List owned accounts by classes: **Cash / Bank / Funded Wallet / Credit Card**.
+- **Future Stage 1:** list **Cash / Bank / Funded Wallet / Credit Card / Investment / Loan** by UI group. Ledger accounting class (asset/liability) is independent from the user-facing group (see SCREEN 11); current Phase 0 screen is blank.
 - Asset account card = current available balance; card liability card = **Outstanding**, never indistinct `Balance`.
 - Add account is a labeled action within Accounts; it is **not** an Income/Expense/Transfer home shortcut.
 - Add/edit form: name, type, opening amount, masked account identifier (optional), icon, archived status.

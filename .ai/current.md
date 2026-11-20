@@ -1,5 +1,16 @@
 # 🧭 Current task index
 
+## 2026-11-20 — Phase B finance architecture documentation (stacked draft)
+
+- **Task:** [TM-DOC-ARCH-20261120-002](tasks/product/local-first-technical-design-20261120.md). **RFC:** [Issue #15](https://github.com/im-tnyx/Tio-Money/issues/15). Current agent ChatGPT GPT-6; previous agent for new task UNKNOWN_NOT_VERIFIED.
+- **Owner source:** chat "Go" after bounded PR B documentation proposal; agent technical **PROCEED** recorded for docs **only**, not owner PR merge authorization.
+- **Base:** open [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), head `659915ba8c9766082ccc945809b8879df3b5b6ce`; initial `main` `fd154db417b1979d39f855317f252eed37c36e9d`. Branch `docs/local-first-finance-architecture-20261120` **stacked on PR A**, not yet merged.
+- **File ownership:** `docs/02-USER-FLOWS.md`, `docs/03-SCREEN-SPEC.md`, `docs/04-DATABASE-DESIGN.md`, `docs/05-TECH-ARCHITECTURE.md`, this index and new task record; no actual SQL/source/auth/provider integration.
+- **Review and authority:** independent review DEFERRED, finance ADRs unresolved, merge authorization NOT_GRANTED for either PR. Verify current PR/CI/diff/HEAD before any further action. Older PR status rows below are dated historical records.
+
+---
+
+
 ## 2026-11-20 — Product contract PR #14 (newest read-only handoff)
 
 | Task | Owner instruction / RFC | Work branch / PR | Status and gate |

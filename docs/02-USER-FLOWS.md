@@ -16,6 +16,79 @@
 > [!NOTE]
 > **Design intent, not a pixel-perfect clone.** The supplied Income/Expense/Transfer screenshots are references for tabs, fields and the optional Fees action. The final Tio Money visual system will be original.
 
+
+## 00 · Stage 1 owner-direction overlay — account groups and currency (2026-11-20)
+
+> [!IMPORTANT]
+> **Design review only; not shipped.** Owner product decisions [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) govern these **future** flows. **Current Phase 0 remains splash → five blank selectable tabs and one disabled floating +** (no Settings, editor or onboarding route). Earlier P0 onboarding and four-group diagrams below are **future examples**, not today's app. English-only initial app copy remains. Stage 2 backup and Stage 3 Supabase/Auth are separate later flows, **not part of Stage 1**.
+
+### 00.1 Account groups — dynamic create, edit and archive
+
+```mermaid
+flowchart TD
+  A["Accounts tab in future Stage 1"] --> B["Add Account"]
+  B --> C{"Choose built-in group"}
+  C --> D["Cash / Bank / Wallet / Card / Investment / Loan"]
+  D --> E["Group-specific fields + eligible account links"]
+  E --> F{"Validation and finance rules?"}
+  F -->|No| G["Explain error, preserve draft"]
+  G --> E
+  F -->|Yes| H["Atomic local SQLite account + opening journal"]
+  H --> I["Account detail + reconciled summaries"]
+  I --> J["Edit metadata / archive, preserve ledger history"]
+```
+
+- **Settings → Account Groups** controls built-in template ordering/visibility; a hidden group neither deletes old accounts nor changes historic ledger classification. **Accounts → Add Account** creates records. Multiple accounts per group supported; custom groups remain future design-gated.
+- **Cash:** name, opening amount, account currency, description. **Bank:** these plus optional provider and capabilities (UPI, debit card, cheque, internet banking). Modes describe ways to access the **same bank balance**, not separate ledgers. **Funded Wallet:** independently held balance; **bank-linked UPI reference** must not double count the bank asset.
+- **Card:** card name, opening outstanding (debt), currency, credit limit, derived available credit, statement/due-cycle settings, optional linked bank account and description. “Automatic Payment” records a **tracking preference**, reminder and future payment choice, never posts or initiates a bank debit. A **Pay Bill** workflow displays source account and amount, and posts a bank-to-card repayment **only after explicit local confirmation**.
+- **Investment:** type/holding, cost, latest user-entered value + valuation date, funding account; purchase principal becomes an asset, **not Expense**. Net worth valuation versus cost-basis posting requires finance ADR.
+- **Loan:** Borrowed / Given, principal, outstanding, rate basis, installment and linked account; repayment must show principal and interest separately. Loan disbursal is debt/receivable movement, not salary or spending.
+- Group switching before save warns about fields that would be dropped. Changing a saved account between incompatible ledger classes or converting loan direction **is not a simple rename**; disallow until a reviewed migration event.
+- Account archive removes it from new payment/transfer pickers but preserves history; card outstanding/loan principal and category reports must reconcile after edits, refunds and restores.
+
+| Flow ID | User action / exception | Expected system behavior |
+| :--- | :--- | :--- |
+| `TM-FLOW-AG-001` | Bank with UPI + debit card enabled | Both modes share one bank asset; no phantom wallet |
+| `TM-FLOW-AG-002` | Card purchase then bank pays statement | Expense recognized on purchase, bank/card liability reduce on payment; no second expense |
+| `TM-FLOW-AG-003` | User enables card “Automatic Payment” | Show “Tracking/reminders only”; **zero external debit and zero ledger posting** |
+| `TM-FLOW-AG-004` | Loan installment ₹4,000: ₹3,000 principal + ₹1,000 interest | Bank −₹4,000, debt −₹3,000, Expense ₹1,000; one atomic event |
+| `TM-FLOW-AG-005` | Investment buy ₹3,000 | Bank −₹3,000, investment cost asset +₹3,000, Expense unchanged |
+| `TM-FLOW-AG-006` | Create fails during opening journal | Roll back account and all postings; retry idempotently |
+| `TM-FLOW-AG-007` | Group hidden or account archived | No historic erasure; existing summaries remain explainable |
+
+### 00.2 Main/Sub Currency — refresh-on-use interaction
+
+```mermaid
+flowchart TD
+  S["Settings → Currency"] --> M["Choose Main Currency"]
+  M --> X{"Optional Sub differs from Main?"}
+  X -->|No| N["Sub disabled, no rate request"]
+  X -->|Yes| T["Choose distinct Sub Currency"]
+  T --> U["Currency-dependent use: refresh latest published quote"]
+  U --> R{"Response valid?"}
+  R -->|Yes| V["Store quote metadata locally; display updated time"]
+  R -->|No, cached| C["Use last valid rate + visible stale warning"]
+  R -->|No, no cache| F["Conversion unavailable; original local money remains usable"]
+```
+
+**On-use triggers:** app open/foreground with active Sub Currency, change selected pair, enter a currency conversion, multi-currency report, or currency-dependent transaction; manual Refresh Now also forces a request. This means **one valid fetch attempt per meaningful action**, not a background polling promise or one HTTP call per component rerender/keystroke. Coalesce identical in-flight requests; show throttled/network failure honestly. A provider's *latest available published* quote may be unchanged. Show base/quote, provider, rate and fetched/published timestamps. **Never modify booked original amounts due to updated quote**.
+
+**Offline:** same-currency entry and existing ledger are fully usable offline. A cached rate is an explicit stale estimate; if missing, conversion unavailable (not silently 1:1). User's balance, card number, transaction notes or report rows **must not** leave the device in FX requests. Cross-currency posting remains **blocked pending finance ADR**, unlike display-only conversion.
+
+| Flow ID | Acceptance |
+| :--- | :--- |
+| `TM-FLOW-FX-001` | Sub disabled or identical to Main → no conversion pair and no request |
+| `TM-FLOW-FX-002` | Every new relevant user action attempts refresh; same-tick identical calls deduplicated |
+| `TM-FLOW-FX-003` | Offline cache → stale provenance, no cache → unavailable |
+| `TM-FLOW-FX-004` | Change pair while request pending → late quote cannot populate wrong pair |
+| `TM-FLOW-FX-005` | FX-only request contains pair, not personal finance/identity fields |
+
+### 00.3 Scope gates & separate identity flows
+
+**Stage 1:** local SQLite financial data, offline-first manual features, limited network for public FX pair metadata. **No app signup**; do not block normal data entry when rate fetch fails. **Stage 2:** encrypted, optional, user-initiated Google Drive/iCloud-compatible backup & restore; this is a **file-provider flow**, not app login or a live ledger. **Stage 3:** user explicitly opts into Supabase sync, then sees app signup/signin and consent before initial upload. Supabase RLS, conflicts, sessions, cloud deletion and sign-out semantics need separate reviewed technical design; **none** are implemented here.
+
+**Unresolved implementation blockers:** multi-currency balanced postings, investment cost-basis/value, loan accrual/schedule, card issuer due-date and minimum-due rules, backup keys, tenant isolation. See [Account Groups](08-ACCOUNT-GROUPS-SPEC.md), [Currency](10-CURRENCY-SPEC.md), [Ledger](04-DATABASE-DESIGN.md).
+
 ## 01 · The navigation promise
 
 **Initial onboarding is English-only:** no language picker in the MVP; future locales remain a separate enhancement ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
