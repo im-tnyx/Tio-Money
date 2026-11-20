@@ -12,8 +12,6 @@
   },
   "remoteUser": "node",
   "features": {
-    "ghcr.io/devcontainers/features/sshd:1": {
-      "version": "latest"
-    }
+    "ghcr.io/devcontainers/features/sshd:1.1.0": {}
   }
 }
