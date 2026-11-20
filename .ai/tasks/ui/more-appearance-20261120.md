@@ -23,3 +23,11 @@
 - Test pure mode resolution, structural screen boundaries, native/UI checks in CI and owner device smoke.
 - Remaining: confirm exact-head GitHub CI, optional review disposition, owner Codespaces preview validation and merge-specific approval.
 - Neither this task nor RFC permits any workflow dispatch, preview Codespace mutation or PR merge.
+
+## 2026-11-21 — Latest-main reconciliation handoff
+
+- **Requested action:** branch-only safe reconciliation, not merge into `main`; old HEAD `7ed3a1c1c41eb2e730fb22e9e8d4b44e6cd5cf56`, new `main` `0c295316940fc73e0c8e8bce127aaedede5d3d49`.
+- **Integration:** preserve unchanged feature source, Route / ViewModel / dumb Screen architecture, original preference store and Phase 0 shell; only `.ai/current.md` overlaps. Merge latest `main` (including PR #21/#26 workflow fixes) with non-force two-parent commit. Changes to docs/ledger/workflow on `main` must not be overwritten.
+- **Preview safety:** temporarily disable `tio-preview` before branch update so the automatic privileged `workflow_run` cannot start a Codespace, then only restore after observing safe skip. Manual preview dispatch is NOT performed by reconciliation.
+- **Exact-head acceptance:** run/check GitHub Phase 0, governance and preview signal at new SHA; review diff, safety findings, `main` ancestry, UI structure and owner device-test gaps. This task log is a historical checkpoint; GitHub live state overrides it.
+- **Review disposition:** independent review `DEFERRED` (optional under TM-DEC-002); no independent approval claimed. **Merge authorization for PR #18 NOT_GRANTED**.

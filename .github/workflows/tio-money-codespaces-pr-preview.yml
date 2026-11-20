@@ -9,7 +9,7 @@ on:
       pr_number:
         description: Owner-authored, repo-local PR selected for Expo Go preview
         required: true
-        type: number
+        type: string
   workflow_run:
     workflows:
       - Tio Money preview push signal
@@ -81,7 +81,37 @@ jobs:
             selected="${matches[0]}"
           fi
 
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${selected}" > "$RUNNER_TEMP/preview-pr.json"
+          # This request retains the existing READ-ONLY GITHUB_TOKEN; on denial,
+          # emit only GitHub's documented non-secret permission diagnostic headers.
+          # Never print a credential, request Authorization header or API body.
+          pr_headers="$RUNNER_TEMP/preview-pr-api-headers.txt"
+          # Keep the bearer token out of curl process argv and disk files.
+          # Pass the Authorization header through an ephemeral stdin curl config.
+          pr_status="$(printf 'header = "Authorization: Bearer %s"\n' "$GH_TOKEN" |
+            curl --config - --silent --show-error --max-time 20 \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --dump-header "$pr_headers" \
+              --output "$RUNNER_TEMP/preview-pr.json" \
+              --write-out '%{http_code}' \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${selected}")"
+          if [[ "$pr_status" != "200" ]]; then
+            echo "::error::Selected PR read returned HTTP ${pr_status}; Codespace activation denied."
+            # Values are explicitly character-filtered and length-bounded to
+            # avoid log control-sequence injection by untrusted API responses.
+            awk -F ':' '
+              {
+                name = tolower($1)
+                if (name != "x-accepted-github-permissions" &&
+                    name != "x-github-request-id" &&
+                    name != "x-github-api-version-selected") next
+                value = substr($0, index($0, ":") + 1)
+                gsub(/[^[:alnum:]._,;= -]/, "?", value)
+                print "GitHub API diagnostic " name ":" substr(value, 1, 240)
+              }
+            ' "$pr_headers"
+            exit 1
+          fi
           jq -e --arg repo "$GITHUB_REPOSITORY" '
             .state == "open" and .number > 0 and
             .changed_files > 0 and .changed_files <= 100 and
