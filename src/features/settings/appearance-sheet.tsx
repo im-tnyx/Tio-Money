@@ -53,7 +53,6 @@ function AppearanceOption({
         borderTopWidth: showDivider ? theme.navigation.borderWidth : theme.navigation.origin,
         borderTopColor: theme.colors.border,
       }}
-
     >
       <AppearanceOptionIcon preference={value} color={theme.colors.secondaryText} />
       <View style={{ flex: 1 }}>
