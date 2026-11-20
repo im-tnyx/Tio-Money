@@ -1,4 +1,4 @@
-import { Modal, Pressable, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
@@ -109,15 +109,10 @@ export function AppearanceSheet({
           onPress={dismiss}
           accessibilityRole="button"
           accessibilityLabel={t('closeAppearance')}
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            backgroundColor: theme.colors.shadow,
-            opacity: 0.45,
-          }}
+          style={[
+            StyleSheet.absoluteFill,
+            { backgroundColor: theme.colors.shadow, opacity: 0.45 },
+          ]}
         />
         <SafeAreaView
           edges={['bottom', 'left', 'right']}
