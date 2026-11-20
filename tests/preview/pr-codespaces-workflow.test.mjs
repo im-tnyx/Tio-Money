@@ -154,8 +154,12 @@ test('remote script refuses unsafe source and never force resets or changes git 
   assert.doesNotMatch(sync, /curl\s+[^\n]*\|\s*bash/);
 });
 
-test('Codespaces container declares SSHD while preserving managed startup', () => {
-  assert.equal(devcontainer.features['ghcr.io/devcontainers/features/sshd:1'].version, 'latest');
+test('Codespaces SSHD feature uses reviewed exact patch, no ignored latest option', () => {
+  assert.deepEqual(Object.keys(devcontainer.features), [
+    'ghcr.io/devcontainers/features/sshd:1.1.0',
+  ]);
+  assert.deepEqual(devcontainer.features['ghcr.io/devcontainers/features/sshd:1.1.0'], {});
+  assert.equal(JSON.stringify(devcontainer.features).includes('latest'), false);
   assert.equal(devcontainer.postStartCommand, 'node scripts/start-codespace-expo.mjs');
   assert.equal(devcontainer.portsAttributes['8081'].visibility, 'private');
 });
