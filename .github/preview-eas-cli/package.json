@@ -1,0 +1,8 @@
+{
+  "name": "tio-money-verified-eas-cli",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "eas-cli": "27.4.1"
+  }
+}
