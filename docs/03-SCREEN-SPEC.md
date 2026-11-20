@@ -17,6 +17,75 @@
 > [!IMPORTANT]
 > **Current-versus-future contract (verified on PR #1, 2026-11-19):** The **Phase 0 navigation shell is implemented as source**, not as a completed finance app: native splash → five blank selectable screens (**Home · Trans. · Stats. · Account · More**) with **one disabled floating `+` over More** and **no app top bar, Add editor, Settings, onboarding, History or other feature route**. The older four-destination/active-Add flow, ten feature-screen designs and the mockups below are **future product proposals only**, superseded for current Phase 0 by [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). No ledger posting or SMS access is shipped. Final color contrast, full installed-device accessibility matrix, real SQLite PRAGMA/migration/restart QA and merge approval remain unverified; owner reports the current device UI renders with no recurring `ExpoSQLite` error. The owner-supplied mockups are functional references, **not assets or styling to copy**. [Current core theme ownership](../src/shared/theme/README.md) is authoritative for implemented dimensions and system dark/light behavior.
 
+
+## 00 · Future Stage 1 screen contract — 2026-11-20
+
+> [!IMPORTANT]
+> **UI specification only.** The current verified Phase 0 screen shell stays **five blank tabs** (Home · Trans. · Stats. · Account · More) with a **disabled floating + above More**, no additional feature screens, no active Settings or onboarding. The screen designs below are **future**; no change to current Phase 0. Stage order: [TM-DEC-006](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) / [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Keep existing system-selected light/dark Phase 0 theme tokens; do not imply a manually selectable theme works now. Initial language is **English only**.
+
+### SCREEN 11 · Accounts → Add Account · `TM-S11` · future local Stage 1
+
+| Step | Visible design and acceptance |
+| :--- | :--- |
+| Choose Account Group | Six built-in rows: Cash, Bank, Wallet, Credit Card, Investment, Loan, with a short definition. May hide templates in Settings, never delete existing accounts |
+| Shared fields | Name and description; currency is selected for ledger-bearing accounts but **inherited from the linked Bank** for reference Wallets. Opening position is **group-conditional**, not a mandatory universal field |
+| Cash | Name, native currency, optional description and nonnegative opening asset amount; a positive opening balances against opening equity, never Income |
+| Bank | Shared + bank provider (optional), UPI, debit card, cheque, internet banking capability checkboxes; explain all methods use the same balance |
+| Wallet | **Funded:** show nonnegative opening asset amount and own currency. **Bank-linked reference:** require eligible linked Bank selection, derive currency and show **no editable opening amount or separate balance/journal**; add/edit/archive reference metadata only |
+| Credit Card | Opening outstanding, total limit, statement cycle/day, next due, linked bank payment source, description, tracking-only auto-payment preference |
+| Investment | Asset kind, **historical opening cost basis** vs separately dated current valuation, funding account and optional units. Registering an existing position must not debit funding Bank a second time; valuation stays non-posting, report policy ADR-gated |
+| Loan | Borrowed / Given, historical outstanding principal (liability vs receivable), rate basis, installment, next due and eligible account link; no bank movement on historical opening; distinguish separately confirmed new disbursement |
+
+**Form behavior:** dynamic fields derive from a typed **group definition**, not bank/payment provider names; required, optional and derived fields visually distinct. A derived balance, available credit, Net Worth or rate is never editable. Validation errors appear by field and screen-reader announcement; on group switch warn before discarding incompatible draft fields. Prevent silent account-class change on edit.
+
+**Account detail:** ledger-bearing kinds display group label, asset/liability context, ledger-derived balance, status, linked accounts, posted transactions and correction/history. **Bank-linked Wallet reference** displays the linked Bank account and its shared balance as a *view*, **not an independent asset**; editing or archiving the reference leaves Bank postings untouched. **Credit card availability is an estimated value** (limit − posted outstanding − known holds + adjustments); if issuer holds aren't known, say so.
+
+### SCREEN 12 · Card Bill & Loan Installment · `TM-S12` · future local Stage 1
+
+| Card bill area | Behavior |
+| :--- | :--- |
+| Statement | Show statement generation date/billing period; distinguish user-entered issuer amount from computed spend |
+| Due date | Show actual known date/rule; 28–31-day months, holidays, overdue status and timezone must not produce impossible dates |
+| Total / outstanding / available | Label all individually. Credit limit is **not spendable asset** |
+| Pay from | Optional eligible bank account ID, explicitly chosen/confirmed at payment time |
+| Automatic Payment | Toggle labelled **“Track bank autopay (reminders only)”**; do **not** imply Tio Money schedules or debits payments. No date-based auto-post |
+| Pay Bill | Full / partial / user-entered amount → preview bank −, card liability −, **new expense 0**, explicit Confirm; receipt/history after atomic local commit |
+
+**Loan installment detail:** amount + principal + interest + fees (if known), linked account, due date; preview exactly which postings change. Schedule alone is not a booked payment. If interest allocation unknown, **block posting as if it were known**; allow user to correct/confirm, not silently allocate.
+
+### SCREEN 13 · Settings → Currency · `TM-S13` · future local Stage 1
+
+- Show Main Currency picker and optional Sub Currency control. Sub picker is active **only for currency different from Main**; reject identical pair, not an API call.
+- Currency card displays **1 Sub = X Main**, ISO codes, rate provider, **published/effective at** and **fetched at** times, freshness/stale label, Refresh Now.
+- On app foreground, pair change, entering conversion, relevant report/transaction action → request latest available published rate. Show loading/nonblocking state; avoid request storms. Cached rate must visibly say **stale**, not “Live”.
+- If internet/provider unavailable and cache exists, still show original amounts and approximate cached conversion with time. If no cache, show **Rate unavailable** and omit converted amount; regular same-currency local entry remains accessible.
+- Changing display currency never rewrites saved account/transaction original currency. For unsupported cross-currency posting, show explanatory unavailable state until the ledger ADR is approved.
+- Accessibility: speak base/quote and “estimated, last fetched ...”; never rely on color alone for stale/error. Format account currency-specific decimal scale, dates in device locale while initial UI labels remain English.
+
+### SCREEN 14 · Local Data & Future Cloud Choices · `TM-S14` · stage-gated
+
+**Stage 1:** only local privacy/storage information, no signup, no inactive cloud controls or false backup indicator. Warn that uninstall/device loss can destroy not-backed-up data.
+
+**Stage 2 (not visible now):** optional “Backup to Google Drive / iCloud Drive / file provider” and “Restore from encrypted backup” surfaces, with confirmation of content, encryption/passphrase risk, timestamps, validation and restore replace-vs-merge warnings. No Tio Money account required.
+
+**Stage 3 (not visible now):** separate optional “Enable Supabase Sync” user choice; **only** on this path present app signup/signin and informed consent. Show explicit upload and conflict expectations, local-only exit and signout outcomes. Never open login on ordinary app launch.
+
+### UI acceptance trace
+
+| ID | Required visible outcome |
+| :--- | :--- |
+| `TM-SCR-AG-001` | Group selects only permitted fields; Cash has no card-specific inputs |
+| `TM-SCR-AG-002` | UPI/debit card capabilities do not render duplicate account balances |
+| `TM-SCR-AG-003` | Card outstanding, limit, available and due/statement labels remain distinct |
+| `TM-SCR-AG-004` | “Automatic Payment” clearly marked **tracking only** and creates no external payment |
+| `TM-SCR-AG-005` | Loan and Investment show cost/valuation or principal/interest separately |
+| `TM-SCR-AG-006` | Bank-linked Wallet reference requires Bank selector, inherits currency, has no opening amount and changes no bank balance on edit/archive |
+| `TM-SCR-FX-001` | Identical Main/Sub disabled, FX refresh on meaningful currency use |
+| `TM-SCR-FX-002` | Stale quote has source/time; no quote shows unavailable, no fake rate |
+| `TM-SCR-STAGE-001` | Stage 1 no signup, backup or Supabase controls rendered |
+
+**Implementation/design gates:** dynamic input semantics and card due-date policy require accepted [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); FX refresh, precision and reporting require [10 — Currency](10-CURRENCY-SPEC.md); balance/transfer rules require [04 — Ledger](04-DATABASE-DESIGN.md). This section is not approved pixel-level UI or a claim that these routes exist.
+
 ## 01 · Executive design direction
 
 **Personality:** calm · contemporary · trustworthy · precise · approachable. Finance tools must make **the movement of money** more obvious than decoration.
@@ -32,7 +101,7 @@
 
 ### Current implemented Phase 0 visual contract
 
-**Only the following behavior exists on the Phase 0 feature branch** (not yet merged):
+**Only the following behavior is implemented in the Phase 0 shell on `main`** (merged through PR #1 on 2026-11-19; full cross-platform installed-device/SQLite QA remains unverified):
 
 - Five blank navigable screens with labels **Home · Trans. · Stats. · Account · More**; no body text, cards, placeholders, transaction form or app-level top bar.
 - Exactly one **disabled** circular floating `+` placed right-above the **More** tab's center, outside the bottom bar, with no `onPress` or editor route.
@@ -45,7 +114,7 @@
 
 | Phase | Screens / interactions | Status |
 | :--- | :--- | :--- |
-| **Current Phase 0 navigation shell** | Five blank tabs + disabled More-aligned floating Add; system light/dark and centralized visual tokens | **Source implemented in PR #1; ready for review, not merged or device-accepted** |
+| **Current Phase 0 navigation shell** | Five blank tabs + disabled More-aligned floating Add; system light/dark and centralized visual tokens | **Source implemented and PR #1 merged 2026-11-19; full cross-platform installed-device/SQLite QA remains unverified** |
 | **Future MVP feature screens (original P0 proposal)** | Setup, Home dashboard, active Add, History, account management, Reports, Settings | **Design only — not implemented in current Phase 0** |
 | **P1 · Cross-platform import** | Import source, candidate review, deduplication states | **Specified at flow level** |
 | **Conditional Android native** | SMS permission rationale, review inbox, opt-out | **Requires policy eligibility + custom development build** |
@@ -380,13 +449,13 @@ If credit card is selected, the UI clarifies **“Adds to card outstanding”**,
 
 ### SCREEN 06 · Accounts `TM-S06` · P0
 
-- List owned accounts by classes: **Cash / Bank / Funded Wallet / Credit Card**.
-- Asset account card = current available balance; card liability card = **Outstanding**, never indistinct `Balance`.
+- **Future Stage 1:** list **Cash / Bank / Wallet (funded and bank-linked reference) / Credit Card / Investment / Loan** by UI group. A funded Wallet has its own asset; a bank-linked reference is selectable account-link metadata and **does not create another asset or duplicate the Bank balance in Net Worth**. Ledger class (asset/liability) is independent from the UI group (see SCREEN 11); current Phase 0 screen is blank.
+- Ledger-bearing asset card shows its journal-derived available balance; a **bank-linked Wallet reference** shows the existing linked Bank balance clearly labelled **shared / not additional funds**, not an independent financial asset. Credit Card liability card shows **Outstanding**, never indistinct `Balance`.
 - Add account is a labeled action within Accounts; it is **not** an Income/Expense/Transfer home shortcut.
-- Add/edit form: name, type, opening amount, masked account identifier (optional), icon, archived status.
+- Add/edit form: name, typed group, **group-conditional opening position** (asset balance / Card outstanding / historical Investment cost / Loan outstanding), masked identifier (optional), icon and archive status. For `wallet_kind=bank_linked_reference`, require eligible Bank link, inherit Bank currency and **hide opening amount**; create/edit/archive only reference metadata, **never a funded asset or opening journal**.
 - Show all relevant account transactions in account detail.
 - Do not double-count UPI handles linked to the same bank account as distinct funded wallets.
-- If account is archived, preserve history and prevent new transactions unless restored.
+- If a ledger-bearing account is archived, preserve history and prevent new transactions unless restored. Archiving a bank-linked Wallet reference only hides its metadata and **must not archive, delete or change its linked Bank account or posted events**.
 
 ### SCREEN 07 · Reports `TM-S07` · P0
 
