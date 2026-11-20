@@ -8,6 +8,13 @@ For each new UI feature branch, keep its PR **unmerged** while previewing the ex
 
 This path serves live **Expo Go Development Servers** via Metro. It **does not guarantee** that Expo Go's grey **Projects** card becomes clickable, that the server stays alive when Codespaces idle-stops, or that tapping Projects wakes a stopped Codespace. The trusted worker wakes on **push**, not phone taps. Published fingerprint-runtime EAS Updates in PR #5 are an entirely separate internal-build experience.
 
+## 20 November 2026 — SSHD P2 and latest-main merge gate
+
+The independent [P2 SSHD finding](https://github.com/im-tnyx/Tio-Money/pull/10#issuecomment-7037523880) identified the floating Dev Container Feature `ghcr.io/devcontainers/features/sshd:1` plus `version: "latest"`. This source PR now uses exact published SSHD **feature 1.1.0** (`ghcr.io/devcontainers/features/sshd:1.1.0`) and **omits** `version`, which the upstream feature explicitly documents as unused. A regression test verifies the exact feature key and the absence of `latest`. This is a patch-version supply-chain pin based on upstream's non-republished exact patch release contract, **not** a separately verified digest or a completed Codespace rebuild. Review the feature artifact and rebuild a separately dedicated preview-only Codespace under explicit authorization before activation.
+
+After PR #12 was owner-merged into `main`, the existing PR #10 branch is being synchronized non-force against that exact main snapshot; the EAS preview's new `publish_update`/`build_preview` and `android`/`ios`/`all` selectors must remain unchanged. PR #4, #5, #11 and #12 are merged; PR #10 is **not merged**. Older status/proposed-only assertions in this document are historical checkpoints and not proof of current GitHub state. **Code CI and mergeability alone do not authorize the privileged Codespaces worker**, which requires owner-specific merge permission and separate owner-approved dedicated Codespace Environment identity/credential verification.
+
+
 ## Trust model
 
 - GitHub Environment **`tio-money-codespaces-trusted`** is restricted to exact `main` per the owner's GitHub UI report. It holds `CODESPACES_TOKEN` (one secret reported). **Secret key/scopes and effective plan permission remain unverified by agent**. Do not reuse Tio-Workspace tokens or disclose values in chat/logs.
