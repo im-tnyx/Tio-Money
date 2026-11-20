@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 safe reconciliation with merged EAS/preview fixes (owner UI revision)
+
+- **Owner request:** Reconcile branch `feat/more-general-settings-appearance` with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6` **before** implementing accessible Appearance bottom sheet redesign. [RFC #17 decision](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344), [original UI task](tasks/ui/more-appearance-20261120.md).
+- **Merge method:** Non-force two-parent merge commit from former PR head `10ac52887451b6b774710a149720087bfe5987cd` and current `main` `a83c608c8cd6399712813d884e9179babb535ee6`. The original 17 feature paths were disjoint from main changes except this index; retain latest main for CI/workflows/finance docs, all existing PR #18 UI/source, tests and task docs, and additive current index records. Independent device QA applies to previous layout only; redesigned UI needs new device check.
+- **Activation boundary:** `tio-preview` temporarily removed before branch push to prevent automatic privileged Codespaces SSH/Expo sync. No Codespaces manual dispatch, EAS publish/build, production change, force update, or main-branch merge authorized.
+- **Review:** optional independent review DEFERRED; fresh exact-head CI, review findings, branch ancestry and UI test required. **PR #18 remains Draft / NOT MERGE AUTHORIZED.**
+
+---
+
 ## 2026-11-21 — PR #18 appearance UI latest-main reconciliation
 
 - **Owner request:** safely reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main`, **not** permission to merge into `main` or launch privileged Codespaces. [Task](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17).
@@ -14,6 +23,31 @@
 
 **Task:** [TM-UI-APPEARANCE-20261120-001](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Owner requested a new `main`-based UI feature PR for **More → General Settings → Appearance (System / Light / Dark)**, also serving as the first controlled Codespaces PR preview candidate. Working branch `feat/more-general-settings-appearance` starts at `main` `fd154db417b1979d39f855317f252eed37c36e9d`. This is **new work**, distinct from existing documentation PRs #14/#16. Existing older entries below are historical checkpoints and do not represent current GitHub state. Actual exact-head CI, device QA, independent review and privileged workflow end-to-end operation are NOT_VERIFIED at branch kickoff. **NO PR merge authorization; NO Codespaces workflow dispatch/activation authorization.**
 
+
+---
+
+## 2026-11-21 — EAS PR REVIEW numeric dispatch input `18.0` failure (RFC #31)
+
+- **Task:** [TM-EAS-DISPATCH-STRING-20261121-001](tasks/preview/eas-pr-dispatch-string-20261121.md), [RFC #31](https://github.com/im-tnyx/Tio-Money/issues/31), branch `fix/eas-pr-dispatch-string`. Owner requested a scoped fix to repeated `TIO MONEY EXPO PR REVIEW` failure on valid PR `18`. [Run #44810555603](https://github.com/im-tnyx/Tio-Money/actions/runs/44810555603) logged `PR_NUMBER=18.0` due to `workflow_dispatch.inputs.pr_number.type: number`; shell rejects non-integer before checkout.
+- **Source base:** `main` `0ac1f6a23e2224b3c2e8d0e10a63699abc53a10e`. Fix `type: string` with strict `^[1-9][0-9]* validation and a static regression test; preserve manual-only owner/main/rerun gates, open **non-draft** PR and strict `src/*|assets/*` allowlist, EAS project identity, isolated token and OTA/build choices.
+- **Safety:** PR #18 remains **Draft** with non-source docs/tests, so it is **not** eligible for OTA publication or internal EAS build even after this input fix. No EAS publish, build, privileged workflow dispatch, secret or Codespace mutation, PR #18 source edit or direct `main` write is authorized here.
+- **Checkpoint:** new head CI / review / PR status not yet verified at task creation. Independent security review **DEFERRED**, optional under TM-DEC-002 but recommended. **Owner merge authorization NOT_GRANTED** for any new PR; live GitHub is authoritative.
+
+---
+
+## 2026-11-21 — PR #18 immutable compare API shape correction
+
+- **Task:** [TM-OPS-PREVIEW-COMPARE-HEAD-20261121-001](tasks/preview/preview-compare-head-shape-20261121.md), [RFC #29](https://github.com/im-tnyx/Tio-Money/issues/29), branch `fix/preview-compare-head-commit-shape`. Source failure: [manual run #44806734241](https://github.com/im-tnyx/Tio-Money/actions/runs/44806734241) and [#44806945990](https://github.com/im-tnyx/Tio-Money/actions/runs/44806945990); PR-read/label gate passed, but snapshot validator assumed nonexistent `compare.head_commit`, despite GitHub Compare API returning `commits[]` and 17 files.
+- **Starting `main`:** `cff662ebd00f5333c348a45c2bc7c196961ae4dd`. Narrow correction validates the **last returned commit SHA** plus a positive, fully returned `total_commits`; preserves exact base SHA, captured/current immutable PR head, file count, path safety and privileged worker gates. No change to PR #18, `tio-preview`, tokens, workflow permissions, owner SSH/Codespace, Android UI or finance docs.
+- **Checkpoint:** prior to final fix PR SHA and exact-head CI. Independent review `DEFERRED` per optional TM-DEC-002, recommended for security-sensitive validator. No owner merge authorization for this fix PR; **no actual Codespace Preview success or manual privileged workflow run**. Validate live GitHub state before a future merge.
+
+---
+
+## 2026-11-21 — Codespaces preview labeled PR Issues API HTTP 403 (RFC #27)
+
+- **Task:** [TM-OPS-CODESPACES-ISSUES-READ-20261121-001](tasks/preview/codespaces-preview-issues-read-20261121.md), [RFC #27](https://github.com/im-tnyx/Tio-Money/issues/27), branch `fix/codespaces-preview-issues-read`. [Manual run #44805243638](https://github.com/im-tnyx/Tio-Money/actions/runs/44805243638) received `INPUT_PR=18`, then HTTP 403 after PR metadata fetch at labeled `GET /issues`. GitHub documents `Issues: read` for that API; current trusted worker only granted Contents/Pull requests read. This is a narrow root-cause hypothesis backed by endpoint permissions, **not a verified successful Codespace run**.
+- **Observed starting `main`:** `0c295316940fc73e0c8e8bce127aaedede5d3d49`. Proposed change grants only `issues: read`, retains PR uniqueness and all existing owner/main/immutable-sha, Codespace identity and source-path security gates. No `issues: write`, no PAT, no `pull_request_target`, no app source or PR #18 change.
+- **Checkpoint:** recorded before new final PR SHA and CI results. Exact-head CI, review, and GitHub ruleset gates must be checked live. Independent review `DEFERRED`, optional under TM-DEC-002. **Owner merge authorization NOT_GRANTED.** No manual privileged workflow run authorized by this task; `main` and PR #18 stay untouched by branch work.
 
 ---
 
