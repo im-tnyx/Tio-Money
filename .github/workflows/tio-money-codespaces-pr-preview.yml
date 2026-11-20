@@ -153,39 +153,53 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Discover and start only the intended existing Codespace
+      - name: Discover and start only the verified preview-only Codespace
         id: codespace
         if: steps.pr.outputs.selected == 'true'
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           PREFERRED_CODESPACE: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE }}
+          PREFERRED_CODESPACE_ID: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE_ID }}
         run: |
           set -euo pipefail
           if [[ -z "$GH_TOKEN" ]]; then
             echo "::error::Missing CODESPACES_TOKEN in the main-restricted environment."
             exit 1
           fi
-          gh api --paginate '/user/codespaces?per_page=100' \
-            --jq '.codespaces[] | select(.repository.full_name == "im-tnyx/Tio-Money") | .name' > "$RUNNER_TEMP/codespaces.txt"
-          mapfile -t matches < "$RUNNER_TEMP/codespaces.txt"
           if [[ -z "$PREFERRED_CODESPACE" ]]; then
-            echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE environment variable to explicitly select the preview-only Codespace."
+            echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE to the name of a separate preview-only Codespace."
             exit 1
           fi
-          codespace=""
-          for item in "${matches[@]}"; do
-            if [[ "$item" == "$PREFERRED_CODESPACE" ]]; then codespace="$item"; fi
-          done
-          if [[ -z "$codespace" ]]; then
-            echo "::error::Selected preview Codespace not found under Tio-Money."
+          if [[ ! "$PREFERRED_CODESPACE" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ || ${#PREFERRED_CODESPACE} -gt 128 ]]; then
+            echo "::error::Invalid preview Codespace name; refusing to query or start it."
             exit 1
           fi
-          state="$(gh api "/user/codespaces/${codespace}" --jq '.state')"
+          # Owner identified this as their editing Codespace. Never wake/sync it.
+          if [[ "$PREFERRED_CODESPACE" == "automatic-orbit-jjxwq55wqr5gcj7gj" ]]; then
+            echo "::error::Editing Codespace is explicitly disallowed for automated preview."
+            exit 1
+          fi
+          if [[ ! "$PREFERRED_CODESPACE_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE_ID to the dedicated Codespace's immutable GitHub numeric ID."
+            exit 1
+          fi
+          selected_json="$RUNNER_TEMP/dedicated-preview-codespace.json"
+          gh api "/user/codespaces/${PREFERRED_CODESPACE}" > "$selected_json"
+          # Read-only identity gate: exact name + immutable ID + preview-only
+          # display name + owner/repository. No wake or remote mutation before it.
+          node .github/scripts/verify-pr-preview-codespace.mjs \
+            "$selected_json" "$PREFERRED_CODESPACE" "$PREFERRED_CODESPACE_ID"
+          codespace="$PREFERRED_CODESPACE"
+          state="$(jq -r '.state // empty' "$selected_json")"
           if [[ "$state" != "Available" ]]; then
             gh api --method POST "/user/codespaces/${codespace}/start" >/dev/null
           fi
           for attempt in $(seq 1 120); do
-            state="$(gh api "/user/codespaces/${codespace}" --jq '.state')"
+            gh api "/user/codespaces/${codespace}" > "$selected_json"
+            # Re-check identity after waking and immediately before SSH.
+            node .github/scripts/verify-pr-preview-codespace.mjs \
+              "$selected_json" "$PREFERRED_CODESPACE" "$PREFERRED_CODESPACE_ID" >/dev/null
+            state="$(jq -r '.state // empty' "$selected_json")"
             if [[ "$state" == "Available" ]]; then
               printf 'name=%s\n' "$codespace" >> "$GITHUB_OUTPUT"
               exit 0
@@ -196,9 +210,8 @@ jobs:
             fi
             sleep 5
           done
-          echo "::error::Codespace not available after 10 minutes."
+          echo "::error::Dedicated preview Codespace not available after 10 minutes."
           exit 1
-
       - name: Sync exact PR source and bring up Expo Go tunnel
         if: steps.pr.outputs.selected == 'true'
         env:

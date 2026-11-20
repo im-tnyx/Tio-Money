@@ -3,6 +3,11 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import {
+  KNOWN_EDITING_CODESPACE,
+  PREVIEW_ONLY_DISPLAY_NAME,
+  requireDedicatedPreviewCodespace,
+} from '../../.github/scripts/verify-pr-preview-codespace.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -37,6 +42,9 @@ test('trusted worker uses main-scoped Codespaces secret, owner-selected Codespac
   assert.match(worker, /environment: tio-money-codespaces-trusted/);
   assert.match(worker, /GH_TOKEN: \$\{\{ secrets\.CODESPACES_TOKEN \}\}/);
   assert.match(worker, /vars\.TIO_MONEY_PREVIEW_CODESPACE/);
+  assert.match(worker, /vars\.TIO_MONEY_PREVIEW_CODESPACE_ID/);
+  assert.match(worker, /verify-pr-preview-codespace\.mjs/);
+  assert.match(worker, /Editing Codespace is explicitly disallowed/);
   assert.match(worker, /Configure TIO_MONEY_PREVIEW_CODESPACE/);
   assert.match(worker, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
   assert.match(worker, /actions\/checkout@v4/);
@@ -63,4 +71,52 @@ test('Codespaces container declares SSHD while preserving managed startup', () =
   assert.equal(devcontainer.features['ghcr.io/devcontainers/features/sshd:1'].version, 'latest');
   assert.equal(devcontainer.postStartCommand, 'node scripts/start-codespace-expo.mjs');
   assert.equal(devcontainer.portsAttributes['8081'].visibility, 'private');
+});
+
+test('privileged Codespaces worker verifies preview-only identity before starting or SSH', () => {
+  const verified = worker.indexOf('node .github/scripts/verify-pr-preview-codespace.mjs');
+  const start = worker.indexOf('"/user/codespaces/${codespace}/start"');
+  const ssh = worker.indexOf('gh codespace ssh --codespace');
+  assert.ok(verified > 0 && verified < start && start < ssh);
+  assert.equal(worker.match(/node \.github\/scripts\/verify-pr-preview-codespace\.mjs/g)?.length, 2);
+});
+
+test('dedicated preview identity gate fails closed for owner editing Codespace and spoofed metadata', () => {
+  const previewName = 'dedicated-preview-abc123';
+  const previewId = '123456';
+  const valid = {
+    name: previewName,
+    id: 123456,
+    display_name: PREVIEW_ONLY_DISPLAY_NAME,
+    owner: { login: 'im-tnyx' },
+    repository: { full_name: 'im-tnyx/Tio-Money' },
+    state: 'Available',
+  };
+  assert.equal(requireDedicatedPreviewCodespace(valid, previewName, previewId), previewName);
+
+  const editing = { ...valid, name: KNOWN_EDITING_CODESPACE };
+  assert.throws(
+    () => requireDedicatedPreviewCodespace(editing, KNOWN_EDITING_CODESPACE, previewId),
+    /editing Codespace/,
+  );
+  assert.throws(
+    () => requireDedicatedPreviewCodespace(editing, previewName, previewId),
+    /editing Codespace/,
+  );
+  assert.throws(() => requireDedicatedPreviewCodespace(valid, previewName, ''), /ID allowlist/);
+  assert.throws(() => requireDedicatedPreviewCodespace(valid, previewName, '1'), /allowlist/);
+  assert.throws(() => requireDedicatedPreviewCodespace(valid, 'other-preview-name', previewId), /allowlist/);
+  assert.throws(
+    () => requireDedicatedPreviewCodespace({ ...valid, display_name: 'Editing Tio-Money' }, previewName, previewId),
+    /allowlist/,
+  );
+  assert.throws(
+    () => requireDedicatedPreviewCodespace({ ...valid, repository: { full_name: 'im-tnyx/Tio-Workspace' } }, previewName, previewId),
+    /allowlist/,
+  );
+  assert.throws(
+    () => requireDedicatedPreviewCodespace({ ...valid, owner: { login: 'another-owner' } }, previewName, previewId),
+    /allowlist/,
+  );
+  assert.throws(() => requireDedicatedPreviewCodespace(null, previewName, previewId), /allowlist/);
 });
