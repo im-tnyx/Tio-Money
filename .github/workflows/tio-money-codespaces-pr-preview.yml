@@ -118,6 +118,35 @@ jobs:
           printf 'selected=true\npr_number=%s\nhead_sha=%s\n' "$selected" "$pr_sha" >> "$GITHUB_OUTPUT"
           echo "Approved exact preview source: PR #$selected at $pr_sha"
 
+      - name: Restrict preview to source-only UI changes
+        if: steps.pr.outputs.selected == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          count=0
+          rejected=0
+          while IFS= read -r path; do
+            [[ -z "$path" ]] && continue
+            count=$((count + 1))
+            case "$path" in
+              src/*|assets/*|tests/*|docs/*|.ai/*|README.md|DESIGN.md|CHANGELOG.md)
+                ;;
+              *)
+                echo "::error::Unsafe or native/tooling-affecting preview path: $path"
+                rejected=1
+                ;;
+            esac
+          done < <(
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${TARGET_PR}/files?per_page=100" \
+              --jq '.[].filename'
+          )
+          if [[ "$count" -eq 0 || "$rejected" -ne 0 ]]; then
+            echo "::error::PR preview permits only app UI, tests and documentation; review native/tooling changes separately."
+            exit 1
+          fi
+
       - name: Checkout trusted main-branch sync implementation
         if: steps.pr.outputs.selected == 'true'
         uses: actions/checkout@v4
