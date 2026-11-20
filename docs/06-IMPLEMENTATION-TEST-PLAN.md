@@ -20,6 +20,68 @@
 
 **Release invariant:** **Internal transfer principal is neither income nor expense.** A real transfer fee is **an expense**, recorded once. Home, Accounts, History and Reports must reconcile to the **same balanced SQLite journal**, including credit-card liabilities.
 
+## 0. Owner-approved stage sequence, delivery gates & protected navigation (2026-11-20)
+
+> [!IMPORTANT]
+> **Newer owner direction controls future implementation planning.** Stage 1 = **complete the local-first app**, Stage 2 = **optional encrypted Google Drive/iCloud-compatible backup/restore**, Stage 3 = **optional Supabase synchronization and conditional Tio Money signup/signin**. Stage 1 has **no financial-data cloud transport and no app login**; a limited, opt-in **currency-pair FX quote request** is the only planned online exception. This is a **documentation contract, not implemented functionality**. [Owner decisions TM-DEC-006–010](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) · [Delivery RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20) · [Future backup/sync spec](09-BACKUP-SYNC-SPEC.md).
+
+### 0.1 Protected UI baseline — owner says bottom tabs must NOT change
+
+**The current working Phase 0 bottom navigation is frozen, not a proposal.** All later code tasks must preserve its **five destinations, exact labels and order**: **Home · Trans. · Stats. · Account · More**. Preserve the existing Material Symbols Outlined icon choices (`home` / `book_2` / `bar_chart_4_bars` / `account_balance` / `more_horiz`), icon weight 200 and shared 24dp size, existing visual tokens/colors, 50dp bottom-navigation baseline **plus actual OS bottom safe area** (1dp border + 1dp top padding + 48dp tab row), **1dp** icon–label spacing, and responsive placement of **one 50dp circular FAB** centered above **More** with **16dp vertical clearance**. The FAB's `add` icon stays weight 400 / 24dp. System-controlled light/dark behavior and presentation-only screens remain intact. For **current Phase 0** the FAB is **disabled**, without handler or editor; nothing in this plan turns it on. This is [TM-DEC-010](DECISIONS.md#tm-dec-010--bottom-navigation-ui-freeze) reinforcing [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). 
+
+**Feature delivery rule:** New settings/accounts/reports/transaction capabilities belong **inside existing destinations or separately approved flow screens**, never via an extra/reordered/replaced bottom tab. UI-specific tasks must include token regression tests, route/label/icon count/order tests, a11y and device snapshots for Android/iOS to prove no change. Existing four-root + central bar Add or other old proposals **are superseded historical design**, not pending owner choices. Activation of the single floating Add for future transaction entry would require a **separately scoped task**; do not infer it from approving this document.
+
+### 0.2 Three product stages with strict exit gates
+
+| Stage | Feature scope | Completion evidence / dependencies | Excluded until later |
+| :--- | :--- | :--- | :--- |
+| **1 · Complete Local App** | Existing Phase 0 baseline; one balanced SQLite journal; Cash, Bank, funded Wallet, Credit Card, Investment, Loan account templates; dynamic setup and account links; Income/Expense/Transfer + fees; card billing and payment tracking; investment/loan financial math; dashboard, history, reports, categories and Settings; Main + optional distinct Sub Currency, refresh-on-use; offline fallback; local export/import only after scoped approval | Accepted finance/schema ADRs; foreign keys, WAL/transaction-safety device tests, idempotency, exact-money and multi-currency tests; Android/iPhone navigation regression; no app auth; all local features proven offline except FX refresh | Backup/restore, Supabase/Auth, payment initiation, unapproved native SMS permissions |
+| **2 · Optional Encrypted Backup/Restore** | User-directed authenticated encrypted portable backup to chosen Google Drive/iCloud Drive or supported file provider; tested restore, manifest, integrity, version compatibility and key-recovery disclosures | Stage 1 accepted; backup threat model/key custody and replace-vs-merge ADR; corruption/wrong key/partial failure/reinstall/fresh-device trials across platforms; explicit user consent and true status | Continuous cloud ledger sync; Tio Money signup |
+| **3 · Opt-in Supabase Sync** | User explicitly enables sync; only then app registration/session; informed consent before local-data upload; multi-device conflict/idempotency/deletion flows | Stage 2 accepted; tenant RLS and secrets/session/authorization audit; schema mapping, sync-conflict and local-continuity tests, explicit opt-in/opt-out; user-controlled upload and deletion | Forced app login, remote-primary ledger, silent upload, bypassed RLS |
+
+**Existing M0–M7 and Release A–D tables below are historical engineering sub-work packages and may be reused as local Stage 1 milestones, but their earlier smaller "Core MVP" is not the owner-directed *complete local app exit gate*. Conditional Android SMS still requires a custom build and current Play policy eligibility; its absence must not block safe local finance functionality. Do not relabel stage completion without device and ledger evidence.
+
+### 0.3 Local Stage 1 ordering and blockers
+
+1. **M0 / UI baseline gate:** retain the already-built five blank tabs and disabled FAB; confirm Android owner-reported smoke separately from unverified iPhone, accessibility, system themes and real SQLite cold-restart checks. **No visual restyle**.
+2. **Domain/ADR gate:** settle `TM-ADR-011–023`, especially journal idempotency, refund/correction effective dates, `TM-ADR-018` mixed-currency exact journal, `TM-ADR-019` account groups, `TM-ADR-020` card statement/repayment, `TM-ADR-021` loan amortization, `TM-ADR-022` investment cost/value, `TM-ADR-023` currency rate provider. **The old four-subtype, INR-only sample DDL is not an approved six-group multi-currency implementation**.
+3. **Local database gate:** versioned, tested migration from settings-only `user_version=1`; strict foreign keys, asset/liability posting classes, transaction serialization, atomic event+opening posting, idempotent Save, crash/retry safety, no destructive reset. No balance cache as authority.
+4. **Accounts and transactions gate:** six typed dynamic forms, linked bank mode flags (no duplicate bank balance), credit card liability + tracked payment (no bank autopay), loan principal/interest vs income, investment funding/valuation vs spending, refunds/fees, archive/edit/reversal. Tests compare all screen projections to one ledger.
+5. **FX/currency gate:** main/sub pickers with differing currency constraint; refresh attempts on each meaningful currency action, not a daily-only timer; source/effective/fetched timestamps, cache stale/unavailable states, request coalescing; only pair leaves device. **Cross-currency posting remains disabled until finance ADR and tests approve it.**
+6. **User/report/platform gate:** offline entry without app signup; usable financial balances/reports with no internet, tests on real Android/iPhone for layout, transaction consistency, contrast and startup. Optional local imports/polish receive distinct acceptance; no reliance on Stage 2/3 services.
+
+### 0.4 New deterministic acceptance / release-blocker matrix
+
+| Test ID | Stage / component | Deterministic assertion |
+| :--- | :--- | :--- |
+| `TM-ST1-NAV-001` | Stage 1 baseline | Exactly 5 unchanged tabs and order, icons, 24dp, 50dp+inset, 1dp gap, 50dp FAB + 16dp spacing; theme and disabled Phase 0 behavior unchanged |
+| `TM-ST1-NAV-002` | Future feature tasks | Adding Settings/Accounts/transaction forms never adds a bottom destination or relocates/reskins floating Add without distinct owner scope |
+| `TM-ST1-LED-001` | SQLite/journal | Balanced postings; opening amounts never Income; source/destination transfer principal excluded from expense; fee recognized once |
+| `TM-ST1-LED-002` | Durability | Mid-write failure, double-tap, restart and migration failure never produce duplicate/unbalanced/orphan journals |
+| `TM-ST1-ACC-001` | Groups | Six group forms with typed requirements, account links; bank UPI/debit/cheque/internet banking share same asset; bank-linked wallet does not double-count |
+| `TM-ST1-CARD-001` | Credit | ₹1,500 card purchase -> expense+₹1,500 and debt+₹1,500; ₹1,500 bank repayment -> asset and debt −₹1,500, no new expense |
+| `TM-ST1-CARD-002` | Credit | Statement/due dates handle short months; limit/available/outstanding distinct; "autopay" tracking does not initiate/debit/post |
+| `TM-ST1-LOAN-001` | Loan | ₹4,000 paid = ₹3,000 principal + ₹1,000 interest: bank −₹4,000, liability −₹3,000, expense+₹1,000 |
+| `TM-ST1-INV-001` | Investment | ₹3,000 funding moves asset to investment, never expense; valuation timestamp/cost/current policy avoids double counting |
+| `TM-ST1-FX-001` | Currency | Sub absent/same -> no FX; changed distinct pair/foreground/conversion/report -> attempted new latest-published quote; duplicate in-flight calls coalesced |
+| `TM-ST1-FX-002` | Currency | Offline cached quote labelled stale with source/time; no quote -> unavailable; never change original amount or report currency silently |
+| `TM-ST1-FX-003` | Finance | Non-INR units and cross-currency events cannot post unless reviewed exact accounting policies exist; no floating-point ledger totals |
+| `TM-ST1-PRIV-001` | Network | Stage 1 sends only currency-pair metadata to external provider, no account/merchant/ledger fields; no signup/cloud-upload |
+| `TM-ST2-BAK-001` | Stage 2 | Encrypted archive roundtrip on both platforms; wrong key/tampering/truncation rejected without modifying current local ledger |
+| `TM-ST2-BAK-002` | Stage 2 | Old/future schema, duplicate restore, cancel/partial import and low disk have tested fail-safe behavior with recovery/no silent overwrite |
+| `TM-ST3-ID-001` | Stage 3 | Local app and Drive/iCloud backup function without app auth; opt-in sync alone triggers login and explicit upload consent |
+| `TM-ST3-SEC-001` | Stage 3 | Cross-user reads/writes denied by tenant policies; service-role keys absent from mobile bundle; logout leaves local data unless explicitly removed |
+| `TM-ST3-SYNC-001` | Stage 3 | Offline conflict, duplicate upload/download, deletion tombstones, retry/resume and multi-device integrity reproduce a single reconciled journal |
+
+**Traceability:** Group acceptance [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md), FX acceptance [10 — Currency](10-CURRENCY-SPEC.md), conceptual ledger [04 — Database](04-DATABASE-DESIGN.md), security and phased export [09 — Backup/Sync](09-BACKUP-SYNC-SPEC.md). Each implementation PR must link applicable acceptance IDs, device/platform evidence and reviewed ADRs. No checkbox is considered passed by writing this plan.
+
+### 0.5 Finance, privacy, identity and milestone review gates
+
+- **Finance review strongly recommended** before ledger/FX/loan/investment changes; optional independent review policy still applies, but actual configured GitHub required checks/reviews and blocking findings are binding. Never fabricate an approval. Each merge needs specific owner permission per [TM-DEC-003](DECISIONS.md#tm-dec-003--owner-authorized-agent-merge).
+- **Security review required by risk** before shipping backup encryption/key export or first Supabase finance-data sync. Refuse unencrypted "backup" labels and secret key embedding. A cloud service receiving finance data requires explicit consent and a future threat model.
+- **App lock ≠ database-at-rest encryption.** Google/Apple login for a file provider ≠ Tio Money signup; Supabase session ≠ on-device record identity.
+- **Release truth:** a built Metro bundle or passing governance CI is not proof of physical iPhone/Android SQLite persistence and accessible UI; record hardware, OS, installed client and exact tested commit whenever verified.
+
 ## In this plan
 
 [Delivery map](#1-delivery-map-and-status) · [Engineering contract](#2-implementation-contract) · [Milestones](#3-milestones-and-release-tracks) · [Phase playbooks](#4-phase-by-phase-execution) · [Financial test catalogue](#5-financial-acceptance-test-catalogue) · [QA and CI](#6-test-execution-and-evidence) · [Workflow](#7-development-workflow-and-review-gates) · [Risks](#8-risks-and-dependencies) · [Owner decisions](#9-owner-decisions-and-specification-gaps) · [Publication checklist](#10-document-quality-and-handoff)
@@ -34,7 +96,7 @@
 | Cash, bank and funded wallet are assets; credit card is a liability | **Proposed ledger contract** | Class-aware postings; no fabricated card “cash balance” |
 | Transfer principal excluded from income/expenses; linked fees count once as expenses | **Product rule in draft PRD** | Every release gate asserts it numerically |
 | Balanced, append-only journal; integer paise; reversal-based correction | **Architecture / database proposal** | Finalize ADR and validate real-device SQLite behavior before Phase 3 |
-| Central `+` in a four-destination bottom shell; light/dark tokens | **Screen proposal, not approved** | Review placement, copy, accessibility and palette before freezing Phase 1 |
+| **Five fixed bottom tabs + separate floating Add above More** | **Owner-decided and implemented Phase 0 baseline; no visual change allowed** | Keep tab labels/icons/size/spacing/safe areas exactly; future Add activation requires separate scope |
 | Cross-platform pasted/selected text and CSV statement import | **P1 planned** | Never post a parser suggestion without user confirmation |
 | Native Android SMS inbox integration | **Conditional, policy-gated** | Separate custom Expo build; **not available in Expo Go** |
 | iPhone automatic SMS inbox access | **Out of scope** | User-initiated text/CSV only |
@@ -191,7 +253,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 **Technical tasks**
 - [ ] `TM-P1-01` Implement first-run welcome/INR/account-type screens in English with no language selector, plus empty/loading/error states.
 - [ ] `TM-P1-02` Compose Home, History, Reports, Accounts, Settings and transaction detail shells from shared components.
-- [ ] `TM-P1-03` Implement four root destinations plus **one** central `+` Add action (**proposed placement awaiting owner approval**); no Income/Expense/Transfer Home tiles.
+- [ ] `TM-P1-03` **Preserve owner-approved five bottom destinations** Home · Trans. · Stats. · Account · More, unchanged tokens and distinct floating + centered above More; keep + disabled until a separate editor task is approved. Never add three Income/Expense/Transfer Home shortcut tiles.
 - [ ] `TM-P1-04` Build one full-screen editor with exactly **Income | Expense | Transfer** tabs, collapsed fee disclosure, account/category pickers, preview slot, Save / Save & Add Another state UI and dirty-form dialog.
 - [ ] `TM-P1-05` Build `MoneyAmount`, `MoneyMovementPreview`, `TransactionRow`, `TypeTabs`, `FormField`, `AccountPicker`, `FeeDisclosure`, semantic loading/error/empty components.
 - [ ] `TM-P1-06` Add English-only accessibility labels and semantic strings (future-localization-ready), system-font/scale/contrast tests, keyboard avoidance and landscape policy review.
@@ -572,7 +634,7 @@ flowchart LR
 
 | Dependency | Needed by | Safe fallback if unresolved |
 | :--- | :--- | :--- |
-| Approved center `+` location, theme and Save & Add Another behavior | M1 polish / M3 completion | Keep UI prototype clearly proposed; do not freeze interaction |
+| Existing More-aligned floating + **location is fixed**, while future activation/editor and Save & Add Another behavior remain distinct tasks | M1/M3 | Do not redesign tab bar, FAB geometry or theme tokens; only future interaction requires separate review |
 | Final schema, unique token and correction/refund rules | M2–M4 | Block financial production writes; continue isolated domain design/testing |
 | Expo SDK and device-compatible package versions | M0 | Spike and record compatible alternatives |
 | Supported CSV examples / account mappings | M5 | Restrict to explicitly tested format(s), clearly label unsupported |
@@ -586,7 +648,7 @@ flowchart LR
 
 | ID / priority | Unresolved question or source mismatch | Required owner/technical disposition |
 | :--- | :--- | :--- |
-| `TM-ADR-001/002` · M1 | Original palette and central `+` location are screen **proposals**, though single Add entry is a product rule | Sign off final tokens/navigation/contrast; keep single action |
+| `TM-ADR-001/002` · M1 | Original future palette/central-Add notes are **superseded for the bottom-tab baseline** by TM-DEC-004/005/010 | Do not revisit five-tab labels/icons/sizes/layout; remaining future inner-screen details require separate scope and a11y QA |
 | `TM-ADR-003/004/009` · M0/M2 | Zustand scope, exact Expo versions and serialized `withTransactionAsync`/FK strategy unverified | Pin versions; prove write isolation/FK on device |
 | `TM-ADR-005` · M2/M3 | PRD says transfer and linked fee “record”; DB chooses **one transfer event + fee expense posting** | Explicitly ratify canonical event/projection; grouped History and fee report test |
 | `TM-ADR-010` · M2/M7 | Local reinstall/data-loss, migration recovery and export/backup behavior | Approve no-silent-reset recovery and warning copy |

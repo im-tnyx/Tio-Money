@@ -1,6 +1,6 @@
 # 📌 Tio Money — Owner Decision Register
 
-> **Status check · 2026-11-20:** [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) merged 2026-11-19 (merge `e647f78ce200fed1323d80ea794396c371fba7bf`); [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) merged 2026-11-19 (merge `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`); [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) merged 2026-11-20 (merge `5dbdbe047a542463f0de66b9c0c6e09ef7d2605a`). Older open/unmerged statements below are **historical snapshots**, not current GitHub state. Decisions TM-DEC-001–005 govern Phase 0; the new TM-DEC-006–009 below define **future product stages**, not implemented features or merge permission. iPhone and real on-device SQLite QA remain unverified.
+> **Status check · 2026-11-20:** [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) merged 2026-11-19 (merge `e647f78ce200fed1323d80ea794396c371fba7bf`); [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) merged 2026-11-19 (merge `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`); [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) merged 2026-11-20 (merge `5dbdbe047a542463f0de66b9c0c6e09ef7d2605a`). Older open/unmerged statements below are **historical snapshots**, not current GitHub state. Decisions TM-DEC-001–005 and the newer **TM-DEC-010 bottom-navigation freeze** govern current Phase 0 visuals; TM-DEC-006–009 define **future product stages**, not implemented features or merge permission. iPhone and real on-device SQLite QA remain unverified.
 
 [Documentation hub](00-INDEX.md) · [PRD](01-PRD.md) · [Architecture](05-TECH-ARCHITECTURE.md) · [Agent contract](../AGENTS.md)
 
@@ -17,6 +17,7 @@
 | [TM-DEC-007](#tm-dec-007--account-group-driven-setup) | 2026-11-20 | Group-specific accounts: Cash, Bank, Wallet, Card, Investment, Loan | **Owner directed; agent-transcribed** | Future Accounts and Settings |
 | [TM-DEC-008](#tm-dec-008--main-and-optional-sub-currency-with-refresh-on-use) | 2026-11-20 | Main Currency + distinct optional Sub Currency, refresh on currency use | **Owner directed; agent-transcribed** | Future currency experience; accounting ADR pending |
 | [TM-DEC-009](#tm-dec-009--conditional-identity-only-for-opt-in-supabase) | 2026-11-20 | No app login until user opts in to future Supabase sync | **Owner directed; agent-transcribed** | Future identity and synchronization |
+| [TM-DEC-010](#tm-dec-010--bottom-navigation-ui-freeze) | 2026-11-20 | Keep existing five bottom tabs, icons, spacing and More-aligned FAB unchanged | **Owner directed; agent-transcribed** | Existing Phase 0 visual baseline and all future UI work |
 
 ## TM-DEC-001 — English-only initial app
 
@@ -127,6 +128,18 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 **Decision:** Local-only and Drive/iCloud backup experiences require **no Tio Money signup or signin**. When and only when the user **explicitly selects future Supabase sync**, present app signup/signin and obtain informed consent before uploading local finance records. Declining sync must preserve full local functionality. Logout does not silently delete local data. Tenant isolation, Supabase RLS, credential/session lifecycle, migration, conflicts, deletion and withdrawal-of-consent policies require independent future security/identity design and tests. No service-role key is ever shipped in the mobile app.
 
 **Supersedes:** any implication that cloud sync or authentication is mandatory to use core features. This decision does not implement cloud transport, user records or backend permissions.
+
+## TM-DEC-010 — Bottom navigation UI freeze
+
+**Decision date:** 2026-11-20. **Authority/source:** owner's direct instruction in connected ChatGPT conversation, **agent-transcribed** in [RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20); not a GitHub-authenticated owner comment. **Status:** confirmed design constraint on the implemented Phase 0 shell and all downstream feature work; **does not authorize app changes or PR merges**.
+
+**Decision:** The existing bottom tabs are **already correct and must not change**. Preserve exactly five selectable bottom destinations **Home · Trans. · Stats. · Account · More**, with unchanged order, labels, Google Material Symbols icon choice/weight/24dp sizing, tokenized nav visuals, **50dp baseline plus OS safe-area inset**, **1dp icon/label gap** and **single 50dp circular floating +** centered **above More** with **16dp vertical clearance** (24dp Add glyph, weight 400). Current system light/dark behavior, safe-area layout, shared visual token ownership and disabled Phase 0 FAB remain unchanged. Do not move the + into a bar tab or introduce a center Add slot, extra tab, different size or spacing.
+
+**Future behavior constraint:** New Account/Settings/Transaction/Reports screens may be implemented **inside the existing navigation structure** in separately authorized tasks. That does **not** permit redesign of the bottom tab bar. Activating the floating Add later is a separate owner-scoped interaction task and is not part of this documentation-only plan. Existing TM-DEC-005 remains authoritative for **current** Phase 0 blank screens and disabled +.
+
+**Supersedes:** any old four-root/center-Add exploratory proposal and unresolved language implying owner still needs to decide the bottom navigation placement, icon or dimensions. It **does not** supersede TM-DEC-001 English-only UI, ledger invariants, data/identity/storage stages or real-device verification requirements.
+
+**Acceptance:** future UI PRs must show exact label/order/count and token/layout invariants, retained FAB geometry, same theme behavior, and a device accessibility/safe-area smoke matrix. If a requested feature genuinely requires a bottom-nav change, stop and request a **new explicit owner decision** first.
 
 ## Pending choices — not decisions
 

@@ -1,5 +1,17 @@
 # 🧭 Current task index
 
+## 2026-11-20 — Phase C local delivery and future backup/sync planning
+
+- **Task:** [TM-DOC-DELIVERY-20261120-003](tasks/product/local-first-delivery-gates-20261120.md); **RFC:** [Issue #20](https://github.com/im-tnyx/Tio-Money/issues/20). Current agent ChatGPT GPT-6; previous agent for this new task UNKNOWN_NOT_VERIFIED.
+- **Owner source:** current-chat "Go" to begin Phase C documentation and explicit **bottom navigation no-change** instruction; technical documentation-only PROCEED agent-recorded, not authenticated GitHub merge permission.
+- **Branch:** `docs/local-first-delivery-backup-gates-20261120` stacked on open Draft [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`; PR #16 itself is stacked on still-open Draft [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14); main at start `fd154db417b1979d39f855317f252eed37c36e9d`.
+- **Scope:** 06 implementation & tests, 09 future backup/sync design, TM-DEC-010 UI freeze, docs index and this task/index; no src/, asset/layout, migrations, permissions, workflows, SDK install, provider connection or Supabase operations.
+- **UI lock:** current Home · Trans. · Stats. · Account · More labels/icons/sizes/spacing and floating Add above More unchanged. Future functionality must fit existing tabs; currently Add remains disabled.
+- **Security/finance:** all Stage 2/3 implementation requires later reviewed ADRs; independent review DEFERRED, not performed. **Owner merge permission NOT_GRANTED** for PR A/B/C. Final PR/HEAD/checks must be verified before use.
+
+---
+
+
 ## 2026-11-20 — Phase B finance architecture documentation (stacked draft)
 
 - **Draft PR:** [#16](https://github.com/im-tnyx/Tio-Money/pull/16), open/unmerged. **Task:** [TM-DOC-ARCH-20261120-002](tasks/product/local-first-technical-design-20261120.md). **RFC:** [Issue #15](https://github.com/im-tnyx/Tio-Money/issues/15). Current agent ChatGPT GPT-6; previous agent for new task UNKNOWN_NOT_VERIFIED.
