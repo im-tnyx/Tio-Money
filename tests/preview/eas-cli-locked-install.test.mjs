@@ -38,5 +38,5 @@ test('CI verifies isolated committed EAS CLI using npm ci and registry signature
     cwd: ROOT, encoding: 'utf8', timeout: 45000, maxBuffer: 4 * 1024 * 1024
   });
   assert.equal(cli.status, 0, cli.stderr || cli.error?.message);
-  assert.match(cli.stdout + cli.stderr, /27\\.4\\.1/);
+  assert.ok((cli.stdout + cli.stderr).includes('27.4.1'));
 });
