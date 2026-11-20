@@ -1,4 +1,4 @@
-name: Tio Money manual EAS PR preview
+name: TIO MONEY EXPO PR REVIEW
 
 # This workflow can only be invoked manually after being reviewed and merged
 # into the trusted default branch. Never add Expo secrets to untrusted PR CI.
@@ -6,9 +6,26 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Open owner-authored PR targeting main (JS-only change)
+        description: Open owner-authored PR targeting main (JS/assets-only change)
         required: true
         type: number
+      operation:
+        description: Publish an OTA update or queue an internal preview build
+        required: true
+        default: publish_update
+        type: choice
+        options:
+          - publish_update
+          - build_preview
+      platform:
+        description: Android, iOS or both (build requires signing and app identifiers)
+        required: true
+        default: all
+        type: choice
+        options:
+          - android
+          - ios
+          - all
 
 permissions:
   contents: read
@@ -31,8 +48,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
+          case "$TARGET_OPERATION" in
+            publish_update|build_preview) ;;
+            *) echo "::error::Invalid preview operation"; exit 1 ;;
+          esac
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
+          esac
           if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
             echo "::error::PR number is not numeric"
             exit 1
@@ -57,10 +84,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Validate source, app identity and JS-only OTA scope
+      - name: Validate source, app identity and source-only preview scope
         env:
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
           PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
           if [[ "$(git rev-parse HEAD)" != "$PR_SHA" ]]; then
@@ -79,19 +108,49 @@ jobs:
               throw Error("Refusing to publish from a changed Expo project identity");
             }
           '
+          # Both operations accept only reviewed JS/assets from a PR. Native,
+          # build config and signing changes must first land through their own
+          # separately reviewed PR rather than execute with an Expo token here.
           native_change=0
           while IFS= read -r -d '' path; do
             case "$path" in
-              src/*|assets/*)
-                # Only app JS/assets can change in an EAS OTA preview.
-                ;;
+              src/*|assets/*) ;;
               *)
-                echo "::error::Non-OTA or build-time code/config change $path; requires separate reviewed build."
+                echo "::error::Non-preview source/config change $path; requires separate review."
                 native_change=1
                 ;;
             esac
           done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
           if [[ "$native_change" -ne 0 ]]; then exit 1; fi
+          # A preview build must not prompt CI to invent app identifiers or
+          # sign with undeclared credentials. No EXPO_TOKEN is available here.
+          if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
+            TARGET_PLATFORM="$TARGET_PLATFORM" node <<'NODE'
+          const expo = require('./app.json').expo;
+          const eas = require('./eas.json');
+          const profile = eas.build?.preview;
+          const onlyPreview = Object.keys(eas.build || {}).length === 1;
+          if (!profile || !onlyPreview ||
+              profile.distribution !== 'internal' ||
+              profile.channel !== 'pr-preview' ||
+              profile.android?.buildType !== 'apk' ||
+              !['remote', undefined].includes(profile.credentialsSource) ||
+              !['remote', undefined].includes(profile.android?.credentialsSource) ||
+              !['remote', undefined].includes(profile.ios?.credentialsSource) ||
+              eas.cli?.version !== '27.4.1') {
+            throw Error('Refusing non-internal, non-preview or unreviewed EAS build configuration');
+          }
+          const platform = process.env.TARGET_PLATFORM;
+          if (['android', 'all'].includes(platform) &&
+              !/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/.test(expo.android?.package || '')) {
+            throw Error('Missing approved android.package; configure it in a separately reviewed PR before building');
+          }
+          if (['ios', 'all'].includes(platform) &&
+              !/^[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z][A-Za-z0-9-]*)+$/.test(expo.ios?.bundleIdentifier || '')) {
+            throw Error('Missing approved ios.bundleIdentifier; configure it in a separately reviewed PR before building');
+          }
+          NODE
+          fi
 
       - name: Setup Node 22
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -145,19 +204,41 @@ jobs:
           NODE
           "$EAS_CLI_ROOT/node_modules/.bin/eas" --version
 
-      - name: Publish non-production PR preview OTA (explicit owner dispatch only)
+      - name: Publish OTA or queue internal preview build (owner dispatch only)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
+          case "$TARGET_OPERATION" in
+            publish_update|build_preview) ;;
+            *) echo "::error::Invalid preview operation"; exit 1 ;;
+          esac
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid preview platform"; exit 1 ;;
+          esac
           if [[ -z "$EXPO_TOKEN" ]]; then
             echo "::error::Missing environment-scoped EXPO_TOKEN; owner must configure it securely"
             exit 1
           fi
-          "$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas" update \
-            --branch pr-preview \
-            --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
-            --environment preview \
-            --non-interactive
+          eas="$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas"
+          if [[ "$TARGET_OPERATION" == "publish_update" ]]; then
+            "$eas" update \
+              --branch pr-preview \
+              --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
+              --environment preview \
+              --platform "$TARGET_PLATFORM" \
+              --non-interactive
+          else
+            # Remote EAS signing must already be configured; never prompt,
+            # initialize a new EAS project, auto-submit or create production builds.
+            "$eas" build \
+              --profile preview \
+              --platform "$TARGET_PLATFORM" \
+              --non-interactive \
+              --no-wait
+          fi
