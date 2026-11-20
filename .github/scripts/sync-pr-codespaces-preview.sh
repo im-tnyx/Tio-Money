@@ -45,7 +45,7 @@ validate_preview_bundle() {
   local dir="${path%/*}" current_uid dir_mode dir_owner file_mode file_owner size actual_hash
   current_uid="$(id -u)"
 
-  if [[ ! "$path" =~ ^/tmp/tio-money-preview-${target}-[1-9][0-9]*/source\\.bundle$ ||
+  if [[ ! "$path" =~ ^/tmp/tio-money-preview-${target}-[1-9][0-9]*/source\.bundle$ ||
         ! -d "$dir" || -L "$dir" || ! -f "$path" || -L "$path" ]]; then
     echo "Refusing preview: unexpected or non-regular bundle path." >&2
     return 1
