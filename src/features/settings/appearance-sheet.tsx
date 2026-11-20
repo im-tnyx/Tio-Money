@@ -109,10 +109,7 @@ export function AppearanceSheet({
           onPress={dismiss}
           accessibilityRole="button"
           accessibilityLabel={t('closeAppearance')}
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: theme.colors.shadow, opacity: 0.45 },
-          ]}
+          style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.shadow, opacity: 0.45 }]}
         />
         <SafeAreaView
           edges={['bottom', 'left', 'right']}
