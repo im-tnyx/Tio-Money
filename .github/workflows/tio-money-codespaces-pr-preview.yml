@@ -313,13 +313,16 @@ jobs:
           bundle_sha256="$(sha256sum -- "$bundle" | cut -d ' ' -f 1)"
           # Use a fresh private directory so SCP cannot follow an attacker-owned
           # pre-existing destination, and keep credentials on the trusted runner.
-          printf -v remote_prepare_command             'set -eu; umask 077; mkdir -m 700 -- %q' "$remote_dir"
+          printf -v remote_prepare_command \
+            'set -eu; umask 077; mkdir -m 700 -- %q' "$remote_dir"
           gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_prepare_command"
           # The cleanup only targets the directory created above. It is also
           # attempted when a copy or subsequent validation fails.
           cleanup_remote_bundle() {
             local cleanup
-            printf -v cleanup               'set -eu; if [ -d %q ] && [ ! -L %q ] && [ "$(stat -c %%u -- %q)" = "$(id -u)" ]; then rm -f -- %q; rmdir -- %q; fi'               "$remote_dir" "$remote_dir" "$remote_dir" "$remote_bundle" "$remote_dir"
+            printf -v cleanup \
+              'set -eu; if [ -d %q ] && [ ! -L %q ] && [ "$(stat -c %%u -- %q)" = "$(id -u)" ]; then rm -f -- %q; rmdir -- %q; fi' \
+              "$remote_dir" "$remote_dir" "$remote_dir" "$remote_bundle" "$remote_dir"
             gh codespace ssh --codespace "$CODESPACE_NAME" -- "$cleanup" >/dev/null 2>&1 || true
           }
           trap cleanup_remote_bundle EXIT
@@ -329,8 +332,12 @@ jobs:
           rm -f -- "$bundle"
           # SCP can preserve the source mode; enforce the exact remote mode
           # only after verifying a regular, non-symlink user-owned file.
-          printf -v remote_finalize_command             'set -eu; test -f %q; test ! -L %q; test "$(stat -c %%u -- %q)" = "$(id -u)"; chmod 600 -- %q'             "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
+          printf -v remote_finalize_command \
+            'set -eu; test -f %q; test ! -L %q; test "$(stat -c %%u -- %q)" = "$(id -u)"; chmod 600 -- %q' \
+            "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
           gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_finalize_command"
           # Trusted main script verifies private-dir ownership, file size,
           # permissions, SHA-256, Git bundle and exact selected PR commit.
-          gh codespace ssh --codespace "$CODESPACE_NAME" --             bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256"             < .github/scripts/sync-pr-codespaces-preview.sh
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" \
+            < .github/scripts/sync-pr-codespaces-preview.sh
