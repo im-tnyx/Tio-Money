@@ -1,3 +1,1 @@
-import { BlankScreen } from '@/shared/ui/blank-screen';
-
-export default BlankScreen;
+export { MoreRoute as default } from '@/features/settings/more-route';

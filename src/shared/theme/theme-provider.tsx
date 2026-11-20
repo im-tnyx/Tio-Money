@@ -1,6 +1,13 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
+import { t } from '@/shared/i18n/strings';
+
+import {
+  resolveAppearanceScheme,
+  type AppearancePreference,
+  type AppearancePreferenceStore,
+} from './appearance-preference';
 import {
   buttonTokens,
   iconRoleSizes,
@@ -34,12 +41,52 @@ export interface AppTheme {
   recovery: typeof recoveryTokens;
 }
 
-const ThemeContext = createContext<AppTheme | null>(null);
+export interface AppearanceSettings {
+  preference: AppearancePreference;
+  error: string | null;
+  selectPreference(value: AppearancePreference): void;
+}
 
-/** System-driven light/dark only. No per-screen or manual theme selector. */
-export function AppThemeProvider({ children }: { children: ReactNode }) {
+interface AppearanceState {
+  preference: AppearancePreference;
+  error: string | null;
+}
+
+const ThemeContext = createContext<AppTheme | null>(null);
+const AppearanceContext = createContext<AppearanceSettings | null>(null);
+
+function readInitialPreference(store: AppearancePreferenceStore): AppearanceState {
+  try {
+    return { preference: store.read(), error: null };
+  } catch {
+    return { preference: 'system', error: t('appearanceLoadError') };
+  }
+}
+
+/** One global, locally persisted appearance choice; no per-screen theme state. */
+export function AppThemeProvider({
+  children,
+  appearanceStore,
+}: {
+  children: ReactNode;
+  appearanceStore: AppearancePreferenceStore;
+}) {
   const systemScheme = useColorScheme();
-  const scheme: ColorScheme = systemScheme === 'dark' ? 'dark' : 'light';
+  const [settings, setSettings] = useState<AppearanceState>(() =>
+    readInitialPreference(appearanceStore),
+  );
+  const selectPreference = useCallback(
+    (value: AppearancePreference) => {
+      try {
+        appearanceStore.write(value);
+        setSettings({ preference: value, error: null });
+      } catch {
+        setSettings((current) => ({ ...current, error: t('appearanceSaveError') }));
+      }
+    },
+    [appearanceStore],
+  );
+  const scheme = resolveAppearanceScheme(settings.preference, systemScheme);
   const theme = useMemo(
     () => ({
       scheme,
@@ -57,11 +104,30 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
     }),
     [scheme],
   );
-  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+  const appearance = useMemo(
+    () => ({
+      preference: settings.preference,
+      error: settings.error,
+      selectPreference,
+    }),
+    [settings.preference, settings.error, selectPreference],
+  );
+
+  return (
+    <AppearanceContext.Provider value={appearance}>
+      <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+    </AppearanceContext.Provider>
+  );
 }
 
 export function useAppTheme(): AppTheme {
   const theme = useContext(ThemeContext);
   if (!theme) throw new Error('useAppTheme must be used within AppThemeProvider');
   return theme;
+}
+
+export function useAppearanceSettings(): AppearanceSettings {
+  const settings = useContext(AppearanceContext);
+  if (!settings) throw new Error('useAppearanceSettings must be used within AppThemeProvider');
+  return settings;
 }

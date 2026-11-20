@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-20 — More appearance UI preview candidate (new workstream)
+
+**Task:** [TM-UI-APPEARANCE-20261120-001](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Owner requested a new `main`-based UI feature PR for **More → General Settings → Appearance (System / Light / Dark)**, also serving as the first controlled Codespaces PR preview candidate. Working branch `feat/more-general-settings-appearance` starts at `main` `fd154db417b1979d39f855317f252eed37c36e9d`. This is **new work**, distinct from existing documentation PRs #14/#16. Existing older entries below are historical checkpoints and do not represent current GitHub state. Actual exact-head CI, device QA, independent review and privileged workflow end-to-end operation are NOT_VERIFIED at branch kickoff. **NO PR merge authorization; NO Codespaces workflow dispatch/activation authorization.**
+
+---
+
 ## 2026-11-20 — PR #7: latest-main reconciliation checkpoint (owner-requested)
 
 **Live preflight:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains OPEN / Ready for review, not merged. The approved reconciliation target is `main` at `5a72a112378fa14b168a02e9b18b41360ef79ed4`, including merged [PR #5](https://github.com/im-tnyx/Tio-Money/pull/5); prior PR #7 HEAD was `094b8b9225d9e5fa319af7bf6406bb047e067ee6`, 30 commits behind / 19 ahead. Owner requested merge-readiness and main synchronization in this chat; **owner authorization to merge PR #7 into main remains NOT_GRANTED**.
