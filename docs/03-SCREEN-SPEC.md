@@ -114,7 +114,7 @@
 
 | Phase | Screens / interactions | Status |
 | :--- | :--- | :--- |
-| **Current Phase 0 navigation shell** | Five blank tabs + disabled More-aligned floating Add; system light/dark and centralized visual tokens | **Source implemented in PR #1; ready for review, not merged or device-accepted** |
+| **Current Phase 0 navigation shell** | Five blank tabs + disabled More-aligned floating Add; system light/dark and centralized visual tokens | **Source implemented and PR #1 merged 2026-11-19; full cross-platform installed-device/SQLite QA remains unverified** |
 | **Future MVP feature screens (original P0 proposal)** | Setup, Home dashboard, active Add, History, account management, Reports, Settings | **Design only — not implemented in current Phase 0** |
 | **P1 · Cross-platform import** | Import source, candidate review, deduplication states | **Specified at flow level** |
 | **Conditional Android native** | SMS permission rationale, review inbox, opt-out | **Requires policy eligibility + custom development build** |
@@ -449,13 +449,13 @@ If credit card is selected, the UI clarifies **“Adds to card outstanding”**,
 
 ### SCREEN 06 · Accounts `TM-S06` · P0
 
-- **Future Stage 1:** list **Cash / Bank / Funded Wallet / Credit Card / Investment / Loan** by UI group. Ledger accounting class (asset/liability) is independent from the user-facing group (see SCREEN 11); current Phase 0 screen is blank.
-- Asset account card = current available balance; card liability card = **Outstanding**, never indistinct `Balance`.
+- **Future Stage 1:** list **Cash / Bank / Wallet (funded and bank-linked reference) / Credit Card / Investment / Loan** by UI group. A funded Wallet has its own asset; a bank-linked reference is selectable account-link metadata and **does not create another asset or duplicate the Bank balance in Net Worth**. Ledger class (asset/liability) is independent from the UI group (see SCREEN 11); current Phase 0 screen is blank.
+- Ledger-bearing asset card shows its journal-derived available balance; a **bank-linked Wallet reference** shows the existing linked Bank balance clearly labelled **shared / not additional funds**, not an independent financial asset. Credit Card liability card shows **Outstanding**, never indistinct `Balance`.
 - Add account is a labeled action within Accounts; it is **not** an Income/Expense/Transfer home shortcut.
-- Add/edit form: name, type, opening amount, masked account identifier (optional), icon, archived status.
+- Add/edit form: name, typed group, **group-conditional opening position** (asset balance / Card outstanding / historical Investment cost / Loan outstanding), masked identifier (optional), icon and archive status. For `wallet_kind=bank_linked_reference`, require eligible Bank link, inherit Bank currency and **hide opening amount**; create/edit/archive only reference metadata, **never a funded asset or opening journal**.
 - Show all relevant account transactions in account detail.
 - Do not double-count UPI handles linked to the same bank account as distinct funded wallets.
-- If account is archived, preserve history and prevent new transactions unless restored.
+- If a ledger-bearing account is archived, preserve history and prevent new transactions unless restored. Archiving a bank-linked Wallet reference only hides its metadata and **must not archive, delete or change its linked Bank account or posted events**.
 
 ### SCREEN 07 · Reports `TM-S07` · P0
 

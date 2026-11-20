@@ -81,3 +81,11 @@
 - **Review gate:** Marked Ready for Review to request feedback; initial new-base reviews and inline findings were empty, **not approved**. Review/approval must be verified at the new head. Independent review remains recommended (financial docs and identity/privacy boundaries); no fictitious signoff.
 - **PR #22:** currently `mergeable:false` after parent PR #16 advanced; **branch untouched**. Needs separate review/reconciliation.
 - **Owner authority:** user requested safe PR #16 reconciliation and new CI/review. **No PR #16 merge authorization**, no deployment and no authorization for PR #22 merge.
+
+### 2026-11-20 — Manual re-review finding: legacy account-screen wording
+
+- **Reviewer:** current working architecture/documentation agent ChatGPT GPT-6; **not independent human approval**. Prior Codex review was requested on `53886aed3e28c9402cfb8f9402e536c8f8f638af`; its outcome must be considered **stale if the new commit advances HEAD**. A fresh re-review is needed on the new HEAD.
+- **Finding:** future SCREEN 06 in `docs/03-SCREEN-SPEC.md` still listed funded Wallets alone and a universal opening amount even though merged PR #14's [Account Groups](../../../docs/08-ACCOUNT-GROUPS-SPEC.md) specifies Bank-linked Wallet **reference metadata without any opening journal or second Bank asset**. The Phase 0 PR #1 merge status in two older screen/architecture blurbs was also stale.
+- **Fix:** explicitly include reference Wallets in future Accounts inventory, use **group-conditional opening** fields and linked Bank selector, preserve linked Bank on reference archive, and update historical PR #1 status without claiming device QA. No bottom navigation, app code, database migration or PR #22 branch modification.
+- **Evidence:** new-HEAD CI, Codex review, Markdown links, changed-file scope and branch status must be **reverified**; pre-fix `53886aed...` tests were **3/3 green**, but do not apply to subsequent edits.
+- **Authority:** user asked PR #16 reconciliation, new CI and review—not merge. Owner merge authorization remains **NOT_GRANTED**.

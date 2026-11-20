@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #16 follow-up review consistency correction
+
+- Before this checkpoint: [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was **OPEN / Ready for Review / main-based**, SHA `53886aed3e28c9402cfb8f9402e536c8f8f638af`, all three CI checks green. **Codex re-review requested**, but not yet finalized at observation.
+- Manual review found legacy **SCREEN 06** had funded-only Wallet and universal opening form wording inconsistent with the merged PR #14 Bank-linked Wallet reference; `docs/03-SCREEN-SPEC.md` corrected these conditions. Historical PR #1 merge-state blurbs in Screen/Architecture were also corrected, with device QA still unverified. **No app code, bottom navigation or PR #22 files touched.**
+- This task checkpoint commit advances the branch HEAD; **do not reuse old CI/Codex results**. Re-check exact-new-head actions, review threads and link integrity. PR #16 **merge authorization NOT_GRANTED**.
+
+---
+
+
 ## 2026-11-20 — PR #16 reconciliation after PR #14 squash merge
 
 **Verified follow-up:** [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was retargeted to `main`, remains **OPEN / Ready for Review / NOT MERGED**. Reconciled merge commit `ec537534ee617b72e481aa14f3f810852bb5fa2a` (two parents: old PR B HEAD + new main). GitHub compare: 0 behind, six Markdown files only; source `main` unchanged. At that exact SHA, **314 internal Markdown file links and 85 section anchors** passed, 0 missing, no added whitespace or prohibited co-author trailers; **173 external URL occurrences were not HTTP-verified**. This checkpoint advances the branch HEAD to trigger `pull_request:synchronize` CI, so all CI/reviewer results must be rechecked on the new commit. PR #22 remains Draft and requires separate reconciliation; no branch edits or merge authorization for #22.
