@@ -11,7 +11,7 @@
 | Live progress | [Current task index](.ai/current.md) — **snapshot only, never proof of live GitHub state** |
 | Detailed rules | [.ai/core/README.md](.ai/core/README.md) · [task protocol](.ai/tasks/README.md) |
 | GitHub governance | [Issue Forms, PR template and CI](.github/README.md) · [independent review guide](.github/REVIEW_GUIDE.md) · [manual post-merge sync](.github/POST-MERGE-SYNC.md) |
-| Reference stage, 2026-11-18 | `main` was documentation-only at governance kickoff; [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is parallel draft work; recheck both before acting |
+| Reference stage, updated 2026-11-21 | Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), and product docs [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), [#16](https://github.com/im-tnyx/Tio-Money/pull/16), [#22](https://github.com/im-tnyx/Tio-Money/pull/22) have **MERGED**. Stage 1 finance implementation remains separate; verify live refs before acting |
 
 ## 1. Mandatory startup and execution sequence
 
@@ -96,6 +96,7 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 Tio Money is an **offline-first finance tracker**, not a live bank integration. Design authority: [architecture](docs/05-TECH-ARCHITECTURE.md), [ledger](docs/04-DATABASE-DESIGN.md), [feature boundaries](.ai/core/feature-boundaries.md).
 
 - Use strict TypeScript; feature-oriented React Native / Expo Router architecture. `src/app/` owns route composition, not business logic.
+- **Mandatory owner TM-DEC-011:** **ALL screens are strictly dumb/presentation-only**, receiving immutable typed ViewModel props and forwarding injected callbacks. NO screen-owned workflow state/hooks, routing commands, SQL, network/FX, platform permissions, business calculations or side effects. Controllers/hooks own state/navigation; use cases orchestrate; pure ledger domain owns financial math; adapters own SQL. Root route/provider composition is allowed only as composition. See [12 — Dumb-Screen Boundaries](docs/12-DUMB-SCREEN-BOUNDARIES.md), [finance ADRs](docs/11-STAGE-1-FINANCE-ADRS.md) and future negative-fixture tests `TM-PRES-001–006`. No automatic guard is claimed to be implemented yet.
 - Feature modules own their UI, commands/use cases, tests and public contracts. No deep cross-feature imports, circular dependencies or unrelated refactors.
 - UI must not execute SQL or calculate financial balances/fees. Domain must not import Expo, React Native, navigation or SQLite. Repository adapters own bound SQL, migrations and atomic persistence.
 - One canonical shared **ledger domain** serves Accounts, Transactions and Reports; do not invent feature-local ledgers or editable balance caches.

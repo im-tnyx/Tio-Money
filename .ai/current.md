@@ -1,5 +1,16 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Verified post-merge source of truth + Stage 1 finance ADR planning
+
+- **Verified live GitHub baseline:** `im-tnyx/Tio-Money` `main` = `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) merged at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`, [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) at `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. Their three task **top lifecycle rows** were reconciled; all dated older Draft/unmerged sections are historical only. No claim of a local Codespace `git pull`, device QA, file archival or new executable ledger.
+- **Current scoped task:** [TM-FIN-ADR-20261121-001](tasks/product/post-merge-stage1-finance-adr-20261121.md) / [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23). Agent ChatGPT GPT-6 technical PROCEED **docs-only**. Branch `docs/postmerge-stage1-finance-adrs-20261121` created from verified main. Owner requested Stage 1 ADR clarification and confirmed **all screens must be dumb / no screen logic**.
+- **New canonical contracts:** [11 — Stage 1 Finance ADRs](../docs/11-STAGE-1-FINANCE-ADRS.md) maps TM-ADR-011–023 with settled technical invariants versus **explicit pending business/provider/security choices**. [12 — Dumb-Screen Boundaries](../docs/12-DUMB-SCREEN-BOUNDARIES.md) and owner [TM-DEC-011](../docs/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) forbid any logic, routing, SQL, finance math or side effects inside screens. Current five blank tab routes were **read-only inspected** on main and only export BlankScreen; route layouts compose separate controllers/providers.
+- **Scope:** Markdown only; do not alter Phase 0 source, bottom-navigation visual tokens/More-aligned disabled FAB, finance SQLite, cloud, auth or permissions. Finance ADR owner/provider/accounting choices remain **BLOCKED pending separate decisions**; source and negative CI enforcement are **NOT IMPLEMENTED** by these docs.
+- **Handoff:** validate exact PR branch HEAD, all Markdown paths/anchors, zero co-author trailers, current GitHub checks/review. Independent finance/security review strongly recommended. **Owner merge authorization for this new PR NOT GRANTED**; no direct `main` write or merge.
+
+---
+
+
 ## 2026-11-20 — PR #22 ready-for-review checkpoint (reconciled on main)
 
 - [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) **OPEN / Ready for Review / not merged**, targeting `main` at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, reconciled HEAD `4e741cf716bcb6020d6e1128a28fc995fd00eb37` before this checkpoint. Original history preserved by non-force two-parent commit; GitHub diff exactly six Markdown files, 0 behind.

@@ -21,6 +21,9 @@
 
 ## 00 · Technical architecture alignment — 2026-11-20
 
+> **Owner directive TM-DEC-011 (2026-11-21): EVERY screen is strictly dumb.** A `src/app/` route only composes a container; `features/*/screens` render immutable typed ViewModels and injected callbacks. Screens **must not** use `useState`/`useEffect` for workflow, issue router commands, invoke services, perform I/O, SQL, finance math, FX, policy branching or permissions. Controllers/hooks manage screen state and navigation; application use cases orchestrate commands; domain is pure and balances the journal; adapters own SQLite and network. See [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and [finance ADRs](11-STAGE-1-FINANCE-ADRS.md). Current root layouts may compose existing providers/navigation hooks without moving their effects into feature screens. No runtime files are changed here.
+
+
 > [!IMPORTANT]
 > **Documentation-only future design.** [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) and [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) set this stage order: **Stage 1 complete local SQLite app with optional FX quote requests only → Stage 2 encrypted user-directed Drive/iCloud backup → Stage 3 optional Supabase sync with signup/signin only after explicit opt-in**. Existing Phase 0 source is still the blank five-tab shell + disabled FAB + settings-only SQLite migration; no financial journal, FX provider, backup, authentication or remote sync is implemented. Original "no P0 cloud/network" paragraphs below mean no **account data** networking; FX quotes are a narrowly scoped future **public pair-metadata exception**, not backend financial storage.
 
@@ -111,7 +114,7 @@ flowchart TD
 | `TM-ARCH-009` | Bank-linked Wallet references create only typed link metadata and never duplicate a Bank asset; historical Investment/Loan openings are distinct from new funding/disbursement transactions |
 | `TM-ARCH-010` | Investment market quote changes only a **separate unposted portfolio estimate**; canonical journal-derived Net Worth remains unchanged until an approved balanced valuation event is explicitly posted |
 
-**Unresolved architecture decisions:** [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) `TM-ADR-018–023` plus earlier `TM-ADR-011–017`; storage encryption/backup keys; future sync tenant policy. Mark these **BLOCKED before coding**, not silently approved from this document. The [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) remains an older draft to reconcile in the separate PR C.
+**Stage 1 finance ADRs triaged (2026-11-21):** [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) is now canonical for TM-ADR-011–023: shared finance invariants are accepted **for design**, while cross-currency posting, issuer-card rules, loan interest, investment realization, concrete FX provider and data migration remain explicitly **BLOCKED pending approvals/tests**. [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) has already merged (not an open separate PR C); its Stage 1/2/3 sequence remains authoritative. Stage 2 backup keys and Stage 3 sync identity/security require separate future ADRs.
 
 ## 01 · Executive architecture at a glance
 

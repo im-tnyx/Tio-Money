@@ -26,8 +26,10 @@
 | [08 · Account Groups](08-ACCOUNT-GROUPS-SPEC.md) | Dynamic Cash/Bank/Wallet/Card/Investment/Loan setup, account links and financial boundaries |
 | [10 · Currency & Exchange Rates](10-CURRENCY-SPEC.md) | Main + optional distinct Sub Currency, refresh-on-use, stale offline fallback, unresolved ledger ADRs |
 | [09 · Future Backup, Restore & Sync](09-BACKUP-SYNC-SPEC.md) | Stage 2 encrypted user-directed backup, Stage 3 optional Supabase/Auth; **design only, not implemented** |
+| [11 · Stage 1 Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) | Canonical TM-ADR-011–023 decisions, accepted invariants versus blocked accounting/policy prerequisites and test vectors |
+| [12 · Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) | Owner-mandated strictly presentation-only screens, typed controller/domain/repository separation and future CI negative tests |
 
-**GitHub state verified 2026-11-20:** [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) and [Governance PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) are **merged**. References below to PR #1 "ready for review" are preserved as **historical pre-merge evidence**, not current status. Real-device SQLite/iPhone QA is not established by a merge.
+**GitHub state reverified 2026-11-21:** [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) (merge `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`), [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) (merge `6187b7a7e4c59949547c21655accf50dec8d0dfd`) and [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) (merge `f4332eb338ca75e27a5b35ff57511f522a4bb96a`) are **MERGED into main**. Earlier Draft/unmerged task checkpoints are historical. Current Phase 0 is still five blank tab screens and a disabled floating Add; financial features, future backups and Supabase Auth **are not implemented**. Owner-reported Android smoke is not iPhone/SQLite end-to-end QA.
 
 ### Protected bottom tabs · owner clarification (2026-11-20)
 
@@ -48,6 +50,8 @@
 | Design the financial data model | [🗄 04 — Database & Financial Ledger](04-DATABASE-DESIGN.md) | Double-entry postings, assets/liabilities, transfer fees, reconciliation |
 | Review actual Phase 0 structure and future boundaries | [🏗 05 — Technical Architecture](05-TECH-ARCHITECTURE.md) · [🧱 Phase 0 Foundation Notes](07-PHASE-0-FOUNDATION-NOTES.md) | Typed central theme, navigation/boot controllers, current blank route tree, Expo Go limits and remaining real-device QA |
 | Evaluate readiness for release | [🧪 06 — Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) | Phases 0–7, financial test cases, permissions, release gates and owner decisions |
+
+**New mandatory architecture gate:** all future **screens are strictly dumb/presentation-only** (owner TM-DEC-011): typed ViewModels and callbacks only, with no workflow state/navigation/SQL/business calculation, FX or permissions in screens. Read [12 — Screen Boundary](12-DUMB-SCREEN-BOUNDARIES.md). The [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) is the *single decision/status map* for the finance implementation gate; unanswered owner/provider/interest/valuation/cross-currency policies remain **BLOCKED**.
 
 ## 💎 Product rules that must survive every design revision
 

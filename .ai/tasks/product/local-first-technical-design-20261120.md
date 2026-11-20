@@ -13,9 +13,9 @@
 | Historical stacked PR A base | At task creation, [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) was Draft at `659915ba8c9766082ccc945809b8879df3b5b6ce`; **it later squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`** |
 | Main at task start | `fd154db417b1979d39f855317f252eed37c36e9d` |
 | Working branch | `docs/local-first-finance-architecture-20261120`, originally from PR #14 head; **reconciled with new `main` by non-force merge commit and PR #16 base retarget to `main`** on 2026-11-20 (verify live GitHub state) |
-| Lifecycle | **OPEN / Ready for Review (non-draft)** — [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), base `main`, review findings under remediation; **NOT MERGED**. Final GitHub CI/review must be rechecked after this documentation checkpoint advances HEAD. |
+| Lifecycle — VERIFIED POST-MERGE (2026-11-21) | **MERGED / CLOSED** — [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16), squash to `main` at `6187b7a7e4c59949547c21655accf50dec8d0dfd`. Earlier Ready for Review/RECONCILING text in dated logs is historical. |
 | Independent review | **Automated Codex review PERFORMED** at `b81f4813a43af9de408eeddf1a850752ce64b7ca`: no open Codex findings then; a separate owner-authored GitHub `COMMENTED` review was submitted, **not `APPROVED`**. Independent human approval **NOT VERIFIED**; verify any new findings after the next commit. |
-| Merge permission | PR #14 was separately authorized and **merged**; **NOT_GRANTED for PR #16 or PR #22**, separate PR-specific permission required |
+| Merge permission — VERIFIED POST-MERGE | Separate owner authorization for PR #16 was granted and conditions verified before squash merge; PR #14 and PR #22 separately merged under their own authorizations. No permission granted for any new PR. |
 
 ## RFC, scope and exclusions
 

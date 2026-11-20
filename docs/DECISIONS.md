@@ -1,5 +1,7 @@
 # 📌 Tio Money — Owner Decision Register
 
+> **2026-11-21 verified post-merge status:** [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) and [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) are **MERGED**, latest checked `main` is `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. TM-DEC-011 adds the owner's **strict dumb-screen** rule; it does NOT approve unsettled financial/FX/provider policies. [Finance ADR register](11-STAGE-1-FINANCE-ADRS.md). Older status snapshots below remain historical.
+
 > **Status check · 2026-11-20:** [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) merged 2026-11-19 (merge `e647f78ce200fed1323d80ea794396c371fba7bf`); [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) merged 2026-11-19 (merge `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`); [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) merged 2026-11-20 (merge `5dbdbe047a542463f0de66b9c0c6e09ef7d2605a`). Older open/unmerged statements below are **historical snapshots**, not current GitHub state. Decisions TM-DEC-001–005 and the newer **TM-DEC-010 bottom-navigation freeze** govern current Phase 0 visuals; TM-DEC-006–009 define **future product stages**, not implemented features or merge permission. iPhone and real on-device SQLite QA remain unverified.
 
 [Documentation hub](00-INDEX.md) · [PRD](01-PRD.md) · [Architecture](05-TECH-ARCHITECTURE.md) · [Agent contract](../AGENTS.md)
@@ -19,6 +21,7 @@
 | [TM-DEC-009](#tm-dec-009--conditional-identity-only-for-opt-in-supabase) | 2026-11-20 | No app login until user opts in to future Supabase sync | **Owner directed; agent-transcribed** | Future identity and synchronization |
 | [TM-DEC-010](#tm-dec-010--bottom-navigation-ui-freeze) | 2026-11-20 | Keep existing five bottom tabs, icons, spacing and More-aligned FAB unchanged | **Owner directed; agent-transcribed** | Existing Phase 0 visual baseline and all future UI work |
 
+| [TM-DEC-011](#tm-dec-011--strict-dumb-screen-presentation-only-rule) | 2026-11-21 | All screens strictly dumb/presentation-only: no business, navigation, SQL or workflow logic | **Owner directed in connected chat; agent-transcribed** | Every future app screen, feature architecture and tests |
 ## TM-DEC-001 — English-only initial app
 
 **Decision date:** 2026-11-18  
@@ -140,6 +143,16 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 **Supersedes:** any old four-root/center-Add exploratory proposal and unresolved language implying owner still needs to decide the bottom navigation placement, icon or dimensions. It **does not** supersede TM-DEC-001 English-only UI, ledger invariants, data/identity/storage stages or real-device verification requirements.
 
 **Acceptance:** future UI PRs must show exact label/order/count and token/layout invariants, retained FAB geometry, same theme behavior, and a device accessibility/safe-area smoke matrix. If a requested feature genuinely requires a bottom-nav change, stop and request a **new explicit owner decision** first.
+
+## TM-DEC-011 — Strict dumb-screen presentation-only rule
+
+**Decision date:** 2026-11-21. **Source:** direct owner instruction in the connected Tio Money chat: “all screen dump screen rahega koi bhi logic screen m nahi rahega verify ke baad go.” This is an **agent-transcribed owner instruction**, not a GitHub-owner-authored approval of finance accounting choices. [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23) documents docs-only technical PROCEED.
+
+**Decision:** **Every app screen is dumb/presentation-only.** It only renders immutable typed ViewModel props, accessible controls and forwards injected callbacks. Screen files must not own business logic, financial math, balances/fees, local SQL, network/FX requests, permissions, router decisions, lifecycle/async side effects, or workflow-state hooks. Feature **controllers/hooks** own state/navigation/async; **use cases** own validation/orchestration; one pure **domain ledger** owns financial rules; **repository adapters** own SQLite; platform services own OS/network behavior. Static Expo Router **route/layout composition** may wire providers/controllers but may not become business-logic screens. Read the exact [12 — Dumb-Screen Contract](12-DUMB-SCREEN-BOUNDARIES.md) and [finance ADR release gates](11-STAGE-1-FINANCE-ADRS.md).
+
+**Enforcement:** Future code PRs must add static boundary/negative-fixture tests `TM-PRES-001–006`; passing visual smoke tests is insufficient. **These tests are a future code task, not implemented by this documentation decision.** Current blank five-tab shell, disabled More-aligned Add and visual token geometry stay untouched under TM-DEC-005/TM-DEC-010. No added feature routes or financial logic is authorized by this entry.
+
+**Supersedes:** older permissive wording that allowed screen-owned form workflow/business actions; it does not change route composition, existing Phase 0 provider bootstrap, or independent finance ADR/merge gates.
 
 ## Pending choices — not decisions
 

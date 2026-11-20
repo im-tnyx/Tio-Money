@@ -20,6 +20,9 @@
 
 ## 00 · Future Stage 1 screen contract — 2026-11-20
 
+> **Mandatory newer owner rule (2026-11-21): every future screen is dumb/presentation-only.** Screens render immutable typed view-model props and forward injected callbacks; **no local workflow hooks, navigation commands, business calculations, SQL, I/O, permissions or side effects inside any screen**. Controllers/hooks own state/routing/async; application use cases own workflows; one pure domain ledger owns all financial math; repositories own SQL. See [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule), [12 — Dumb-Screen Contract](12-DUMB-SCREEN-BOUNDARIES.md) and future tests `TM-PRES-001–006`. This docs amendment does not enable a feature screen or change the already-correct five-tab shell.
+
+
 > [!IMPORTANT]
 > **UI specification only.** The current verified Phase 0 screen shell stays **five blank tabs** (Home · Trans. · Stats. · Account · More) with a **disabled floating + above More**, no additional feature screens, no active Settings or onboarding. The screen designs below are **future**; no change to current Phase 0. Stage order: [TM-DEC-006](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) / [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Keep existing system-selected light/dark Phase 0 theme tokens; do not imply a manually selectable theme works now. Initial language is **English only**.
 

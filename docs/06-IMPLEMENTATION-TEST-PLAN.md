@@ -31,6 +31,22 @@
 
 **Feature delivery rule:** New settings/accounts/reports/transaction capabilities belong **inside existing destinations or separately approved flow screens**, never via an extra/reordered/replaced bottom tab. UI-specific tasks must include token regression tests, route/label/icon count/order tests, a11y and device snapshots for Android/iOS to prove no change. Existing four-root + central bar Add or other old proposals **are superseded historical design**, not pending owner choices. Activation of the single floating Add for future transaction entry would require a **separately scoped task**; do not infer it from approving this document.
 
+### 0.2 Mandatory strict dumb-screen and Stage 1 finance ADR gate (2026-11-21)
+
+The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Screen files render immutable typed ViewModels and forward callbacks; **no hooks for workflow state, navigation, SQL, asynchronous I/O, FX, domain math, account balance computation or permissions**. Controllers/hooks and application services own interactions; one domain ledger owns finance rules; SQLite adapters own persistence. See [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md). Current Phase 0 code is unchanged; guard implementation requires a separate scoped code/test PR.
+
+| Future gate | Required test / evidence |
+| :--- | :--- |
+| `TM-PRES-001–002` | AST/ESLint import and effect restrictions for every feature screen and route adapter; deliberate invalid SQL, router and balance-math fixtures **fail** |
+| `TM-PRES-003–004` | Presentational screen renders with fake immutable VM **without DB/router/network**; controller separately tested for state, navigation, validation, cancellations and errors |
+| `TM-PRES-005–006` | Frozen five-tab/FAB regression, bypass via shared UI helper rejected, root provider composition remains allowed |
+| `TM-ADR-T01–T04` | Persisted idempotency, crash rollback, exact currency minor units and native-currency balancing; deterministic journal tests |
+| `TM-ADR-T05–T07` | Reject unapproved mixed-currency posting; funded/linked Wallet, card, Investment and Given/Borrowed Loan opening without duplication |
+| `TM-ADR-T08–T12` | Repayments vs expenses, refunds, revaluation estimate not affecting Net Worth, offline FX, backdated correction gate |
+| `TM-ADR-T13–T14` | Forward-safe settings SQLite migration and real-device reconciliation; all UI projections consume one canonical journal |
+
+**Stage 1 FINANCE IMPLEMENTATION HOLD:** an ADR marked PARTIAL/BLOCKED does not authorize its missing accounting policy, schema, FX provider, interest or realized gains behavior. No migration, payment/loan/investment workflow or Stage 2/3 cloud work is approved by a documentation PR.
+
 ### 0.2 Three product stages with strict exit gates
 
 | Stage | Feature scope | Completion evidence / dependencies | Excluded until later |

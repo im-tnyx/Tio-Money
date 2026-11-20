@@ -12,9 +12,9 @@
 | Base/head at creation | Open Draft [PR B #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`; PR A [#14](https://github.com/im-tnyx/Tio-Money/pull/14) still open Draft |
 | Main reference | `fd154db417b1979d39f855317f252eed37c36e9d` on 2026-11-20 |
 | Working branch | `docs/local-first-delivery-backup-gates-20261120`, originally stacked on PR B, **reconciled by non-force merge of current `main`**; PR #22 base retarget **to `main`** after exact-diff verification |
-| Lifecycle | **OPEN / Ready for Review (non-draft)** — [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22), base `main`, **NOT MERGED**. New exact-head CI and reviewer findings must be checked after this checkpoint advances HEAD. |
+| Lifecycle — VERIFIED POST-MERGE (2026-11-21) | **MERGED / CLOSED** — [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) squash to `main` at `f4332eb338ca75e27a5b35ff57511f522a4bb96a`; former Draft/Ready status logs are historical. |
 | Independent review | Initial Draft review NOT PERFORMED; **new exact-head automated review to be requested**. Independent human `APPROVED` review **not verified**; strongly recommend crypto/identity assessment before implementation |
-| Owner merge authorization | PR #14 and PR #16 **separately authorized and MERGED**; PR #22 **NOT AUTHORIZED** for merge, requires separate owner PR-specific permission |
+| Owner merge authorization — VERIFIED POST-MERGE | Separate, conditional owner permission was granted for **PR #22**, with 3/3 CI, completed zero-finding Codex and accepted GitHub settings; GitHub verifies MERGED. This is not blanket permission for any future PR. |
 | Rollback | Close unmerged Draft PR without touching existing PR branches/main; branch deletion separately authorized |
 
 ## Document scope
