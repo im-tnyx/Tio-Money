@@ -26,14 +26,18 @@ export function MoreScreen({
     >
       <ScrollView
         contentContainerStyle={{
-          padding: theme.space.lg,
+          paddingTop: theme.space.lg,
           paddingBottom: theme.space.xxxl,
           gap: theme.space.lg,
         }}
       >
-        <AppText variant="title">{t('more')}</AppText>
+        <View style={{ paddingHorizontal: theme.space.lg }}>
+          <AppText variant="title">{t('more')}</AppText>
+        </View>
         <View style={{ width: '100%', gap: theme.space.sm }}>
-          <AppText variant="section">{t('generalSettings')}</AppText>
+          <View style={{ paddingHorizontal: theme.space.lg }}>
+            <AppText variant="section">{t('settings')}</AppText>
+          </View>
           <Pressable
             onPress={() => onAction({ type: 'appearance.open' })}
             accessibilityRole="button"
@@ -45,9 +49,10 @@ export function MoreScreen({
               minHeight: theme.buttons.minimumHeight,
               backgroundColor: theme.colors.card,
               borderColor: theme.colors.border,
-              borderWidth: theme.navigation.borderWidth,
-              borderRadius: theme.radius.md,
-              paddingHorizontal: theme.space.md,
+              borderTopWidth: theme.navigation.borderWidth,
+              borderBottomWidth: theme.navigation.borderWidth,
+              borderRadius: theme.navigation.origin,
+              paddingHorizontal: theme.space.lg,
               paddingVertical: theme.space.md,
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -55,7 +60,22 @@ export function MoreScreen({
               gap: theme.space.sm,
             }}
           >
-            <AppText>{t('appearance')}</AppText>
+            <Svg
+              width={theme.iconRoles.card}
+              height={theme.iconRoles.card}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Path
+                d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"
+                fill={theme.colors.secondaryText}
+                fillRule="evenodd"
+              />
+            </Svg>
+            <View style={{ flex: 1 }}>
+              <AppText>{t('appearance')}</AppText>
+            </View>
             <Svg
               width={theme.iconRoles.card}
               height={theme.iconRoles.card}
