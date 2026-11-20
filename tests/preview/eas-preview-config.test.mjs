@@ -74,7 +74,8 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.ok(dispatchInputs.includes('type: number'));
+  assert.match(dispatchInputs, /      pr_number:\n        description: Open owner-authored PR targeting main \(JS\/assets-only change\)\n        required: true\n        type: string\n/);
+  assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
     /      operation:\n        description: Publish an OTA update or queue an internal preview build\n        required: true\n        default: publish_update\n        type: choice\n        options:\n          - publish_update\n          - build_preview\n/,
@@ -131,4 +132,32 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /native_change=0/);
   assert.match(text, /\.head\.repo\.full_name == \$repo/);
   assert.match(text, /\.user\.login == "im-tnyx"/);
+});
+
+test('manual EAS PR number stays a strict positive integer string without relaxing publish gates', () => {
+  const workflow = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
+  const metadata = workflow.split('workflow_dispatch:')[1].split('\npermissions:')[0];
+  assert.match(metadata, /      pr_number:\n(?:        [^\n]+\n){3}/);
+  assert.match(metadata, /      pr_number:\n        description: [^\n]+\n        required: true\n        type: string\n/);
+  assert.doesNotMatch(metadata, /^\s*type: number$/m);
+  assert.ok(workflow.includes('PR_NUMBER: ${{ inputs.pr_number }}'));
+  assert.ok(workflow.includes('if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then'));
+  assert.ok(workflow.includes('gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}"'));
+  const validPR = /^[1-9][0-9]*$/;
+  for (const input of ['1', '18', '5000']) assert.ok(validPR.test(input), input);
+  for (const input of ['18.0', '0', '018', '-18', '1e3', '18/../', '', '18 ', '+18']) {
+    assert.equal(validPR.test(input), false, input);
+  }
+  assert.match(workflow, /github\.actor == 'im-tnyx'/);
+  assert.match(workflow, /github\.triggering_actor == 'im-tnyx'/);
+  assert.match(workflow, /github\.run_attempt == '1'/);
+  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.ok(workflow.includes('.draft == false'));
+  assert.ok(workflow.includes('.head.repo.full_name == $repo'));
+  assert.ok(workflow.includes('.base.ref == "main"'));
+  assert.ok(workflow.includes('src/*|assets/*'));
+  assert.ok(workflow.includes('native_change=0'));
+  assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
+  assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
+  assert.doesNotMatch(workflow, /pull_request_target/);
 });
