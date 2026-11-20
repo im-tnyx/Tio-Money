@@ -71,3 +71,13 @@
 - **Downstream:** [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) branch remains **untouched**. Its base will advance indirectly with PR #16; separately reconcile it **later** and do not claim its current mergeability/tests.
 - **Review:** independent review previously `DEFERRED`; GitHub automated reviewer/CI results must be read **after** the new head and (if requested) ready-for-review transition. No review approvals are fabricated. Finance/identity ADR blockers remain future implementation gates.
 - **Owner merge authorization:** **NOT_GRANTED for PR #16**, even when CI/review pass.
+
+### 2026-11-20 — Ready-for-review / CI refresh checkpoint
+
+- **Live PR #16:** transitioned from Draft to **Ready for Review**, base branch retargeted from old PR A branch to **`main`**. Reconciliation merge commit `ec537534ee617b72e481aa14f3f810852bb5fa2a`, not merged.
+- **Verified current diff:** GitHub compare new `main` to `ec537534ee617b72e481aa14f3f810852bb5fa2a`: **six Markdown files** (02–05, task, current index), **0 behind**. Every other file, including PR #14 corrected product docs, matches `main`. No force-push/rebase.
+- **Link and product review at verified commit:** scanned 18 Markdown docs plus handoff: **314 local file links, 85 section anchors**, 0 missing/broken. 173 external links were enumerated but **not tested for live HTTP**. New Account Opening/Walet/Investment/Loan acceptances are visible in TM-FLOW-AG-008/009, TM-SCR-AG-006, TM-DB-GROUP-005 and TM-ARCH-009. The PR does not implement finance code.
+- **GitHub checks issue:** push to the branch while PR targeted old non-`main` base triggered only preview `signal`; docs/governance workflows rely on `pull_request` (`synchronize`) on `main`. This small task/index-only checkpoint commit deliberately triggers current-head PR CI. No CI result claimed until GitHub returns final statuses.
+- **Review gate:** Marked Ready for Review to request feedback; initial new-base reviews and inline findings were empty, **not approved**. Review/approval must be verified at the new head. Independent review remains recommended (financial docs and identity/privacy boundaries); no fictitious signoff.
+- **PR #22:** currently `mergeable:false` after parent PR #16 advanced; **branch untouched**. Needs separate review/reconciliation.
+- **Owner authority:** user requested safe PR #16 reconciliation and new CI/review. **No PR #16 merge authorization**, no deployment and no authorization for PR #22 merge.

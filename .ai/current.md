@@ -2,6 +2,9 @@
 
 ## 2026-11-20 — PR #16 reconciliation after PR #14 squash merge
 
+**Verified follow-up:** [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was retargeted to `main`, remains **OPEN / Ready for Review / NOT MERGED**. Reconciled merge commit `ec537534ee617b72e481aa14f3f810852bb5fa2a` (two parents: old PR B HEAD + new main). GitHub compare: 0 behind, six Markdown files only; source `main` unchanged. At that exact SHA, **314 internal Markdown file links and 85 section anchors** passed, 0 missing, no added whitespace or prohibited co-author trailers; **173 external URL occurrences were not HTTP-verified**. This checkpoint advances the branch HEAD to trigger `pull_request:synchronize` CI, so all CI/reviewer results must be rechecked on the new commit. PR #22 remains Draft and requires separate reconciliation; no branch edits or merge authorization for #22.
+
+
 - **Owner requested:** safely reconcile [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) onto new `main`, rerun CI and review. This is **not** permission to merge PR #16.
 - **Verified PR #14:** squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`. Existing PR #16 branch HEAD before reconciliation: `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`.
 - **Integration:** non-force two-parent branch merge into PR #16 with `main` as second parent, main tree authoritative except PR B's **six owned Markdown paths**. Reconcile only Bank-linked Wallet non-ledger reference, Investment/Loan historical opening wording in docs 02–05; preserve original `main` index and PR #14 P2 fixes. **No application, SQL, theme, bottom-navigation or cloud changes.**
