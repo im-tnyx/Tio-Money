@@ -110,8 +110,8 @@ Example needs:
 ### 4.1 First-run setup (P0)
 
 - Initial onboarding has **no language selector**; use English UI copy and default INR currency.
-- Create a first owned account using the applicable [Account Group](08-ACCOUNT-GROUPS-SPEC.md): Cash, Bank, funded Wallet, Credit Card, Investment or Loan. **Do not imply this is implemented in the current blank Phase 0 shell.**
-- Enter opening balance; credit cards use a clearly identified opening outstanding liability.
+- Create a first **ledger-bearing financial account** using the applicable [Account Group](08-ACCOUNT-GROUPS-SPEC.md): Cash, Bank, independently funded Wallet, Credit Card, Investment or Loan. After an eligible Bank account exists, the user may additionally create a **bank-linked Wallet reference** via the Wallet group (`wallet_kind=bank_linked_reference`, required `linked_bank_account_id`). This is **reference metadata, not another owned-funds account**: it inherits Bank currency, uses the existing Bank balance and creates **no independent opening amount, ledger account, journal event or second Net Worth asset**. **Do not imply any of this is implemented in the current blank Phase 0 shell.**
+- Enter a **group-specific opening position**, never one mandatory universal amount: Cash/Bank/funded Wallet have an opening asset balance; Credit Card has opening outstanding **liability**; historical Investment uses cost basis plus optional separately dated valuation; historical Loan uses Given/Borrowed outstanding principal. A bank-linked Wallet reference has **no independent opening or funded balance**. Positive historical openings balance against opening equity, not Income/Expense; zero/reference openings do not write zero-value journal postings. See [group-specific opening contract](08-ACCOUNT-GROUPS-SPEC.md#21--group-specific-opening-contracts).
 - App can be used without signup.
 - Request permissions only when a feature needs them, with clear privacy explanations.
 
@@ -159,7 +159,7 @@ Transfer tab:
 
 ### 4.5 Accounts (P0)
 
-- Add/edit/archive Cash, Bank, funded Wallet, Credit Card, Investment and Loan groups in the complete local app. Use group-specific dynamic setup fields per [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); group names are **not** interchangeable with ledger account classes.
+- Add/edit/archive Cash, Bank, **funded Wallet and bank-linked Wallet references**, Credit Card, Investment and Loan in the complete local app. The Wallet group's `funded` path owns a distinct asset; its `bank_linked_reference` path creates/edits/archives **non-ledger metadata** linked to an eligible Bank, without duplicating balances. Deleting or archiving a reference must not delete, archive or change postings on the linked Bank. Use group-specific dynamic setup fields per [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); group names are **not** interchangeable with ledger account classes.
 - Display current balance or credit card outstanding, with correct sign conventions.
 - One UPI ID linked to a bank account must not create a second owned-funds balance unless it represents an actual separately funded wallet.
 - Transactions tied to archived accounts remain in history.
@@ -323,7 +323,7 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 
 ## 9. Suggested data entities (detailed schema comes next)
 
-- `accounts` — stable identity, group/subtype, ledger classification, opening posting, currency, metadata; dynamic group-specific details without mutable authoritative balance caches.
+- `accounts` — stable identity, group/subtype, ledger classification, **conditional opening-equity event only for nonzero ledger-bearing positions**, currency and metadata; bank-linked reference types never create a second asset or opening journal, and investment valuations are separate non-posting estimates. Dynamic group-specific details never become mutable authoritative balance caches.
 - `categories` — income, expense, bank charges and custom category labels.
 - `transactions` — principal, type, from/to accounts, category, timestamps, source and status.
 - `transaction_links` or `transfer_group_id` — transfer/fee/refund relationships.

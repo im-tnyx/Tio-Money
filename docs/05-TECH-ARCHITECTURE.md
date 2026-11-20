@@ -16,7 +16,7 @@
 ---
 
 > [!IMPORTANT]
-> **Implementation status (PR #1, 2026-11-19):** A **limited Phase 0 foundation and blank five-tab UI shell are implemented in source** and ready for code review, **not merged or production/device accepted**. Native splash → only Home · Trans. · Stats. · Account · More (blank bodies), disabled floating `+` over More, no app top bar/editor/Settings/onboarding. Expo Router, system dark/light theme, centralized TypeScript visual tokens and settings-only Expo SQLite initialization exist; financial posting, account balances, future screen workflows and Android SMS are **not implemented**. The broad architecture and routes described below are **future proposals**, not present behavior. Current contracts: [owner TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md), [Core Theme README](../src/shared/theme/README.md). Owner-reported current-device UI smoke shows no repeat of the previous `ExpoSQLite` startup failure; full both-platform device/SQLite PRAGMA-migration-restart QA and separate owner merge permission remain required; reference screenshots are not code or styles to reproduce.
+> **Phase 0 source status (historical 2026-11-19 snapshot, updated post-merge):** A **limited Phase 0 foundation and blank five-tab UI shell are implemented in source** and **merged to `main` via PR #1 on 2026-11-19**, but **not production-released or fully device-QA-accepted**. Native splash → only Home · Trans. · Stats. · Account · More (blank bodies), disabled floating `+` over More, no app top bar/editor/Settings/onboarding. Expo Router, system dark/light theme, centralized TypeScript visual tokens and settings-only Expo SQLite initialization exist; financial posting, account balances, future screen workflows and Android SMS are **not implemented**. The broad architecture and routes described below are **future proposals**, not present behavior. Current contracts: [owner TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md), [Core Theme README](../src/shared/theme/README.md). Owner-reported current-device UI smoke shows no repeat of the previous `ExpoSQLite` startup failure; full both-platform device/SQLite PRAGMA-migration-restart QA and separate owner merge permission remain required; reference screenshots are not code or styles to reproduce.
 
 
 ## 00 · Technical architecture alignment — 2026-11-20
@@ -45,12 +45,12 @@ flowchart TD
 
 | Capability | Interface / ownership | Security and failure boundary |
 | :--- | :--- | :--- |
-| `AccountGroupCatalog` + `AccountSetupUseCase` | Feature/app layer selects typed built-in group descriptor, validates fields and posts atomic opening journal through repository | Group identity is UI metadata; domain chooses asset/liability class |
+| `AccountGroupCatalog` + `AccountSetupUseCase` | Feature/app layer selects typed group descriptor and validates fields; **non-ledger Bank-linked Wallet reference** writes metadata only, while positive ledger-bearing opening positions post one atomic balanced opening-equity event | Group identity is UI metadata; domain chooses asset/liability class; reference has **no separate ledger balance** and zero positions create no postings |
 | `LedgerCommandPort` | Domain builds balanced events; adapter enforces idempotent transaction-safe SQLite write | Single source of truth, no UI-computed balances, rollback on failure |
 | `AccountLinkRepository` | Links compatible bank/wallet/card/loan/investment records by stable ID | Reject archived/invalid links, do not duplicate bank-linked UPI assets |
 | `CardBillingService` | Due/statement schedule and user-confirmed local repayment use cases | **No real bank autopay**, no silent scheduled posting, no card secrets |
 | `LoanScheduleService` | Draft installments and user-confirmed principal/interest allocation | Plan != posted event; compounding/interest ADR before implementation |
-| `InvestmentValuationPort` | Dated value inputs, cost/current estimates and holdings projection | Never silently convert quote refresh into profit or posted funds |
+| `InvestmentValuationPort` | Dated **unposted** market-value inputs and separately labelled portfolio estimate; cost-basis asset remains journal-derived | Quote refresh/market estimate **cannot** change canonical ledger Net Worth, Income or Expense without a future approved **balanced valuation posting** ADR |
 | `FxQuotePort` / `FxCachePort` | Trigger refresh on meaningful currency use, check pair/source/timestamps, save last-known quote locally | Network sends currency codes only; cache stale UI; request timeout/rate limit; no hidden account uploads |
 | `CurrencyProjection` | Pure exact-decimal display conversion (when a validated quote exists) | No floating-point journal math, no original amount mutation |
 | `BackupProvider` (Stage 2 only) | Encrypted archive export/import via user-selected Drive/iCloud/file provider | Explicit user action, key custody, file authentication, restore dry-run and failure recovery |
@@ -108,6 +108,8 @@ flowchart TD
 | `TM-ARCH-006` | No backup or Supabase/Auth dependency in Stage 1 release graph |
 | `TM-ARCH-007` | Stage 2 encrypted archive is validated and recoverable before any cloud-sync scope |
 | `TM-ARCH-008` | Stage 3 login only on opt-in, RLS isolation and local continuity after logout (future separate auth threat model) |
+| `TM-ARCH-009` | Bank-linked Wallet references create only typed link metadata and never duplicate a Bank asset; historical Investment/Loan openings are distinct from new funding/disbursement transactions |
+| `TM-ARCH-010` | Investment market quote changes only a **separate unposted portfolio estimate**; canonical journal-derived Net Worth remains unchanged until an approved balanced valuation event is explicitly posted |
 
 **Unresolved architecture decisions:** [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) `TM-ADR-018–023` plus earlier `TM-ADR-011–017`; storage encryption/backup keys; future sync tenant policy. Mark these **BLOCKED before coding**, not silently approved from this document. The [Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md) remains an older draft to reconcile in the separate PR C.
 
