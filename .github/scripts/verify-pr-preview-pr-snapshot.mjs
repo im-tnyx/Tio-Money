@@ -23,7 +23,15 @@ export function requireImmutablePRChangedPaths(captured, compare, current, headS
     throw new Error('PR changed after immutable head selection or is not eligible.');
   }
 
-  if (compare?.base_commit?.sha !== baseSha || compare?.head_commit?.sha !== headSha ||
+  // GitHub Compare API returns an ordered "commits" array, not "head_commit".
+  // Fail closed on empty or paginated/truncated commit results: the final
+  // returned commit must attest the captured immutable PR head.
+  if (compare?.base_commit?.sha !== baseSha ||
+      !Number.isSafeInteger(compare?.total_commits) ||
+      compare.total_commits < 1 ||
+      !Array.isArray(compare.commits) ||
+      compare.commits.length !== compare.total_commits ||
+      compare.commits.at(-1)?.sha !== headSha ||
       !Array.isArray(compare.files) ||
       compare.files.length !== captured.changed_files ||
       compare.files.length < 1 || compare.files.length > 100) {

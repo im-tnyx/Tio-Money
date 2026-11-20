@@ -77,11 +77,65 @@ test('immutable preview scope rejects PR head race, altered compare, and native 
   };
   const compare = {
     base_commit: { sha: baseSha },
-    head_commit: { sha: headSha },
+    total_commits: 1,
+    commits: [{ sha: headSha }],
     files: [{ filename: 'src/feature.ts' }],
   };
   assert.deepEqual(
     requireImmutablePRChangedPaths(captured, compare, { ...captured }, headSha, baseSha),
+    ['src/feature.ts'],
+  );
+
+
+  // GitHub's real compare payload has no head_commit. Its commits list is
+  // the attestation source; fail closed if it is missing or incomplete.
+  assert.equal('head_commit' in compare, false);
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, commits: [] }, captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, commits: undefined }, captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, total_commits: 2 }, captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, total_commits: 0 }, captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, base_commit: { sha: 'd'.repeat(40) } },
+      captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, total_commits: 2, commits: [{ sha: headSha }, { sha: 'c'.repeat(40) }] },
+      captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  // A genuine multi-commit response is accepted only when the final
+  // returned SHA is exactly the originally captured head SHA.
+  assert.deepEqual(
+    requireImmutablePRChangedPaths(
+      captured,
+      { ...compare, total_commits: 2, commits: [{ sha: 'c'.repeat(40) }, { sha: headSha }] },
+      captured, headSha, baseSha,
+    ),
     ['src/feature.ts'],
   );
 
@@ -104,7 +158,7 @@ test('immutable preview scope rejects PR head race, altered compare, and native 
   );
   assert.throws(
     () => requireImmutablePRChangedPaths(
-      captured, { ...compare, head_commit: { sha: 'c'.repeat(40) } },
+      captured, { ...compare, commits: [{ sha: 'c'.repeat(40) }] },
       captured, headSha, baseSha,
     ),
     /Immutable PR comparison/,
