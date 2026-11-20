@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Concurrent PR #21 merge safely reconciled into PR #24
+
+- **Live new `main`**: `097e014d7e2a2015230971751bd5c72ee91e6580` after [PR #21](https://github.com/im-tnyx/Tio-Money/pull/21) squash-merged a scoped preview HTTP 403 diagnostic. Earlier main index text describing PR #21 as open is **historical pre-merge evidence**; no PR #21 workflow or preview test source code has been overwritten.
+- **PR #24 integration:** two-parent **non-force merge commit** with first parent `983d90ed332b2ad1f044b8438cd6a291c90b1414` and second parent new `main`. Use new `main` tree and overlay only PR #24's 15 Markdown-owned blobs; semantic-merge `.ai/current.md` by prepending our ongoing task section to all of new main's original index.
+- **Gate:** all prior CI/Codex evidence is for the earlier SHA and must be rechecked on this reconciliation commit. **Owner merge authorization NOT GRANTED** for PR #24.
+
+---
+
 ## 2026-11-21 — Verified post-merge source of truth + Stage 1 finance ADR planning
 
 **2026-11-21 follow-up:** On prior HEAD `e8c53ba35391527e54b9c28a4905b778cd2b4efd`, Phase 0 static job initially failed an **isolated EAS CLI registry npm-ci test**; controlled failed-job rerun **PASS**. New minor-unit consistency patch updated AGENTS, feature boundary, Architecture and Test Plan only; CI/review must be reconfirmed on the next HEAD. PR #24 remains **NOT MERGED**.
@@ -13,8 +21,18 @@
 - **Scope:** Markdown only; do not alter Phase 0 source, bottom-navigation visual tokens/More-aligned disabled FAB, finance SQLite, cloud, auth or permissions. Finance ADR owner/provider/accounting choices remain **BLOCKED pending separate decisions**; source and negative CI enforcement are **NOT IMPLEMENTED** by these docs.
 - **Handoff:** validate exact PR branch HEAD, all Markdown paths/anchors, zero co-author trailers, current GitHub checks/review. Independent finance/security review strongly recommended. **Owner merge authorization for this new PR NOT GRANTED**; no direct `main` write or merge.
 
+
 ---
 
+
+## 2026-11-21 — PR #21 trusted Codespaces diagnostic, P3 index handoff
+
+- **Task:** [TM-OPS-PR403-20261120-001](tasks/preview/preview-pr-read-403-20261120.md), [RFC #19](https://github.com/im-tnyx/Tio-Money/issues/19), [PR #21](https://github.com/im-tnyx/Tio-Money/pull/21) on `fix/preview-pr-read-403-diagnostics` → `main`. **OPEN / READY FOR REVIEW / NOT MERGED** when inspected; diagnostic-only, not an HTTP 403 repair.
+- **Verified predecessor snapshot:** PR head `cd3b9b82133d3c19c9ac8b60590fd26c0a06061d` against `main` `f4332eb338ca75e27a5b35ff57511f522a4bb96a`, 0 behind, four prior changed paths. At that **previous head**, [Phase 0 CI](https://github.com/im-tnyx/Tio-Money/actions/runs/44793001234) and [AI governance CI](https://github.com/im-tnyx/Tio-Money/actions/runs/44793001467) were **SUCCESS**. **This P3 index correction creates a newer head: recheck exact-head CI rather than reusing those results.**
+- **Review:** [Review #5997655461](https://github.com/im-tnyx/Tio-Money/pull/21#pullrequestreview-5997655461) is `COMMENTED`, not GitHub `APPROVED`; its [P3 index-registration finding](https://github.com/im-tnyx/Tio-Money/pull/21#discussion_r4646297484) is addressed by this checkpoint, pending new-head verification and thread disposition. Original P2 token-in-argv concern was addressed in the previous head via piped stdin `curl --config -`. Independent review is **optional under TM-DEC-002**, not a blanket gate. No independent approval is claimed.
+- **Boundary:** Existing owner/main/label/immutable source gates and Codespace identity protections remain. Root GitHub PR-read HTTP 403 is **UNKNOWN**, and no successful live privileged diagnostic/SSH/device test has occurred. **Owner PR #21 merge permission NOT_GRANTED**; `main` was not modified by this branch update. Treat these SHA/status statements as an observed checkpoint and consult GitHub for the current state.
+
+---
 
 ## 2026-11-20 — PR #22 ready-for-review checkpoint (reconciled on main)
 
