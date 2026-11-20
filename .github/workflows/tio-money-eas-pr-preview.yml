@@ -1,4 +1,4 @@
-name: Tio Money manual EAS PR preview
+name: TIO MONEY EXPO PR REVIEW
 
 # This workflow can only be invoked manually after being reviewed and merged
 # into the trusted default branch. Never add Expo secrets to untrusted PR CI.
@@ -9,6 +9,15 @@ on:
         description: Open owner-authored PR targeting main (JS-only change)
         required: true
         type: number
+      platform:
+        description: Select OTA target platform (no native build)
+        required: true
+        default: all
+        type: choice
+        options:
+          - android
+          - ios
+          - all
 
 permissions:
   contents: read
@@ -31,8 +40,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
+          esac
           if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
             echo "::error::PR number is not numeric"
             exit 1
@@ -150,8 +164,13 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform"; exit 1 ;;
+          esac
           if [[ -z "$EXPO_TOKEN" ]]; then
             echo "::error::Missing environment-scoped EXPO_TOKEN; owner must configure it securely"
             exit 1
@@ -160,4 +179,5 @@ jobs:
             --branch pr-preview \
             --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
             --environment preview \
+            --platform "$TARGET_PLATFORM" \
             --non-interactive
