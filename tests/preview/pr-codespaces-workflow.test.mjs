@@ -196,7 +196,7 @@ test('trusted main snapshot validation precedes any Codespace start or SSH', () 
   assert.ok(selected > 0 && selected < start && start < ssh);
 });
 
-test('remote script refuses unsafe source and never force resets or changes git refs', () => {
+test('remote script imports verified immutable bundle without remote Git credentials or force operations', () => {
   assert.match(sync, /expected_remote="https:\/\/github\.com\/im-tnyx\/Tio-Money"/);
   assert.match(sync, /git status --porcelain=v1 --untracked-files=normal/);
   assert.match(sync, /git fetch --no-tags origin "\$target_sha"/);
