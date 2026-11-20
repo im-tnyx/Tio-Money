@@ -28,7 +28,7 @@ test('system mode tracks OS changes, manual modes ignore OS', () => {
 });
 
 test('UI copy is centralized and English, with accessible radio choices', () => {
-  assert.equal(en.generalSettings, 'General Settings');
+  assert.equal(en.settings, 'Settings');
   assert.equal(en.appearance, 'Appearance');
   const screen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
   const sheet = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
@@ -62,8 +62,11 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   const contract = readFileSync('src/features/settings/more-contract.ts', 'utf8');
   const route = readFileSync('src/features/settings/more-route.tsx', 'utf8');
 
-  assert.match(screen, /<AppText variant="section">\{t\('generalSettings'\)\}<\/AppText>/);
+  assert.match(screen, /<AppText variant="section">\{t\('settings'\)\}<\/AppText>/);
   assert.match(screen, /width: '100%'/);
+  assert.match(screen, /borderRadius: theme\.navigation\.origin/);
+  assert.match(screen, /paddingHorizontal: theme\.space\.lg/);
+  assert.match(screen, /M12 2a10 10 0 1 0/);
   assert.match(screen, /onAction\(\{ type: 'appearance.open' \}\)/);
   assert.match(screen, /d="m9 18 6-6-6-6"/);
   assert.match(screen, /<AppearanceSheet state=\{state\} onAction=\{onAction\} \/>/);
