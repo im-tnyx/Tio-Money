@@ -1,5 +1,25 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #7: latest-main reconciliation checkpoint (owner-requested)
+
+**Live preflight:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains OPEN / Ready for review, not merged. The approved reconciliation target is `main` at `5a72a112378fa14b168a02e9b18b41360ef79ed4`, including merged [PR #5](https://github.com/im-tnyx/Tio-Money/pull/5); prior PR #7 HEAD was `094b8b9225d9e5fa319af7bf6406bb047e067ee6`, 30 commits behind / 19 ahead. Owner requested merge-readiness and main synchronization in this chat; **owner authorization to merge PR #7 into main remains NOT_GRANTED**.
+
+**Branch-only integration:** Construct a non-force, two-parent merge of current `main` into the PR #7 documentation branch. Preserve its 14 governance Markdown paths and all other source, Expo, EAS, SQLite, permissions, workflow, package and app files exactly from `main`. Only overlapping file `.ai/current.md` is integrated by retaining both the PR #7 current governance checkpoint and `main`'s later PR #5 EAS preview checkpoint. Earlier status statements below remain historical and are not assertions of current PR state. PR #7's two owner P3 review threads were resolved on previous HEAD; no GitHub formal `APPROVED` review is inferred. Independent additional review **DEFERRED** per optional-by-default policy.
+
+**Gate:** exact-post-merge-HEAD CI, provenance/commit attribution, path scope and actual GitHub protections require new verification. Do **not** merge or auto-merge PR #7, invoke EAS publication, or alter PR #10 without separate authorization.
+
+---
+
+## 2026-11-20 — Governance PR #7 current review and main synchronization
+
+**Live PR state at this checkpoint:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) is **OPEN / READY FOR REVIEW** (`draft:false`), **NOT MERGED**. Its task `TM-GOV-CLEANUP-20261119-001` remains **IN_REVIEW**; owner merge authorization **NOT_GRANTED**. [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) and [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) are both merged; [PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) subsequently merged Codespaces Stage A into `main` at `fdae8b4d23117a5be202ec04663ba22f3b21d1a5`. Earlier `DRAFT`/pre-merge statements below are *historical* checkpoints, not current statuses.
+
+**Two owner P3 review findings:** [stale Draft handoff](https://github.com/im-tnyx/Tio-Money/pull/7#discussion_r4639327629) and [stale CI checkpoint](https://github.com/im-tnyx/Tio-Money/pull/7#discussion_r4639327644). This update records current `draft:false` and correctly attributes the previous checks to exact *pre-synchronization* HEAD `be0dd012a27c135b7cff2fce82062e5b5cf4a9a8`: [Phase 0 static #44686452585](https://github.com/im-tnyx/Tio-Money/actions/runs/44686452585) **SUCCESS**, [AI governance #44686452594](https://github.com/im-tnyx/Tio-Money/actions/runs/44686452594) **SUCCESS** (29/29 governance tests, Markdown links, 18 commit-message checks). These **are not results for any later HEAD**. Recheck current GitHub CI after each new commit; a reviewer's `COMMENTED` review is not `APPROVED` and the P3 threads must be independently verified/resolved, not silently dismissed.
+
+**Integration boundary:** PR #7 preserves the new Codespaces preview files, Expo/source/config, and workflows from merged `main` unchanged. Only governance Markdown files differ in this PR. Independent new-head review is **DEFERRED** by optional review policy; no approval is claimed. No `main` write, merge of PR #7, force-push, auto-merge, or change to permissions/ledger is authorized.
+
+---
+
 ## 2026-11-20 — Merge-gate staging: Android owner UI PASS, no merge authority
 
 **Latest verified source before this docs-only gate checkpoint:** PR #1 `feat/phase-0-expo-foundation` → `main`, HEAD `ed0be0850b34d6f42140107aa5d7adb30eb77e47`, main `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. [Phase 0 CI #44602177612](https://github.com/im-tnyx/Tio-Money/actions/runs/44602177612) **SUCCESS** and [governance CI #44602177693](https://github.com/im-tnyx/Tio-Money/actions/runs/44602177693) **SUCCESS** on exactly that HEAD. The original Copilot Node-engine finding was checked against `package.json`, `package-lock.json`, locked Expo/RN engines and README, then replied to with [evidence](https://github.com/im-tnyx/Tio-Money/pull/1#discussion_r4634398174) and **administratively RESOLVED** on GitHub (one resolved review thread, zero known outstanding). This is `FIX_VERIFIED` from a source/CI self-audit, **not** independent approval; existing formal review is still `COMMENTED`. Latest-head independent review **DEFERRED** under optional-by-default policy; recommend for SQLite/native bootstrap.

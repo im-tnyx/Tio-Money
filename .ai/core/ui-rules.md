@@ -1,8 +1,9 @@
 # 🎨 UI rules — quick route
 
-**Canonical:** [Screen specification](../../docs/03-SCREEN-SPEC.md) · [User flows](../../docs/02-USER-FLOWS.md) · [TM-DEC-001](../../docs/DECISIONS.md#tm-dec-001--english-only-initial-app).
+**Canonical:** Owner's latest Phase 0 [TM-DEC-005](../../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) takes precedence over future-state [screen specification](../../docs/03-SCREEN-SPEC.md) and [user flows](../../docs/02-USER-FLOWS.md). [TM-DEC-001](../../docs/DECISIONS.md#tm-dec-001--english-only-initial-app) keeps initial app copy English only.
 
-- The root shell contains **one** primary `+`; it opens a unified three-tab transaction editor. The final bottom-bar position is a **proposal**, not a frozen owner decision.
+- **Current Phase 0:** Native splash transitions **directly** to five blank, selectable bottom tabs: **Home · Trans. · Stats. · Account · More**. **No app top bar, feature content, onboarding, Settings, History or editor route**; no intermediate loading text/spinner on successful startup. The single visible `+` icon is **disabled**, right-aligned directly **above More**, with no press handler. Only an actual SQLite startup error may expose minimal safe recovery. Android/iPhone device behavior is not yet independently verified.
+- **Future phase only:** A separately authorized implementation may enable **one** unified Income / Expense / Transfer editor via the FAB; never three independent Home shortcut cards. Colors and final iconography remain proposals, but the five-tab navigation and FAB location are already decided in [TM-DEC-004](../../docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add).
 - Explain money movement clearly: transfer From/To, any fee charged and exact expense impact. Keep validation, success and rollback language truthful.
 - All initial UI copy, error messages, screen-reader labels and accessibility hints are **English**; **no language selector** in the MVP. Hindi and other translations are future scope.
 - Centralize semantic strings; stable data identifiers must not depend on translated copy. Money/date formatting is distinct from translation.
