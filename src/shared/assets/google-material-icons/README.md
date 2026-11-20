@@ -44,3 +44,15 @@ and does not open routes or execute any finance action. Icon artwork and
 navigation sizing changes do not address the Android Expo Go
 `Cannot find native module 'ExpoSQLite'` startup crash, which is an
 independent native-runtime problem.
+
+## Appearance selection icons (owner reference, 2026-11-21)
+
+These three additional settings icons are official **Material Symbols Outlined 200-weight** SVGs copied byte-for-byte from Google's upstream repository. They render at the existing 24dp `iconRoleSizes.bottomSheet` size, tinted with the current theme; the radio selection remains a separate right-aligned semantic control. The source SVG XML is embedded unchanged in `src/features/settings/appearance-option-icon.tsx` and loaded without new fonts or packages.
+
+| Option | Google icon | Source SVG |
+| --- | --- | --- |
+| System Mode | `routine` | `symbols/web/routine/materialsymbolsoutlined/routine_wght200_24px.svg` |
+| Dark Mode | `dark_mode` | `symbols/web/dark_mode/materialsymbolsoutlined/dark_mode_wght200_24px.svg` |
+| Light Mode | `light_mode` | `symbols/web/light_mode/materialsymbolsoutlined/light_mode_wght200_24px.svg` |
+
+The existing Apache 2.0 license applies. Owner-provided Google Fonts links identify the selected icon names; `200` is the approved source weight even if those links display default 400.

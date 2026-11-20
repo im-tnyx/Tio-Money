@@ -35,3 +35,7 @@ No new dependency, workflow, native configuration, account, financial data or ac
 - No automatic merge. The owner must explicitly authorize merging the exact PR after review and CI.
 
 **Rollback:** do not merge this draft; remove `tio-preview` and stop the dedicated Codespace after testing. No local financial database change to revert.
+
+## 2026-11-21 — Owner screenshot: option icons and right radio control
+
+The option order is not a user requirement; keep the existing stable `system / light / dark` keys and list order. The owner supplied a three-row reference screenshot. Each selectable row shows the official **Google Material Symbols Outlined 200-weight** `routine` (System Mode), `dark_mode` (Dark Mode) or `light_mode` (Light Mode) SVG at the shared 24dp `bottomSheet` icon token, left-aligned. Place the existing accessible circle/radio selection at the **far right**, with a semantic divider **between** rows. Keep descriptions as accessibility hints, not extra visible subtitle lines, to match the reference. Selected theme color is the shared semantic brand token; do not introduce a hardcoded coral color. Choice selection, persistence, dismissal, and English-only i18n remain unchanged. The sheet remains a dumb component and `useMoreViewModel` owns visibility.

@@ -76,7 +76,9 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /accessibilityViewIsModal/);
   assert.match(sheet, /onPress=\{dismiss\}/);
   assert.match(sheet, /accessibilityRole="radiogroup"/);
-  assert.match(sheet, /borderTopWidth: theme\.navigation\.borderWidth/);
+  assert.match(sheet, /<AppearanceOptionIcon preference=\{value\} color=\{theme\.colors\.secondaryText\} \/>/);
+  assert.match(sheet, /showDivider=\{index > 0\}/);
+  assert.match(sheet, /borderTopWidth: showDivider \? theme\.navigation\.borderWidth/);
   assert.match(sheet, /selected=\{state\.appearance === option\}/);
 
   assert.match(contract, /appearanceSheetVisible: boolean/);
@@ -88,4 +90,31 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(viewModel, /selectPreference\(action\.preference\)/);
   assert.match(route, /<MoreScreen state=\{state\} onAction=\{onAction\} \/>/);
   assert.doesNotMatch(screen + sheet, /useState|setState|Storage\.|appearanceStore|router\.push/);
+});
+
+test('appearance radios use authentic 200-weight Material Symbols with right-side selection', () => {
+  const icon = readFileSync('src/features/settings/appearance-option-icon.tsx', 'utf8');
+  const sheet = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
+  const origin = readFileSync('src/shared/assets/google-material-icons/README.md', 'utf8');
+
+  for (const [name, sourceName] of [
+    ['system', 'routine'],
+    ['dark', 'dark_mode'],
+    ['light', 'light_mode'],
+  ] as const) {
+    const svg = readFileSync(`src/shared/assets/google-material-icons/${sourceName}.svg`, 'utf8');
+    assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" /);
+    assert.match(svg, /viewBox="0 -960 960 960"/);
+    assert.ok(icon.includes(JSON.stringify(svg)), `${name} matches official SVG source`);
+    assert.ok(origin.includes(`${sourceName}_wght200_24px.svg`));
+  }
+  assert.match(icon, /iconRoleSizes\.bottomSheet/);
+  assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
+  assert.ok(sheet.indexOf('<AppearanceOptionIcon') < sheet.indexOf('flex: 1'));
+  assert.ok(sheet.indexOf('flex: 1') < sheet.indexOf('borderColor: selected ?'));
+  assert.doesNotMatch(sheet, /<AppText variant="caption" muted>\s*\{t\(descriptions\[value\]\)\}/);
+  assert.equal(en.appearanceSystem, 'System Mode');
+  assert.equal(en.appearanceLight, 'Light Mode');
+  assert.equal(en.appearanceDark, 'Dark Mode');
+  assert.doesNotMatch(sheet + icon, /useState|setAppearanceSheetVisible|Storage\.|appearanceStore/);
 });

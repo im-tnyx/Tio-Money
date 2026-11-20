@@ -9,6 +9,7 @@ import {
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
+import { AppearanceOptionIcon } from './appearance-option-icon';
 import type { MoreAction, MoreUiState } from './more-contract';
 
 const labels = {
@@ -26,10 +27,12 @@ const descriptions = {
 function AppearanceOption({
   value,
   selected,
+  showDivider,
   onAction,
 }: {
   value: AppearancePreference;
   selected: boolean;
+  showDivider: boolean;
   onAction: (action: MoreAction) => void;
 }) {
   const theme = useAppTheme();
@@ -44,13 +47,18 @@ function AppearanceOption({
         minHeight: theme.buttons.minimumHeight,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: theme.space.md,
-        paddingVertical: theme.space.sm,
-        gap: theme.space.sm,
-        borderTopWidth: theme.navigation.borderWidth,
+        paddingHorizontal: theme.space.lg,
+        paddingVertical: theme.space.lg,
+        gap: theme.space.md,
+        borderTopWidth: showDivider ? theme.navigation.borderWidth : theme.navigation.origin,
         borderTopColor: theme.colors.border,
       }}
+
     >
+      <AppearanceOptionIcon preference={value} color={theme.colors.secondaryText} />
+      <View style={{ flex: 1 }}>
+        <AppText>{t(labels[value])}</AppText>
+      </View>
       <View
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -74,12 +82,6 @@ function AppearanceOption({
             }}
           />
         ) : null}
-      </View>
-      <View style={{ flex: 1, gap: theme.space.xxs }}>
-        <AppText>{t(labels[value])}</AppText>
-        <AppText variant="caption" muted>
-          {t(descriptions[value])}
-        </AppText>
       </View>
     </Pressable>
   );
@@ -169,11 +171,12 @@ export function AppearanceSheet({
             {t('appearanceHint')}
           </AppText>
           <View accessibilityRole="radiogroup">
-            {APPEARANCE_OPTIONS.map((option) => (
+            {APPEARANCE_OPTIONS.map((option, index) => (
               <AppearanceOption
                 key={option}
                 value={option}
                 selected={state.appearance === option}
+                showDivider={index > 0}
                 onAction={onAction}
               />
             ))}

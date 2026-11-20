@@ -40,3 +40,10 @@
 - **Ownership:** `MoreScreen` renders the plain General Settings header, full-width Appearance row and chevron; new stateless `AppearanceSheet` renders native modal/accessible radio options and top dividers; `more-contract.ts` defines open/dismiss/select; `use-more-view-model.ts` owns modal open state. Existing theme provider/kv-store persistence and all five tabs remain untouched.
 - **Safety and acceptance:** native safe-area modal and backdrop/Android Back/Close dismiss, original options and save error retained. Updated structural tests forbid screen-owned state and enforce token use/accessibility. GitHub exact-head CI and owner Android+iPhone retest needed; review disposition `DEFERRED` (independent optional), no approval invented.
 - **Owner merge authorization:** `NOT_GRANTED`; a separate PR #18-specific action is mandatory.
+
+## 2026-11-21 — Screenshot refinement: official 200-weight option icons
+
+- **Owner:** provided a visual screenshot and three Google Fonts icon URLs (`routine`, `dark_mode`, `light_mode`, `wght200`); follow-up clarifies that option **order is not the problem**, implement layout. The existing bottom sheet was already committed separately; avoid replacing concurrent source history.
+- **Implementation:** add canonical official Google SVG copies to `src/shared/assets/google-material-icons/` and embed their exact XML in `appearance-option-icon.tsx`. The sheet renders left icon, text, **right** accessible selected radio and theme-token divider between choices, with labels System Mode / Light Mode / Dark Mode. Choice descriptions remain available through `accessibilityHint` only. Keep existing presentation-only UI and global preference store.
+- **Security:** no new dependency, remote icon loading, workflow changes, EAS build/update or new route. `tio-preview` remains removed until separately authorized Codespace activation; no PR #18 merge authorization.
+- **Acceptance:** preview regression checks official SVG provenance, source matching, right radio layout and screen-owned-state ban; exact-head GitHub CI and fresh Android/iPhone device testing pending new commit.
