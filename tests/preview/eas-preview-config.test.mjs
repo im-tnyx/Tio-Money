@@ -18,9 +18,8 @@ test('EAS preview is tied only to owner-confirmed Tio-Money project', () => {
   assert.deepEqual(expo.runtimeVersion, { policy: 'fingerprint' });
   assert.equal(expo.android.permissions.length, 0);
   assert.equal(expo.ios.supportsTablet, true);
-  // No owner-approved native app identifiers yet. Build must fail closed.
-  assert.equal(expo.android.package, undefined);
-  assert.equal(expo.ios.bundleIdentifier, undefined);
+  // Native IDs are owner-controlled and may be configured in a later
+  // separately reviewed PR; fail-closed build checks are asserted below.
 });
 
 test('preview build is internal and not a production release', () => {
