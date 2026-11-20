@@ -9,7 +9,7 @@ on:
       pr_number:
         description: Owner-authored, repo-local PR selected for Expo Go preview
         required: true
-        type: number
+        type: string
   workflow_run:
     workflows:
       - Tio Money preview push signal
