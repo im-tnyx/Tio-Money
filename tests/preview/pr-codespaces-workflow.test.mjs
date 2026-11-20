@@ -125,7 +125,7 @@ test('immutable preview scope rejects PR head race, altered compare, and native 
   );
   assert.throws(
     () => requireImmutablePRChangedPaths(
-      captured, { ...compare, files: [{ filename: 'src/a\\nmalicious.ts' }] },
+      captured, { ...compare, files: [{ filename: 'src/a\nmalicious.ts' }] },
       captured, headSha, baseSha,
     ),
     /Invalid or ambiguous/,
