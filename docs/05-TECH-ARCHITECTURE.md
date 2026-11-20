@@ -661,7 +661,7 @@ flowchart LR
 | ID | Decision still open | Proposal / next validation |
 | :--- | :--- | :--- |
 | `TM-ADR-001` | Exact branding and palette | Follow original Screen Design; contrast QA before freeze |
-| `TM-ADR-002` | Exact `+` button location | Four destinations + center action proposed; owner confirmation |
+| `TM-ADR-002` | Exact `+` button location — **SUPERSEDED / RESOLVED for Phase 0** | Owner TM-DEC-004/005/010 confirms five bottom destinations and **separate disabled Add above More**; never implement old four destinations + center slot |
 | `TM-ADR-003` | UI state library | Zustand only for ephemeral state; keep SQL canonical |
 | `TM-ADR-004` | SQLite transaction strategy | Verify serialized writes + FK enforcement on both devices |
 | `TM-ADR-005` | Ledger correction model | Reversal + replacement, grouped to original event |

@@ -20,13 +20,13 @@
 | [TM-DEC-008](#tm-dec-008--main-and-optional-sub-currency-with-refresh-on-use) | 2026-11-20 | Main Currency + distinct optional Sub Currency, refresh on currency use | **Owner directed; agent-transcribed** | Future currency experience; accounting ADR pending |
 | [TM-DEC-009](#tm-dec-009--conditional-identity-only-for-opt-in-supabase) | 2026-11-20 | No app login until user opts in to future Supabase sync | **Owner directed; agent-transcribed** | Future identity and synchronization |
 | [TM-DEC-010](#tm-dec-010--bottom-navigation-ui-freeze) | 2026-11-20 | Keep existing five bottom tabs, icons, spacing and More-aligned FAB unchanged | **Owner directed; agent-transcribed** | Existing Phase 0 visual baseline and all future UI work |
-
 | [TM-DEC-011](#tm-dec-011--strict-dumb-screen-presentation-only-rule) | 2026-11-21 | All screens strictly dumb/presentation-only: no business, navigation, SQL or workflow logic | **Owner directed in connected chat; agent-transcribed** | Every future app screen, feature architecture and tests |
+
 ## TM-DEC-001 — English-only initial app
 
 **Decision date:** 2026-11-18  
 **Authority:** Direct owner instruction in the AI-context governance task  
-**Status:** Confirmed owner decision; implemented for available Phase 0 copy on the feature branch under review, not a merged or released app
+**Status (updated 2026-11-21):** Confirmed owner language decision; English-only current Phase 0 copy shipped **as merged source in PR #1** (not an App Store production release, and full real-device QA remains outstanding).
 
 ### Decision
 

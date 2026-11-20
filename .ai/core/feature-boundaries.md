@@ -35,7 +35,7 @@ src/
     └── utils/
 ```
 
-The observed Phase 0 PR currently has `src/features/common/`, `src/shared/bootstrap/`, `src/platform/sms/`, `src/domain/ledger/` and `src/data/sqlite/`. No new modules are authorized here; avoid speculative empty directories.
+Verified merged Phase 0 source includes `src/features/common/`, `src/shared/bootstrap/`, `src/platform/sms/`, `src/domain/ledger/` and `src/data/sqlite/`. This docs task does **not** create new modules; avoid speculative empty directories.
 
 ## Mandatory screen/container/controller split (owner TM-DEC-011)
 

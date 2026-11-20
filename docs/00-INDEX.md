@@ -5,7 +5,7 @@
 ### One elegant map for product decisions, screen behavior, accounting accuracy and engineering delivery.
 
 ![Stage](https://img.shields.io/badge/DOCS-DRAFT%20IN%20PROGRESS-7357E8?style=for-the-badge)
-![App](https://img.shields.io/badge/APP-PHASE%200%20SHELL%20IN%20REVIEW-596274?style=for-the-badge)
+![App](https://img.shields.io/badge/APP-PHASE%200%20SHELL%20MERGED-596274?style=for-the-badge)
 
 [🏠 Project Home](../README.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Design](03-SCREEN-SPEC.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [🧪 Implementation & Tests](06-IMPLEMENTATION-TEST-PLAN.md) · [🧱 Phase 0 Notes](07-PHASE-0-FOUNDATION-NOTES.md) · [✍️ Style Guide](90-DOCS-STYLE-GUIDE.md)
 
