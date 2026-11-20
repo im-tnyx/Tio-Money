@@ -6,7 +6,7 @@
 **Current working agent:** ChatGPT using GitHub connector; **model GPT-6**, identified in the active session.  
 **Previous verified governance agent:** ChatGPT (GPT-6), from the earlier governance task's recorded checkpoints, **not inferred from Git authorship**.  
 **Working branch:** `docs/governance-post-merge-reconciliation-20261119`; created from verified `main` commit `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7), base `main`, current scope docs-only.  
-**Parallel work:** [Draft PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), head `b2c9a346174abbf9246a1d56fe0aa6a5bb0f3ab8` at task start, is **unmerged and out of this task's ownership**.
+**Parallel work at task start (historical):** [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) was a draft/unmerged at head `b2c9a346174abbf9246a1d56fe0aa6a5bb0f3ab8`; it later **MERGED** on 2026-11-19 at `e647f78ce200fed1323d80ea794396c371fba7bf`. Its implementation remains outside this documentation task's ownership.
 
 ## Bounded change and evidence
 
@@ -22,3 +22,9 @@
 ## 2026-11-19 — initial task checkpoint
 
 Verified main `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, PR #2 MERGED (actual `merge_commit_sha` matches main), six of six review threads resolved; draft PR #1 unrelated, unmerged. [Issue #6](https://github.com/im-tnyx/Tio-Money/issues/6) contains the precise technical design, risks, tests, rollback and recorded **PROCEED**. Branch `docs/governance-post-merge-reconciliation-20261119` created directly from verified main. Current agent ChatGPT/GPT-6; prior governance checkpoint agent ChatGPT/GPT-6. Owner authorized documentation correction only; **new PR merge authorization NOT_GRANTED**. Final test SHA, workflows, review disposition and handoff will be recorded in the new PR (not imagined from task creation).
+
+## 2026-11-20 — Conflict resolution and base synchronization
+
+GitHub verified [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) **MERGED** (2026-11-19 20:30:09 UTC, `e647f78ce200fed1323d80ea794396c371fba7bf`); governance PR #2 remains merged; [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains **Draft/open/unmerged**. Before sync, PR #7 HEAD `a746ee0f43f6b9151bdb0d1049eb3f5c37f65a09` was 17 commits ahead and 239 behind `main` and GitHub reported `mergeable_state: dirty`. This branch-only synchronization merges the exact `main` commit into PR #7's branch without force-push, preserving both original histories and all existing Phase 0 source/config/tests from `main`.
+
+The two competing documentation sources (`.ai/current.md` and `docs/DECISIONS.md`) are reconciled with a new live-status summary while earlier checkpoint text remains explicitly historical. `.github/README.md` is updated to reflect both completed merges. No Phase 0 source, Expo configuration, workflow, ledger implementation or `main` ref is modified directly by this task. Only the 14 documentation files in the original PR #7 scope are changed relative to `main` by this merge. **New-HEAD CI and review must be verified after this commit; older passing runs are not evidence of this merge commit.** Independent review stays **DEFERRED**; separate owner authorization for merging PR #7 remains **NOT_GRANTED**.

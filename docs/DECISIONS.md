@@ -1,6 +1,6 @@
 # 📌 Tio Money — Owner Decision Register
 
-> **Status (verified 2026-11-19):** Owner decisions TM-DEC-001 through TM-DEC-005 are recorded below. Governance [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) is **MERGED** into `main` at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) remains **DRAFT / NOT MERGED**. These decisions authorize neither PR #1 nor future PR merges. They are not evidence of implemented finance features or physical-device QA.
+> **Live GitHub status verified 2026-11-20:** Decisions TM-DEC-001 through TM-DEC-005 remain in force. Governance [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) **MERGED** 2026-11-19 06:16:11 UTC at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`; Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) **MERGED** 2026-11-19 20:30:09 UTC at `e647f78ce200fed1323d80ea794396c371fba7bf`. [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains **DRAFT / NOT MERGED**, undergoing documentation-only branch reconciliation. Older PR #1 DRAFT / READY FOR REVIEW statements below describe **past review checkpoints**, not current GitHub status. Owner-reported Android UI smoke testing does not establish complete device, SQLite or iPhone QA. Decisions alone never authorize a PR merge.
 
 [Documentation hub](00-INDEX.md) · [PRD](01-PRD.md) · [Architecture](05-TECH-ARCHITECTURE.md) · [Agent contract](../AGENTS.md)
 
@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 | [TM-DEC-001](#tm-dec-001--english-only-initial-app) | 2026-11-18 | Initial mobile app user-facing language is **English only** | **Owner decided** | P0/MVP UI, copy, accessibility, validation |
 | [TM-DEC-002](#tm-dec-002--independent-review-optional-by-default) | 2026-11-19 | Independent review optional by default, known blockers and configured protections binding | **Owner decided; agent-transcribed** | All PRs; sensitive-scope guidance |
-| [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | Every PR merge; PR #2 later authorized separately and merged |
+| [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | Every PR; PR #1 and #2 later merged under separate owner authorizations; PR #7 still requires its own |
 | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) | 2026-11-19 | Five destinations and a standalone floating Add FAB | **Owner decided; agent-transcribed** | Phase 0 navigation shell only |
 | [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Only five blank tab screens; disabled visual FAB, no other screens | **Owner decided; agent-transcribed** | Phase 0 visible UI, supersedes DEC-004 editor/Settings availability |
 
@@ -18,7 +18,7 @@
 
 **Decision date:** 2026-11-18  
 **Authority:** Direct owner instruction in the AI-context governance task  
-**Status:** Confirmed owner decision, pending implementation in a separately approved app branch
+**Status:** Confirmed owner decision; implemented for available Phase 0 copy on the feature branch under review, not a merged or released app
 
 ### Decision
 
@@ -56,9 +56,11 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 **Required preflight and finish:** Verify authentic owner instruction; refresh GitHub PR state/HEAD and base `main`; check all required checks, branch protections and GitHub review settings; assess unresolved blocking findings, reviewed/authorized scope and conditions; seek **renewed owner authorization** if material changes occurred or permission is unclear. Use only permitted **non-force** merge methods. Confirm GitHub reports `MERGED`, record resulting merge commit SHA and use [post-merge sync](../.github/POST-MERGE-SYNC.md) to reconcile `.ai/current.md`, agent provenance, task terminal status and archive. Stop when required checks fail or scope/authority is uncertain.
 
-**Supersedes:** wording implying an agent can **never** merge, or that owner implementation/proceed/review approval automatically permits merge. Does **not** authorize PR #2 or PR #1 to merge now, change financial/SMS/privacy invariants, permit force-push or evade required checks.
+**Supersedes:** wording implying an agent can **never** merge, or that owner implementation/proceed/review approval automatically permits merge. **Historical note:** This policy decision alone did **not** authorize PR #2; the owner later gave separate explicit PR #2 merge permission, and GitHub verifies it was **MERGED** on 2026-11-19 at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` with all six review threads now resolved. These standing policies did **not** authorize PR #1 by themselves (it was separately authorized and later merged on 2026-11-19); they do **not** authorize Draft PR #7 to merge, change financial/SMS/privacy invariants, force-push or evade required checks.
 
 ## TM-DEC-004 — Five destinations and floating Add
+
+> **Historical decision with later current-Phase-0 refinement:** The five destinations and right-above-More FAB placement are still valid; the editor-opening/Settings/legacy History behavior originally written below was **superseded for current Phase 0** by [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). Keep the original wording below as owner-decision provenance, **not a currently active UI promise**.
 
 **Decision date:** 2026-11-19. **Authority:** Direct owner message in connected ChatGPT conversation for Phase 0 alignment (agent-transcribed in the [PR #1 RFC](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7001758473); that comment is **not** GitHub-authenticated owner merge authorization).
 
@@ -80,17 +82,19 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 **Foundation remains intact:** Preserve non-visible Expo Router/TypeScript, theme tokens, SQLite startup/settings-only migrations and safe error recovery, domain interfaces, tests, privacy controls and governance. The platform status bar is not an app top bar. The disabled FAB is accessibility-labeled as unavailable.
 
-**Acceptance:** Exactly five blank, selectable screen routes with no top app toolbar; exactly one disabled FAB icon above More, with no `onPress` and no target route; no other app screen routes; CI checks pass; physical Android/iPhone Expo Go and on-device SQLite testing remain separately **NOT_VERIFIED**. This decision **does not authorize PR #1 to be merged**.
+**Owner implementation clarification — centralized visuals and presentation-only screens (2026-11-19):** The owner's later direct instruction requires **one centralized physical-size and shared icon-size token owner**, not per-screen hardcoded sizes. The same default **24dp** icon size must be reused in bottom navigation and future reusable top bars, buttons, bottom sheets, cards and text fields, with additional semantic roles introduced only by a separate design decision. Current UI visual sizes and colors remain unchanged; theme mode automatically follows **system light/dark** with no picker. All feature screens remain **dumb/presentation-only**; route navigation, safe-area positioning, splash lifecycle, SQLite and domain/business behavior belong to hooks/controllers/services outside screens. [Theme contract](../src/shared/theme/README.md) · [owner technical RFC/proceed](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7014064590) · [explicit shared icon rule](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7014109780). These are owner-clarified Phase 0 implementation constraints, **not permission to implement an editor or future feature screens**.
+
+**Acceptance:** Exactly five blank, selectable screen routes with no top app toolbar; exactly one disabled FAB icon above More, with no `onPress` and no target route; no other app screen routes; shared sizes/icons from theme tokens; automatic OS appearance and presentation-only screens; CI checks pass; physical Android/iPhone Expo Go on latest tokenized HEAD and on-device SQLite testing remain separately **NOT_VERIFIED**. **Historical checkpoint:** PR #1 was then ready for review, but later merged under separate owner authorization on 2026-11-19. This UI decision alone did not authorize that merge.
 
 ## Pending choices — not decisions
 
 | Topic | Evidence | Status |
 |---|---|---|
-| Final iconography, colors and fine visual FAB placement | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) · [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) · [Screen spec](03-SCREEN-SPEC.md) | Five tabs and FAB right-over-More placement decided for Phase 0; precise colors/icons not yet decided |
+| Final iconography and contrast | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) · [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) · [Screen spec](03-SCREEN-SPEC.md) | Five tab destinations, More-aligned disabled FAB and shared 24dp icon-size contract decided/implemented for Phase 0; final visual contrast/device validation pending |
 | Detailed ledger correction/idempotency strategy and device transaction behavior | [Database design](04-DATABASE-DESIGN.md) · [test plan](06-IMPLEMENTATION-TEST-PLAN.md) | Proposed / needs implementation validation |
 | Android native SMS capability and Play policy eligibility | [Architecture](05-TECH-ARCHITECTURE.md) | Conditional, not authorized |
-| Phase 0 Expo PR device QA and merge | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | Open draft at initial inspection; recheck live |
-| Governance PR #2 final status | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · [post-merge task record](../.ai/tasks/governance/ai-context-setup.md#verified-post-merge-reconciliation--2026-11-19) | **MERGED** 2026-11-19 06:16:11 UTC; SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`; six review threads resolved at current inspection |
+| Phase 0 post-merge device QA | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | **MERGED** 2026-11-19 20:30:09 UTC; owner-reported Android UI smoke PASS; full iPhone/device accessibility and SQLite persistence/restart proof not yet verified |
+| Governance PR #2 outcome | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · [Governance task](../.ai/tasks/governance/ai-context-setup.md) | **MERGED** 2026-11-19 06:16:11 UTC; SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, 6/6 review threads resolved when inspected; separate [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains Draft |
 
 **Amendment policy:** Future decisions must include date, source/authority, exact scope, superseded passages and verification. Do not infer owner approval from a merged planning document alone.
 

@@ -16,7 +16,7 @@
 ---
 
 > [!IMPORTANT]
-> **Architecture proposal — no app has been implemented yet.** Package choices, folder structure, API examples and milestones below are **design intentions**, not claims of completed work. Exact dependency versions, security controls, Android permissions and release approvals must be validated before implementation. The owner-supplied transaction screenshots are functional references, not layouts or code to reproduce.
+> **Implementation status (PR #1, 2026-11-19):** A **limited Phase 0 foundation and blank five-tab UI shell are implemented in source** and ready for code review, **not merged or production/device accepted**. Native splash → only Home · Trans. · Stats. · Account · More (blank bodies), disabled floating `+` over More, no app top bar/editor/Settings/onboarding. Expo Router, system dark/light theme, centralized TypeScript visual tokens and settings-only Expo SQLite initialization exist; financial posting, account balances, future screen workflows and Android SMS are **not implemented**. The broad architecture and routes described below are **future proposals**, not present behavior. Current contracts: [owner TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md), [Core Theme README](../src/shared/theme/README.md). Owner-reported current-device UI smoke shows no repeat of the previous `ExpoSQLite` startup failure; full both-platform device/SQLite PRAGMA-migration-restart QA and separate owner merge permission remain required; reference screenshots are not code or styles to reproduce.
 
 ## 01 · Executive architecture at a glance
 
@@ -38,7 +38,7 @@
 
 ### 1.1 Non-negotiable boundaries
 
-- Home uses **one `+` Add action**, which opens the unified **Income | Expense | Transfer** editor. Never three shortcut cards.
+- **Current Phase 0:** Home and the other four tabs are blank; the single floating `+` above More is **disabled and has no handler/editor route**. **Future product contract only:** once separately authorized, enable a single unified **Income | Expense | Transfer** editor, never three Home shortcut cards. Do not advertise the future editor as implemented.
 - Transfer principal between tracked accounts is not reported as income/expense. **Optional transfer fee is an expense**, including bank/wallet/card-related real charges.
 - A credit card is a **liability**, not a cash balance.
 - All money is stored in **integer paise**, never JS floating-point ledger totals.
@@ -89,7 +89,40 @@ flowchart TD
 
 ## 03 · Proposed repository structure
 
-The route files stay thin. Feature modules own workflows; `shared/domain` owns cross-feature financial rules. **These folders do not exist yet.**
+### Actual Phase 0 source boundaries (implemented on PR #1)
+
+```text
+src/
+├─ app/
+│  ├─ _layout.tsx                # Providers + SQLite gate + headerless stack
+│  └─ (tabs)/
+│     ├─ _layout.tsx             # Layout only; five blank tabs + disabled FAB
+│     ├─ index.tsx
+│     ├─ transactions.tsx
+│     ├─ reports.tsx
+│     ├─ accounts.tsx
+│     └─ more.tsx
+├─ shared/
+│  ├─ theme/
+│  │  ├─ primitives.ts          # Canonical fixed numeric visual sizes
+│  │  ├─ tokens.ts              # Spacing, radius, type, system light/dark palettes
+│  │  ├─ component-tokens.ts    # Shared icon roles, nav/FAB/buttons/shadows
+│  │  └─ theme-provider.tsx
+│  ├─ navigation/               # Router, splash and safe-area controller hooks
+│  ├─ bootstrap/                # Database readiness/error recovery
+│  └─ ui/                       # Theme-driven presentation components
+├─ data/sqlite/                 # Settings-only versioned bootstrap
+├─ domain/                      # Financial contracts; no posting engine yet
+└─ platform/sms/                # Disabled adapter; no default SMS permission
+```
+
+The five route files only export a blank view; [`use-root-tab-navigation.ts`](../src/shared/navigation/use-root-tab-navigation.ts) owns tab navigation, [`use-floating-add-position.ts`](../src/shared/navigation/use-floating-add-position.ts) owns responsive geometry, and [`use-reveal-tabs-on-layout.ts`](../src/shared/navigation/use-reveal-tabs-on-layout.ts) owns splash dismissal. [`database-gate.tsx`](../src/shared/bootstrap/database-gate.tsx) initializes settings-only SQLite outside those screens. Controllers coordinate behavior; UI components consume props/theme.
+
+**Central token ownership:** [`primitives.ts`](../src/shared/theme/primitives.ts) holds fixed physical sizes; [`tokens.ts`](../src/shared/theme/tokens.ts) defines semantic spacing, radii, type and light/dark palettes; [`component-tokens.ts`](../src/shared/theme/component-tokens.ts) defines one **24dp icon-size** token with aliases for navigation, future top bars, buttons, sheets, cards and text fields, plus current 50dp navigation baseline / 50dp FAB, 1dp icon-label spacing, 16dp FAB-to-bar clearance and shadow contracts. `useColorScheme()` selects **system** appearance in the root provider. No theme chooser, unapproved new features or per-screen hardcoded dimensions. See the [implementation ownership guide](../src/shared/theme/README.md) and [enforcement tests](../tests/phase0/design-tokens.test.ts). The future folder tree and proposed APIs below must follow these contracts.
+
+### Future feature-oriented repository proposal (not implemented)
+
+The route files stay thin and presentation-only. Feature modules own workflows; `src/domain/` owns finance contracts/invariants. **The large example tree below represents future planned folders/routes, not the actual Phase 0 tree.** Current Phase 0 deliberately has no `(setup)`, `transaction/new`, `settings`, old `history` or extra feature routes. Current working structure is summarized first.
 
 ```text
 Tio-Money/
@@ -159,11 +192,24 @@ Tio-Money/
 └─ tsconfig.json
 ```
 
-**Naming principle:** Screen = composition; Controller = view state and user intent; Use case = business workflow; Repository = persistence port; SQL adapter = concrete storage. Avoid a single giant `utils.ts`, `financeStore.ts` or screen with inline SQL.
+**Naming principle:** Screen = **presentation-only composition**; Controller/hook = routing, view state and user intent; Use case = business workflow; Repository = persistence port; SQL adapter = concrete storage. No SQL, ledger/domain calculations, platform permissions, splash lifecycle or router commands in feature screen components. Avoid giant `utils.ts`, `financeStore.ts` or a screen with inline SQL. **The directory tree above is an original future design, not the current source tree.**
 
 ## 04 · Navigation contract
 
-The [Screen Design Specification](03-SCREEN-SPEC.md#02--navigation-architecture) proposes **four root destinations + one central Add action**:
+**Current Phase 0 navigation contract (owner-approved, source implemented):** five selectable blank routes `/` (Home), `/transactions` (Trans.), `/reports` (Stats.), `/accounts` (Account), `/more` (More). A **separate disabled floating `+`** is centered above More, has no press handler and no route; there is **no header**, welcome, Settings, History, editor or financial feature screen. Normal startup keeps splash visible for SQLite initialization and reveals the shell directly. One exceptional bootstrap error may show safe recovery. Owner reports a current physical-device UI smoke PASS and no recurring `ExpoSQLite` crash; the full Android+iPhone device matrix and SQLite PRAGMA/migration/restart QA remain NOT_VERIFIED.
+
+```mermaid
+flowchart LR
+  SPLASH["Native splash + SQLite readiness"] --> ROOT["Blank five-tab shell"]
+  ROOT --> HOME["Home"]
+  ROOT --> TRANS["Trans."]
+  ROOT --> STATS["Stats."]
+  ROOT --> ACCOUNT["Account"]
+  ROOT --> MORE["More"]
+  ROOT -. "Disabled icon only" .-> PLUS["Floating + over More"]
+```
+
+**Historical future-state proposal only (superseded for current Phase 0):** The original [screen design proposal](03-SCREEN-SPEC.md#21-proposal-five-positions-one-action) described **four destinations + one active central Add**. The diagram and behavior below are preserved as future design exploration; they are **not present routes** and require a new owner-scoped decision before implementation:
 
 ```mermaid
 flowchart LR
@@ -178,12 +224,12 @@ flowchart LR
   H --> SETTINGS["/settings"]
 ```
 
-- `+` is an **action**, not a fifth content screen. The root shell owns its press handler.
+- **Future flow only:** `+` would be an action, not a fifth content screen. **In current Phase 0 it is disabled and has no handler**, and five selectable content destinations exist.
 - `/transaction/new` and `/transaction/:id` open as full-screen stack/editor routes and hide the bottom bar.
 - Existing filled fields survive temporary account/category selection overlays; back with dirty fields shows an explicit discard prompt.
 - `Save` returns to origin; `Save & Add Another` saves once, then resets for a new entry with a visible success acknowledgement.
 - Do not create second `+` controls or three shortcuts on Home.
-- Suggested route placements are a **proposal**; the confirmed UX contract is the single Add entry with three inner tabs.
+- These older route placements and active editor flows are **future proposals** only; [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) controls the current five blank tabs and disabled FAB.
 
 **Route state is not money state.** Avoid passing entire transaction objects through route parameters; pass stable IDs and re-read local repository data.
 

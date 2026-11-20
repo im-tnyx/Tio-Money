@@ -15,7 +15,7 @@
 ---
 
 > [!IMPORTANT]
-> **Draft design contract — no UI has been built.** The owner-supplied screenshots communicate possible form fields and a three-tab interaction. They are **not** assets, colors, typography, component shapes or layouts to reproduce. This proposal defines **Tio Money's own design direction**. Final colors, placement and copy need review; no mockup here should be mistaken for a working screen.
+> **Current-versus-future contract (verified on PR #1, 2026-11-19):** The **Phase 0 navigation shell is implemented as source**, not as a completed finance app: native splash → five blank selectable screens (**Home · Trans. · Stats. · Account · More**) with **one disabled floating `+` over More** and **no app top bar, Add editor, Settings, onboarding, History or other feature route**. The older four-destination/active-Add flow, ten feature-screen designs and the mockups below are **future product proposals only**, superseded for current Phase 0 by [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). No ledger posting or SMS access is shipped. Final color contrast, full installed-device accessibility matrix, real SQLite PRAGMA/migration/restart QA and merge approval remain unverified; owner reports the current device UI renders with no recurring `ExpoSQLite` error. The owner-supplied mockups are functional references, **not assets or styling to copy**. [Current core theme ownership](../src/shared/theme/README.md) is authoritative for implemented dimensions and system dark/light behavior.
 
 ## 01 · Executive design direction
 
@@ -30,18 +30,51 @@
 | **Local-first trust** | Offline entry always visible; privacy/import controls are explicit | Pretending Expo Go can read SMS |
 | **Accessible by design** | Scalable text, screen reader labels, generous tap targets and contrast | Red/green color as the only status signal |
 
+### Current implemented Phase 0 visual contract
+
+**Only the following behavior exists on the Phase 0 feature branch** (not yet merged):
+
+- Five blank navigable screens with labels **Home · Trans. · Stats. · Account · More**; no body text, cards, placeholders, transaction form or app-level top bar.
+- Exactly one **disabled** circular floating `+` placed right-above the **More** tab's center, outside the bottom bar, with no `onPress` or editor route.
+- Native splash is held during settings-only SQLite initialization; on success it reveals Home and the five-tab shell directly. Only a genuine startup failure may expose safe retry UI.
+- **System dark/light** follows the device. Reusable sizes are **centralized** (current shared SVG icon **24dp**, bottom-tab hit row **48dp**, navigation baseline/FAB circle **50dp**, tab label **11sp**, icon/label gap **1dp**, FAB/bar vertical gap **16dp**; OS bottom inset is additional). The same icon-size role is reserved for future top bars, buttons, bottom sheets, cards and text fields; no future component is actually rendered for this rule.
+- Route screens are **dumb/presentation-only**; navigation commands, safe-area/FAB positioning and splash lifecycle run in shared hooks/controllers; SQLite and accounting logic are not screen concerns. [Theme implementation](../src/shared/theme/README.md) specifies component-token ownership.
+- Owner reports a **physical-device current-UI smoke PASS** without the formerly observed `ExpoSQLite` error (platform and OS details not yet recorded). Full Android **and** iPhone matrix, system-appearance contrast, large fonts/screen reader, on-device SQLite PRAGMA/migration/restart and separate merge authorization remain **NOT_VERIFIED**. See [Phase 0 QA register](07-PHASE-0-FOUNDATION-NOTES.md).
+
 ### 1.1 Scope boundaries
 
 | Phase | Screens / interactions | Status |
 | :--- | :--- | :--- |
-| **P0 · Core Expo Go** | Setup, Home, Add, History, Account management, Reports, Settings basics | **Specified here, not implemented** |
+| **Current Phase 0 navigation shell** | Five blank tabs + disabled More-aligned floating Add; system light/dark and centralized visual tokens | **Source implemented in PR #1; ready for review, not merged or device-accepted** |
+| **Future MVP feature screens (original P0 proposal)** | Setup, Home dashboard, active Add, History, account management, Reports, Settings | **Design only — not implemented in current Phase 0** |
 | **P1 · Cross-platform import** | Import source, candidate review, deduplication states | **Specified at flow level** |
 | **Conditional Android native** | SMS permission rationale, review inbox, opt-out | **Requires policy eligibility + custom development build** |
 | **P2 / later** | Budgets, recurring/instalments, secure backup/sync, advanced receipt management | **Future design only** |
 
 ## 02 · Navigation architecture
 
+### Current Phase 0 navigation (owner-approved)
+
+| Home | Trans. | Stats. | Account | More |
+| :---: | :---: | :---: | :---: | :---: |
+| Blank tab | Blank tab | Blank tab | Blank tab | Blank tab |
+
+A **separate disabled floating `+`** sits **above More on the right**; it is **not** a tab and does not open anything. No root header, profile menu or Settings route exists.
+
+```mermaid
+flowchart TD
+  SPLASH["Native splash + settings-only SQLite init"] --> ROOT["Five-tab blank shell"]
+  ROOT --> H["Home"]
+  ROOT --> T["Trans."]
+  ROOT --> S["Stats."]
+  ROOT --> A["Account"]
+  ROOT --> M["More"]
+  ROOT -. "Disabled visual only" .-> FAB["Floating + above More"]
+```
+
 ### 2.1 Proposal: five positions, one action
+
+> **Historical future-state proposal, NOT the current Phase 0 navigation.** The four root destinations + active center Add flow below were superseded by [TM-DEC-004](DECISIONS.md#tm-dec-004--five-destinations-and-floating-add) and [TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). Keep this original layout only as archived product exploration; do not implement it without a new owner decision.
 
 Use a shared bottom bar with **four navigable destinations** and a **central action**:
 
@@ -74,6 +107,8 @@ flowchart TD
 
 ### 2.2 Header / route rules
 
+> **Future feature-screen proposals only.** Current Phase 0 has **no app header or secondary routes**; the five blank tab screens are the only visible routes. The table below is not a description of shipped behavior.
+
 | Level | Header | Back | Bottom bar |
 | :--- | :--- | :--- | :--- |
 | Root | Friendly page title + context action | No back button | Visible |
@@ -86,7 +121,7 @@ flowchart TD
 
 ## 03 · Tio Money visual language — proposed tokens
 
-The design uses a **warm neutral canvas, deep ink, subtle violet brand signal and restrained semantic colors**. It should feel polished but never confuse colored accents with financial meaning. **These are candidate mobile UI tokens**, distinct from the purple badges used for the GitHub documentation.
+The future design uses a **warm neutral canvas, deep ink, subtle violet brand signal and restrained semantic colors**. Financial color meanings must remain clear. This section contains **candidate design values**, not a second implementation token source. Current UI owns physical values in [`primitives.ts`](../src/shared/theme/primitives.ts), spacing/radius/typography and system light/dark semantic colors in [`tokens.ts`](../src/shared/theme/tokens.ts), and shared **24dp icon roles** plus navigation/FAB/component dimensions in [`component-tokens.ts`](../src/shared/theme/component-tokens.ts). All future top bars, buttons, bottom sheets, cards and text fields must consume those shared roles, with no per-screen hardcoded visual sizes; see the [Core Theme README](../src/shared/theme/README.md).
 
 ### 3.1 Light & dark palette
 
@@ -159,6 +194,8 @@ The design uses a **warm neutral canvas, deep ink, subtle violet brand signal an
 **Architecture boundary:** presentational components render typed data and emit user intents; they do not calculate balances, parse SMS, or write SQLite. That work belongs to state/domain/data modules specified later.
 
 ## 05 · Screen inventory and specifications
+
+> **Future product design inventory — no listed feature screens are currently built.** The current Phase 0 app presents only the five **blank** tab bodies and disabled floating Add described above. These detailed specs remain for later owner-scoped feature implementation, not a license to add routes or put business logic into screen files.
 
 ### SCREEN 01 · First-run setup `TM-S01` · P0
 

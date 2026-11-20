@@ -1,0 +1,27 @@
+# Dependencies, Expo artifacts and generated native projects
+node_modules/
+.expo/
+dist/
+web-build/
+android/
+ios/
+*.tsbuildinfo
+# Environment and secret values (commit only the sanitized example)
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.keystore
+*.jks
+# Local data and machine artifacts
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+.DS_Store
+.idea/
+.vscode/
+coverage/
+npm-debug.log*
+yarn-error.log*

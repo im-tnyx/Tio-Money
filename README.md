@@ -7,23 +7,23 @@
 **A thoughtfully designed, offline-first money tracker for Android & iPhone.**  
 Track income, expenses, transfers, optional transfer fees and account balances — without losing control of your data.
 
-![Stage](https://img.shields.io/badge/STAGE-PRODUCT%20DESIGN%20%26%20DOCUMENTATION-7357E8?style=for-the-badge)
+![Stage](https://img.shields.io/badge/STAGE-PHASE%200%20SCAFFOLD%20IN%20REVIEW-7357E8?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/PLATFORMS-ANDROID%20%2B%20IOS-202A44?style=for-the-badge)
 ![Principle](https://img.shields.io/badge/CORE-OFFLINE%20FIRST-118C84?style=for-the-badge)
 
-![React Native](https://img.shields.io/badge/React_Native-Planned-20232A?style=flat-square&logo=react&logoColor=61DAFB)
-![Expo](https://img.shields.io/badge/Expo-Go%20for%20Core%20MVP-000020?style=flat-square&logo=expo&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-Planned-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-Local%20Ledger-003B57?style=flat-square&logo=sqlite&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-Phase%200%20Source-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Expo](https://img.shields.io/badge/Expo-Go%20Compatibility%20Target-000020?style=flat-square&logo=expo&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Scaffold-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Bootstrap%20Only-003B57?style=flat-square&logo=sqlite&logoColor=white)
 
-**[📚 Docs Hub](docs/00-INDEX.md)** · **[🎯 PRD](docs/01-PRD.md)** · **[🧭 Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Ledger](docs/04-DATABASE-DESIGN.md)** · **[🏗 Architecture](docs/05-TECH-ARCHITECTURE.md)** · **[🧪 Implementation & Tests](docs/06-IMPLEMENTATION-TEST-PLAN.md)** · **[✍️ Style](docs/90-DOCS-STYLE-GUIDE.md)**
+**[🤖 Agent Rules](AGENTS.md)** · **[📌 Owner Decisions](docs/DECISIONS.md)** · **[📚 Docs Hub](docs/00-INDEX.md)** · **[🎯 PRD](docs/01-PRD.md)** · **[🧭 Flows](docs/02-USER-FLOWS.md)** · **[🎨 Screen Design](docs/03-SCREEN-SPEC.md)** · **[🗄 Ledger](docs/04-DATABASE-DESIGN.md)** · **[🏗 Architecture](docs/05-TECH-ARCHITECTURE.md)** · **[🧪 Implementation & Tests](docs/06-IMPLEMENTATION-TEST-PLAN.md)** · **[✍️ Style](docs/90-DOCS-STYLE-GUIDE.md)**
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Current state · 2026-11-18:** This is a **documentation-stage project**, not a completed or published app. The product requirements and flows are working drafts. No functional Expo UI, SQLite implementation, SMS reader or store release has been delivered in this repository. Labels such as *planned*, *draft* and *implemented* must reflect evidence — not aspiration.
+> **Current state · 2026-11-20:** Phase 0 intentionally renders **five blank themed tabs** (Home · Trans. · Stats. · Account · More) plus a **disabled Google SVG `+` floating above More**. There is no top bar, transaction form, Settings, Welcome, ledger posting, SMS access or financial feature. The owner reports the latest UI looks correct on a physical device and the previously observed `ExpoSQLite` error no longer appears; exact device/platform and real on-device SQLite migration/restart tests remain unrecorded. This is an owner-reported smoke result, not full two-platform QA.
 
 ## ✨ A calm place for your money
 
@@ -36,10 +36,12 @@ Track income, expenses, transfers, optional transfer fees and account balances �
 
 The owner-provided screenshots are **references for fields and interaction**, **not a UI to copy**. Tio Money will have its **own** visual language and screen design.
 
-- **One primary `+` action on Home** — no separate Income / Expense / Transfer shortcut tiles.
-- `+` opens one transaction form with the tabs **Income | Expense | Transfer**.
+- **Current Phase 0:** five bottom tabs (**Home · Trans. · Stats. · Account · More**) each display an **empty screen**. The sole floating `+` **icon is disabled**, aligned above More on the right; tapping it does nothing. No top bar or extra route. See [TM-DEC-005](docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab).
+- **Future product design (not implemented now):** after a new scoped implementation decision, `+` may open an Income / Expense / Transfer editor.
 - **Fees** appear only when needed on a transfer and are accounted for separately as an expense.
-- **Save** stores the transaction and returns; **Save & Add Another** supports faster repeated entry.
+- **Future product design only:** Save and Save & Add Another are not available in this Phase 0 shell.
+
+> **Future flow concept, not a screen or action implemented in the current Phase 0 shell.**
 
 ```mermaid
 flowchart TD
@@ -108,6 +110,30 @@ flowchart LR
 | [🧩 Feature map](#-feature-map-and-honest-delivery-status) | [🎨 Screen design specification](docs/03-SCREEN-SPEC.md) | [🧪 Implementation & Test Plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) |
 | [🏗 Architecture overview](#-proposed-architecture--boundaries-not-a-shipped-stack) | [🗄 Database & ledger](docs/04-DATABASE-DESIGN.md) · [Technical architecture](docs/05-TECH-ARCHITECTURE.md) | [Phase gates & financial QA](docs/06-IMPLEMENTATION-TEST-PLAN.md#5-financial-acceptance-test-catalogue) |
 
+## 🛠 Phase 0 · Developer setup (scaffold under review)
+
+The code in this branch is an **Expo SDK 58 / React Native 0.88.1 / React 19.3** scaffold. It renders **only Home · Trans. · Stats. · Account · More** along the bottom, with **five empty themed screen bodies** and a **disabled floating `+` icon above More**. After the native **splash**, the app goes **directly to Home's blank canvas and the five-tab bottom bar**, with the disabled floating `+` above More. No intermediate loading screen is shown during successful SQLite initialization. There is **no Add editor, Settings or onboarding screen** and no top app toolbar. A database-startup failure may show a minimal retry/error recovery view rather than silently corrupting data. The SQLite settings-only initialization, strict TypeScript, theme, tests and governance remain under the hood. No financial data can be saved.
+
+**Requirements:** Node.js **`^22.13.0 || ^24.3.0 || >=26.0.0`** (the repo pins a known-compatible **22.16.0** in `.nvmrc`), npm, Expo Go supporting SDK 58 on an Android/iPhone device, and a reachable npm registry. Node 23, 25 and Node 24.0–24.2 are not supported by the locked Expo/React Native engines.
+
+```bash
+nvm use                   # uses the known-compatible .nvmrc Node 22.16.0
+npm ci                    # reproducible install from committed package-lock.json
+npx expo install --check  # confirm managed Expo SDK compatibility
+npm run check             # strict TypeScript, ESLint, Prettier, unit tests
+npm run expo:config       # inspect the public Expo configuration
+npx expo start --clear    # scan QR code in Expo Go
+```
+
+For iPhone use Expo Go from the App Store; for Android use the Expo Go app and its QR scanner. **Do not assume Expo Go compatibility solely from package versions**: test an actual device and record the SDK, OS and result. Owner reports a physical-device UI smoke pass without the prior `ExpoSQLite` error; device identity/OS/SDK and the full Android + iPhone acceptance matrix still need to be documented. If SDK 58 Expo Go is not available on a particular store/device, do not downgrade packages ad hoc; check the [Expo SDK 58 release notes](https://expo.dev/changelog/sdk-58) and obtain an appropriate compatible client.
+
+**Language:** Initial UI, validation and accessibility text are **English only**, with no MVP language selector per [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app). Stable message keys remain ready for future translations. **Environment / privacy:** P0 has no backend and requires **no secrets**. `.env.example` explains `EXPO_PUBLIC_*` flags; those flags are public in app bundles, so never put banking credentials, API keys or encryption secrets there. The default `app.json` declares **no SMS permissions**. Automatic Android SMS requires a separately approved custom native build; automatic iPhone inbox access is not offered.
+
+**Architecture boundaries:** [Document 05](docs/05-TECH-ARCHITECTURE.md) · [Phase 0–7 plan](docs/06-IMPLEMENTATION-TEST-PLAN.md) · [Foundation notes](docs/07-PHASE-0-FOUNDATION-NOTES.md) · [Core Theme ownership](src/shared/theme/README.md). The current UI automatically follows system **light/dark** via typed semantic palettes; **all reusable fixed UI dimensions, 24dp Google Material Symbols Outlined SVG icon display sizes, tab/FAB geometry, typography and spacing are centrally owned design tokens**, with shared icon-size roles available to future top bars/buttons/sheets/cards/fields. Five route screens are **blank/presentation-only**; routing, splash lifecycle and safe-area behavior are handled in shared controllers/hooks, not screen business logic. Future feature-screen specifications remain proposals, not implemented routes. SQLite bootstrap currently migrates only a local settings table; balances, financial event posting and encryption are **not** built. Keep local database files out of Git.
+
+> [!NOTE]
+> PR #1 is **READY FOR REVIEW / NOT MERGED**. **Current pre-merge source evidence (2026-11-20):** On branch `feat/phase-0-expo-foundation`, source HEAD `c90d1c00462de5e4a5b007a87dade6641a106f40` passed [Phase 0 App CI #44600432345](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432345) (npm/Expo checks, strict TypeScript, lint, Prettier, unit tests, Android/iOS Metro) and [governance CI #44600432365](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432365) (Python tests, links and commit attribution). **Owner reports testing current UI on a physical device and no longer encountering the previous `ExpoSQLite` error.** Record as **OWNER_REPORTED_DEVICE_SMOKE_PASS**; device platform/model/OS/client version and full cold-restart evidence were **not provided**. On-device SQLite PRAGMA checks, migration persistence, both-platform signoff, accessibility/contrast matrix and formal M0 acceptance remain **NOT_VERIFIED**. This is not a new CI or independent device-test claim. **Current visual tokens:** five Google Material Symbols Outlined SVG tab icons (`home`, `book_2`, `bar_chart_4_bars`, `account_balance`, `more_horiz`) at weight **200** and size **24dp**; floating disabled Google `add` icon at weight **400**, size **24dp**; circular FAB **50dp**; nav baseline **50dp plus actual OS bottom inset** (1dp border + 1dp top padding + 48dp tab hit row); icon/label gap **1dp**; FAB-to-navigation vertical clearance **16dp**. FAB remains over the More tab, not at a fixed right-edge inset. **Merge gate:** PR #1 remains **OPEN / NOT MERGED**. Latest self-audit confirms the original Copilot Node-range finding fixed in `package.json` and lockfile (both `^22.13.0 || ^24.3.0 || >=26.0.0`), but its GitHub thread is **outdated/unresolved**; do not treat the Copilot `COMMENTED` review as approval. Independent latest-head review **DEFERRED** under the optional policy. `main` reports `protected:false`, but protection and rulesets endpoints returned **403**, so enforcement cannot be exhaustively inventoried. Recheck live GitHub-required gates. A fresh explicit owner authorization naming `im-tnyx/Tio-Money` PR #1 and permission to merge is needed because the old “go merge” preceded material UI changes. Draft PR #7 is independent and remains untouched.
+
 ## 🚀 How the product is developed
 
 ```mermaid
@@ -128,6 +154,6 @@ flowchart LR
 <div align="center">
 
 **Tio Money** · Designed for clarity, correctness & privacy  
-<sub>Documentation phase · 18 November 2026 · Original product design, not a reference-app clone</sub>
+<sub>Phase 0 scaffold ready for code review, not merged · November 2026 · Original future product design preserved</sub>
 
 </div>
