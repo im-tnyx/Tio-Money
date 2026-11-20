@@ -308,17 +308,36 @@ jobs:
           fi
           bundle="$RUNNER_TEMP/tio-money-preview.bundle"
           test -s "$bundle"
-          remote_bundle="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}.bundle"
-          # OpenSSH joins remote argv into one shell command. Send a single
-          # shell-escaped command and enforce 0600, noclobber and 128 MiB cap.
-          printf -v remote_upload_command \
-            'set -eu; umask 077; set -C; ulimit -f 262144; if [ -e %q ] || [ -L %q ]; then exit 1; fi; if base64 -d > %q; then :; else rm -f -- %q; exit 1; fi' \
-            "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
-          base64 < "$bundle" | gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            "$remote_upload_command"
+          remote_dir="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}"
+          remote_bundle="${remote_dir}/source.bundle"
+          bundle_sha256="$(sha256sum -- "$bundle" | cut -d ' ' -f 1)"
+          # Use a fresh private directory so SCP cannot follow an attacker-owned
+          # pre-existing destination, and keep credentials on the trusted runner.
+          printf -v remote_prepare_command \
+            'set -eu; umask 077; mkdir -m 700 -- %q' "$remote_dir"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_prepare_command"
+          # The cleanup only targets the directory created above. It is also
+          # attempted when a copy or subsequent validation fails.
+          cleanup_remote_bundle() {
+            local cleanup
+            printf -v cleanup \
+              'set -eu; if [ -d %q ] && [ ! -L %q ] && [ "$(stat -c %%u -- %q)" = "$(id -u)" ]; then rm -f -- %q; rmdir -- %q; fi' \
+              "$remote_dir" "$remote_dir" "$remote_dir" "$remote_bundle" "$remote_dir"
+            gh codespace ssh --codespace "$CODESPACE_NAME" -- "$cleanup" >/dev/null 2>&1 || true
+          }
+          trap cleanup_remote_bundle EXIT
+          # Official Codespaces file-copy transport, rather than piping bundle
+          # bytes through a remote-shell command's stdin.
+          gh codespace cp -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"
           rm -f -- "$bundle"
-          # Trusted main script verifies exact fetched SHA, refuses dirty
-          # checkout and removes the remote bundle on exit.
+          # SCP can preserve the source mode; enforce the exact remote mode
+          # only after verifying a regular, non-symlink user-owned file.
+          printf -v remote_finalize_command \
+            'set -eu; test -f %q; test ! -L %q; test "$(stat -c %%u -- %q)" = "$(id -u)"; chmod 600 -- %q' \
+            "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_finalize_command"
+          # Trusted main script verifies private-dir ownership, file size,
+          # permissions, SHA-256, Git bundle and exact selected PR commit.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" \
             < .github/scripts/sync-pr-codespaces-preview.sh
