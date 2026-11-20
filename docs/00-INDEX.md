@@ -25,9 +25,13 @@
 | :--- | :--- |
 | [08 · Account Groups](08-ACCOUNT-GROUPS-SPEC.md) | Dynamic Cash/Bank/Wallet/Card/Investment/Loan setup, account links and financial boundaries |
 | [10 · Currency & Exchange Rates](10-CURRENCY-SPEC.md) | Main + optional distinct Sub Currency, refresh-on-use, stale offline fallback, unresolved ledger ADRs |
-| Backup and optional Supabase technical design | **Planned for later documentation PR**; **not implemented**, no login/remote storage today |
+| [09 · Future Backup, Restore & Sync](09-BACKUP-SYNC-SPEC.md) | Stage 2 encrypted user-directed backup, Stage 3 optional Supabase/Auth; **design only, not implemented** |
 
 **GitHub state verified 2026-11-20:** [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) and [Governance PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) are **merged**. References below to PR #1 "ready for review" are preserved as **historical pre-merge evidence**, not current status. Real-device SQLite/iPhone QA is not established by a merge.
+
+### Protected bottom tabs · owner clarification (2026-11-20)
+
+**No bottom-navigation changes:** **Home · Trans. · Stats. · Account · More** remain exactly as built, including icons, label order, theme, 50dp bar baseline plus OS inset, 24dp icons, 1dp icon-label gap and 50dp Add FAB with 16dp clearance above More. The current Phase 0 + stays disabled. See [TM-DEC-010](DECISIONS.md#tm-dec-010--bottom-navigation-ui-freeze) and [delivery acceptance test TM-ST1-NAV-001](06-IMPLEMENTATION-TEST-PLAN.md#0-owner-approved-stage-sequence-delivery-gates--protected-navigation-2026-11-20). Feature screens will not redesign the tabs.
 
 ## 🧭 Find the answer you need
 
@@ -36,6 +40,7 @@
 | Review confirmed owner decisions | [📌 Decision register](DECISIONS.md) | English-only initial app; approvals versus pending proposals |
 | Define the new account-group system | [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md) | Six group forms, payment options, card/loan/investment rules and open ADRs |
 | Define currency behavior | [10 — Currency & FX](10-CURRENCY-SPEC.md) | Main/Sub Currency selection, refresh-on-use and offline fallback |
+| Plan recovery and optional cloud | [09 — Backup, Restore & Sync](09-BACKUP-SYNC-SPEC.md) | Stage 2 encryption/restore and Stage 3 optional consent/auth/tenant isolation |
 | Understand the product and MVP scope | [🎯 01 — Product Requirements](01-PRD.md) | Goals, screen contracts, scope, and acceptance criteria |
 | Understand the exact `+` transaction experience | [🧭 02 — User Flows](02-USER-FLOWS.md) | Journey diagrams, fields, fee behavior, edge cases |
 | Create new documentation consistent with the product | [✍️ 90 — Style & Quality Guide](90-DOCS-STYLE-GUIDE.md) | Page anatomy, diagrams, status labeling, quality checklist |
@@ -86,10 +91,11 @@ flowchart TD
 | Documentation design language | 📝 Initial standard | Apply to new and existing pages |
 | [Account groups](08-ACCOUNT-GROUPS-SPEC.md) | 📝 New draft | Review loan/valuation/card billing ADRs before implementation |
 | [Currency & FX](10-CURRENCY-SPEC.md) | 📝 New draft | Approve multi-currency ledger and FX provider ADRs before implementation |
+| [Backup, restore & future sync](09-BACKUP-SYNC-SPEC.md) | 📝 Stage 2–3 future design draft | Crypto/key/restore and tenant sync threat models remain future blockers |
 | [Screen specification](03-SCREEN-SPEC.md) | 📝 Current shell documented + future feature draft | Review future palette, fee disclosure and new feature approvals separately from already-decided five-tab navigation |
 | [Data model / ledger](04-DATABASE-DESIGN.md) | 📝 Initial draft | Review journal schema, reversal policy, credit-card postings |
 | [Technical architecture](05-TECH-ARCHITECTURE.md) | 🧱 Current Phase 0 and future proposal separated | Verify remaining SQLite/device acceptance, future ledger architecture and platform gates |
-| [Implementation & test plan](06-IMPLEMENTATION-TEST-PLAN.md) | 📝 Initial draft | Owner review of milestone gates, finance test matrix and unresolved ADRs |
+| [Implementation & test plan](06-IMPLEMENTATION-TEST-PLAN.md) | 📝 Older submilestones + Stage 1–3 owner direction | Review stage gates, frozen bottom-nav tests, finance/backup/sync acceptance and unresolved ADRs |
 | [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md) | 🧱 Scaffold source under review | Lockfile and latest-head CI verified; document both-platform/device SQLite acceptance and obtain PR-specific merge decision |
 
 ## 🧱 Information architecture
@@ -106,6 +112,9 @@ Tio-Money/
    ├─ 05-TECH-ARCHITECTURE.md     ← Architecture draft
    ├─ 06-IMPLEMENTATION-TEST-PLAN.md ← Phase-gated delivery & QA draft
    ├─ 07-PHASE-0-FOUNDATION-NOTES.md ← Scaffold choices & pending verification
+   ├─ 08-ACCOUNT-GROUPS-SPEC.md    ← Six group contracts
+   ├─ 09-BACKUP-SYNC-SPEC.md       ← Future encrypted backup and optional sync
+   ├─ 10-CURRENCY-SPEC.md          ← Main/Sub Currency, FX refresh
    └─ 90-DOCS-STYLE-GUIDE.md      ← Documentation contract
 ```
 
