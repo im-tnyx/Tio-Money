@@ -271,8 +271,23 @@ jobs:
           TARGET_PR: ${{ steps.pr.outputs.pr_number }}
         run: |
           set -euo pipefail
-          # SSH receives this script from the trusted main checkout. Never
-          # execute a PR-provided shell script in the privileged Actions runner.
+          # Authenticate only on the trusted runner. Never forward the token to
+          # the Codespace or execute PR-provided scripts on this runner.
+          gh auth setup-git
+          git fetch --no-tags origin "$TARGET_SHA"
+          test "$(git rev-parse FETCH_HEAD^{commit})" = "$TARGET_SHA"
+          git update-ref refs/tio-preview/selected "$TARGET_SHA"
+          bundle="$RUNNER_TEMP/tio-money-preview.bundle"
+          git bundle create "$bundle" refs/tio-preview/selected
+          git bundle verify "$bundle"
+          # The remote receives Git objects only, not a GitHub credential.
+          # Stream via stdin without a persistent credential or shared workspace.
+          remote_bundle="/tmp/tio-money-preview-${TARGET_SHA}.bundle"
+          base64 < "$bundle" | gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            bash -c 'umask 077; base64 -d > "$1"' -- "$remote_bundle"
+          rm -f -- "$bundle"
+          # SSH receives this script from trusted main. The remote script
+          # verifies the imported commit and removes its temporary bundle.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            bash -s -- "$TARGET_SHA" "$TARGET_PR" \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" \
             < .github/scripts/sync-pr-codespaces-preview.sh
