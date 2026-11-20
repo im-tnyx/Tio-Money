@@ -58,3 +58,15 @@ Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assist
 **Before the next write:** fetch live `main`, both branch HEADs, both PR states and changed paths. If these conflict with this snapshot, update the task evidence rather than silently assuming continuity.
 
 [Agent contract](../AGENTS.md) · [Task protocol](tasks/README.md) · [Decisions](../docs/DECISIONS.md)
+
+## New preview task — additive checkpoint (2026-11-19)
+
+| Task | Agent / ownership | Status | Next action |
+|---|---|---|---|
+| [`TM-DEV-PREVIEW-20261119-001`](tasks/preview/codespaces-expo-go-20261119.md) | ChatGPT GPT-6; new isolated `chore/codespaces-expo-go-stage-a` stacked over Phase 0; previous preview-task agent `UNKNOWN_NOT_VERIFIED` | [RFC Issue #3: agent Stage A PROCEED, Stage B BLOCKED](https://github.com/im-tnyx/Tio-Money/issues/3); stacked draft, device QA **NOT_VERIFIED**, merge **NOT_GRANTED** | Validate actual CI and physical Expo Go Android/iPhone; no privileged worker or merge without owner authority |
+
+Older governance/Phase 0 rows above are historical snapshots, not overwritten by this separate preview-task addition. Verify live GitHub state.
+
+**Preview validation follow-up, 2026-11-19:** [Task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-validation-checkpoint--current-working-chatgpt-gpt-6) · [stacked draft PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) · [source CI SUCCESS on `b317ec8d`](https://github.com/im-tnyx/Tio-Money/actions/runs/44480886934) (16 Phase 0 + 8 preview tests and platform exports). Actual Codespace/tunnel, owner-authenticated EAS UUID and both physical phones **NOT_VERIFIED**. Stage B blocked; owner PR merge permission not granted. Historical earlier rows remain unchanged.
+
+**Process fix + new source CI evidence (2026-11-19):** Preview [task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-owner-identity-and-managed-process-final-source-checkpoint); [source test run #44482368855](https://github.com/im-tnyx/Tio-Money/actions/runs/44482368855) **SUCCESS** at `fe2003707c53ab5ef615ce547971cc27ebfde209` (16 app + 8 preview tests, Node/Expo checks and both bundles). New checkpoint commit requires fresh head CI. No live Expo device/Codespace/EAS UUID verification, no merge authorization or Stage B activation.

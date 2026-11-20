@@ -1,0 +1,14 @@
+{
+  "name": "Tio Money Expo Go preview (Node 22)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "postCreateCommand": "npm ci --no-audit --no-fund",
+  "postStartCommand": "node scripts/start-codespace-expo.mjs",
+  "portsAttributes": {
+    "8081": {
+      "label": "Expo Metro (account-signed Expo Go tunnel)",
+      "onAutoForward": "ignore",
+      "visibility": "private"
+    }
+  },
+  "remoteUser": "node"
+}
