@@ -18,6 +18,9 @@ test('EAS preview is tied only to owner-confirmed Tio-Money project', () => {
   assert.deepEqual(expo.runtimeVersion, { policy: 'fingerprint' });
   assert.equal(expo.android.permissions.length, 0);
   assert.equal(expo.ios.supportsTablet, true);
+  // No owner-approved native app identifiers yet. Build must fail closed.
+  assert.equal(expo.android.package, undefined);
+  assert.equal(expo.ios.bundleIdentifier, undefined);
 });
 
 test('preview build is internal and not a production release', () => {
@@ -70,16 +73,36 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   const dispatchInputs = text.split('workflow_dispatch:')[1].split('\npermissions:')[0];
   assert.deepEqual(
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
-    ['pr_number', 'platform'],
+    ['pr_number', 'operation', 'platform'],
   );
   assert.ok(dispatchInputs.includes('type: number'));
   assert.match(
     dispatchInputs,
-    /      platform:\n        description: Select OTA target platform \(no native build\)\n        required: true\n        default: all\n        type: choice\n        options:\n          - android\n          - ios\n          - all\n/,
+    /      operation:\n        description: Publish an OTA update or queue an internal preview build\n        required: true\n        default: publish_update\n        type: choice\n        options:\n          - publish_update\n          - build_preview\n/,
+  );
+  assert.match(
+    dispatchInputs,
+    /      platform:\n        description: Android, iOS or both \(build requires signing and app identifiers\)\n        required: true\n        default: all\n        type: choice\n        options:\n          - android\n          - ios\n          - all\n/,
   );
   assert.match(text, /case "\$TARGET_PLATFORM" in\s*\n\s*android\|ios\|all\)/);
   assert.match(text, /--platform "\$TARGET_PLATFORM"/);
-  assert.doesNotMatch(text, /"\.\/\.github\/.*build_preview|\beas build --platform\b/);
+  assert.match(text, /case "\$TARGET_OPERATION" in\s*\n\s*publish_update\|build_preview\)/);
+  assert.match(text, /TARGET_OPERATION: \$\{\{ inputs\.operation \}\}/);
+  assert.match(text, /if \[\[ "\$TARGET_OPERATION" == "build_preview" \]\]/);
+  assert.match(text, /const onlyPreview = Object\.keys\(eas\.build \|\| \{\}\)\.length === 1/);
+  assert.match(text, /profile\.distribution !== 'internal'/);
+  assert.match(text, /profile\.channel !== 'pr-preview'/);
+  assert.match(text, /profile\.android\?\.buildType !== 'apk'/);
+  assert.match(text, /expo\.android\?\.package/);
+  assert.match(text, /expo\.ios\?\.bundleIdentifier/);
+  assert.match(text, /Missing approved android\.package/);
+  assert.match(text, /Missing approved ios\.bundleIdentifier/);
+  assert.match(text, /"\$eas" update/);
+  assert.match(text, /"\$eas" build/);
+  assert.match(text, /--profile preview/);
+  assert.match(text, /--no-wait/);
+  assert.match(text, /--non-interactive/);
+  assert.doesNotMatch(text, /--profile production|--auto-submit|\beas init\b/);
   assert.doesNotMatch(text, /^\s+push:\s*$/m);
   assert.doesNotMatch(text, /^\s+pull_request:\s*$/m);
   assert.doesNotMatch(text, /workflow_run:/);
@@ -95,7 +118,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
   assert.ok(text.includes('--registry=https://registry.npmjs.org'));
-  assert.ok(text.includes('node_modules/.bin/eas" update'));
+  assert.ok(text.includes('eas="$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas"'));
   assert.match(text, /npm ci --prefix/);
   assert.ok(text.includes('cp .github/preview-eas-cli/package-lock.json'));
   assert.doesNotMatch(text, /npm install --prefix/);
