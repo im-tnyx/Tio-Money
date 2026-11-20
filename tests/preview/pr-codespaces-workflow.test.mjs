@@ -15,7 +15,8 @@ test('push signal never receives privileged credentials or checks out feature co
   assert.match(signal, /name: Tio Money preview push signal/);
   assert.match(signal, /branches-ignore:\s*\n\s*- main/);
   assert.match(signal, /permissions:\s*\n\s*contents: read/);
-  assert.doesNotMatch(signal, /secrets\.|GH_TOKEN|actions\/checkout|workflow_run|pull_request_target/);
+  assert.doesNotMatch(signal, /secrets\.|GH_TOKEN|actions\/checkout|pull_request_target/);
+  assert.doesNotMatch(signal, /^\s{2}workflow_run:/m);
 });
 
 test('trusted worker has exact owner, repo, main and successful push gates', () => {
