@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   preview:
-    if: ${{ github.actor == 'im-tnyx' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: tio-money-eas-preview-trusted
@@ -51,7 +51,7 @@ jobs:
           echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
 
       - name: Checkout immutable PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ steps.pr.outputs.head_sha }}
           fetch-depth: 0
@@ -82,8 +82,11 @@ jobs:
           native_change=0
           while IFS= read -r -d '' path; do
             case "$path" in
-              app.json|app.config.*|eas.json|package.json|package-lock.json|npm-shrinkwrap.json|yarn.lock|pnpm-lock.yaml|bun.lock*|expo-module.config.json|android/*|ios/*|plugins/*|modules/*|native/*)
-                echo "::error::Native/runtime affecting change $path. A new reviewed preview build is required."
+              src/*|assets/*)
+                # Only app JS/assets can change in an EAS OTA preview.
+                ;;
+              *)
+                echo "::error::Non-OTA or build-time code/config change $path; requires separate reviewed build."
                 native_change=1
                 ;;
             esac
@@ -91,7 +94,7 @@ jobs:
           if [[ "$native_change" -ne 0 ]]; then exit 1; fi
 
       - name: Setup Node 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22.16.0
           cache: npm
@@ -104,6 +107,44 @@ jobs:
           npm run check
           npx expo install --check
 
+      - name: Install committed and verify EAS CLI without Expo credentials
+        env:
+          EAS_CLI_VERSION: "27.4.1"
+          EAS_CLI_ROOT: ${{ runner.temp }}/tio-money-verified-eas-cli
+        run: |
+          set -euo pipefail
+          # The reviewed EAS CLI dependency graph is committed outside the app.
+          # No npm install / dependency resolution on dispatch; token absent here.
+          mkdir -p "$EAS_CLI_ROOT"
+          cp .github/preview-eas-cli/package.json "$EAS_CLI_ROOT/package.json"
+          cp .github/preview-eas-cli/package-lock.json "$EAS_CLI_ROOT/package-lock.json"
+          node - "$EAS_CLI_ROOT/package.json" "$EAS_CLI_ROOT/package-lock.json" "$EAS_CLI_VERSION" <<'NODE'
+          const fs = require('node:fs');
+          const [manifestFile, lockFile, approved] = process.argv.slice(2);
+          const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+          const lock = JSON.parse(fs.readFileSync(lockFile, 'utf8'));
+          if (manifest.dependencies?.['eas-cli'] !== approved ||
+              lock.packages?.['']?.dependencies?.['eas-cli'] !== approved ||
+              lock.packages?.['node_modules/eas-cli']?.version !== approved) {
+            throw Error('Committed EAS CLI manifest/lock version mismatch');
+          }
+          for (const [path, pkg] of Object.entries(lock.packages)) {
+            if (!path) continue;
+            if (pkg.resolved && (!pkg.resolved.startsWith('https://registry.npmjs.org/') ||
+                !pkg.integrity?.startsWith('sha512-'))) {
+              throw Error('Untrusted npm registry or sha512 integrity for ' + path);
+            }
+          }
+          NODE
+          npm ci --prefix "$EAS_CLI_ROOT" \
+            --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          ( cd "$EAS_CLI_ROOT" && npm audit signatures --registry=https://registry.npmjs.org )
+          node - "$EAS_CLI_ROOT/node_modules/eas-cli/package.json" "$EAS_CLI_VERSION" <<'NODE'
+          const [file, approved] = process.argv.slice(2);
+          if (require(file).version !== approved) throw Error('Installed EAS CLI version mismatch');
+          NODE
+          "$EAS_CLI_ROOT/node_modules/.bin/eas" --version
+
       - name: Publish non-production PR preview OTA (explicit owner dispatch only)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -115,7 +156,7 @@ jobs:
             echo "::error::Missing environment-scoped EXPO_TOKEN; owner must configure it securely"
             exit 1
           fi
-          npx eas-cli@latest update \
+          "$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas" update \
             --branch pr-preview \
             --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
             --environment preview \
