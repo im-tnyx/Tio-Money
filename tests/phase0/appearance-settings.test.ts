@@ -100,6 +100,9 @@ test('appearance options use official SVGs and trailing radio controls', () => {
   const icon = readFileSync('src/features/settings/appearance-option-icon.tsx', 'utf8');
   const sheet = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
   const origin = readFileSync('src/shared/assets/google-material-icons/README.md', 'utf8');
+  const appearanceSvg = JSON.parse(
+    readFileSync('src/features/settings/appearance-option-svg.json', 'utf8'),
+  );
 
   for (const [name, sourceName] of [
     ['system', 'routine'],
@@ -110,9 +113,10 @@ test('appearance options use official SVGs and trailing radio controls', () => {
     const svg = readFileSync(svgPath, 'utf8');
     assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" /);
     assert.match(svg, /viewBox="0 -960 960 960"/);
-    assert.ok(icon.includes(`'${svg}'`), `${name} matches official SVG source`);
+    assert.equal(appearanceSvg[name], svg, `${name} matches official SVG source`);
     assert.ok(origin.includes(`${sourceName}_wght200_24px.svg`));
   }
+  assert.match(icon, /appearance-option-svg\.json/);
   assert.match(icon, /iconRoleSizes\.bottomSheet/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
   assert.ok(sheet.indexOf('<AppearanceOptionIcon') < sheet.indexOf('flex: 1'));

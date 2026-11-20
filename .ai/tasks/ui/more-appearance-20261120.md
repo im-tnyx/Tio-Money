@@ -47,3 +47,8 @@
 - **Implementation:** add canonical official Google SVG copies to `src/shared/assets/google-material-icons/` and embed their exact XML in `appearance-option-icon.tsx`. The sheet renders left icon, text, **right** accessible selected radio and theme-token divider between choices, with labels System Mode / Light Mode / Dark Mode. Choice descriptions remain available through `accessibilityHint` only. Keep existing presentation-only UI and global preference store.
 - **Security:** no new dependency, remote icon loading, workflow changes, EAS build/update or new route. `tio-preview` remains removed until separately authorized Codespace activation; no PR #18 merge authorization.
 - **Acceptance:** preview regression checks official SVG provenance, source matching, right radio layout and screen-owned-state ban; exact-head GitHub CI and fresh Android/iPhone device testing pending new commit.
+
+## 2026-11-21 — Safe icon data refactor and parallel HEAD reconciliation
+
+- Previous Phase 0 attempts consistently passed TypeScript/ESLint but failed Prettier on long inline SVG literals in `appearance-option-icon.tsx`. Extract those exact literals into bundled `appearance-option-svg.json` with byte-for-byte equality regression against official `.svg` assets; the small stateless TypeScript icon component uses `SvgXml`. No runtime network, package or native change.
+- While preparing this fix, parallel branch commits added the owner's edge-to-edge flat Appearance row and `Settings` heading plus matching tests. Reconcile on current live PR HEAD, preserve those changes and use non-force expected-head ref update. `tio-preview` remains absent; CI and owner revised-layout device QA still required, no PR merge permission.

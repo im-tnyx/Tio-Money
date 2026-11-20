@@ -47,7 +47,7 @@ independent native-runtime problem.
 
 ## Appearance selection icons (owner reference, 2026-11-21)
 
-These three additional settings icons are official **Material Symbols Outlined 200-weight** SVGs copied byte-for-byte from Google's upstream repository. They render at the existing 24dp `iconRoleSizes.bottomSheet` size, tinted with the current theme; the radio selection remains a separate right-aligned semantic control. The source SVG XML is embedded unchanged in `src/features/settings/appearance-option-icon.tsx` and loaded without new fonts or packages.
+These three additional settings icons are official **Material Symbols Outlined 200-weight** SVGs copied byte-for-byte from Google's upstream repository. They render at the existing 24dp `iconRoleSizes.bottomSheet` size, tinted with the current theme; the radio selection remains a separate right-aligned semantic control. Exact XML is bundled in `src/features/settings/appearance-option-svg.json`, verified against these original SVG files and rendered by `appearance-option-icon.tsx` with the existing `SvgXml` renderer. No new fonts or packages.
 
 | Option | Google icon | Source SVG |
 | --- | --- | --- |
