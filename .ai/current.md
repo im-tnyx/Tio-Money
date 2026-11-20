@@ -2,6 +2,8 @@
 
 ## 2026-11-20 — Phase C local delivery and future backup/sync planning
 
+**Live draft checkpoint:** [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) created and still unmerged, stacked on [Draft PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) (which depends on open [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14)); initial commit `b7756c3fd129bc3d24d00536d81e90c1703dd87a`. Initial scoped validation: six Markdown paths, **140/140 relative document links resolved**, no prohibited commit coauthor trailer. Final CI pending live recheck. Owner merge authorization `NOT_GRANTED`.
+
 - **Task:** [TM-DOC-DELIVERY-20261120-003](tasks/product/local-first-delivery-gates-20261120.md); **RFC:** [Issue #20](https://github.com/im-tnyx/Tio-Money/issues/20). Current agent ChatGPT GPT-6; previous agent for this new task UNKNOWN_NOT_VERIFIED.
 - **Owner source:** current-chat "Go" to begin Phase C documentation and explicit **bottom navigation no-change** instruction; technical documentation-only PROCEED agent-recorded, not authenticated GitHub merge permission.
 - **Branch:** `docs/local-first-delivery-backup-gates-20261120` stacked on open Draft [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`; PR #16 itself is stacked on still-open Draft [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14); main at start `fd154db417b1979d39f855317f252eed37c36e9d`.

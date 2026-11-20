@@ -12,7 +12,7 @@
 | Base/head at creation | Open Draft [PR B #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`; PR A [#14](https://github.com/im-tnyx/Tio-Money/pull/14) still open Draft |
 | Main reference | `fd154db417b1979d39f855317f252eed37c36e9d` on 2026-11-20 |
 | Working branch | `docs/local-first-delivery-backup-gates-20261120`, stacked **on PR B**, not main |
-| Lifecycle | IN_PROGRESS → VALIDATING → draft review, not yet approved |
+| Lifecycle | **IN_REVIEW** — [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) open/unmerged, stacked on Draft PR #16 |
 | Independent review | DEFERRED / NOT PERFORMED, strongly recommended for finance, encryption/auth/identity |
 | Owner merge authorization | **NOT_GRANTED** for PR A/B/C; requires future action-specific, repo + PR-number permission |
 | Rollback | Close unmerged Draft PR without touching existing PR branches/main; branch deletion separately authorized |
@@ -46,3 +46,13 @@ Local financial events must remain balanced, versioned, atomic, idempotent. No b
 - **Tests:** pending GitHub Markdown/diff/CI; no mobile SQL, device, encryption or Supabase testing performed.
 - **Review:** DEFERRED / not performed. Known finance/crypto/sync ADR questions remain open.
 - **Merge authority:** NOT_GRANTED; user Go is not permission to merge.
+
+### 2026-11-20 · Draft PR #22 handoff checkpoint
+
+- **PR:** [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22), `docs/local-first-delivery-backup-gates-20261120` → `docs/local-first-finance-architecture-20261120` (Draft PR #16), **NOT** directly to `main`. At PR creation the HEAD was `b7756c3fd129bc3d24d00536d81e90c1703dd87a`.
+- **Verified initial PR diff:** exactly six Markdown paths, 1 ahead/0 behind vs PR B, **140 relative links / 0 broken paths**, first commit message has no prohibited `Co-authored-by` trailer.
+- **Changed docs:** implementation & test plan, future backup/sync spec, decision register TM-DEC-010, docs index, current index and this task. Bottom-nav source/design assets untouched.
+- **CI:** no exact-head GitHub workflow outcome claimed by this checkpoint. It must be verified after the new documentation handoff commit.
+- **Independent review:** `DEFERRED` (not performed). Finance, recovery/encryption, and identity ADRs remain future blockers. No mobile/device, database or cloud integration test executed.
+- **Authority:** Owner merge authorization `NOT_GRANTED` for PR #14/#16/#22. The owner's `Go` authorizes drafting, **not merging**. Before any merge revalidate owner action-specific permission and GitHub checks, protection and scope.
+- **Safe next action:** independently review stacked PR sequence, take action on documented ADR blockers before code, and review final-head CI before considering a separately authorized merge.
