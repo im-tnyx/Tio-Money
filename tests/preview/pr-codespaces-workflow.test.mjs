@@ -213,12 +213,15 @@ test('dedicated preview identity gate fails closed for owner editing Codespace a
 });
 
 test('PR metadata HTTP diagnostic stays read-only, safe and before Codespace activation', () => {
-  const fetch = worker.indexOf('pr_status="$(curl --silent --show-error --max-time 20');
+  const fetch = worker.indexOf('pr_status="$(printf ');
   const check = worker.indexOf('jq -e --arg repo "$GITHUB_REPOSITORY"');
   const start = worker.indexOf('"/user/codespaces/${codespace}/start"');
   assert.ok(fetch > 0 && fetch < check && check < start);
   assert.ok(worker.includes('GH_TOKEN: ${{ github.token }}'));
-  assert.ok(worker.includes('--header "Authorization: Bearer ${GH_TOKEN}"'));
+  assert.ok(worker.includes('curl --config - --silent --show-error --max-time 20'));
+  assert.ok(worker.includes('Authorization: Bearer %s'));
+  assert.ok(worker.includes('"$GH_TOKEN" |'));
+  assert.doesNotMatch(worker, /--header "Authorization: Bearer/);
   assert.ok(worker.includes('if [[ "$pr_status" != "200" ]]'));
   assert.ok(worker.includes('gsub(/[^[:alnum:]._,;= -]/, "?", value)'));
   for (const name of [

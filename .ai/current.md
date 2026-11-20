@@ -1,5 +1,98 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #22 ready-for-review checkpoint (reconciled on main)
+
+- [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) **OPEN / Ready for Review / not merged**, targeting `main` at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, reconciled HEAD `4e741cf716bcb6020d6e1128a28fc995fd00eb37` before this checkpoint. Original history preserved by non-force two-parent commit; GitHub diff exactly six Markdown files, 0 behind.
+- At this verified commit, PR C's changed docs passed **143 local file links + 58 section-anchor occurrences**, zero missing. Live HTTP of 99 external links, on-device SQLite, encryption, Drive/iCloud and Supabase integration were **not tested**.
+- Existing bottom tabs/floating Add geometry **frozen** (TM-DEC-010); implementation-plan legacy "FAB placement requires signoff" wording corrected, **without any UI code changes**. Current Add remains disabled.
+- **This handoff commit advances SHA to trigger pull_request synchronize CI:** recheck exact-head checks and Codex review and any new findings. **No owner merge authorization for PR #22.**
+
+---
+
+
+## 2026-11-20 — PR #22 documentation reconciliation on merged main
+
+- **Owner instruction:** safely reconcile [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22), rerun CI and review; **no merge permission for #22**. PR #14 and [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) have already merged under their respective explicit owner authorizations.
+- **Current `main` SHA:** `6187b7a7e4c59949547c21655accf50dec8d0dfd` (verified PR #16 squash merge). PR #22 historical head before non-force merge: `edf0aa8769dc93a8d6477ee60bd57e97d436d0f9`.
+- **Technical decision / scope:** non-force two-parent PR #22 branch merge preserving all merged `main` files except PR C's six Markdown-owned paths: `docs/00-INDEX.md`, `docs/06-IMPLEMENTATION-TEST-PLAN.md`, `docs/DECISIONS.md` (TM-DEC-010 bottom-tab freeze only), new `docs/09-BACKUP-SYNC-SPEC.md`, [Phase C task](tasks/product/local-first-delivery-gates-20261120.md) and this index. Retarget to `main` and run exact-head CI/review after verification.
+- **Protected UI:** existing five bottom tabs, 50dp nav baseline + OS inset, icons/weight/spacing and More-aligned disabled FAB unchanged; no source, SQL, cloud or provider changes.
+- **Review/merge gate:** financial, investment, encryption/backup and Supabase tenancy ADRs **not implemented**. No independent review or device tests claimed. **Owner PR #22 merge authorization NOT_GRANTED**.
+
+---
+
+
+## 2026-11-20 — PR #16 final merge-gate P3 cleanup
+
+- **Owner requested merge-gate verification, not merge:** [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was OPEN / Ready for Review (non-draft), targeting `main` `582893d0915622623f8c6b3fb9da0f1bbb0a4a60` at HEAD `b81f4813a43af9de408eeddf1a850752ce64b7ca`. Owner's GitHub review is `COMMENTED`, **not `APPROVED`**.
+- **Two subsequent P3 findings:** Screen 03 still said Phase 0 shell not yet merged, and [task](tasks/product/local-first-technical-design-20261120.md) still said `RECONCILING` / Draft. Corrected with approved historical PR #1 merge and actual PR #16 lifecycle. No code, bottom-tabs or cloud change.
+- **This branch edit requires new HEAD validation:** verify all PR CI and Codex status, resolve addressed P3 threads with documented evidence, preserve six Markdown scope and unchanged `main`; **PR #16 merge NOT AUTHORIZED**. PR #22 remains separate Draft requiring reconciliation.
+
+---
+
+
+## 2026-11-20 — PR #16 Codex P1 investment valuation review
+
+- Codex automated review of `0b80af9a6d959e682ec0ece3dc1ff45c59223957` reported **P1**: non-posting market valuation cannot silently change **canonical journal-derived Net Worth**. [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) remains Ready for Review, **not merged**.
+- Bounded docs correction in `docs/04-DATABASE-DESIGN.md` and `docs/05-TECH-ARCHITECTURE.md`: distinguish immutable posted Net Worth from a **separately labelled unposted portfolio valuation estimate**, ADR-gated balanced revaluation, tests `TM-DB-VAL-001` / `TM-ARCH-010`. No new tables/code/cloud/UI/nav.
+- The commit created by this checkpoint requires new exact-head CI and P1 thread response/disposition. **Owner merge authorization NOT_GRANTED** for PR #16; dependent PR #22 remains untouched.
+
+---
+
+
+## 2026-11-20 — PR #16 follow-up review consistency correction
+
+- Before this checkpoint: [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was **OPEN / Ready for Review / main-based**, SHA `53886aed3e28c9402cfb8f9402e536c8f8f638af`, all three CI checks green. **Codex re-review requested**, but not yet finalized at observation.
+- Manual review found legacy **SCREEN 06** had funded-only Wallet and universal opening form wording inconsistent with the merged PR #14 Bank-linked Wallet reference; `docs/03-SCREEN-SPEC.md` corrected these conditions. Historical PR #1 merge-state blurbs in Screen/Architecture were also corrected, with device QA still unverified. **No app code, bottom navigation or PR #22 files touched.**
+- This task checkpoint commit advances the branch HEAD; **do not reuse old CI/Codex results**. Re-check exact-new-head actions, review threads and link integrity. PR #16 **merge authorization NOT_GRANTED**.
+
+---
+
+
+## 2026-11-20 — PR #16 reconciliation after PR #14 squash merge
+
+**Verified follow-up:** [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was retargeted to `main`, remains **OPEN / Ready for Review / NOT MERGED**. Reconciled merge commit `ec537534ee617b72e481aa14f3f810852bb5fa2a` (two parents: old PR B HEAD + new main). GitHub compare: 0 behind, six Markdown files only; source `main` unchanged. At that exact SHA, **314 internal Markdown file links and 85 section anchors** passed, 0 missing, no added whitespace or prohibited co-author trailers; **173 external URL occurrences were not HTTP-verified**. This checkpoint advances the branch HEAD to trigger `pull_request:synchronize` CI, so all CI/reviewer results must be rechecked on the new commit. PR #22 remains Draft and requires separate reconciliation; no branch edits or merge authorization for #22.
+
+
+- **Owner requested:** safely reconcile [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) onto new `main`, rerun CI and review. This is **not** permission to merge PR #16.
+- **Verified PR #14:** squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`. Existing PR #16 branch HEAD before reconciliation: `c5dfec3722a62b6ee0cd5cc30586f1e3a92f745b`.
+- **Integration:** non-force two-parent branch merge into PR #16 with `main` as second parent, main tree authoritative except PR B's **six owned Markdown paths**. Reconcile only Bank-linked Wallet non-ledger reference, Investment/Loan historical opening wording in docs 02–05; preserve original `main` index and PR #14 P2 fixes. **No application, SQL, theme, bottom-navigation or cloud changes.**
+- **Documentation task:** [TM-DOC-ARCH-20261120-002](tasks/product/local-first-technical-design-20261120.md) tracks code exclusions, exact method, source and future ADR gates. [Draft PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) is a dependent separate branch, **not edited**.
+- **Gate:** PR #16 retarget to `main`, exact-head CI and review required; no independent approval assumed. **Owner merge authorization NOT_GRANTED** for PR #16 and PR #22.
+
+---
+
+
+## 2026-11-20 — PR #14 conditional merge authority / new Codex findings
+
+- **Owner authorized** merge of `im-tnyx/Tio-Money` **PR #14** into `main`, **only if all current checks, protections, applicable reviews and outstanding findings are verified satisfied**. No authority for auto-merge, force-push, deletion or PR #16/#22.
+- Latest reviewed `c6d9473d9fed0d83982e0cf4e93cb3e16626bfef` had three green GitHub check runs and `main` branch API showed `protected:false`, but **Codex added two unresolved P2** findings to `docs/01-PRD.md` after earlier preflight. Correct in original PR branch; verify exact new HEAD and review/comment status again.
+- **Remediation:** add Bank-linked Wallet reference to first-run (after Bank exists) and Accounts add/edit/archive flows, without additional financial account/balance/postings. [Task](tasks/product/local-first-product-contract-20261120.md) records source and limitations. Current branch remains PR #14; dependent stacked PR #16/#22 require later reconciliation.
+- **Pending at this checkpoint:** final CI, PR review findings, protections preflight and actual GitHub merge result. No merge is claimed here.
+
+---
+
+
+## 2026-11-20 — PR #14 opening-account P2 merge-gate remediation
+
+- **Owner request:** bring [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) to merge gate (fix/review/CI; **not merge authorization**). Technical PROCEED remains bounded to finance-product documentation in [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13) and the [task](tasks/product/local-first-product-contract-20261120.md).
+- **Before remediation:** PR A HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce`; one unresolved non-independent [P2 review thread](https://github.com/im-tnyx/Tio-Money/pull/14#discussion_r4644772021): generic opening amount conflicts with bank-linked Wallet/no-asset and Investment/Loan opening semantics.
+- **Proposed resolution:** group-conditional opening rules, explicit non-posting bank reference, single balanced opening equity for funded/card/loan/investment historical positions, zero-value no-op, six additional test IDs. Preserve all unapproved multi-currency/valuation/migration ADR blockers.
+- **Branch constraints:** work only on PR #14 documentation branch; staged PR [#16](https://github.com/im-tnyx/Tio-Money/pull/16) and [#22](https://github.com/im-tnyx/Tio-Money/pull/22) depend on PR A and require later safe reconciliation. No merging of any PR, no `main` change, no device/code/SQL changes.
+- **Gate record:** independently reviewed/CI and resolved status must be re-verified at exact updated HEAD; protection rules API not reliably readable; owner PR-specific merge authorization **NOT_GRANTED**.
+
+---
+
+
+## 2026-11-20 — Product contract PR #14 (newest read-only handoff)
+
+| Task | Owner instruction / RFC | Work branch / PR | Status and gate |
+| :--- | :--- | :--- | :--- |
+| [`TM-DOC-PRODUCT-20261120-001`](tasks/product/local-first-product-contract-20261120.md) | Owner requested documentation start after local-first, account-group, Main/Sub Currency, backup-last and Supabase-opt-in decisions. [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13) records technical **PROCEED for docs only**, transcribed by ChatGPT GPT-6. | `docs/local-first-product-contract-20261120` → [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) based on `main` `fd154db417b1979d39f855317f252eed37c36e9d` | **IN_REVIEW / unmerged**. 6 Markdown files initial commit `7265f8a3a4d232a07426f932c1c7b42fc20673a8`: 0 missing local document links; no forbidden co-author trailer. **Independent review DEFERRED** (not performed). CI for final new HEAD must be checked. **Owner PR-specific merge permission NOT_GRANTED**. |
+
+**Live GitHub status verified 2026-11-20:** Governance [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) **MERGED** with commit `5dbdbe047a542463f0de66b9c0c6e09ef7d2605a`; Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) **MERGED** with commit `e647f78ce200fed1323d80ea794396c371fba7bf`. Older entries in this index saying those PRs are open are **historical dated checkpoints**, not current status. Do not rewrite them or claim iPhone/SQLite QA was completed.
+
+---
+
 ## 2026-11-20 — PR #7: latest-main reconciliation checkpoint (owner-requested)
 
 **Live preflight:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains OPEN / Ready for review, not merged. The approved reconciliation target is `main` at `5a72a112378fa14b168a02e9b18b41360ef79ed4`, including merged [PR #5](https://github.com/im-tnyx/Tio-Money/pull/5); prior PR #7 HEAD was `094b8b9225d9e5fa319af7bf6406bb047e067ee6`, 30 commits behind / 19 ahead. Owner requested merge-readiness and main synchronization in this chat; **owner authorization to merge PR #7 into main remains NOT_GRANTED**.

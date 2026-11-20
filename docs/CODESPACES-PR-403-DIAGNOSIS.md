@@ -14,7 +14,7 @@ The first selected PR metadata GET in `.github/workflows/tio-money-codespaces-pr
 - `X-GitHub-Request-Id`
 - `X-GitHub-Api-Version-Selected`
 
-No auth request headers, token, arbitrary server headers or response body are logged. It refuses Codespace activation until a valid PR response passes the original owner/main/label and immutable snapshot checks.
+Token handling P2 mitigation (2026-11-20): the Authorization header enters curl through a piped stdin config (`curl --config -`), not a token-bearing command-line argument or an on-disk config. No auth request headers, token, arbitrary server headers or response body are logged. A source self-audit recorded the earlier token-in-argv finding; an independent security review is still recommended. It refuses Codespace activation until a valid PR response passes the original owner/main/label and immutable snapshot checks.
 
 ## Investigation after a separately authorized merge and fresh manual dispatch
 
@@ -27,3 +27,7 @@ No auth request headers, token, arbitrary server headers or response body are lo
 The diagnostic alone is **not** proof of correction. EAS publishing and build-preview are outside this change. This PR does not change `main` without owner-specific merge authorization. Owner's Appearance PR #18 remains separate and unmerged.
 
 RFC: [#19](https://github.com/im-tnyx/Tio-Money/issues/19).
+
+## Latest-main reconciliation
+
+Safely reconciled this diagnostic branch with `main` at `f4332eb338ca75e27a5b35ff57511f522a4bb96a` using a **non-force two-parent merge commit**; all changes from the newer main (documentation product work) are retained. This branch's reviewable PR diff stays limited to the diagnostic workflow, its unit test and task/docs. Neither reconciliation nor test pass is authorization to merge.

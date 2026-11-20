@@ -85,14 +85,16 @@ jobs:
           # emit only GitHub's documented non-secret permission diagnostic headers.
           # Never print a credential, request Authorization header or API body.
           pr_headers="$RUNNER_TEMP/preview-pr-api-headers.txt"
-          pr_status="$(curl --silent --show-error --max-time 20 \
-            --header "Accept: application/vnd.github+json" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
-            --header "Authorization: Bearer ${GH_TOKEN}" \
-            --dump-header "$pr_headers" \
-            --output "$RUNNER_TEMP/preview-pr.json" \
-            --write-out '%{http_code}' \
-            "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${selected}")"
+          # Keep the bearer token out of curl process argv and disk files.
+          # Pass the Authorization header through an ephemeral stdin curl config.
+          pr_status="$(printf 'header = "Authorization: Bearer %s"\n' "$GH_TOKEN" |
+            curl --config - --silent --show-error --max-time 20 \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              --dump-header "$pr_headers" \
+              --output "$RUNNER_TEMP/preview-pr.json" \
+              --write-out '%{http_code}' \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${selected}")"
           if [[ "$pr_status" != "200" ]]; then
             echo "::error::Selected PR read returned HTTP ${pr_status}; Codespace activation denied."
             # Values are explicitly character-filtered and length-bounded to
