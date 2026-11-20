@@ -7,6 +7,7 @@ readonly project_root="/workspaces/Tio-Money"
 readonly expected_remote="https://github.com/im-tnyx/Tio-Money"
 readonly target_sha="${1:-}"
 readonly pr_number="${2:-}"
+readonly bundle_path="${3:-}"
 readonly cache_dir="${HOME}/.cache/tio-money-expo-preview"
 readonly dependency_marker="${cache_dir}/preview-dependency-manifests.sha256"
 
@@ -35,9 +36,15 @@ if [[ -n "$(git status --porcelain=v1 --untracked-files=normal)" ]]; then
   exit 1
 fi
 
+if [[ "$bundle_path" != "/tmp/tio-money-preview-${target_sha}.bundle" || ! -f "$bundle_path" || -L "$bundle_path" ]]; then
+  echo "Refusing preview: missing or unexpected immutable source bundle." >&2
+  exit 1
+fi
+trap 'rm -f -- "$bundle_path"' EXIT
 before_sha="$(git rev-parse HEAD)"
-echo "Fetching selected PR #${pr_number} immutable commit ${target_sha}."
-git fetch --no-tags origin "$target_sha"
+echo "Importing selected PR #${pr_number} immutable commit ${target_sha} from trusted runner."
+git bundle verify "$bundle_path" >/dev/null
+git fetch --no-tags "$bundle_path" "refs/tio-preview/selected"
 fetched_sha="$(git rev-parse FETCH_HEAD^{commit})"
 if [[ "$fetched_sha" != "$target_sha" ]]; then
   echo "Refusing preview: fetched commit did not match GitHub's accepted SHA." >&2
