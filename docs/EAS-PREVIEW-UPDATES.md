@@ -1,8 +1,21 @@
 # Tio Money — EAS preview updates (non-production, manual)
 
-> **Preparation only — not published.** This feature is a separate stacked draft PR above the working Codespaces preview PR #4. It does not enable automatic OTA publishing, deploy a release, configure an Expo token, create an EAS build or guarantee Expo Go's grey **Projects** tile becomes active. Published Tio-Money EAS Update groups remain empty in the owner's last screenshot.
+> **Preparation only — not published.** PR #4 is merged. This feature is an open, ready-for-review PR #5 targeting `main`. It does not enable automatic OTA publishing, deploy a release, configure an Expo token, create an EAS build or guarantee Expo Go's grey **Projects** tile becomes active. Published Tio-Money EAS Update groups remain empty in the owner's last screenshot.
 
 [Technical RFC / PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7004990185) · [Codespaces Stage A guide](CODESPACES-LIVE-PREVIEW.md) · [Task checkpoint](../.ai/tasks/preview/eas-preview-updates-20261119.md)
+
+## Current security design — second P2 re-review, 2026-11-20
+
+The independent review supplied by the owner at PR #5 HEAD `8ca5346e` confirmed the earlier mutable `eas-cli@latest` issue was fixed, but reported **three new P2 findings** about a rerun actor gate, mutable GitHub Actions tags, and per-dispatch dependency resolution. The reported verdict was `REQUEST_CHANGES`, but the reviewer **did not submit a GitHub review**. These are known blocking findings until the current implementation is independently re-reviewed; **GitHub mergeable alone is not approval**.
+
+The corrected trusted manual workflow now:
+
+1. Allows only `github.actor == im-tnyx` **AND** `github.triggering_actor == im-tnyx` from the trusted `main` workflow. It **rejects reruns** via `github.run_attempt == '1'`, preventing stale manual dispatch reuse. GitHub documents that the original actor's privileges apply to reruns.
+2. Uses audited **full immutable action commit IDs**: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2) and `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020` (v4.4.0). Future updates require explicit version/SHA review.
+3. Commits a separate **full npm dependency lock** at `.github/preview-eas-cli/package-lock.json` plus the exact `package.json` for **`eas-cli@27.4.1`**. It was generated on GitHub-hosted non-secret CI with `npm install --package-lock-only --ignore-scripts`, then transferred byte-for-byte; the final tree includes **548 package entries, 547 registry SHA512 integrities**. The workflow **never executes `npm install`** and cannot resolve new versions during manual dispatch: it copies these committed manifests to an isolated `RUNNER_TEMP` path, enforces package identity and registry SHA512 metadata, runs **`npm ci --ignore-scripts`**, checks `npm audit signatures`, verifies the installed CLI version, and *only then* gives the final publish step an `EXPO_TOKEN`. Expo's SDK 58 app `package.json`/`package-lock.json` remain separate.
+4. Fails closed on PR changes outside `src/*` and `assets/*`; any modified workflow, dependency/tool script, tests, native config or EAS CLI lock causes a rejection before secret access. Retains exact Tio-Money owner/UUID and `pr-preview` non-production publication.
+
+**Residual limitations:** GitHub-hosted source CI tests and a real public npm lockfile prove version records, not that this workflow actually published or that Expo token permissions, EAS server behavior, protected Environment restrictions or a native device build are correct. The temporary lock generator was removed after generating the actual lockfile. The trusted EAS workflow is **not active on `main`** while PR #5 remains unmerged. Never dispatch or deploy under implementation approval; those require separate explicit owner authorization. **A new-HEAD independent security re-review is recommended before final merge authorization.**
 
 ## Identity, isolation and setup
 
@@ -31,7 +44,7 @@ Before merging/using the workflow, the owner must verify the **private repo's** 
 
 **Do not run this preview workflow on this initial EAS-configuration PR:** the workflow's native-affecting change guard must block it. For a new preview of this baseline, independently authorize a compatible native build and a subsequent JS-only reviewable update PR. This is intentionally not an automated deploy or push-driven Codespaces wake/sync. That separate Stage B feature remains **BLOCKED** until independently reviewed trust/permissions/tokens and owner instructions.
 
-## 2026-11-20 P2 supply-chain remediation — source code only
+## Historical initial P2 supply-chain remediation — superseded by committed lock
 
 The owner brought an independent reviewer report on exact PR #5 head `c53522b47`: **P2 — mutable `npx eas-cli@latest` could silently change the executable that receives `EXPO_TOKEN`.** The owner explicitly said **go** to fix the finding; **this is not permission to merge, run the workflow, build or publish**. Reviewer did not submit an official GitHub review verdict.
 
