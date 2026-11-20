@@ -1,5 +1,15 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #7: latest-main reconciliation checkpoint (owner-requested)
+
+**Live preflight:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains OPEN / Ready for review, not merged. The approved reconciliation target is `main` at `5a72a112378fa14b168a02e9b18b41360ef79ed4`, including merged [PR #5](https://github.com/im-tnyx/Tio-Money/pull/5); prior PR #7 HEAD was `094b8b9225d9e5fa319af7bf6406bb047e067ee6`, 30 commits behind / 19 ahead. Owner requested merge-readiness and main synchronization in this chat; **owner authorization to merge PR #7 into main remains NOT_GRANTED**.
+
+**Branch-only integration:** Construct a non-force, two-parent merge of current `main` into the PR #7 documentation branch. Preserve its 14 governance Markdown paths and all other source, Expo, EAS, SQLite, permissions, workflow, package and app files exactly from `main`. Only overlapping file `.ai/current.md` is integrated by retaining both the PR #7 current governance checkpoint and `main`'s later PR #5 EAS preview checkpoint. Earlier status statements below remain historical and are not assertions of current PR state. PR #7's two owner P3 review threads were resolved on previous HEAD; no GitHub formal `APPROVED` review is inferred. Independent additional review **DEFERRED** per optional-by-default policy.
+
+**Gate:** exact-post-merge-HEAD CI, provenance/commit attribution, path scope and actual GitHub protections require new verification. Do **not** merge or auto-merge PR #7, invoke EAS publication, or alter PR #10 without separate authorization.
+
+---
+
 ## 2026-11-20 — Governance PR #7 current review and main synchronization
 
 **Live PR state at this checkpoint:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) is **OPEN / READY FOR REVIEW** (`draft:false`), **NOT MERGED**. Its task `TM-GOV-CLEANUP-20261119-001` remains **IN_REVIEW**; owner merge authorization **NOT_GRANTED**. [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) and [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) are both merged; [PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) subsequently merged Codespaces Stage A into `main` at `fdae8b4d23117a5be202ec04663ba22f3b21d1a5`. Earlier `DRAFT`/pre-merge statements below are *historical* checkpoints, not current statuses.
@@ -80,3 +90,16 @@ Older governance/Phase 0 rows above are historical snapshots, not overwritten by
 **Preview validation follow-up, 2026-11-19:** [Task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-validation-checkpoint--current-working-chatgpt-gpt-6) · [stacked draft PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) · [source CI SUCCESS on `b317ec8d`](https://github.com/im-tnyx/Tio-Money/actions/runs/44480886934) (16 Phase 0 + 8 preview tests and platform exports). Actual Codespace/tunnel, owner-authenticated EAS UUID and both physical phones **NOT_VERIFIED**. Stage B blocked; owner PR merge permission not granted. Historical earlier rows remain unchanged.
 
 **Process fix + new source CI evidence (2026-11-19):** Preview [task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-owner-identity-and-managed-process-final-source-checkpoint); [source test run #44482368855](https://github.com/im-tnyx/Tio-Money/actions/runs/44482368855) **SUCCESS** at `fe2003707c53ab5ef615ce547971cc27ebfde209` (16 app + 8 preview tests, Node/Expo checks and both bundles). New checkpoint commit requires fresh head CI. No live Expo device/Codespace/EAS UUID verification, no merge authorization or Stage B activation.
+
+
+## EAS preview-only task — separate stacked draft (2026-11-19)
+
+| Task | Owner / agent | Branch / expected PR | Scope & next gate |
+|---|---|---|---|
+| [TM-EAS-PREVIEW-20261119-001](tasks/preview/eas-preview-updates-20261119.md) | ChatGPT GPT-6; previous EAS task agent UNKNOWN_NOT_VERIFIED; [scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3#issuecomment-7004990185) | `feat/eas-preview-updates-foundation` **stacked on Stage A PR #4**, no merges | SDK 58 EAS preview configuration + manual owner-gated publish workflow *source only*. No EAS build/update/token or trusted worker activated. Independently review, test exact head, obtain separate owner approval before publishing or merging. |
+
+## 2026-11-20 — PR #5 second external P2 re-review / security fix checkpoint
+
+- **Task:** [EAS preview provenance and current P2 disposition](tasks/preview/eas-preview-updates-20261119.md#2026-11-20--second-independent-security-re-review-and-three-p2-repairs), PR [#5](https://github.com/im-tnyx/Tio-Money/pull/5), agent ChatGPT GPT-6; previous verified original preview agent GPT-6. Owner-supplied external reviewer assessed old head `8ca5346e`, found 3 P2; intended `REQUEST_CHANGES` but **no GitHub review posted**.
+- **Source remediation:** original `eas-cli@latest` fixed; newly source-fixed rerun actor/attempt, pinned checkout/setup-node SHAs, and true **committed** isolated CLI lock (`eas-cli 27.4.1`, TypeScript peer 5.9.3, 528 lock entries/527 npm sha512 integrities). Real non-secret GitHub CI generated and `npm ci`+signature-validated the corrected lock. PR #5 publishing workflow remains manual-only, owner/main gated, JS/assets-only, Expo-token-only-at-publish; no EAS publish, native build or secrets were used.
+- **Validation:** [source smoke run #44699552306](https://github.com/im-tnyx/Tio-Money/actions/runs/44699552306) was running at prior HEAD `a4f706602f0476d304cbcffaf93c3dbe67cca93e`; do not assume final outcome. The index update itself creates a fresh HEAD requiring actual current-head checks. Independent **re-review pending**, current GitHub-required merge gates and exact head must be rechecked. **Owner PR #5 merge authorization NOT_GRANTED**. PR #10 remains separately stacked/unmerged; do not alter it or its base under PR #5 work.

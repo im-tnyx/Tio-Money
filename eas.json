@@ -1,0 +1,14 @@
+{
+  "cli": {
+    "version": "27.4.1"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "channel": "pr-preview",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}
