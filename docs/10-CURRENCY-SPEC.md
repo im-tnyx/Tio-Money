@@ -55,12 +55,12 @@ Implementation may collapse concurrent identical requests, apply network timeout
 5. **Concurrent refreshes:** prevent an older response overwriting a newer selected pair/rate; cancel/ignore stale results on pair change.
 6. **No Sub Currency:** no FX network call required.
 
-The internet exception does **not** imply sending account balances, identifiers, transactions or loan/card information to the exchange-rate provider. Only selected currency pair + necessary generic request metadata should leave the device. Review provider privacy, costs, license and reliability before implementation.
+The internet exception does **not** imply sending account balances, identifiers, transactions or loan/card information to the exchange-rate provider. **Only the selected currency pair** is permitted in the app-supplied FX request payload; do not add account, user, locale, merchant, analytics or transaction context. Ordinary transport metadata (such as IP address) must be evaluated during provider/privacy review, not treated as approved optional request fields. Review provider privacy, costs, license and reliability before implementation.
 
 ## 04 · Money accounting and precision boundaries
 
 - **Original amount invariant:** a ₹5,000 bank event stays ₹5,000 INR even when user switches Main to USD. The display may show a converted estimate alongside the original.
-- **Minor units:** INR uses paise; other ISO currencies vary (e.g. JPY has zero minor decimals). Store safe integers with currency-specific scaling or another reviewed exact decimal representation; **never use JS floating-point for booked totals**.
+- **Booked minor units:** INR uses paise; other ISO currencies vary (e.g. JPY has zero minor decimals; some currencies use three). **Every booked amount must be a validated safe integer in that currency's native minor unit**, coupled to immutable ISO code and exponent. Decimal strings may be used **only for user input, exchange rates or non-posting calculations** before exact validated conversion into native integer postings; they are **not an alternate booked ledger representation**. Never sum booked totals using JS floating point.
 - **Rates:** decimal strings / exact decimal arithmetic with explicit source, quote direction and chosen rounding. Do not invert a rounded quote repeatedly.
 - **Reporting modes:** distinguish **historical converted cashflow** (transaction-date or accepted fixed rate) from **current valuation estimates** (latest published rate). A changing latest rate must not silently restate already-posted income/expense reports.
 - **Single-currency journal rule today:** current INR-only balanced journal remains authoritative **until a new approved multi-currency double-entry model** is designed. Cross-currency transfers need principal, two currency legs, FX clearing, fee, and gain/loss/rounding treatment; **BLOCKED pending ADR**.

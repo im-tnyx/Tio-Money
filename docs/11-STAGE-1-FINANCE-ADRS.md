@@ -10,17 +10,17 @@
 
 **BLOCKED PENDING DECISION** = a material product, calculation, provider/security or platform question requiring a separately recorded owner decision and/or finance/security ADR plus deterministic test vectors. Do not invent a default or silently substitute an approximate calculation. **PARTIAL** = accepted invariant is safe to implement behind approved scope, but named operation is blocked.
 
-Earlier TM-ADR-011–017 were referred to in draft documents without one canonical mapping; the mapping below is **the new canonical prospective definition**, not a claim that old IDs were approved. In conflict, [existing owner decisions TM-DEC-001–011](DECISIONS.md) and actual implementation govern.
+**ID stability / crosswalk:** The earlier [Implementation Plan §9](06-IMPLEMENTATION-TEST-PLAN.md#9-owner-decisions-and-specification-gaps) already assigned `TM-ADR-011–017` to specific unresolved questions. **Those IDs and their original subjects are preserved below**; this register adds a status, constraints and test scope rather than silently reassigning numbers. The former 2026-11-21 draft mapping from `TM-ADR-012` to atomicity, `015` to overdrafts alone, `016` to cash advances alone and `017` to imports was **never implemented or approved and is superseded** by this corrected mapping. Atomic journal durability remains a cross-cutting invariant under `TM-ADR-011` and [Ledger §00](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only). In conflict, [owner decisions TM-DEC-001–011](DECISIONS.md) control; no unreviewed financial policy becomes approved.
 
 | ID | Decision area | Status for *design* | Still blocked before executable implementation |
 | :--- | :--- | :--- | :--- |
 | TM-ADR-011 | Idempotent finance commands | **DESIGN ACCEPTED** | SQLite schema/transaction test on devices |
-| TM-ADR-012 | Atomic posting, account/ledger lock and projections | **DESIGN ACCEPTED** | Actual migration, platform concurrency validation |
+| TM-ADR-012 | Import candidate provenance → posted event source mapping | **BLOCKED PENDING DECISION** | Map text/manual/SMS/CSV origins and typed schema without losing audit provenance |
 | TM-ADR-013 | Refund linked to original, partial cap and reversal | **DESIGN ACCEPTED** for basic same-currency refund | Cross-currency/tax/reward/closed-period refunds |
 | TM-ADR-014 | Recorded-at versus effective-at corrections | **PARTIAL** | Backdated period-close/report policy and import timezone |
-| TM-ADR-015 | Negative balances and overdrafts | **BLOCKED PENDING DECISION** | Eligibility, limits, reporting and warning behavior |
-| TM-ADR-016 | Credit-card cash advances | **BLOCKED PENDING DECISION** | Interest/fees, issuer rules, feature support |
-| TM-ADR-017 | Unposted import/dedupe workflow | **PARTIAL** | Source policy, native SMS permissions, fuzzy-match approval |
+| TM-ADR-015 | Card cash advances, fee-payer variants and overdraft/negative balances | **BLOCKED PENDING DECISION** | Product support, issuer fees/interest, account-class posting cases, overdraft limits/warnings |
+| TM-ADR-016 | Money amount maximum and destination fee = principal boundary | **BLOCKED PENDING DECISION** | Supported currency cap, overflow handling, zero-receipt warning/rejection and UX fixtures |
+| TM-ADR-017 | Save & Add Another form retention and abandoned-draft UX | **BLOCKED PENDING DECISION** | Owner reset/retention/focus policy; controller-only workflow; no silent draft recovery |
 | TM-ADR-018 | Currency-aware canonical journal / FX transfer | **PARTIAL** | Supported codes, clearing, booked conversion/gain/rounding |
 | TM-ADR-019 | Six groups and reference-only wallets | **DESIGN ACCEPTED** | Migration/subtype schema; historical reconciliation |
 | TM-ADR-020 | Card liability and tracked bill repayment | **PARTIAL** | Issuer statement minimum/due/holds, autopay semantics |
@@ -41,17 +41,29 @@ Earlier TM-ADR-011–017 were referred to in draft documents without one canonic
 
 ## 3. Accepted design contracts and pending choices
 
-### TM-ADR-011 and TM-ADR-012 — command durability
+### TM-ADR-011 — persisted idempotency and atomic journal durability
 
 CreateEvent accepts a unique stable command key, validated native amounts, source/account IDs and an explicit event kind. Uniqueness must be enforced in persisted storage, not an in-memory debounce. Duplicate identical commands return the previously committed result; duplicate keys with **different payloads reject as conflict**. Replays across app restart must not add postings. Use a single serialized SQLite transaction for metadata + event + N postings + command outcome, no partial commit; validate postings and account ownership before commit. Domain code is pure, SQL bound and parameterized in a data adapter. Device-level journal mode, foreign keys, write-lock semantics and migration recovery are **test prerequisites**, not assumptions.
+
+### TM-ADR-012 — import provenance to posted event source
+
+The older import candidate model permits `source=text` while the legacy posting example lists only `manual/sms/csv/system`. **Do not coerce `text` silently to manual or lose import provenance.** All import candidates remain **unposted** until explicit user confirmation. A separately reviewed typed source/enumeration and persistent original-source reference must be chosen before a text import can post. Preserve canonical event source, raw origin fingerprint, consent/deduplication audit and no double-posting. Native Android SMS remains permission/platform-gated and is **not authorized** by this ADR.
 
 ### TM-ADR-013 and TM-ADR-014 — refund, reversal, effective time
 
 A same-currency refund references a posted original expense (event ID), reduces net expense through a linked contra/expense reversal posting, and returns funds to the originally applicable asset or reverses card liability appropriately. Cumulative linked refund value cannot exceed original eligible expense principal; repeated refunds use independent idempotent commands. Editing a transaction uses full reversal plus replacement, preserving a chain. Record immutable created/posted and explicit effective dates separately, never a silent timestamp mutation. **Policy still pending:** historical report recomputation/backdated period-close, chargeback/card-dispute semantics, and partial refunds in another currency. Do not implement those until accepted.
 
-### TM-ADR-015, TM-ADR-016 and TM-ADR-017 — edge/permission gates
+### TM-ADR-015 — card cash advances and overdrafts
 
-For potential overdrafts, do not silently convert an asset to a liability or assume all bank accounts can go negative; escalate eligibility and warning/limit design. Credit-card cash advance remains an unimplemented feature until issuer fee/interest/date consequences are specified (older ledger example is an illustration, not scope approval). Imports produce unposted review candidates with origin fingerprints; user confirmation, exact duplicate checks and an audited reconciliation command are necessary for posting. Native SMS inbox access remains policy-gated and must never be silently enabled in Expo Go.
+For potential overdrafts, never silently convert an asset to a liability or assume every Bank account can go negative; require owner rules for supported account types, limits, warnings, validation and reporting. Credit Card cash advances and source/destination fee-payer variants remain **BLOCKED for implementation** until issuer-specific interest/fees, event timing and class-aware posting rules are specified and tested. Older ledger examples are **illustrations**, not scope approval.
+
+### TM-ADR-016 — exact-money caps and zero-net destination fees
+
+Although accepted native-currency integer amounts use safe integers and ISO exponents, the **product maximum per currency and allowed account balance range** have not been decided. A transfer fee equal to the destination principal can yield a zero credited receipt; forbid silently posting or treating it as ordinary zero-amount posting. Explicit owner decision must choose reject vs separate verified warning/flow, currency limits and test vectors before shipping that boundary. Always reject unsafe integer overflow and unsupported precision even before final business maximum.
+
+### TM-ADR-017 — Save & Add Another retained state
+
+Whether a saved transaction retains the previous type, source account, category, memo or input focus is an **unresolved controller-level UX decision**. The screen must remain strictly **dumb**, rendering only a controller-provided ViewModel, with no local sticky workflow state or silent autofill. Do not promise automatic abandoned-draft recovery, app-background persistence or duplicate Save idempotency from screen-only behavior. Distinct future test fixtures must verify reset/retention, double taps and accessible focus transitions.
 
 ### TM-ADR-018 — native-currency accounting and FX
 
@@ -75,7 +87,7 @@ Purchase exchanges Bank asset for Investment asset at **booked cost**; not Expen
 
 ### TM-ADR-023 — FX quote provider and privacy
 
-Owner requires refresh *on currency-dependent use*, not arbitrary 24-hour polling; deduplicate concurrent pair requests. Cache a validated base/quote + decimal rate + source + provider published/effective time + fetched time, never anonymous numeric-only rates. Offline may show cached/stale estimate with timestamp; no quote means **unavailable**, not 0 or 1. Only public currency pair and generic request metadata leave the device; no user ledger. A concrete provider, licensing/usage quota, supported pairs, quote direction, transport authentication/abuse limits, versioned precision and provider failure SLA **must be approved before network integration**.
+Owner requires refresh *on currency-dependent use*, not arbitrary 24-hour polling; deduplicate concurrent pair requests. Cache a validated base/quote + decimal rate + source + provider published/effective time + fetched time, never anonymous numeric-only rates. Offline may show cached/stale estimate with timestamp; no quote means **unavailable**, not 0 or 1. **Only the selected base/quote currency-pair identifiers are authorised as app-supplied FX request data**; do not append account IDs, locale/user identifiers, financial amounts, transaction context, analytics tags or other optional application metadata. HTTP/network layers may expose unavoidable transport metadata (e.g. source IP) and require a separate provider privacy assessment; this is **not** permission to add fields to the request. A concrete provider, licensing/usage quota, supported pairs, quote direction, transport authentication/abuse limits, versioned precision and provider failure SLA **must be approved before network integration**.
 
 ## 4. Review-ready deterministic test matrix (future code gates)
 
@@ -95,6 +107,9 @@ Owner requires refresh *on currency-dependent use*, not arbitrary 24-hour pollin
 | TM-ADR-T12 | Backdated correction when period policy unresolved | No silent historical restatement; reject/feature-gate until agreed |
 | TM-ADR-T13 | Migration from existing settings-only SQLite + interruption | No silent reset; version/FK integrity verified on Android and iPhone |
 | TM-ADR-T14 | Account, Transaction, Report and Home consume one journal | Identical balances/reconciliation; no screen-owned SQL, FX, finance math or navigation logic |
+| TM-ADR-T15 | Text import candidate confirmed into a posted event | Missing approved `text` provenance mapping rejects booking; never silently label as manual |
+| TM-ADR-T16 | Currency-specific maximum/overflow and fee equals destination principal | Reject unsupported limits/precision, do not silently create zero-net destination receipt; owner UX policy remains blocked |
+| TM-ADR-T17 | Save & Add Another retains selected form fields | No default is assumed until owner-approved controller reset/focus policy; never screen-local workflow state |
 
 **Stage 1 implementation release gate:** no shipping account, card, loan, investment, multi-currency or FX provider behavior until its required policy decisions, schema/migration design, ADR-specific tests and real-device checks are accepted in **separate scoped PRs**. The no-logic-screen constraint applies to **all** of those PRs. A green documentation PR never waives this requirement.
 

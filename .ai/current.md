@@ -2,6 +2,8 @@
 
 ## 2026-11-21 — Concurrent PR #21 merge safely reconciled into PR #24
 
+**Codex review follow-up:** Previous HEAD `983d90ed332b2ad1f044b8438cd6a291c90b1414` had **four P2 docs findings** (FX pair-only data, native minor units, PR #22 terminal handoff, preserved original ADR-011–017 IDs). This PR reconciles those in docs; recheck current HEAD CI and automated review. No merge permission for PR #24.
+
 - **Live new `main`**: `097e014d7e2a2015230971751bd5c72ee91e6580` after [PR #21](https://github.com/im-tnyx/Tio-Money/pull/21) squash-merged a scoped preview HTTP 403 diagnostic. Earlier main index text describing PR #21 as open is **historical pre-merge evidence**; no PR #21 workflow or preview test source code has been overwritten.
 - **PR #24 integration:** two-parent **non-force merge commit** with first parent `983d90ed332b2ad1f044b8438cd6a291c90b1414` and second parent new `main`. Use new `main` tree and overlay only PR #24's 15 Markdown-owned blobs; semantic-merge `.ai/current.md` by prepending our ongoing task section to all of new main's original index.
 - **Gate:** all prior CI/Codex evidence is for the earlier SHA and must be rechecked on this reconciliation commit. **Owner merge authorization NOT GRANTED** for PR #24.

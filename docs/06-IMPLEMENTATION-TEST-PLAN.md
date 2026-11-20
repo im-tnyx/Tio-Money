@@ -602,7 +602,7 @@ flowchart LR
 **Pull request review checklist**
 - [ ] Product rule, acceptance IDs and owning document linked; proposed choices not presented as approved.
 - [ ] Scope isolated; no unrelated files, code secrets, personal bank data, unsupported permissions or dependency drift.
-- [ ] Domain math outside screens; account class, category type, currency, safe paise and balanced postings reviewed.
+- [ ] Domain math outside screens; account class, category type, **currency-specific native safe-integer minor units (INR paise; zero- and three-decimal currency fixtures)** and per-currency balanced postings reviewed. Legacy INR-only samples must not be misread as universal amounts.
 - [ ] Migration, idempotency, rollback and reversal implications documented; real SQLite tests provided where relevant.
 - [ ] UI states, centralized English copy, future localization readiness, keyboard, safe area, screen reader and Android/iPhone differences tested where relevant.
 - [ ] Tests cover success, negative path, repeat submission, interruption and offline mode; failures linked to issues.
@@ -660,7 +660,7 @@ flowchart LR
 
 ## 9. Owner decisions and specification gaps
 
-**These are review tasks, not silent implementation choices.** A blocking decision must be written as a dated ADR or approved change to its owning document, with a test consequence. Existing `TM-ADR-001…010` are listed in [Architecture `13](05-TECH-ARCHITECTURE.md#13--open-decisions--architecture-review); IDs below extend that register **as proposals**, not approved records.
+**These are review tasks, not silent implementation choices.** A blocking decision must be written as a dated ADR or approved change to its owning document, with a test consequence. Existing `TM-ADR-001…010` are listed in [Architecture `13](05-TECH-ARCHITECTURE.md#13--open-decisions--architecture-review). **The original subjects of `TM-ADR-011–017` below are preserved by the [canonical Stage 1 ADR register](11-STAGE-1-FINANCE-ADRS.md#1-decision-authority-and-interpretation), which assigns design statuses without reusing those IDs for different questions.** These remain proposals/blocked implementation items unless explicitly settled, not owner approvals.
 
 | ID / priority | Unresolved question or source mismatch | Required owner/technical disposition |
 | :--- | :--- | :--- |
