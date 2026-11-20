@@ -12,7 +12,7 @@
 | Independent security review | `DEFERRED` until exact-head CI; strongly recommended |
 | Implementing agent | ChatGPT GPT-6 (not commit author or reviewer) |
 | Prior verified agent | `UNKNOWN_NOT_VERIFIED` |
-| PR | To be created; live GitHub is authoritative |
+| PR | [Draft PR #35](https://github.com/im-tnyx/Tio-Money/pull/35); OPEN / NOT MERGED |
 
 ## Observed failure and scope
 
@@ -28,6 +28,14 @@ Allowed: only trusted Codespaces workflow, trusted `sync-pr-codespaces-preview.s
 - Regression test valid transfer, SHA mismatch, empty content, symlink, permissive modes; verify unchanged policy gates and no remote `git fetch`.
 - `npm run check`, CI and independent security review are pending at this checkpoint. Successful CI alone does not prove physical Codespaces tunnel. Manual privileged workflow must be performed separately by owner after authorized merge.
 - Rollback: keep PR unmerged; if merged under separate authority, revert the bounded workflow/script/test commit with non-force reviewed follow-up.
+
+
+## 2026-11-21 — Implementation and exact-head checkpoint
+
+- PR [#35](https://github.com/im-tnyx/Tio-Money/pull/35) opened as DRAFT against `main`; five changed paths, zero commits behind and no PR #18 source changes at inspection. Branch source commit `69df4bee947235dde3e1a91dd58344323b2849f5`.
+- At that SHA, [Phase 0 #44827308287](https://github.com/im-tnyx/Tio-Money/actions/runs/44827308287) **SUCCESS**: locked dependency install, Expo compatibility, strict TypeScript/ESLint/format, unit + preview tests, Android/iOS Metro and default SMS permission scan. [AI governance #44827308350](https://github.com/im-tnyx/Tio-Money/actions/runs/44827308350) **SUCCESS**: Python, regression, local Markdown links, forbidden coauthor trailer scan.
+- Subsequent branch-only formatting commit `cd23a749ec14058d4c0bf3ee5d7edcfb272a1726` requires **new exact HEAD CI**. Never treat prior success as approval for later SHA.
+- No real Codespace SSH file copy or Expo tunnel was run by the implementation agent. Security review `DEFERRED` (recommended for trusted workflow), owner merge authorization `NOT_GRANTED`, privileged Codespaces workflow dispatch `NOT_GRANTED`.
 
 ## Handoff
 
