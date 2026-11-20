@@ -12,22 +12,22 @@ const MATERIAL_APPEARANCE_SVG = {
 } as const satisfies Record<AppearancePreference, string>;
 
 /** Pure presentation; the parent radio row owns selection and accessibility. */
-export function AppearanceOptionIcon({
-  preference,
-  color,
-}: {
-  preference: AppearancePreference;
-  color: string;
-}) {
+interface AppearanceOptionIconProps {
+  readonly preference: AppearancePreference;
+  readonly color: string;
+}
+
+export function AppearanceOptionIcon({ preference, color }: AppearanceOptionIconProps) {
+  const size = iconRoleSizes.bottomSheet;
   const xml = MATERIAL_APPEARANCE_SVG[preference].replace('<svg ', `<svg fill="${color}" `);
 
   return (
     <View
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-      style={{ width: iconRoleSizes.bottomSheet, height: iconRoleSizes.bottomSheet }}
+      style={{ width: size, height: size }}
     >
-      <SvgXml xml={xml} width={iconRoleSizes.bottomSheet} height={iconRoleSizes.bottomSheet} />
+      <SvgXml xml={xml} width={size} height={size} />
     </View>
   );
 }
