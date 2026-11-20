@@ -170,19 +170,16 @@ jobs:
             gh api --paginate '/user/codespaces?per_page=100' \
               --jq '.codespaces[] | select(.repository.full_name == "im-tnyx/Tio-Money") | .name'
           )
+          if [[ -z "$PREFERRED_CODESPACE" ]]; then
+            echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE environment variable to explicitly select the preview-only Codespace."
+            exit 1
+          fi
           codespace=""
-          if [[ -n "$PREFERRED_CODESPACE" ]]; then
-            for item in "${matches[@]}"; do
-              if [[ "$item" == "$PREFERRED_CODESPACE" ]]; then codespace="$item"; fi
-            done
-            if [[ -z "$codespace" ]]; then
-              echo "::error::Selected Codespace not found under the Tio-Money repository."
-              exit 1
-            fi
-          elif [[ "${#matches[@]}" -eq 1 ]]; then
-            codespace="${matches[0]}"
-          else
-            echo "::error::Expected one Tio-Money Codespace, or configure environment variable TIO_MONEY_PREVIEW_CODESPACE."
+          for item in "${matches[@]}"; do
+            if [[ "$item" == "$PREFERRED_CODESPACE" ]]; then codespace="$item"; fi
+          done
+          if [[ -z "$codespace" ]]; then
+            echo "::error::Selected preview Codespace not found under Tio-Money."
             exit 1
           fi
           state="$(gh api "/user/codespaces/${codespace}" --jq '.state')"
