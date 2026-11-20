@@ -44,6 +44,22 @@ test('SDK 58 expo-updates is checked into both manifests with resolved transitiv
   assert.equal(lock.packages['node_modules/expo-updates/node_modules/arg'].version, '4.1.3');
 });
 
+test('EAS CLI has its own committed full dependency lock and registry integrities', () => {
+  const manifest = readJson('.github/preview-eas-cli/package.json');
+  const lock = readJson('.github/preview-eas-cli/package-lock.json');
+  assert.equal(manifest.private, true);
+  assert.deepEqual(manifest.dependencies, { 'eas-cli': '27.4.1' });
+  assert.equal(lock.lockfileVersion, 3);
+  assert.equal(lock.packages[''].dependencies['eas-cli'], manifest.dependencies['eas-cli']);
+  assert.equal(lock.packages['node_modules/eas-cli'].version, '27.4.1');
+  assert.ok(Object.keys(lock.packages).length >= 500);
+  for (const [path, pkg] of Object.entries(lock.packages)) {
+    if (!path || !pkg.resolved) continue;
+    assert.ok(pkg.resolved.startsWith('https://registry.npmjs.org/'), path);
+    assert.match(pkg.integrity, /^sha512-/, path);
+  }
+});
+
 test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated', () => {
   const text = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
   assert.match(text, /workflow_dispatch:/);
@@ -51,14 +67,23 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.doesNotMatch(text, /^\s+pull_request:\s*$/m);
   assert.doesNotMatch(text, /workflow_run:/);
   assert.match(text, /github\.actor == 'im-tnyx'/);
+  assert.match(text, /github\.triggering_actor == 'im-tnyx'/);
+  assert.match(text, /github\.run_attempt == '1'/);
   assert.match(text, /github\.ref == 'refs\/heads\/main'/);
   assert.match(text, /tio-money-eas-preview-trusted/);
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.doesNotMatch(text, /eas-cli@latest/);
+  assert.match(text, /actions\/checkout@11bd71901bbe5b1630ceea73d27597364c9af683/);
+  assert.match(text, /actions\/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020/);
+  assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
   assert.ok(text.includes('--registry=https://registry.npmjs.org'));
   assert.ok(text.includes('node_modules/.bin/eas" update'));
   assert.match(text, /npm ci --prefix/);
+  assert.ok(text.includes('cp .github/preview-eas-cli/package-lock.json'));
+  assert.doesNotMatch(text, /npm install --prefix/);
+  assert.ok(text.includes('src/*|assets/*'));
+  assert.match(text, /native_change=0/);
   assert.match(text, /npm audit signatures/);
   assert.match(text, /--ignore-scripts/);
   assert.match(text, /--branch pr-preview/);
