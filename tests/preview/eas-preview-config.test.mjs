@@ -55,13 +55,12 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /tio-money-eas-preview-trusted/);
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.doesNotMatch(text, /eas-cli@latest/);
-  assert.match(text, /EAS_CLI_VERSION: "27\\.4\\.1"/);
+  assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
+  assert.ok(text.includes('--registry=https://registry.npmjs.org'));
+  assert.ok(text.includes('node_modules/.bin/eas" update'));
   assert.match(text, /npm ci --prefix/);
   assert.match(text, /npm audit signatures/);
   assert.match(text, /--ignore-scripts/);
-  assert.match(text, /--registry=https:\\/\\/registry\\.npmjs\\.org/);
-  assert.match(text, /node_modules\\/\\.bin\\/eas" update/);
-  assert.match(text, /EXPO_TOKEN: \\$\\{\\{ secrets\\.EXPO_TOKEN \\}\\}/);
   assert.match(text, /--branch pr-preview/);
   assert.match(text, /--environment preview/);
   assert.doesNotMatch(text, /--branch production|--channel production/);
