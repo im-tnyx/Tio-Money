@@ -92,7 +92,7 @@
 
 | Contract | Status here | Implementation consequence |
 | :--- | :--- | :--- |
-| One primary `+` opens **Income / Expense / Transfer**; no three Home shortcut tiles | **Product rule in draft PRD** | One editor and one entry action; its placement requires sign-off |
+| **Existing More-aligned floating `+` placement is frozen**; future single Income / Expense / Transfer editor only after separate approval; no three Home shortcut tiles | **Owner-decided UI freeze (TM-DEC-010); future action is not yet implemented** | Keep exact bottom-nav geometry, icon spacing, current disabled Phase 0 FAB; authorize editor activation separately, **never relocate the FAB** |
 | Cash, bank and funded wallet are assets; credit card is a liability | **Proposed ledger contract** | Class-aware postings; no fabricated card “cash balance” |
 | Transfer principal excluded from income/expenses; linked fees count once as expenses | **Product rule in draft PRD** | Every release gate asserts it numerically |
 | Balanced, append-only journal; integer paise; reversal-based correction | **Architecture / database proposal** | Finalize ADR and validate real-device SQLite behavior before Phase 3 |

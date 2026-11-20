@@ -1,5 +1,15 @@
 # 🧭 Current task index
 
+## 2026-11-20 — PR #22 ready-for-review checkpoint (reconciled on main)
+
+- [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) **OPEN / Ready for Review / not merged**, targeting `main` at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, reconciled HEAD `4e741cf716bcb6020d6e1128a28fc995fd00eb37` before this checkpoint. Original history preserved by non-force two-parent commit; GitHub diff exactly six Markdown files, 0 behind.
+- At this verified commit, PR C's changed docs passed **143 local file links + 58 section-anchor occurrences**, zero missing. Live HTTP of 99 external links, on-device SQLite, encryption, Drive/iCloud and Supabase integration were **not tested**.
+- Existing bottom tabs/floating Add geometry **frozen** (TM-DEC-010); implementation-plan legacy "FAB placement requires signoff" wording corrected, **without any UI code changes**. Current Add remains disabled.
+- **This handoff commit advances SHA to trigger pull_request synchronize CI:** recheck exact-head checks and Codex review and any new findings. **No owner merge authorization for PR #22.**
+
+---
+
+
 ## 2026-11-20 — PR #22 documentation reconciliation on merged main
 
 - **Owner instruction:** safely reconcile [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22), rerun CI and review; **no merge permission for #22**. PR #14 and [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) have already merged under their respective explicit owner authorizations.
