@@ -1,5 +1,15 @@
 # 🧭 Current task index
 
+## 2026-11-20 — Product contract PR #14 (newest read-only handoff)
+
+| Task | Owner instruction / RFC | Work branch / PR | Status and gate |
+| :--- | :--- | :--- | :--- |
+| [`TM-DOC-PRODUCT-20261120-001`](tasks/product/local-first-product-contract-20261120.md) | Owner requested documentation start after local-first, account-group, Main/Sub Currency, backup-last and Supabase-opt-in decisions. [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13) records technical **PROCEED for docs only**, transcribed by ChatGPT GPT-6. | `docs/local-first-product-contract-20261120` → [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) based on `main` `fd154db417b1979d39f855317f252eed37c36e9d` | **IN_REVIEW / unmerged**. 6 Markdown files initial commit `7265f8a3a4d232a07426f932c1c7b42fc20673a8`: 0 missing local document links; no forbidden co-author trailer. **Independent review DEFERRED** (not performed). CI for final new HEAD must be checked. **Owner PR-specific merge permission NOT_GRANTED**. |
+
+**Live GitHub status verified 2026-11-20:** Governance [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) **MERGED** with commit `5dbdbe047a542463f0de66b9c0c6e09ef7d2605a`; Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) **MERGED** with commit `e647f78ce200fed1323d80ea794396c371fba7bf`. Older entries in this index saying those PRs are open are **historical dated checkpoints**, not current status. Do not rewrite them or claim iPhone/SQLite QA was completed.
+
+---
+
 ## 2026-11-20 — PR #7: latest-main reconciliation checkpoint (owner-requested)
 
 **Live preflight:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains OPEN / Ready for review, not merged. The approved reconciliation target is `main` at `5a72a112378fa14b168a02e9b18b41360ef79ed4`, including merged [PR #5](https://github.com/im-tnyx/Tio-Money/pull/5); prior PR #7 HEAD was `094b8b9225d9e5fa319af7bf6406bb047e067ee6`, 30 commits behind / 19 ahead. Owner requested merge-readiness and main synchronization in this chat; **owner authorization to merge PR #7 into main remains NOT_GRANTED**.

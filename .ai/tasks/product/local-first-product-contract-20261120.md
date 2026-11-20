@@ -13,11 +13,11 @@
 | Working branch | `docs/local-first-product-contract-20261120` |
 | Starting base `main` | `fd154db417b1979d39f855317f252eed37c36e9d` |
 | Starting base Git tree | `929fb77503124f53e68e46ef56a30626829b9769` |
-| Lifecycle at draft | IN_PROGRESS, documentation validation and PR review pending |
+| Lifecycle at draft | **IN_REVIEW** — [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) open; no merge authorization |
 | Independent review | DEFERRED — no independent reviewer claimed; finance/security review recommended before schema implementation |
 | Owner merge authorization | **NOT_GRANTED**. No explicit named PR merge action. |
 | Merge executor | None; separate owner authorization and current-HEAD/protection preflight required |
-| Current PR | To be opened as draft from this branch; live GitHub is authoritative |
+| Current PR | [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), branch initially at `7265f8a3a4d232a07426f932c1c7b42fc20673a8`; verify latest head live |
 
 ## Scope and boundaries
 
@@ -46,6 +46,14 @@
 - **Base:** `main` `fd154db417b1979d39f855317f252eed37c36e9d`.
 - **Attempted:** documentation-only stage A on new feature branch; initial baseline has no known open GitHub PRs at inspection.
 - **Review:** DEFERRED, not performed; no reviewer approval claimed.
-- **Tests/evidence:** pending exact new-HEAD validation; no mobile device test claimed.
+- **Tests/evidence:** GitHub compare at first commit: ahead 1 / behind 0; exactly 6 Markdown files. Checked relative Markdown links against branch tree: **0 missing targets**. Commit text has **0 forbidden co-author trailers**. **No on-device/SQL tests run**; final-head CI unverified at this checkpoint.
 - **Merge:** NOT_GRANTED; this documentation work does not authorize PR merge.
 - **Next:** Review draft PR diff for consistency, complete gate checks, revise if necessary, then ask for separate PR-specific merge permission.
+
+### 2026-11-20 — Draft PR creation and handoff
+
+- [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) opened against `main`, **not merged**. Head at creation: `7265f8a3a4d232a07426f932c1c7b42fc20673a8`.
+- Initial changed paths: `docs/DECISIONS.md`, `docs/01-PRD.md`, `docs/00-INDEX.md`, `docs/08-ACCOUNT-GROUPS-SPEC.md`, `docs/10-CURRENCY-SPEC.md`, this task.
+- This follow-up checkpoint adds `.ai/current.md` and updates task; the final HEAD must be rechecked.
+- Independent review **DEFERRED** / not performed. Financial and identity architecture details blocked on future ADRs. No unproven CI/QA claims.
+- **Owner PR #14 merge authorization: NOT_GRANTED.** Do not merge or enable auto-merge.
