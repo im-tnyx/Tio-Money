@@ -34,7 +34,7 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 | Field | Requirement |
 | :--- | :--- |
 | Name | Required, trimmed, unique **ID** not name; duplicate display names may be allowed if distinguishable |
-| Opening Amount | Required on create, interpreted per group; opening is a **balanced opening journal**, not Income/Expense |
+| Opening position / amount | **Group-conditional, not universally mandatory.** Cash, Bank and funded Wallet use a nonnegative opening asset balance; Card uses **opening outstanding liability**; Investment uses **opening cost basis** and a separately dated valuation; Loan uses **opening outstanding principal** with a Given/Borrowed direction. A bank-linked Wallet reference has **no independent opening amount or journal**. See [Opening contracts](#21--group-specific-opening-contracts) below. |
 | Currency | Required ISO 4217 value allowed by the current approved currency configuration; default Main Currency |
 | Description | Optional, plain text, length-limited, escaped on render and excluded from logs |
 | Status | Active/archived; prevent new postings to archived accounts unless restored |
@@ -42,7 +42,28 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 | Account links | Reference existing **active** eligible account IDs; prevent self-reference/cycles where semantically invalid |
 | Financial totals | Derived from ledger + authorized valuation policy; never edit cached balance as truth |
 
-**Amount UX:** no NaN, infinity or binary floating-point storage; use validated decimal strings and currency minor units. An opening amount is never salary or spending. Existing-account balance corrections should be a documented adjustment/reversal event, not mutation of opening history.
+**Amount UX:** no NaN, infinity or binary floating-point storage; use validated decimal strings and currency minor units. A nonzero financial opening is **never salary or spending** and must create a balanced asset/liability-versus-equity journal **only for a ledger-bearing account**. For zero opening amounts, persist valid account metadata but **do not generate zero-value postings** (postings require strictly positive minor amounts). Existing-account balance corrections should be a documented adjustment/reversal event, not mutation of opening history.
+
+### 2.1 · Group-specific opening contracts
+
+> [!IMPORTANT]
+> **Product-facing behavior is specified here; exact SQLite tables, posting API and historical migration/valuation accounting remain blocked until the finance ADR.** Each positive opening principal is a *historical position*, not a new money transfer. Creating the same position must be idempotent and must not debit an existing funding account again.
+
+| Kind | Required opening input | Journal / Net Worth consequence | Explicitly prohibited |
+| :--- | :--- | :--- | :--- |
+| Cash or Bank | `opening_amount >= 0`, currency | If positive: debit owned **ASSET** + credit **opening EQUITY** in one balanced event. If zero: metadata only | Recognize opening as Income |
+| **Funded** Wallet | `wallet_kind=funded`, `opening_amount >= 0`, currency | Same asset-versus-opening-equity treatment as Cash/Bank; independently funded balance is counted **once** | Duplicate an underlying bank balance without a genuine separately funded balance |
+| **Bank-linked reference** Wallet | `wallet_kind=bank_linked_reference`, required eligible `linked_bank_account_id`; currency inherited from bank | **Reference metadata only**: no editable opening amount, no new funded ledger account, no opening journal, no standalone asset in Net Worth. Reads linked bank balance **as a view**, not an additional asset | Post `0` or any value as a second wallet asset; add linked balance twice |
+| Credit Card | `opening_outstanding >= 0`, currency, limit | If positive: credit owned **LIABILITY** + debit **opening EQUITY** in one balanced journal; if zero, metadata only. Debt reduces Net Worth; card limit remains non-asset metadata | Treat outstanding as cash, positive income, or linked-bank debit |
+| Existing Investment (historical position) | `invested_cost >= 0`, currency, optional units; separately `current_value` + `valuation_as_of` | If positive, debit recorded **investment ASSET at cost** + credit **opening EQUITY**, **without** withdrawing the linked funding bank again. The separately dated current value is a **non-posting estimate**, not a second asset. Policy for Net Worth using cost versus current value is **BLOCKED pending valuation ADR** | Post both cost and market value as funded assets; treat initial cost as spending |
+| Existing Loan — **Borrowed** | `loan_direction=borrowed`, `opening_outstanding_principal >= 0`, currency; original principal/interest terms separately | If positive, credit **LOAN LIABILITY** + debit **opening EQUITY**; if zero metadata only. Existing cash balance is **not increased** by registering the historical loan. | Post an extra new cash disbursement, recognize loan principal as Income |
+| Existing Loan — **Given** | `loan_direction=given`, `opening_outstanding_principal >= 0`, currency; original principal/terms separately | If positive, debit **LOAN RECEIVABLE ASSET** + credit **opening EQUITY**; if zero metadata only. The funding bank is **not debited again** for an already-originated loan. | Post a second disbursement or treat recorded principal as Expense |
+
+**Historical opening versus new financial event:** creating an already-existing Investment or Loan position is **not** a new purchase/loan disbursement. When the user actually invests new funds or originates a new loan, the app must use a separately confirmed **balanced transfer/disbursement transaction** that adjusts the linked bank exactly once, not the historical opening-equity path. Card bill repayment is likewise a separate confirmed bank-to-liability event. A single existing funding asset must never be counted both as retained cash **and** an already-transferred holding; if account-opening snapshots refer to different effective dates, the app needs a documented **as-of reconciliation flow** before it can claim accurate historical Net Worth. Such backdated reconciliation, market-value profit reporting and cross-currency opening transfers are **BLOCKED on their respective finance ADRs**.
+
+**Correctness rules:** for any opening journal that is generated, debit and credit totals match in one currency, created atomically with account metadata; deterministic idempotency key prevents double opening on retry. No posting for zero amounts or non-ledger references. Opening equity is a counter-account, **not Income/Expense**. Display and report asset/liability projections must count each financed position once. These rules are future test contracts; no database migration or posting engine is implemented in Phase 0.
+
+
 
 ## 03 · Built-in group forms
 
@@ -60,7 +81,7 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 
 ### 3.3 Wallet — asset when independently funded
 
-**Fields:** `name`, `opening_amount`, `currency`, `description`, optional `provider`, `wallet_kind` (`funded` / `bank_linked_reference`), optional `linked_bank_account_id`.
+**Fields:** `name`, `currency`, `description`, optional `provider`, required `wallet_kind` (`funded` / `bank_linked_reference`). A **funded** wallet requires `opening_amount >= 0` and creates a distinct asset opening only when positive. A **bank-linked reference** requires an eligible `linked_bank_account_id`, derives its currency from that bank, and **does not show an independent opening_amount input**.
 
 A funded wallet has its own asset balance; a bank-linked reference points to its bank account **without duplicating funds or creating a second asset ledger balance**. Explain this choice in account-creation UX.
 
@@ -85,13 +106,13 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 
 ### 3.5 Investment — asset with separate value tracking
 
-**Fields:** `name`, `investment_kind` (stocks, mutual funds, FD, gold, PPF, other), `currency`, `description`, `invested_cost`, `current_value` plus `valuation_as_of` (where entered), optional `units` and `linked_funding_account_id`. Multi-holding position model is a separate ADR.
+**Fields:** `name`, `investment_kind` (stocks, mutual funds, FD, gold, PPF, other), `currency`, `description`, `invested_cost` (historical **opening cost basis** where importing an existing position), separately `current_value` plus `valuation_as_of` (when supplied), optional `units` and `linked_funding_account_id`. Initial historical cost uses opening-equity accounting, not a second withdrawal from funding bank; dated current value is non-posting metadata. Multi-holding position and report valuation model remain separate ADRs.
 
 **Rules:** bank → investment **purchase principal is an asset acquisition, not ordinary expense**; sale/redemption returns asset cash and handles gains/losses by approved journal policy. Market/current value is **a valuation estimate with timestamp**, not a fabricated bank transaction or a mutable investment cash balance. Cost basis, distributions, realized/unrealized gain/loss and net-worth treatment **BLOCKED pending ADR**; do not count the same value as invested cost and current market value simultaneously.
 
 ### 3.6 Loan — asset when given, liability when borrowed
 
-**Fields:** `name`, `loan_direction` (`borrowed` or `given`), `currency`, `original_principal`, `opening_outstanding_principal`, `interest_rate` and rate basis, optional `EMI_or_installment`, `start_date`, `next_due_date`, `linked_payment_account_id`, `description`.
+**Fields:** `name`, `loan_direction` (`borrowed` or `given`), `currency`, `original_principal` (terms/reference), `opening_outstanding_principal` (historical position, not an instruction to disburse cash), `interest_rate` and rate basis, optional `EMI_or_installment`, `start_date`, `next_due_date`, `linked_payment_account_id`, `description`. Borrowed = opening **LIABILITY**, Given = opening **RECEIVABLE ASSET**; new disbursement uses a distinct confirmed transaction.
 
 **Rules:** borrowed loan disbursement increases cash and Loan liability, not earned income; given loan disbursement creates receivable asset, not ordinary expense. For borrowed loan repayment, **principal reduces liability**, interest/fees are expenses. For a loan given, principal collection reduces loan receivable, interest received is income under an approved recognition policy. EMI schedule is a plan, **not a posted transaction** until user confirms payment. Interest accrual, compounding, late fees, amortization and prepayments **BLOCKED pending ADR**.
 
@@ -132,11 +153,17 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 | `TM-AG-008` | Loan EMI principal/interest split reconciles exactly |
 | `TM-AG-009` | Archive/edit preserve IDs, posted history and grouped accounts |
 | `TM-AG-010` | Create/opening journal failure rolls back all records |
+| `TM-AG-011` | Adding a bank-linked Wallet reference with a funded ₹10,000 linked Bank creates **no** wallet journal account or opening postings; total assets and Net Worth stay ₹10,000, not ₹20,000 |
+| `TM-AG-012` | New funded Wallet opened with ₹2,500 has one debit to Wallet asset and one credit to opening equity; Net Worth rises ₹2,500 without creating Income, and retry adds nothing |
+| `TM-AG-013` | Imported Investment opening cost ₹3,000 + current valuation ₹3,400 creates only one ₹3,000 asset-cost/equity journal, no bank withdrawal or second ₹3,400 asset; valuation display remains policy-gated |
+| `TM-AG-014` | Historical Borrowed Loan opening ₹10,000 creates one liability/equity event; historical Given Loan opening ₹10,000 creates one receivable/equity event; neither posts a second bank movement; disbursement transactions remain separate |
+| `TM-AG-015` | Credit Card opening outstanding ₹1,500 creates a liability/equity event, not Expense or cash; card limit does not count in Net Worth |
+| `TM-AG-016` | Every zero-opening ledger-bearing account creates metadata only and zero journal postings; failure/duplicate retry never creates double assets or debt |
 
 ## 07 · Architecture gate / unresolved decisions
 
 **Not yet approved SQL:** `account_groups` or typed group metadata, subtype classifications, linked accounts, card billing cycles, loan amortization, holdings and valuations need a reviewed ADR + migrations. Do **not** add unrestricted EAV fields as ledger authority; validate typed money and dates. Currency/account limits and posting policies must align with [10 — Currency](10-CURRENCY-SPEC.md) and [04 — Ledger Draft](04-DATABASE-DESIGN.md).
 
-**Open decisions:** fixed six default groups vs future custom groups; cross-group conversions; investment cost basis and valuation accounting; loan accrual; real card available-credit inputs; issuer-specific due day and reminders; whether minimum/fixed autopay is display-only or simulated. **None of these ambiguities authorizes moving funds.** Follow-up architecture PR must define formal SQL, flows, mobile UI, and tests.
+**Open decisions:** fixed six default groups vs future custom groups; cross-group conversions; **investment cost basis versus mark-to-market Net Worth and as-of-date reconciliation**; loan accrual and original-versus-outstanding history; real card available-credit inputs; issuer-specific due day and reminders; whether minimum/fixed autopay is display-only or simulated. **None of these ambiguities authorizes moving funds.** Follow-up architecture PR must define formal SQL, flows, mobile UI, and tests. The group-specific opening rules above are a **proposed testable product contract**, not approval of executable investment/loan or multi-currency journal migrations.
 
 [← Docs Hub](00-INDEX.md) · [Currency & FX →](10-CURRENCY-SPEC.md)

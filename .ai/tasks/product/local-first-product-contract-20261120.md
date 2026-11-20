@@ -57,3 +57,13 @@
 - This follow-up checkpoint adds `.ai/current.md` and updates task; the final HEAD must be rechecked.
 - Independent review **DEFERRED** / not performed. Financial and identity architecture details blocked on future ADRs. No unproven CI/QA claims.
 - **Owner PR #14 merge authorization: NOT_GRANTED.** Do not merge or enable auto-merge.
+
+### 2026-11-20 — PR #14 merge-gate P2 remediation (scoped docs only)
+
+- **Owner current request:** "Merge gate le jaye" for PR #14. Technical PROCEED: fix the known [P2 opening-contract review finding](https://github.com/im-tnyx/Tio-Money/pull/14#discussion_r4644772021) and re-run exact-HEAD documentation/CI checks; **not** authorization to merge.
+- **Source of review:** a GitHub `COMMENTED` review submitted through PR author's `im-tnyx` account, **not independent approval**. Before edit, P2 thread `PRRT_kwDOVy5U3s66EVYx` was unresolved and current PR HEAD `659915ba8c9766082ccc945809b8879df3b5b6ce`.
+- **Fix contract:** shared Opening Amount is conditional; funded Cash/Bank/Wallet opens via balanced opening equity, bank-linked wallet references do not create money/journals, Card opens liability, historical Investment cost asset/valuation is separate, historical Borrowed/Given Loans open liability/receivable; new purchases/disbursements are **separate financial events**. Zero positions produce metadata with no zero journal postings. Test IDs `TM-AG-011…016` protect net worth and idempotency.
+- **Financial boundary:** historical as-of reconciliation, investment market-value accounting, loan interest, precise FX and SQL schema remain **BLOCKED pending later finance ADRs**; no runnable SQL or financial app implementation changed.
+- **Paths permitted:** `docs/08-ACCOUNT-GROUPS-SPEC.md`, `docs/01-PRD.md`, this task file and compact `.ai/current.md` checkpoint only. Do not alter PR B #16 or PR C #22 branches; they must be re-synchronized after PR A advances.
+- **Review disposition:** initial reviewer COMMENTED / non-independent. P2 to be objectively verified and answered on the review thread; do not claim formal APPROVED. **Owner merge authorization NOT_GRANTED**.
+- **Pre-commit checks:** source patch invariants reviewed; final HEAD link/CI and mergeability to be rechecked after update.
