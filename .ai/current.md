@@ -1,10 +1,10 @@
 # 🧭 Current task index
 
-## 2026-11-21 — Codespaces manual preview input `18.0` regression (new PR)
+## 2026-11-21 — Codespaces manual preview input `18.0` regression (PR #26)
 
-- **Task:** [TM-DEV-PREVIEW-INPUT-20261121-001](tasks/preview/codespaces-preview-input-20261121.md) · [RFC #25](https://github.com/im-tnyx/Tio-Money/issues/25) · branch `fix/codespaces-preview-dispatch-pr-string`. **Scope: PR dispatch parser only**, intended to fix [failed manual preview run #44798703853](https://github.com/im-tnyx/Tio-Money/actions/runs/44798703853), which received `INPUT_PR: 18.0` from the workflow's `type: number` input and rejected it before HTTP diagnostic.
+- **Task:** [TM-DEV-PREVIEW-INPUT-20261121-001](tasks/preview/codespaces-preview-input-20261121.md) · [RFC #25](https://github.com/im-tnyx/Tio-Money/issues/25) · [PR #26](https://github.com/im-tnyx/Tio-Money/pull/26) · branch `fix/codespaces-preview-dispatch-pr-string`. **Scope: PR dispatch parser only**, intended to fix [failed manual preview run #44798703853](https://github.com/im-tnyx/Tio-Money/actions/runs/44798703853), which received `INPUT_PR: 18.0` from the workflow's `type: number` input and rejected it before HTTP diagnostic.
 - **Observed source before change:** `main` `097e014d7e2a2015230971751bd5c72ee91e6580` (PR #21 squash merged), `pr_number` workflow input `type: number`, strict `^[1-9][0-9]* shell guard. Proposed correction changes input metadata to `type: string` and adds regression tests, without relaxing validation or changing credentials/security gates.
-- **Handoff at checkpoint creation:** this entry precedes the new fix commit and PR creation. New exact-head CI and review are **NOT YET VERIFIED** here. Independent review disposition **DEFERRED** (optional under TM-DEC-002). No owner authorization to merge any new PR or run a privileged Codespace workflow; neither `main` nor PR #18 modified. The original GitHub PR-read 403, SSH and Expo tunnel remain unverified. Check GitHub for live branch/PR status rather than interpreting this as the current state.
+- **Observed pre-index-update:** initial fix commit `e8483afdf17baf3c1ea2b574fd6bbf1e4b522338`; PR #26 **OPEN / DRAFT / NOT MERGED** when inspected. This index-only correction advances HEAD; new exact-head CI and review must be verified, not inferred from prior runs. Independent review disposition **DEFERRED** (optional under TM-DEC-002). No owner authorization to merge any new PR or run a privileged Codespace workflow; neither `main` nor PR #18 modified. The original GitHub PR-read 403, SSH and Expo tunnel remain unverified. Check GitHub for live branch/PR status rather than interpreting this as the current state.
 
 ---
 
