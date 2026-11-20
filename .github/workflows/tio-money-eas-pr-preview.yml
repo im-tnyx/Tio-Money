@@ -8,7 +8,7 @@ on:
       pr_number:
         description: Open owner-authored PR targeting main (JS/assets-only change)
         required: true
-        type: number
+        type: string
       operation:
         description: Publish an OTA update or queue an internal preview build
         required: true
@@ -60,8 +60,8 @@ jobs:
             android|ios|all) ;;
             *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
           esac
-          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo "::error::PR number is not numeric"
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::PR number must be a positive integer string"
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"

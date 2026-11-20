@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — EAS PR REVIEW numeric dispatch input `18.0` failure (RFC #31)
+
+- **Task:** [TM-EAS-DISPATCH-STRING-20261121-001](tasks/preview/eas-pr-dispatch-string-20261121.md), [RFC #31](https://github.com/im-tnyx/Tio-Money/issues/31), branch `fix/eas-pr-dispatch-string`. Owner requested a scoped fix to repeated `TIO MONEY EXPO PR REVIEW` failure on valid PR `18`. [Run #44810555603](https://github.com/im-tnyx/Tio-Money/actions/runs/44810555603) logged `PR_NUMBER=18.0` due to `workflow_dispatch.inputs.pr_number.type: number`; shell rejects non-integer before checkout.
+- **Source base:** `main` `0ac1f6a23e2224b3c2e8d0e10a63699abc53a10e`. Fix `type: string` with strict `^[1-9][0-9]* validation and a static regression test; preserve manual-only owner/main/rerun gates, open **non-draft** PR and strict `src/*|assets/*` allowlist, EAS project identity, isolated token and OTA/build choices.
+- **Safety:** PR #18 remains **Draft** with non-source docs/tests, so it is **not** eligible for OTA publication or internal EAS build even after this input fix. No EAS publish, build, privileged workflow dispatch, secret or Codespace mutation, PR #18 source edit or direct `main` write is authorized here.
+- **Checkpoint:** new head CI / review / PR status not yet verified at task creation. Independent security review **DEFERRED**, optional under TM-DEC-002 but recommended. **Owner merge authorization NOT_GRANTED** for any new PR; live GitHub is authoritative.
+
+---
+
 ## 2026-11-21 — PR #18 immutable compare API shape correction
 
 - **Task:** [TM-OPS-PREVIEW-COMPARE-HEAD-20261121-001](tasks/preview/preview-compare-head-shape-20261121.md), [RFC #29](https://github.com/im-tnyx/Tio-Money/issues/29), branch `fix/preview-compare-head-commit-shape`. Source failure: [manual run #44806734241](https://github.com/im-tnyx/Tio-Money/actions/runs/44806734241) and [#44806945990](https://github.com/im-tnyx/Tio-Money/actions/runs/44806945990); PR-read/label gate passed, but snapshot validator assumed nonexistent `compare.head_commit`, despite GitHub Compare API returning `commits[]` and 17 files.
