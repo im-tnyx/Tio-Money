@@ -8,6 +8,7 @@ import {
   PREVIEW_ONLY_DISPLAY_NAME,
   requireDedicatedPreviewCodespace,
 } from '../../.github/scripts/verify-pr-preview-codespace.mjs';
+import { requireImmutablePRChangedPaths } from '../../.github/scripts/verify-pr-preview-pr-snapshot.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -36,6 +37,9 @@ test('trusted worker has exact owner, repo, main and successful push gates', () 
   assert.match(worker, /\.user\.login == "im-tnyx"/);
   assert.match(worker, /tio-preview/);
   assert.match(worker, /\$PUSH_SHA" != "\$pr_sha"/);
+  assert.match(worker, /github\.triggering_actor == 'im-tnyx'/);
+  assert.match(worker, /github\.run_attempt == '1'/);
+  assert.match(worker, /base_sha=\%s/);
 });
 
 test('trusted worker uses main-scoped Codespaces secret, owner-selected Codespace and source-only guard', () => {
@@ -47,12 +51,95 @@ test('trusted worker uses main-scoped Codespaces secret, owner-selected Codespac
   assert.match(worker, /Editing Codespace is explicitly disallowed/);
   assert.match(worker, /Configure TIO_MONEY_PREVIEW_CODESPACE/);
   assert.match(worker, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
-  assert.match(worker, /actions\/checkout@v4/);
+  assert.match(worker, /actions\/checkout@11bd71901bbe5b1630ceea73d27597364c9af683/);
   assert.match(worker, /ref: \$\{\{ github\.sha \}\}/);
   assert.match(worker, /persist-credentials: false/);
   assert.match(worker, /\.github\/scripts\/sync-pr-codespaces-preview\.sh/);
   assert.doesNotMatch(worker, /secrets\.EXPO_TOKEN|pr-preview\s*--environment|pull_request_target/);
   assert.doesNotMatch(worker, /ref: \$\{\{ steps\.pr\.outputs\.head_sha \}\}/);
+});
+
+test('immutable preview scope rejects PR head race, altered compare, and native rename source', () => {
+  const headSha = 'a'.repeat(40);
+  const baseSha = 'b'.repeat(40);
+  const captured = {
+    number: 42,
+    state: 'open',
+    changed_files: 1,
+    user: { login: 'im-tnyx' },
+    head: {
+      sha: headSha,
+      ref: 'feat/one-source-file',
+      repo: { full_name: 'im-tnyx/Tio-Money' },
+    },
+    base: { sha: baseSha, ref: 'main' },
+    labels: [{ name: 'tio-preview' }],
+  };
+  const compare = {
+    base_commit: { sha: baseSha },
+    head_commit: { sha: headSha },
+    files: [{ filename: 'src/feature.ts' }],
+  };
+  assert.deepEqual(
+    requireImmutablePRChangedPaths(captured, compare, { ...captured }, headSha, baseSha),
+    ['src/feature.ts'],
+  );
+
+  // Regression for the P2 TOCTOU: PR head advances after its original capture.
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, compare,
+      { ...captured, head: { ...captured.head, sha: 'c'.repeat(40) } },
+      headSha, baseSha,
+    ),
+    /changed after immutable head selection/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, compare,
+      { ...captured, base: { ...captured.base, sha: 'd'.repeat(40) } },
+      headSha, baseSha,
+    ),
+    /changed after immutable head selection/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, head_commit: { sha: 'c'.repeat(40) } },
+      captured, headSha, baseSha,
+    ),
+    /Immutable PR comparison/,
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, files: [{ filename: 'src/feature.ts' }, { filename: 'ios/Native.m' }] },
+      captured, headSha, baseSha,
+    ),
+    /file count/,
+  );
+  assert.deepEqual(
+    requireImmutablePRChangedPaths(
+      captured, { ...compare, files: [{ filename: 'src/feature.ts', previous_filename: 'ios/Native.m' }] },
+      captured, headSha, baseSha,
+    ),
+    ['src/feature.ts', 'ios/Native.m'],
+  );
+  assert.throws(
+    () => requireImmutablePRChangedPaths(
+      captured, { ...compare, files: [{ filename: 'src/a\\nmalicious.ts' }] },
+      captured, headSha, baseSha,
+    ),
+    /Invalid or ambiguous/,
+  );
+});
+
+test('trusted main snapshot validation precedes any Codespace start or SSH', () => {
+  assert.match(worker, /compare\/\$\{PR_BASE_SHA\}\.\.\.\$\{PR_SHA\}/);
+  assert.doesNotMatch(worker, /pulls\/\$\{TARGET_PR\}\/files/);
+  assert.match(worker, /verify-pr-preview-pr-snapshot\.mjs/);
+  const selected = worker.indexOf('node .github/scripts/verify-pr-preview-pr-snapshot.mjs');
+  const start = worker.indexOf('"/user/codespaces/${codespace}/start"');
+  const ssh = worker.indexOf('gh codespace ssh --codespace');
+  assert.ok(selected > 0 && selected < start && start < ssh);
 });
 
 test('remote script refuses unsafe source and never force resets or changes git refs', () => {
