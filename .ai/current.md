@@ -1,16 +1,12 @@
 # 🧭 Current task index
 
-## 2026-11-20 — Current reconciliation after Phase 0 merge
+## 2026-11-20 — Governance PR #7 current review and main synchronization
 
-**Live GitHub verification:** [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is **MERGED** into `main` (2026-11-19 20:30:09 UTC, commit `e647f78ce200fed1323d80ea794396c371fba7bf`); [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) is **MERGED** (2026-11-19 06:16:11 UTC, commit `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`); [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) remains **DRAFT / OPEN / NOT MERGED**. PR #7's documentation branch was created before PR #1 merged and is being synchronized by a non-force merge of `main` into that branch. Prior statements that PR #1 is Draft, Open, or unmerged are **historical checkpoints only**.
+**Live PR state at this checkpoint:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) is **OPEN / READY FOR REVIEW** (`draft:false`), **NOT MERGED**. Its task `TM-GOV-CLEANUP-20261119-001` remains **IN_REVIEW**; owner merge authorization **NOT_GRANTED**. [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) and [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) are both merged; [PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) subsequently merged Codespaces Stage A into `main` at `fdae8b4d23117a5be202ec04663ba22f3b21d1a5`. Earlier `DRAFT`/pre-merge statements below are *historical* checkpoints, not current statuses.
 
-| Task | Verified present state | Next action |
-|---|---|---|
-| `TM-P0-ALIGN-20261119-001` · [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | **MERGED**; owner-reported Android UI smoke pass, not a full Android/iPhone/SQLite QA certification | Continue any outstanding platform validation in a separately scoped task |
-| `TM-GOV-20261118-001` · [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) | **COMPLETED / MERGED**; governance outcome recorded | Retain audit history; no new merge action |
-| `TM-GOV-CLEANUP-20261119-001` · [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) | **IN_REVIEW / DRAFT**, independent review **DEFERRED**, owner merge permission **NOT_GRANTED** | Inspect reconciled docs-only diff, current checks and any blocking findings; seek explicit owner authorization before any PR #7 merge |
+**Two owner P3 review findings:** [stale Draft handoff](https://github.com/im-tnyx/Tio-Money/pull/7#discussion_r4639327629) and [stale CI checkpoint](https://github.com/im-tnyx/Tio-Money/pull/7#discussion_r4639327644). This update records current `draft:false` and correctly attributes the previous checks to exact *pre-synchronization* HEAD `be0dd012a27c135b7cff2fce82062e5b5cf4a9a8`: [Phase 0 static #44686452585](https://github.com/im-tnyx/Tio-Money/actions/runs/44686452585) **SUCCESS**, [AI governance #44686452594](https://github.com/im-tnyx/Tio-Money/actions/runs/44686452594) **SUCCESS** (29/29 governance tests, Markdown links, 18 commit-message checks). These **are not results for any later HEAD**. Recheck current GitHub CI after each new commit; a reviewer's `COMMENTED` review is not `APPROVED` and the P3 threads must be independently verified/resolved, not silently dismissed.
 
-**Safety:** Current Phase 0 UI remains five blank bottom tabs and a disabled, More-aligned floating Add icon (TM-DEC-005). App runtime/source from `main` is retained unchanged in this branch synchronization. Earlier Phase 0 merge-gate notes below describe pre-merge history, not an active PR #1 merge hold. This update does **not** grant any merge, deployment or security authority. The new PR #7 HEAD needs fresh GitHub CI and review; prior CI belongs to earlier SHAs.
+**Integration boundary:** PR #7 preserves the new Codespaces preview files, Expo/source/config, and workflows from merged `main` unchanged. Only governance Markdown files differ in this PR. Independent new-head review is **DEFERRED** by optional review policy; no approval is claimed. No `main` write, merge of PR #7, force-push, auto-merge, or change to permissions/ledger is authorized.
 
 ---
 
@@ -72,3 +68,15 @@ Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assist
 **Before the next write:** fetch live `main`, both branch HEADs, both PR states and changed paths. If these conflict with this snapshot, update the task evidence rather than silently assuming continuity.
 
 [Agent contract](../AGENTS.md) · [Task protocol](tasks/README.md) · [Decisions](../docs/DECISIONS.md)
+
+## New preview task — additive checkpoint (2026-11-19)
+
+| Task | Agent / ownership | Status | Next action |
+|---|---|---|---|
+| [`TM-DEV-PREVIEW-20261119-001`](tasks/preview/codespaces-expo-go-20261119.md) | ChatGPT GPT-6; new isolated `chore/codespaces-expo-go-stage-a` stacked over Phase 0; previous preview-task agent `UNKNOWN_NOT_VERIFIED` | [RFC Issue #3: agent Stage A PROCEED, Stage B BLOCKED](https://github.com/im-tnyx/Tio-Money/issues/3); stacked draft, device QA **NOT_VERIFIED**, merge **NOT_GRANTED** | Validate actual CI and physical Expo Go Android/iPhone; no privileged worker or merge without owner authority |
+
+Older governance/Phase 0 rows above are historical snapshots, not overwritten by this separate preview-task addition. Verify live GitHub state.
+
+**Preview validation follow-up, 2026-11-19:** [Task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-validation-checkpoint--current-working-chatgpt-gpt-6) · [stacked draft PR #4](https://github.com/im-tnyx/Tio-Money/pull/4) · [source CI SUCCESS on `b317ec8d`](https://github.com/im-tnyx/Tio-Money/actions/runs/44480886934) (16 Phase 0 + 8 preview tests and platform exports). Actual Codespace/tunnel, owner-authenticated EAS UUID and both physical phones **NOT_VERIFIED**. Stage B blocked; owner PR merge permission not granted. Historical earlier rows remain unchanged.
+
+**Process fix + new source CI evidence (2026-11-19):** Preview [task checkpoint](tasks/preview/codespaces-expo-go-20261119.md#2026-11-19-owner-identity-and-managed-process-final-source-checkpoint); [source test run #44482368855](https://github.com/im-tnyx/Tio-Money/actions/runs/44482368855) **SUCCESS** at `fe2003707c53ab5ef615ce547971cc27ebfde209` (16 app + 8 preview tests, Node/Expo checks and both bundles). New checkpoint commit requires fresh head CI. No live Expo device/Codespace/EAS UUID verification, no merge authorization or Stage B activation.

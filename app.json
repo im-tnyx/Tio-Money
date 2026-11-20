@@ -2,6 +2,7 @@
   "expo": {
     "name": "Tio Money",
     "slug": "tio-money",
+    "owner": "tnyx-23",
     "scheme": "tiomoney",
     "version": "0.0.1",
     "platforms": ["android", "ios"],
@@ -10,6 +11,9 @@
     "experiments": { "typedRoutes": true },
     "ios": { "supportsTablet": true },
     "android": { "permissions": [] },
-    "extra": { "releaseStage": "phase-0-foundation" }
+    "extra": {
+      "releaseStage": "phase-0-foundation",
+      "eas": { "projectId": "722e6857-1159-4414-a024-6a4351e7d3e1" }
+    }
   }
 }
