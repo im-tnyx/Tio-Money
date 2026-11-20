@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Codespaces preview labeled PR Issues API HTTP 403 (RFC #27)
+
+- **Task:** [TM-OPS-CODESPACES-ISSUES-READ-20261121-001](tasks/preview/codespaces-preview-issues-read-20261121.md), [RFC #27](https://github.com/im-tnyx/Tio-Money/issues/27), branch `fix/codespaces-preview-issues-read`. [Manual run #44805243638](https://github.com/im-tnyx/Tio-Money/actions/runs/44805243638) received `INPUT_PR=18`, then HTTP 403 after PR metadata fetch at labeled `GET /issues`. GitHub documents `Issues: read` for that API; current trusted worker only granted Contents/Pull requests read. This is a narrow root-cause hypothesis backed by endpoint permissions, **not a verified successful Codespace run**.
+- **Observed starting `main`:** `0c295316940fc73e0c8e8bce127aaedede5d3d49`. Proposed change grants only `issues: read`, retains PR uniqueness and all existing owner/main/immutable-sha, Codespace identity and source-path security gates. No `issues: write`, no PAT, no `pull_request_target`, no app source or PR #18 change.
+- **Checkpoint:** recorded before new final PR SHA and CI results. Exact-head CI, review, and GitHub ruleset gates must be checked live. Independent review `DEFERRED`, optional under TM-DEC-002. **Owner merge authorization NOT_GRANTED.** No manual privileged workflow run authorized by this task; `main` and PR #18 stay untouched by branch work.
+
+---
+
 ## 2026-11-21 — Codespaces manual preview input `18.0` regression (PR #26)
 
 - **Task:** [TM-DEV-PREVIEW-INPUT-20261121-001](tasks/preview/codespaces-preview-input-20261121.md) · [RFC #25](https://github.com/im-tnyx/Tio-Money/issues/25) · [PR #26](https://github.com/im-tnyx/Tio-Money/pull/26) · branch `fix/codespaces-preview-dispatch-pr-string`. **Scope: PR dispatch parser only**, intended to fix [failed manual preview run #44798703853](https://github.com/im-tnyx/Tio-Money/actions/runs/44798703853), which received `INPUT_PR: 18.0` from the workflow's `type: number` input and rejected it before HTTP diagnostic.
