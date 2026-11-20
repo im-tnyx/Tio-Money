@@ -1,6 +1,6 @@
 # 📌 Tio Money — Owner Decision Register
 
-> **Live GitHub status verified 2026-11-20:** Decisions TM-DEC-001 through TM-DEC-005 remain in force. Governance [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) **MERGED** 2026-11-19 06:16:11 UTC at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`; Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) **MERGED** 2026-11-19 20:30:09 UTC at `e647f78ce200fed1323d80ea794396c371fba7bf`. [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) is **READY FOR REVIEW / OPEN / NOT MERGED** (GitHub `draft:false` on 2026-11-20), undergoing documentation-only branch reconciliation. Older PR #1 DRAFT / READY FOR REVIEW statements below describe **past review checkpoints**, not current GitHub status. Owner-reported Android UI smoke testing does not establish complete device, SQLite or iPhone QA. Decisions alone never authorize a PR merge.
+> **Status check · 2026-11-20:** [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) merged 2026-11-19 (merge `e647f78ce200fed1323d80ea794396c371fba7bf`); [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) merged 2026-11-19 (merge `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`); [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) merged 2026-11-20 (merge `5dbdbe047a542463f0de66b9c0c6e09ef7d2605a`). Older open/unmerged statements below are **historical snapshots**, not current GitHub state. Decisions TM-DEC-001–005 govern Phase 0; the new TM-DEC-006–009 below define **future product stages**, not implemented features or merge permission. iPhone and real on-device SQLite QA remain unverified.
 
 [Documentation hub](00-INDEX.md) · [PRD](01-PRD.md) · [Architecture](05-TECH-ARCHITECTURE.md) · [Agent contract](../AGENTS.md)
 
@@ -10,9 +10,13 @@
 |---|---|---|---|---|
 | [TM-DEC-001](#tm-dec-001--english-only-initial-app) | 2026-11-18 | Initial mobile app user-facing language is **English only** | **Owner decided** | P0/MVP UI, copy, accessibility, validation |
 | [TM-DEC-002](#tm-dec-002--independent-review-optional-by-default) | 2026-11-19 | Independent review optional by default, known blockers and configured protections binding | **Owner decided; agent-transcribed** | All PRs; sensitive-scope guidance |
-| [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | Every PR; PR #1 and #2 later merged under separate owner authorizations; PR #7 still requires its own |
+| [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | Every PR; PR #1 and #2 later merged under separate owner authorizations; PR #7 later received separate merge authorization; this policy alone never authorized it |
 | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) | 2026-11-19 | Five destinations and a standalone floating Add FAB | **Owner decided; agent-transcribed** | Phase 0 navigation shell only |
-| [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Only five blank tab screens; disabled visual FAB, no other screens | **Owner decided; agent-transcribed** | Phase 0 visible UI, supersedes DEC-004 editor/Settings availability |
+| [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Only five blank tab screens; disabled visual FAB, no other screens | **Owner decided; agent-transcribed** | Current Phase 0 UI |
+| [TM-DEC-006](#tm-dec-006--local-first-delivery-order-and-backup-boundary) | 2026-11-20 | Complete local app → backup/restore → optional Supabase | **Owner directed; agent-transcribed** | Future delivery order, no change to Phase 0 |
+| [TM-DEC-007](#tm-dec-007--account-group-driven-setup) | 2026-11-20 | Group-specific accounts: Cash, Bank, Wallet, Card, Investment, Loan | **Owner directed; agent-transcribed** | Future Accounts and Settings |
+| [TM-DEC-008](#tm-dec-008--main-and-optional-sub-currency-with-refresh-on-use) | 2026-11-20 | Main Currency + distinct optional Sub Currency, refresh on currency use | **Owner directed; agent-transcribed** | Future currency experience; accounting ADR pending |
+| [TM-DEC-009](#tm-dec-009--conditional-identity-only-for-opt-in-supabase) | 2026-11-20 | No app login until user opts in to future Supabase sync | **Owner directed; agent-transcribed** | Future identity and synchronization |
 
 ## TM-DEC-001 — English-only initial app
 
@@ -86,6 +90,44 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 **Acceptance:** Exactly five blank, selectable screen routes with no top app toolbar; exactly one disabled FAB icon above More, with no `onPress` and no target route; no other app screen routes; shared sizes/icons from theme tokens; automatic OS appearance and presentation-only screens; CI checks pass; physical Android/iPhone Expo Go on latest tokenized HEAD and on-device SQLite testing remain separately **NOT_VERIFIED**. **Historical checkpoint:** PR #1 was then ready for review, but later merged under separate owner authorization on 2026-11-19. This UI decision alone did not authorize that merge.
 
+## TM-DEC-006 — Local-first delivery order and backup boundary
+
+**Decision date:** 2026-11-20. **Source/authority:** owner's direct instructions in connected ChatGPT conversation; **agent-transcribed**, not owner-authored on GitHub. Durable [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13). **Status:** confirmed future product direction; **not implemented** and not authorization to merge any PR.
+
+**Decision:** (1) Complete and test the full personal-finance app **locally on SQLite** first, including account groups, income, expenses, transfers, cards, investments, loans, reports and currency capabilities. (2) Add **optional encrypted, user-initiated Google Drive/iCloud-compatible backup and restore** only after the local feature set is complete. (3) Add **optional Supabase synchronization** last. SQLite remains the on-device primary working store. The Stage 1 app has **no cloud finance-data upload, no signup/login and no dependency on a backend**; network is permitted **only for selected-currency exchange-rate retrieval**. Stage 2 backup is not continuous synchronization.
+
+**Supersedes:** older draft roadmap placing backup/sync in a generic polish phase with no sequence, or suggesting a cloud-primary design. It does **not** supersede current Phase 0 UI TM-DEC-005, English-only TM-DEC-001, canonical balanced ledger, transfer-fee classification or SMS restrictions.
+
+**Gate:** stage transitions require documented functional tests, error/restore cases and applicable privacy/security design. Google/Apple accounts or device permissions used by external file providers are **not** an app signup. Provider integrations, backup encryption/key recovery and restore semantics require later ADR/security review before implementation.
+
+## TM-DEC-007 — Account-group-driven setup
+
+**Decision date:** 2026-11-20. **Source:** direct owner chat instructions, agent-transcribed; [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13). **Status:** future product contract, not current Phase 0 UI.
+
+**Decision:** Settings defines/configures Account Groups; choosing a group from Accounts → Add Account dynamically presents group-specific fields. Built-in groups are **Cash, Bank Account, Wallet, Credit Card, Investment and Loan**; multiple accounts per group are allowed. Core Cash fields: **name, opening amount, currency, description**. Bank adds **payment capability flags** such as UPI, debit card, cheque and internet banking, which do not create duplicate funded balances. Credit Card adds **outstanding, currency, payment-from linked account, description, statement date, due date, credit limit and calculated available credit**, plus an **automatic payment configuration/tracking control**. Investment and Loan have typed fields and distinct accounting semantics documented in [Account Groups Specification](08-ACCOUNT-GROUPS-SPEC.md).
+
+**Security boundary:** a button labelled automatic payment does **not** initiate a bank debit; no bank integration, real autopay or automatic posting is approved by this decision. Credit-card credentials/CVV, bank passwords, UPI PINs and OTPs are never needed. Interest, valuation and cross-account events require single-ledger domain rules and acceptance tests.
+
+**Supersedes:** P0/P1 draft wording limiting the *future finished app* to four account types. It does not turn all six groups into currently implemented features or authorize unrestricted custom financial posting categories.
+
+## TM-DEC-008 — Main and optional Sub Currency with refresh on use
+
+**Decision date:** 2026-11-20. **Source:** owner's direct chat instructions, agent-transcribed; [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13). **Status:** future requirements approved in direction; **multi-currency journal technical design blocked pending ADR**.
+
+**Decision:** Settings offers one **Main Currency** and one **optional Sub Currency**. Sub Currency is enabled/selected only when it differs from Main Currency. When the user invokes a sub-currency-dependent experience (open/foreground currency view, change pair, convert, or enter a currency-dependent report/transaction), the app **attempts an online refresh** of the exchange rate, not merely a 24-hour refresh. The UI shows rate source and last update. If offline or the provider fails, clearly disclose **cached/stale** rate; if no valid rate exists, show conversion as unavailable rather than fabricate a number. Never claim the feed is tick-by-tick live: the provider's latest published value may remain unchanged.
+
+**Non-negotiable:** original transaction amounts and currencies never change because a display FX rate changes; do not sum mixed currency minor units as though they are INR. Account currency, currency-pair changes, historical valuation, cross-currency transfers, precision and rounding require a finance ADR before editing the current INR-only schema. See [Currency Specification](10-CURRENCY-SPEC.md).
+
+**Supersedes:** open-ended 'currency expansion beyond INR' as an unspecified product direction and the earlier proposed 24-hour-only rate refresh. It does **not** silently lift the INR-only database constraint.
+
+## TM-DEC-009 — Conditional identity only for opt-in Supabase
+
+**Decision date:** 2026-11-20. **Source:** direct owner chat instructions, agent-transcribed; [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13). **Status:** future product/identity direction, **no Supabase integration authorized in this documentation PR**.
+
+**Decision:** Local-only and Drive/iCloud backup experiences require **no Tio Money signup or signin**. When and only when the user **explicitly selects future Supabase sync**, present app signup/signin and obtain informed consent before uploading local finance records. Declining sync must preserve full local functionality. Logout does not silently delete local data. Tenant isolation, Supabase RLS, credential/session lifecycle, migration, conflicts, deletion and withdrawal-of-consent policies require independent future security/identity design and tests. No service-role key is ever shipped in the mobile app.
+
+**Supersedes:** any implication that cloud sync or authentication is mandatory to use core features. This decision does not implement cloud transport, user records or backend permissions.
+
 ## Pending choices — not decisions
 
 | Topic | Evidence | Status |
@@ -94,7 +136,9 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 | Detailed ledger correction/idempotency strategy and device transaction behavior | [Database design](04-DATABASE-DESIGN.md) · [test plan](06-IMPLEMENTATION-TEST-PLAN.md) | Proposed / needs implementation validation |
 | Android native SMS capability and Play policy eligibility | [Architecture](05-TECH-ARCHITECTURE.md) | Conditional, not authorized |
 | Phase 0 post-merge device QA | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) | **MERGED** 2026-11-19 20:30:09 UTC; owner-reported Android UI smoke PASS; full iPhone/device accessibility and SQLite persistence/restart proof not yet verified |
-| Governance PR #2 outcome | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · [Governance task](../.ai/tasks/governance/ai-context-setup.md) | **MERGED** 2026-11-19 06:16:11 UTC; SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, 6/6 review threads resolved when inspected; separate [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) is open / Ready for review / not merged |
+| New account/currency accounting detail | [Account Groups](08-ACCOUNT-GROUPS-SPEC.md) · [Currency](10-CURRENCY-SPEC.md) · [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13) | Product direction set; currency journal, loan/valuation and card billing ADRs **not yet approved for coding** |
+| Future backup/auth security design | [TM-DEC-006](#tm-dec-006--local-first-delivery-order-and-backup-boundary) · [TM-DEC-009](#tm-dec-009--conditional-identity-only-for-opt-in-supabase) | Backup encryption/key handling and later Supabase tenant isolation remain future review gates |
+| Governance PR #2 outcome | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · [Governance task](../.ai/tasks/governance/ai-context-setup.md) | **MERGED** 2026-11-19 06:16:11 UTC; SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, 6/6 review threads resolved when inspected; [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) later merged on 2026-11-20 |
 
 **Amendment policy:** Future decisions must include date, source/authority, exact scope, superseded passages and verification. Do not infer owner approval from a merged planning document alone.
 
