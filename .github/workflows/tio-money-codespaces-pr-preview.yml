@@ -81,6 +81,7 @@ jobs:
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${selected}" > "$RUNNER_TEMP/preview-pr.json"
           jq -e --arg repo "$GITHUB_REPOSITORY" '
             .state == "open" and .number > 0 and
+            .changed_files > 0 and .changed_files <= 100 and
             .user.login == "im-tnyx" and
             .head.repo.full_name == $repo and
             .base.repo.full_name == $repo and
@@ -106,10 +107,9 @@ jobs:
             fi
           fi
 
-          mapfile -t active < <(
-            gh api --paginate "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=tio-preview&per_page=100" \
-              --jq '.[] | select(.pull_request != null) | .number'
-          )
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=tio-preview&per_page=100" \
+            --jq '.[] | select(.pull_request != null) | .number' > "$RUNNER_TEMP/active-preview-prs.txt"
+          mapfile -t active < "$RUNNER_TEMP/active-preview-prs.txt"
           if [[ "${#active[@]}" -ne 1 || "${active[0]:-}" != "$selected" ]]; then
             echo "::error::Exactly one open PR may carry tio-preview. Remove the label from other PRs."
             exit 1
@@ -127,6 +127,8 @@ jobs:
           set -euo pipefail
           count=0
           rejected=0
+          gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${TARGET_PR}/files?per_page=100" \
+            --jq '.[].filename' > "$RUNNER_TEMP/preview-pr-changed-paths.txt"
           while IFS= read -r path; do
             [[ -z "$path" ]] && continue
             count=$((count + 1))
@@ -138,10 +140,7 @@ jobs:
                 rejected=1
                 ;;
             esac
-          done < <(
-            gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${TARGET_PR}/files?per_page=100" \
-              --jq '.[].filename'
-          )
+          done < "$RUNNER_TEMP/preview-pr-changed-paths.txt"
           if [[ "$count" -eq 0 || "$rejected" -ne 0 ]]; then
             echo "::error::PR preview permits only app UI, tests and documentation; review native/tooling changes separately."
             exit 1
@@ -166,10 +165,9 @@ jobs:
             echo "::error::Missing CODESPACES_TOKEN in the main-restricted environment."
             exit 1
           fi
-          mapfile -t matches < <(
-            gh api --paginate '/user/codespaces?per_page=100' \
-              --jq '.codespaces[] | select(.repository.full_name == "im-tnyx/Tio-Money") | .name'
-          )
+          gh api --paginate '/user/codespaces?per_page=100' \
+            --jq '.codespaces[] | select(.repository.full_name == "im-tnyx/Tio-Money") | .name' > "$RUNNER_TEMP/codespaces.txt"
+          mapfile -t matches < "$RUNNER_TEMP/codespaces.txt"
           if [[ -z "$PREFERRED_CODESPACE" ]]; then
             echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE environment variable to explicitly select the preview-only Codespace."
             exit 1
