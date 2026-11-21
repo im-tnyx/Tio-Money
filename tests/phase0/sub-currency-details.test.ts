@@ -20,7 +20,9 @@ import {
   formatSubCurrencyDecimalExample,
   stepSubCurrencyDecimalDigits,
 } from '../../src/features/settings/sub-currency-decimal-step';
-import { classifySubCurrencyRefresh } from '../../src/features/settings/sub-currency-refresh-feedback';
+import {
+  classifySubCurrencyRefresh,
+} from '../../src/features/settings/sub-currency-refresh-feedback';
 
 test('TM-CUR-034: individual Sub display changes persist without touching Main display', () => {
   const base = addSubCurrency(addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'), 'EUR');
