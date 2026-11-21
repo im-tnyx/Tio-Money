@@ -21,11 +21,11 @@ import type {
 } from './main-currency-contract';
 
 const decimalChoices = [
-  { label: 'Currency default', value: 'currency' },
-  { label: '1', value: 0 },
-  { label: '1.0', value: 1 },
-  { label: '1.00', value: 2 },
-  { label: '1.000', value: 3 },
+  { label: t('currencyDefaultDigits'), value: 'currency' },
+  { label: t('currencyDecimalNone'), value: 0 },
+  { label: t('currencyDecimalOne'), value: 1 },
+  { label: t('currencyDecimalTwo'), value: 2 },
+  { label: t('currencyDecimalThree'), value: 3 },
 ] as const;
 
 function sheetTitle(kind: MainCurrencySheetKind | null): string {
@@ -87,7 +87,8 @@ export function useMainCurrencyViewModel(): {
     const decimalLabel =
       d.decimalDigits === 'currency'
         ? t('currencyDefaultDigits')
-        : (decimalChoices.find((item) => item.value === d.decimalDigits)?.label ?? '1.00');
+        : (decimalChoices.find((item) => item.value === d.decimalDigits)?.label ??
+          t('currencyDecimalTwo'));
     const rows = [
       { key: 'decimal', label: t('currencyDecimals'), value: decimalLabel },
       {

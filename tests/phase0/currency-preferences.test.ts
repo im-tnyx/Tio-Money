@@ -164,15 +164,14 @@ test('TM-CUR-010: format presets, decimal precision and native minor-digit defau
   assert.equal(formatCurrencyExample(withMainCurrency(main, 'KWD'), 1), 'د.ك 1.000');
 });
 
-test('TM-CUR-011: full, lakh/crore and million/billion summary previews are optional', () => {
+test('TM-CUR-011: Millions / Lakhs / No Format control grouping, not financial amounts', () => {
   const main = DEFAULT_CURRENCY_PREFERENCES;
-  assert.equal(formatCurrencyExample(main, 1234567.89, true), '₹ 12,34,567.89');
-  const indian = withCurrencyDisplay(main, { largeAmounts: 'indian' });
-  assert.equal(formatCurrencyExample(indian, 1234567.89, true), '₹ 12.35L');
-  assert.equal(formatCurrencyExample(indian, 1234567.89), '₹ 12,34,567.89');
-  const international = withCurrencyDisplay(main, { largeAmounts: 'international' });
-  assert.equal(formatCurrencyExample(international, 1234567.89, true), '₹ 1.23M');
-  assert.equal(formatCurrencyExample(international, -1234567.89, true), '-₹ 1.23M');
+  assert.equal(formatCurrencyExample(main, 1234567.89), '₹ 12,34,567.89');
+  const millions = withCurrencyDisplay(main, { grouping: 'international' });
+  assert.equal(formatCurrencyExample(millions, 1234567.89), '₹ 1,234,567.89');
+  const none = withCurrencyDisplay(main, { grouping: 'none' });
+  assert.equal(formatCurrencyExample(none, 1234567.89), '₹ 1234567.89');
+  assert.equal(formatCurrencyExample(none, -1234567.89), '-₹ 1234567.89');
   assert.throws(() => withCurrencyDisplay(main, { grouping: 'invalid' as 'indian' }), /Invalid/);
 });
 
@@ -244,15 +243,15 @@ test('TM-CUR-014: image-style Front/End pill selector shares themed semantic tok
   assert.doesNotMatch(control + unit, /#[0-9a-fA-F]{3,8}|useState|useEffect|fetch\(|Storage\./);
 });
 
-test('TM-CUR-015: preview floats free, all options share a single card', () => {
+test('TM-CUR-015: preview without extra card, edge-to-edge common settings group', () => {
   const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
   assert.match(screen, /<CurrencySettingsCard state=\{state\} onAction=\{onAction\} \/>/);
-  assert.match(screen, /borderRadius: theme\.radius\.lg/);
-  assert.match(screen, /overflow: 'hidden'/);
+  assert.match(screen, /borderTopWidth: theme\.navigation\.borderWidth/);
+  assert.match(screen, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(screen, /last=\{index === state\.rows\.length - 1\}/);
+  assert.doesNotMatch(screen, /marginHorizontal: theme\.space\.lg,\s*backgroundColor: theme\.colors\.card/);
   assert.doesNotMatch(screen, /\{t\('currencyDisplayFormat'\)\}/);
   assert.doesNotMatch(screen, /\{t\('currencyLargePreview'\)\}/);
-  assert.doesNotMatch(screen, /backgroundColor: theme\.colors\.card,\s*alignItems: 'center'/);
 });
 
 test('TM-CUR-016: unit position is a compact right-side selector in the same row', () => {
@@ -266,6 +265,8 @@ test('TM-CUR-016: unit position is a compact right-side selector in the same row
   assert.match(segmented, /compact \? theme\.segmentedControl\.compactWidth/);
   assert.match(tokens, /compactWidth: size\.dp100 \+ size\.dp8/);
   assert.match(tokens, /minimumOptionHeight: buttonTokens\.minimumHeight/);
+  assert.match(tokens, /compactOptionHeight: size\.dp24/);
+  assert.match(segmented, /theme\.segmentedControl\.compactOptionHeight/);
 });
 
 test('TM-CUR-017: top bar removes double padding and preserves true center', () => {
@@ -276,4 +277,21 @@ test('TM-CUR-017: top bar removes double padding and preserves true center', () 
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
   assert.match(screen, /width=\{theme\.iconRoles\.topBar\}/);
   assert.doesNotMatch(screen, /sideWidth = theme\.buttons\.minimumHeight \* 2/);
+});
+
+test('TM-CUR-018: None decimal option displays exactly 1, never 1.0', () => {
+  const vm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  const main = DEFAULT_CURRENCY_PREFERENCES;
+  const noDecimals = withCurrencyDisplay(main, { decimalDigits: 0 });
+  assert.equal(formatCurrencyExample(noDecimals, 1), '₹ 1');
+  assert.equal(formatCurrencyExample(noDecimals, 1.49), '₹ 1');
+  assert.equal(formatCurrencyExample(noDecimals, 1.5), '₹ 2');
+  assert.equal(formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits: 1 }), 1), '₹ 1.0');
+  assert.equal(formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits: 2 }), 1), '₹ 1.00');
+  assert.equal(formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits: 3 }), 1), '₹ 1.000');
+  assert.equal(en.currencyDecimalNone, 'None (1)');
+  assert.equal(en.currencyDecimalOne, '1 decimal (1.0)');
+  assert.match(vm, /value: 0/);
+  assert.match(vm, /currencyDecimalNone/);
+  assert.doesNotMatch(vm, /\{ label: '1\.0', value: 0 \}/);
 });
