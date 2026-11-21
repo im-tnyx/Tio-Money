@@ -2,6 +2,8 @@
 
 ## 2026-11-21 — PR #24 reconciled onto current main (UI ownership preserved)
 
+**P2 normative money follow-up:** [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23#issuecomment-7060826772) expands PR #24 by **five Markdown-only agent/review-guide/template files** to remove universal-INR-paisee instructions; Stage 1 uses ISO-native safe-integer minor units with currency/exponent, while INR paise remains an explicitly INR-only case. Copilot current UI snapshot corrected. Codex at prior HEAD `f9de5b2...` **failed to complete** rather than passed; exact-new-HEAD CI and review must be repeated. PR #24 **not merged** and has **no owner merge authorization**.
+
 **Current docs follow-up:** Corrected owner UI changes from the previous stale five-BlankScreen/1dp statements to the verified **four BlankScreen finance routes + MoreRoute/Appearance**, active SVG weight 300/inactive 200, 0dp icon-label gap, 160ms Reduced Motion-aware scene fade. Presentation-only theme/i18n hooks are allowed; domain/workflow/data logic remains controller/use-case/domain/repository-owned. The initial reconciliation SHA `150b98cd3adf69e5462c628d07a9afccfc337320` is historical after docs corrections; verify the final HEAD and CI/review. **No merge authorization.**
 
 - **Owner Go:** safely reconcile PR #24, verify CI and review; this is **NOT merge authorization**. Current `main` `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` includes independently merged Appearance, bottom-tab 300/200 SVG and 0dp gap, 160ms reduced-motion-aware crossfade, preview workflow and Codespaces task changes. Previous PR24 `a13ab70f8b90e9ecb7bcb77a61cf4e4bb652c3a2` is a historical pre-reconciliation HEAD.

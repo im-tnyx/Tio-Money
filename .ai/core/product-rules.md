@@ -2,11 +2,11 @@
 
 **Canonical:** [PRD](../../docs/01-PRD.md) · [Flow](../../docs/02-USER-FLOWS.md) · [Database / ledger](../../docs/04-DATABASE-DESIGN.md) · [Owner decision](../../docs/DECISIONS.md).
 
-- One primary `+` on the root experience opens **one** Income | Expense | Transfer editor. No three Home shortcuts.
+- **Current UI:** one More-aligned floating Add remains **disabled**. An eventual owner-authorized editor could open one **Income | Expense | Transfer** flow, not three Home shortcuts; no current editor or real automatic banking feature is implemented.
 - One financial ledger is the source for account balances, History and Reports. Never use fabricated balances or feature-specific math.
 - Transfer principal between owned accounts is **not** income or expense. Optional transfer fee is an expense; fee and principal commit atomically.
 - Cash, bank and **funded** wallet are assets; credit cards are liabilities. A linked bank-backed UPI instrument is not a second funded balance.
-- Integer paise and balanced postings; credit-card purchases, repayments and refunds use correct liability/equity sign rules.
+- **Stage 1 booked amounts:** validated safe-integer **ISO-currency-specific native minor units with immutable currency/exponent** (INR-only historical examples call these paise); native debit/credit postings balance **within each currency**, not across an unapproved FX conversion. Credit-card purchases, repayments and refunds respect asset/liability/equity signs. Mixed-currency settlement/clearing remains [TM-ADR-018 BLOCKED](../../docs/11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx).
 - Import is candidate → deduplicate/review → explicit confirmation → ledger entry. No unconfirmed balance impact.
 - Offline-first core, no bank password/OTP requirement. Android SMS is conditional outside Expo Go; iPhone auto-inbox access unavailable.
 - **MVP app copy is English only**, including accessibility and validation text; localization readiness is an engineering concern, not an MVP language selector.

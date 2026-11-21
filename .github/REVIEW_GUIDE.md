@@ -16,7 +16,7 @@
 | Area | Minimum question |
 |---|---|
 | Scope | Do actual files and changed behavior match the documented RFC and task ownership? |
-| Financial correctness | Is the only canonical ledger used? Balanced integer-paise postings, transfers/fees, asset/liability and reversal invariants preserved? |
+| Financial correctness | Is there one canonical journal with **native ISO-currency-specific safe-integer minor units** (INR paise only for INR), correct exponent/zero/three-decimal fixtures, **per-currency debit-credit balance**, idempotency, transfers/fees, asset/liability and reversal invariants? Are unapproved FX clearing/rounding policies explicitly BLOCKED? |
 | Security / privacy | Secrets, finance data, raw logs, cloud upload, deletion, user consent, input/path validation and supply-chain risks? |
 | Android / iOS | Are native SMS and Expo Go/iPhone inbox limitations described correctly? Any new permission or store-policy risk? |
 | Automation | Does CI use only intended privileges, no `pull_request_target`, no hidden approvals/merges? Can PR authors modify their own test definitions? |
