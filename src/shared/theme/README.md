@@ -562,3 +562,23 @@ next to the refresh control. The feedback resets when the detail sheet closes
 or switches currency. These messages describe the network check outcome,
 not a live-market tick or any change to booked amounts. No new dependencies
 or background requests were introduced; on-device QA remains pending.
+
+## Sub Currency opt-in app lifecycle and local FX cache — 2026-11-21
+
+The earlier Sub-screen mount-time FX request is superseded. An app-scoped
+FxRateProvider is mounted inside DatabaseGate and CurrencyPreferencesProvider.
+It runs only for the user's nonempty, saved Sub/Main pairs when the app
+starts, Sub selection changes or Main Currency changes. Main/Sub display
+format changes and opening screens are render-only; neither causes a new
+FX request. Manual Refresh keeps its spinner and validated success/unchanged/
+failure status. The shared provider deduplicates in-flight pair requests
+and excludes stale responses for disabled pairs.
+
+Last valid rates are cached using the versioned expo-sqlite local KV
+adapter, with pair, provider source, publication date and fetch timestamp.
+Cached values are displayed with an explicit Cached label if online
+verification fails. An absent cache shows unavailable; invalid cache
+payloads are rejected. Empty Sub selection makes zero FX requests,
+while no background polling or timers are introduced. No financial
+transaction/ledger writes or external user data are included. Provider
+licensing/privacy approval and on-device tests remain required.
