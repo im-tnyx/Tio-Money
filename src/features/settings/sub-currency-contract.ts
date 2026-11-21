@@ -1,8 +1,5 @@
 import type { ReferenceRate } from '@/data/market/fx-reference-rates';
-import type {
-  CurrencyCode,
-  UnitPosition,
-} from '@/shared/currency/currency-preference';
+import type { CurrencyCode, UnitPosition } from '@/shared/currency/currency-preference';
 
 export interface SubCurrencyChoiceRow {
   readonly key: string;
