@@ -249,8 +249,8 @@ test('TM-CUR-015: preview without extra card, edge-to-edge common settings group
   assert.match(screen, /borderTopWidth: theme\.navigation\.borderWidth/);
   assert.match(screen, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(screen, /last=\{index === state\.rows\.length - 1\}/);
-  const oldCardMargin = /marginHorizontal: theme\.space\.lg,\s*backgroundColor: theme\.colors\.card/;
-  assert.doesNotMatch(screen, oldCardMargin);
+  const oldMargin = /marginHorizontal: theme\.space\.lg,\s*backgroundColor: theme\.colors\.card/;
+  assert.doesNotMatch(screen, oldMargin);
   assert.doesNotMatch(screen, /\{t\('currencyDisplayFormat'\)\}/);
   assert.doesNotMatch(screen, /\{t\('currencyLargePreview'\)\}/);
 });
