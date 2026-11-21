@@ -6,11 +6,7 @@ import type {
   UnitPosition,
 } from '@/shared/currency/currency-preference';
 
-export type MainCurrencySheetKind =
-  | 'currency'
-  | 'decimal'
-  | 'grouping'
-  | 'compact';
+export type MainCurrencySheetKind = 'currency' | 'decimal' | 'grouping' | 'compact';
 
 export type MainCurrencyChoice =
   | { readonly kind: 'currency'; readonly code: CurrencyCode }

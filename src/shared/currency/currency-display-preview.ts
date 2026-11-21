@@ -1,7 +1,4 @@
-import {
-  CURRENCY_OPTIONS,
-  type CurrencyPreferences,
-} from './currency-preference';
+import { CURRENCY_OPTIONS, type CurrencyPreferences } from './currency-preference';
 
 /**
  * Illustrative UI preview only. Never pass booked ledger money through JS number,

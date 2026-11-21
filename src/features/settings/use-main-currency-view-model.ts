@@ -94,8 +94,21 @@ export function useMainCurrencyViewModel(): {
         : decimalChoices.find((item) => item.value === d.decimalDigits)?.label ?? '1.00';
     const rows = [
       { key: 'decimal', label: t('currencyDecimals'), value: decimalLabel },
-      { key: 'grouping', label: t('currencyGrouping'), value: d.grouping === 'indian' ? t('currencyIndian') : t('currencyInternational') },
-      { key: 'compact', label: t('currencyCompact'), value: d.largeAmounts === 'full' ? t('currencyFull') : d.largeAmounts === 'indian' ? t('currencyLakhs') : t('currencyMillions') },
+      {
+        key: 'grouping',
+        label: t('currencyGrouping'),
+        value: d.grouping === 'indian' ? t('currencyIndian') : t('currencyInternational'),
+      },
+      {
+        key: 'compact',
+        label: t('currencyCompact'),
+        value:
+          d.largeAmounts === 'full'
+            ? t('currencyFull')
+            : d.largeAmounts === 'indian'
+              ? t('currencyLakhs')
+              : t('currencyMillions'),
+      },
     ] as const;
     let choices: readonly MainCurrencyChoiceRow[] = [];
     if (sheetKind === 'currency') {
@@ -113,16 +126,41 @@ export function useMainCurrencyViewModel(): {
         choice: { kind: 'decimal' as const, value: item.value },
       }));
     } else if (sheetKind === 'grouping') {
-      choices = ([
-        { key: 'indian', label: t('currencyIndianExample'), selected: d.grouping === 'indian', choice: { kind: 'grouping', value: 'indian' } },
-        { key: 'international', label: t('currencyInternationalExample'), selected: d.grouping === 'international', choice: { kind: 'grouping', value: 'international' } },
-      ] as const);
+      choices = [
+        {
+          key: 'indian',
+          label: t('currencyIndianExample'),
+          selected: d.grouping === 'indian',
+          choice: { kind: 'grouping', value: 'indian' },
+        },
+        {
+          key: 'international',
+          label: t('currencyInternationalExample'),
+          selected: d.grouping === 'international',
+          choice: { kind: 'grouping', value: 'international' },
+        },
+      ] as const;
     } else if (sheetKind === 'compact') {
-      choices = ([
-        { key: 'full', label: t('currencyFull'), selected: d.largeAmounts === 'full', choice: { kind: 'compact', value: 'full' } },
-        { key: 'indian', label: t('currencyLakhs'), selected: d.largeAmounts === 'indian', choice: { kind: 'compact', value: 'indian' } },
-        { key: 'international', label: t('currencyMillions'), selected: d.largeAmounts === 'international', choice: { kind: 'compact', value: 'international' } },
-      ] as const);
+      choices = [
+        {
+          key: 'full',
+          label: t('currencyFull'),
+          selected: d.largeAmounts === 'full',
+          choice: { kind: 'compact', value: 'full' },
+        },
+        {
+          key: 'indian',
+          label: t('currencyLakhs'),
+          selected: d.largeAmounts === 'indian',
+          choice: { kind: 'compact', value: 'indian' },
+        },
+        {
+          key: 'international',
+          label: t('currencyMillions'),
+          selected: d.largeAmounts === 'international',
+          choice: { kind: 'compact', value: 'international' },
+        },
+      ] as const;
     }
     return {
       label: getCurrencyLabel(preferences),

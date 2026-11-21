@@ -177,9 +177,7 @@ export function MainCurrencyScreen({
                 <Pressable
                   key={value}
                   accessibilityRole="radio"
-                  accessibilityLabel={
-                    value === 'front' ? t('currencyFront') : t('currencyEnd')
-                  }
+                  accessibilityLabel={value === 'front' ? t('currencyFront') : t('currencyEnd')}
                   accessibilityState={{ checked: state.unitPosition === value }}
                   onPress={() => onAction({ type: 'position.select', value })}
                   style={{

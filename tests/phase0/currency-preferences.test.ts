@@ -40,7 +40,11 @@ test('TM-CUR-001: default Main INR, Sub None and valid curated ISO display codes
 
 test('TM-CUR-002/003: optional different Sub, collision auto-clears', () => {
   const selected = withSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
-  assert.deepEqual(selected, { mainCode: 'INR', subCode: 'USD', display: DEFAULT_CURRENCY_DISPLAY });
+  assert.deepEqual(selected, {
+    mainCode: 'INR',
+    subCode: 'USD',
+    display: DEFAULT_CURRENCY_DISPLAY,
+  });
   assert.deepEqual(withMainCurrency(selected, 'USD'), {
     mainCode: 'USD',
     subCode: null,

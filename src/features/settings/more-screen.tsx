@@ -120,7 +120,9 @@ export function MoreScreen({
           >
             <View style={{ flex: 1 }}>
               <AppText>{t('currencyMain')}</AppText>
-              <AppText variant="caption" muted>{state.currency.mainCode}</AppText>
+              <AppText variant="caption" muted>
+                {state.currency.mainCode}
+              </AppText>
             </View>
             <Svg
               width={theme.iconRoles.card}
