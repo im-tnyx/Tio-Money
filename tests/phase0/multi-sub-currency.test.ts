@@ -248,10 +248,13 @@ test('TM-CUR-050: use local verification day, not the Frankfurter publication da
   assert.equal(shouldOfferSubCurrencyRefresh('loading', null, today), false);
   assert.equal(formatSubCurrencyLastChecked(checkedYesterday, today), '21 Nov');
   assert.equal(formatSubCurrencyLastChecked(null, today), null);
-  assert.equal(formatSubCurrencyLastChecked(new Date(2025, 10, 22).getTime(), today), '22 Nov 2025');
+  assert.equal(
+    formatSubCurrencyLastChecked(new Date(2025, 10, 22).getTime(), today),
+    '22 Nov 2025',
+  );
 });
 
-test('TM-CUR-051: stale FX retry is a right-aligned action within the same-height Sub card', () => {
+test('TM-CUR-051: stale FX retry fits inside the same-height Sub card', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   const provider = readFileSync('src/shared/currency/fx-rate-provider.tsx', 'utf8');
