@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — More Currency preference foundation (RFC #52)
+
+- **Owner chat direction:** prioritize More → Main + optional Sub Currency before Accounts, Logs and Stats. Agent-recorded [RFC #52](https://github.com/im-tnyx/Tio-Money/issues/52) / [technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/52#issuecomment-7061682129) for **local, display-only preference/UI**, no approved FX provider/cross-currency ledger.
+- **Task:** [TM-CURRENCY-PREF-20261121-001](tasks/product/more-currency-preferences-20261121.md), branch `feat/more-currency-preferences-20261121` from `main` `b49a4a90d653090e1b4ed4de7302dd6b9f2365c0`; scoped shared context, local kv-store, More modal and tests. Four finance routes untouched.
+- **Gate:** validate exact PR HEAD CI/reviews and Android/iPhone QA separately. Independent review deferred, **MERGE_AUTHORIZATION=NOT_GRANTED**, no privileged preview, migrations, cloud or server.
+ 
+---
+
+
 ## 2026-11-21 — Docs audit readiness PR toward merge gate (Issue #50)
 
 - **Current live GitHub finding at source inspection:** PR #1 and PR #24 already **MERGED**, no open PRs at task creation; older "PR #24 NOT MERGED" entries below are *historical snapshots*, not live merge status. Baseline `main` `57e564af8f526f9de69eaaf61f2fbc0c72731188`.
