@@ -271,7 +271,18 @@ jobs:
           codespace="$PREFERRED_CODESPACE"
           state="$(jq -r '.state // empty' "$selected_json")"
           if [[ "$state" != "Available" ]]; then
-            gh api --method POST "/user/codespaces/${codespace}/start" >/dev/null
+            # GitHub Codespaces can transition to running after the initial GET
+            # but before POST /start. Only the exact known already-running 409
+            # is idempotent; every other API failure still aborts this job.
+            start_failure=""
+            if start_failure="$(gh api --method POST "/user/codespaces/${codespace}/start" 2>&1 >/dev/null)"; then
+              :
+            elif [[ "$start_failure" == "gh: The codespace is already running (HTTP 409)" ]]; then
+              echo "Codespace start raced with another transition; rechecking verified availability."
+            else
+              echo "::error::Dedicated Codespace start API failed; refusing to bypass an unexpected failure."
+              exit 1
+            fi
           fi
           for attempt in $(seq 1 120); do
             gh api "/user/codespaces/${codespace}" > "$selected_json"
