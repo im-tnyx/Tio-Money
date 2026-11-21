@@ -187,8 +187,10 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   assert.match(screen, /\{t\('currencyMain'\)\}/);
   assert.match(screen, /\{t\('currencyChange'\)\}/);
   assert.match(screen, /type: 'position.select'/);
-  assert.match(screen, /accessibilityRole="radiogroup"/);
-  assert.match(screen, /accessibilityState=\{\{ checked: state.unitPosition === value \}\}/);
+  const position = readFileSync('src/features/settings/currency-unit-position-control.tsx', 'utf8');
+  assert.match(screen, /<CurrencyUnitPositionControl/);
+  assert.match(position, /accessibilityRole="radiogroup"/);
+  assert.match(position, /accessibilityState=\{\{ checked: selected \}\}/);
   assert.match(screen, /<MainCurrencyOptionSheet/);
   assert.match(sheet, /<AppBottomSheet/);
   assert.match(sheet, /accessibilityRole="radio"/);

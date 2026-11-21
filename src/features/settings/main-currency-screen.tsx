@@ -8,6 +8,7 @@ import { AppText } from '@/shared/ui/app-text';
 
 import type { MainCurrencyAction, MainCurrencyUiState } from './main-currency-contract';
 import { MainCurrencyOptionSheet } from './main-currency-option-sheet';
+import { CurrencyUnitPositionControl } from './currency-unit-position-control';
 
 function CurrencyFormatRow({
   label,
@@ -169,34 +170,10 @@ export function MainCurrencyScreen({
             }}
           >
             <AppText>{t('currencyPosition')}</AppText>
-            <View
-              accessibilityRole="radiogroup"
-              style={{ flexDirection: 'row', gap: theme.space.sm }}
-            >
-              {(['front', 'end'] as const).map((value) => (
-                <Pressable
-                  key={value}
-                  accessibilityRole="radio"
-                  accessibilityLabel={t(value === 'front' ? 'currencyFront' : 'currencyEnd')}
-                  accessibilityState={{ checked: state.unitPosition === value }}
-                  onPress={() => onAction({ type: 'position.select', value })}
-                  style={{
-                    flex: 1,
-                    minHeight: theme.buttons.minimumHeight,
-                    borderWidth: theme.buttons.outlineWidth,
-                    borderColor:
-                      state.unitPosition === value ? theme.colors.brand : theme.colors.border,
-                    backgroundColor:
-                      state.unitPosition === value ? theme.colors.elevated : theme.colors.card,
-                    borderRadius: theme.radius.sm,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <AppText>{value === 'front' ? t('currencyFront') : t('currencyEnd')}</AppText>
-                </Pressable>
-              ))}
-            </View>
+            <CurrencyUnitPositionControl
+              value={state.unitPosition}
+              onChange={(value) => onAction({ type: 'position.select', value })}
+            />
           </View>
           {state.rows.map((row) => (
             <CurrencyFormatRow
