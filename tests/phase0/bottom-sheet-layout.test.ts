@@ -39,15 +39,13 @@ test('visible handle and title stay unchanged; invisible drag target takes no sp
 test('all sheets share one bottom-safe scroll area and expose final options', () => {
   const shell = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   const main = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
-  const sub = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
   const appearance = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
   assert.equal(shell.match(/<ScrollView/g)?.length, 1);
   assert.match(shell, /nestedScrollEnabled/);
   assert.match(shell, /paddingBottom: scrollBottomPadding/);
   assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
-  assert.doesNotMatch(main + sub, /<ScrollView|maxHeight: '70%'/);
+  assert.doesNotMatch(main, /<ScrollView|maxHeight: '70%'/);
   assert.match(main, /<AppBottomSheet/);
-  assert.match(sub, /<AppBottomSheet/);
   assert.match(appearance, /<AppBottomSheet/);
   assert.equal(bottomSheetTokens.contentBottomPadding, 40);
   assert.equal(bottomSheetTokens.handleTouchHeight, 48);

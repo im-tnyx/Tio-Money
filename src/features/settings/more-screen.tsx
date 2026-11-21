@@ -7,7 +7,6 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import { AppearanceSheet } from './appearance-sheet';
-import { CurrencySheet } from './currency-sheet';
 import type { MoreAction, MoreUiState } from './more-contract';
 
 /** Dumb presentation: bottom-sheet visibility and actions belong to the ViewModel. */
@@ -155,11 +154,10 @@ export function MoreScreen({
               }}
             />
             <Pressable
-              onPress={() => onAction({ type: 'currency.open' })}
+              onPress={() => onAction({ type: 'currency.sub.open' })}
               accessibilityRole="button"
               accessibilityLabel={t('currencySub')}
-              accessibilityHint={t('currencyHint')}
-              accessibilityState={{ expanded: state.currencySheetVisible }}
+              accessibilityHint={t('currencyOpenSubHint')}
               style={{
                 width: '100%',
                 minHeight: theme.buttons.minimumHeight,
@@ -202,7 +200,6 @@ export function MoreScreen({
         </View>
       </ScrollView>
       <AppearanceSheet state={state} onAction={onAction} />
-      <CurrencySheet state={state} onAction={onAction} />
     </SafeAreaView>
   );
 }

@@ -111,34 +111,33 @@ test('TM-CUR-006: one global context reaches future Accounts/Transactions/Stats'
   assert.doesNotMatch(root, /useState|useEffect|fetch\(/);
 });
 
-test('TM-CUR-007: More currency bottom sheet remains dumb, English and accessible', () => {
+test('TM-CUR-007: More Sub Currency opens its own accessible route, not a sheet', () => {
   const screen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
-  const sheet = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
   const vm = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
-  assert.match(screen, /onAction\(\{ type: 'currency.open' \}\)/);
-  assert.match(screen, /<CurrencySheet state=\{state\} onAction=\{onAction\} \/>/);
-  assert.match(sheet, /<AppBottomSheet/);
-  assert.match(sheet, /accessibilityRole="radiogroup"/);
-  assert.match(sheet, /accessibilityRole="radio"/);
-  assert.match(sheet, /accessibilityState=\{\{ checked: selected \}\}/);
-  assert.match(sheet, /onDismiss=\{\(\) => onAction\(\{ type: 'currency.dismiss' \}\)\}/);
-  assert.doesNotMatch(screen + sheet, /useState|useEffect|Storage\.|router\.push|SQLite|fetch\(/);
-  assert.match(vm, /setCurrencySheetVisible/);
+  const sub = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const route = readFileSync('src/app/currency/sub.tsx', 'utf8');
+  assert.match(screen, /onAction\(\{ type: 'currency.sub.open' \}\)/);
+  assert.doesNotMatch(screen, /<CurrencySheet|currencySheetVisible/);
+  assert.match(vm, /router.push\('\/currency\/sub'\)/);
+  assert.match(route, /<SubCurrencyRoute \/>/);
+  assert.match(sub, /accessibilityRole="radiogroup"/);
+  assert.match(sub, /accessibilityRole="radio"/);
+  assert.match(sub, /accessibilityState=\{\{ checked: option.selected \}\}/);
+  assert.doesNotMatch(sub, /<AppBottomSheet|<Modal|Storage\.|fetch\(/);
   assert.equal(en.currencyMain, 'Main Currency');
   assert.equal(en.currencySub, 'Sub Currency');
   assert.equal(en.currencyNone, 'None');
-  assert.match(en.currencyNoRates, /not available yet/);
 });
 
 test('TM-CUR-008: currency preference is not FX, migration or a second ledger', () => {
   const migration = readFileSync('src/data/sqlite/migrations.ts', 'utf8');
   const currency = readFileSync('src/shared/currency/currency-preference.ts', 'utf8');
   const store = readFileSync('src/data/preferences/currency-preference-store.ts', 'utf8');
-  const sheet = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
+  const subScreen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   assert.match(migration, /version: 1/);
   assert.doesNotMatch(migration, /fx_rate_cache|currency_preferences/);
   assert.doesNotMatch(
-    currency + store + sheet,
+    currency + store + subScreen,
     /https?:\/\/|fetch\(|openDatabase|PRAGMA|insert into/,
   );
 });
@@ -182,7 +181,7 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   const vm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
   const route = readFileSync('src/app/currency/main.tsx', 'utf8');
   assert.match(more, /onAction\(\{ type: 'currency.main.open' \}\)/);
-  assert.match(more, /onAction\(\{ type: 'currency.open' \}\)/);
+  assert.match(more, /onAction\(\{ type: 'currency.sub.open' \}\)/);
   assert.match(screen, /\{t\('currencyMain'\)\}/);
   assert.match(screen, /label=\{t\('currencyChange'\)\}/);
   assert.match(screen, /type: 'position.select'/);
@@ -204,7 +203,7 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
 test('TM-CUR-013: icon-only Back, shared icon sizes and reusable sheet shell', () => {
   const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
   const options = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
-  const subSheet = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
+  const subScreen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
 
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
@@ -214,9 +213,9 @@ test('TM-CUR-013: icon-only Back, shared icon sizes and reusable sheet shell', (
   assert.match(tokens, /topBar: iconTokens\.size/);
   assert.match(tokens, /bottomSheet: iconTokens\.size/);
   assert.match(options, /<AppBottomSheet/);
-  assert.match(subSheet, /<AppBottomSheet/);
+  assert.doesNotMatch(subScreen, /<AppBottomSheet/);
   assert.match(options, /theme\.iconRoles\.bottomSheet/);
-  assert.match(subSheet, /theme\.iconRoles\.bottomSheet/);
+  assert.match(subScreen, /theme\.iconRoles\.topBar/);
 });
 
 test('TM-CUR-014: image-style Front/End pill selector shares themed semantic tokens', () => {

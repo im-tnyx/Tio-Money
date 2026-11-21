@@ -13,14 +13,7 @@ export function useMoreViewModel(): {
   const router = useRouter();
   const { preference, error, selectPreference } = useAppearanceSettings();
   const [appearanceSheetVisible, setAppearanceSheetVisible] = useState(false);
-  const {
-    preferences: currency,
-    error: currencyError,
-    selectMainCurrency,
-    selectSubCurrency,
-  } = useCurrencySettings();
-  const [currencySheetVisible, setCurrencySheetVisible] = useState(false);
-  const [currencyStep, setCurrencyStep] = useState<'overview' | 'main' | 'sub'>('overview');
+  const { preferences: currency } = useCurrencySettings();
 
   const onAction = useCallback(
     (action: MoreAction) => {
@@ -34,39 +27,15 @@ export function useMoreViewModel(): {
         case 'appearance.select':
           selectPreference(action.preference);
           break;
-        case 'currency.open':
-          setCurrencyStep('sub');
-          setCurrencySheetVisible(true);
-          break;
         case 'currency.main.open':
           router.push('/currency/main');
           break;
-        case 'currency.dismiss':
-          setCurrencySheetVisible(false);
-          setCurrencyStep('overview');
-          break;
-        case 'currency.back':
-          setCurrencyStep('overview');
-          break;
-        case 'currency.pick-main':
-          setCurrencyStep('main');
-          break;
-        case 'currency.pick-sub':
-          setCurrencyStep('sub');
-          break;
-        case 'currency.select':
-          if (currencyStep === 'main' && action.code !== null) {
-            selectMainCurrency(action.code);
-            setCurrencyStep('overview');
-          } else if (currencyStep === 'sub') {
-            selectSubCurrency(action.code);
-            setCurrencyStep('overview');
-            setCurrencySheetVisible(false);
-          }
+        case 'currency.sub.open':
+          router.push('/currency/sub');
           break;
       }
     },
-    [router, selectPreference, currencyStep, selectMainCurrency, selectSubCurrency],
+    [router, selectPreference],
   );
 
   return {
@@ -75,9 +44,6 @@ export function useMoreViewModel(): {
       error,
       appearanceSheetVisible,
       currency,
-      currencyError,
-      currencySheetVisible,
-      currencyStep,
     },
     onAction,
   };

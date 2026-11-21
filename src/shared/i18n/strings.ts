@@ -36,6 +36,7 @@ export const en = {
   currencySaveError: 'Could not save currency settings. Try again.',
   closeCurrency: 'Close Currency Settings',
   currencyOpenMainHint: 'Open Main Currency display settings.',
+  currencyOpenSubHint: 'Open Sub Currency selection screen.',
   currencyChooseMain: 'Select Main Currency',
   currencyChange: 'Change',
   currencyPageBack: 'Back',

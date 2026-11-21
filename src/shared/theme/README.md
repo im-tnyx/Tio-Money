@@ -327,6 +327,19 @@ cards. The More screen's Currency section now wraps **Main Currency** and
 outer top/bottom border and one inset `theme.colors.border` separator.
 Both rows retain their existing icon roles, text hierarchy, currency values,
 48dp minimum touch targets, accessibility labels and actions. Main Currency
-still opens its dedicated screen and Sub Currency its existing sheet.
+still opens its dedicated screen and Sub Currency its own screen.
 Appearance, section spacing, navigation, persistence and other screen behavior
 remain unchanged. Android/iOS visual verification is required.
+
+## Sub Currency dedicated route — PR #53 (2026-11-21)
+
+The More Sub Currency row now opens `/currency/sub` instead of a
+bottom sheet. The obsolete More Currency sheet and sheet-only controller
+state/actions are removed. The new Route, ViewModel and screen follow
+the established architecture: 50dp safe-area top bar, accessible Back,
+scrollable full-screen radio options, and no navigation or storage in the
+presentation layer. `None` is always offered, Main Currency is excluded,
+and the current Sub is marked. The existing provider saves selections
+without silently navigating away if persistence fails. Main Currency,
+Appearance and the More shared card remain unchanged. Android/iOS
+screen and accessibility testing remain required.

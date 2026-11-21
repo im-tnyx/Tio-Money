@@ -17,7 +17,7 @@
 
 **2026-11-21 finance decision split:** [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx) accepts per-currency exactness and forbids silent mixed-currency booking; actual balanced clearing/gain/rounding and cross-currency transfers remain **BLOCKED for implementation**. [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) accepts privacy, source/timestamp and refresh-on-use while **specific rate provider, license and supported codes** remain unapproved. Controllers/services fetch quotes; **screens may only render a provided rate ViewModel**, per [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
 
-**Unmerged PR #53 display UI refinement (2026-11-21):** More contains separate Currency section with Main Currency route and Sub Currency picker. Main Currency has Back/centered title/Change and large sample, Front/End inline radio buttons, Decimal Point, Indian/International Number Format and Large Numbers shared bottom sheets. This is a pure, versioned local display preference (with legacy Main/Sub values preserved), not an FX or canonical ledger-format change. [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54). Exact-head CI and on-device a11y acceptance are pending.
+**Unmerged PR #53 display UI refinement (2026-11-21):** More groups Main Currency and Sub Currency in one card; each opens a dedicated screen. Sub Currency offers None or a different currency directly on its screen without a bottom sheet. Main Currency has Back/centered title/Change and large sample, Front/End inline radio buttons, Decimal Point, Indian/International Number Format and Large Numbers shared bottom sheets. This is a pure, versioned local display preference (with legacy Main/Sub values preserved), not an FX or canonical ledger-format change. [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54). Exact-head CI and on-device a11y acceptance are pending.
 
 **Currency-dependent format default (PR #53):** On a real **Main Currency change**,
 the grouping preference returns to **Auto**: INR displays Indian lakh/crore
@@ -122,3 +122,14 @@ These are concept names for future architecture review, **not permission to crea
 **Stage separation:** Stage 1 network is FX-only. **Stage 2** Google Drive/iCloud backup and **Stage 3** optional Supabase/Auth are not implemented and require separate docs and security gates.
 
 [← Docs Hub](00-INDEX.md) · [Account Groups →](08-ACCOUNT-GROUPS-SPEC.md)
+
+### Sub Currency route — PR #53 (2026-11-21)
+
+More → Sub Currency navigates to `/currency/sub` instead of a bottom
+sheet. The screen has the same 50dp safe-area-aware title bar as Main Currency,
+an icon-only Back action and a scrollable radio list. `None` is always
+available; Main Currency cannot be selected as Sub. Choices save through the
+existing local preferences provider. Selection stays on the screen so storage
+failure messages remain visible; Back returns to More. A Main/Sub collision
+continues to auto-clear Sub. This change does not add FX quotes, network calls,
+data migrations, finance ledger operations or new persisted keys.
