@@ -96,7 +96,9 @@ test('TM-FX-017: shared startup controller, screen-only display and manual force
   assert.match(controller, /cache.write\(result, fetchedAt\)/);
   assert.match(cache, /Storage.getItemSync/);
   assert.match(cache, /Storage.setItemSync/);
-  assert.doesNotMatch(screenVm, /getReferenceRate\(|useEffect\(|setRates\(/);
+  // A controller-owned UI feedback timeout is allowed; direct FX fetching
+  // and periodic network polling from this screen ViewModel are not.
+  assert.doesNotMatch(screenVm, /getReferenceRate\(|setRates\(|setInterval\(/);
   assert.match(screenVm, /useFxRates\(\)/);
   assert.match(screenVm, /void refreshRate\(detailCode, main\)/);
 });
