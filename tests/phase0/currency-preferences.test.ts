@@ -249,7 +249,8 @@ test('TM-CUR-015: preview without extra card, edge-to-edge common settings group
   assert.match(screen, /borderTopWidth: theme\.navigation\.borderWidth/);
   assert.match(screen, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(screen, /last=\{index === state\.rows\.length - 1\}/);
-  assert.doesNotMatch(screen, /marginHorizontal: theme\.space\.lg,\s*backgroundColor: theme\.colors\.card/);
+  const oldCardMargin = /marginHorizontal: theme\.space\.lg,\s*backgroundColor: theme\.colors\.card/;
+  assert.doesNotMatch(screen, oldCardMargin);
   assert.doesNotMatch(screen, /\{t\('currencyDisplayFormat'\)\}/);
   assert.doesNotMatch(screen, /\{t\('currencyLargePreview'\)\}/);
 });
@@ -286,9 +287,11 @@ test('TM-CUR-018: None decimal option displays exactly 1, never 1.0', () => {
   assert.equal(formatCurrencyExample(noDecimals, 1), '₹ 1');
   assert.equal(formatCurrencyExample(noDecimals, 1.49), '₹ 1');
   assert.equal(formatCurrencyExample(noDecimals, 1.5), '₹ 2');
-  assert.equal(formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits: 1 }), 1), '₹ 1.0');
-  assert.equal(formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits: 2 }), 1), '₹ 1.00');
-  assert.equal(formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits: 3 }), 1), '₹ 1.000');
+  const previewWithDecimals = (decimalDigits: 0 | 1 | 2 | 3) =>
+    formatCurrencyExample(withCurrencyDisplay(main, { decimalDigits }), 1);
+  assert.equal(previewWithDecimals(1), '₹ 1.0');
+  assert.equal(previewWithDecimals(2), '₹ 1.00');
+  assert.equal(previewWithDecimals(3), '₹ 1.000');
   assert.equal(en.currencyDecimalNone, 'None (1)');
   assert.equal(en.currencyDecimalOne, '1 decimal (1.0)');
   assert.match(vm, /value: 0/);
