@@ -327,7 +327,7 @@ export function SubCurrencyScreen({
                       paddingVertical: theme.space.md,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: theme.space.md,
+                      gap: theme.space.xs,
                     }}
                   >
                     <Pressable
@@ -349,15 +349,23 @@ export function SubCurrencyScreen({
                       }}
                       style={{ flex: 1, gap: theme.space.xxs }}
                     >
-                      <AppText>{item.label}</AppText>
+                      <AppText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                        {item.label}
+                      </AppText>
                       {(item.rateStatus === 'available' || item.rateStatus === 'cached') &&
                       item.rate ? (
-                        <AppText variant="caption" muted>
+                        <AppText
+                          variant="caption"
+                          muted
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.7}
+                        >
                           {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
                           {formatReferenceRate(item.rate)}
                         </AppText>
                       ) : (
-                        <AppText variant="caption" muted>
+                        <AppText variant="caption" muted numberOfLines={1}>
                           {t(
                             item.rateStatus === 'loading'
                               ? 'currencyFxLoading'
@@ -366,6 +374,52 @@ export function SubCurrencyScreen({
                         </AppText>
                       )}
                     </Pressable>
+                    {item.showRefresh ? (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={
+                          item.code +
+                          ' · ' +
+                          item.lastCheckedLabel +
+                          ' · ' +
+                          t(item.refreshing ? 'currencyFxCheckingShort' : 'currencyFxRefreshNow')
+                        }
+                        accessibilityState={{ disabled: item.refreshing }}
+                        disabled={item.refreshing}
+                        onPress={() => {
+                          if (openSwipeCode !== null) setOpenSwipeCode(null);
+                          else onAction({ type: 'card.refresh', code: item.code });
+                        }}
+                        style={{
+                          width: theme.space.xxxl * 3,
+                          minHeight: theme.buttons.minimumHeight,
+                          alignItems: 'flex-end',
+                          justifyContent: 'center',
+                          gap: theme.space.xxs,
+                          opacity: item.refreshing
+                            ? theme.buttons.disabledOpacity
+                            : theme.buttons.enabledOpacity,
+                        }}
+                      >
+                        <AppText
+                          variant="caption"
+                          muted
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.7}
+                          style={{ textAlign: 'right' }}
+                        >
+                          {item.lastCheckedLabel}
+                        </AppText>
+                        <AppText
+                          variant="caption"
+                          numberOfLines={1}
+                          style={{ color: theme.colors.brand, textAlign: 'right' }}
+                        >
+                          {t(item.refreshing ? 'currencyFxCheckingShort' : 'currencyFxRefreshNow')}
+                        </AppText>
+                      </Pressable>
+                    ) : null}
                   </View>
                 </SwipeableCurrencyRow>
               ))}
