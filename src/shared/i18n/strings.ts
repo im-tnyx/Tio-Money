@@ -62,6 +62,8 @@ export const en = {
   currencyFxCheckedAt: 'Last checked',
   currencyFxCheckedShort: 'Checked',
   currencyFxNeverChecked: 'Not checked',
+  currencyFxSomeNotChecked: 'Some not checked',
+  currencyFxRefreshPending: 'Refresh pending Sub Currency rates',
   currencyFxRefreshNow: 'Refresh now',
   currencyFxCheckingShort: 'Checking…',
   currencySubDetails: 'Sub Currency Details',
