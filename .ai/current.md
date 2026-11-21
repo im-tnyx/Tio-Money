@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-22 — PR #53 Sub Detail in-place Number Format (unmerged)
+
+- **Owner requested / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068636655). Add same Millions/Lakhs/No Format policies as Main, but **expand inside the existing Sub Detail Bottom Sheet**; other setting taps or selection collapse the Format options.
+- **Data/scope:** backward-compatible optional per-Sub `grouping` field, currency Auto defaults, per-Sub display isolation, no FX/ledger change, no extra modal and no sensitive provider data. [Task](tasks/product/more-currency-preferences-20261121.md).
+- **Gate:** latest live PR HEAD CI, Android/iOS inline sheet/accessibility QA; owner PR #53 merge **NOT AUTHORIZED**.
+
 ## 2026-11-22 — PR #53 single Sub FX freshness footer (unmerged)
 
 - **Owner revised UI:** [technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068449996). Move previous per-card right-side `Checked / Refresh now` to one **unboxed footer immediately below final selected Sub card**, left check-date/partial-unchecked and right manual `Refresh now`.
