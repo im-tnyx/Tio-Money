@@ -238,3 +238,23 @@ test('TM-CUR-046: Sub detail keeps one dated source row and fine refresh icon st
   assert.match(sheet, /minWidth: theme.buttons.minimumHeight/);
   assert.match(sheet, /accessibilityLabel=\{t\(/);
 });
+
+test('TM-CUR-049: successful FX check feedback disappears after three seconds', () => {
+  const controller = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const detail = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
+  assert.match(controller, /const REFRESH_CONFIRMATION_MS = 3000/);
+  assert.match(controller, /useEffect\(\(\) => \{/);
+  assert.match(controller, /if \(!refreshResult\) return/);
+  assert.match(controller, /const timer = setTimeout\(\(\) => \{/);
+  assert.match(controller, /\}, REFRESH_CONFIRMATION_MS\)/);
+  assert.match(controller, /return \(\) => clearTimeout\(timer\)/);
+  assert.match(controller, /\}, \[refreshResult\]\)/);
+  assert.match(
+    controller,
+    /setRefreshResult\(\(current\) => \(current === refreshResult \? null : current\)\)/,
+  );
+  assert.match(controller, /setRefreshResult\(null\)/);
+  assert.match(controller, /setRefreshError\(t\('currencyFxRefreshFailed'\)\)/);
+  assert.match(detail, /\{detail.refreshStatus \? \(/);
+  assert.match(detail, /accessibilityLiveRegion="polite"/);
+});
