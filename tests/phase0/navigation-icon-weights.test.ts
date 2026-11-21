@@ -7,7 +7,7 @@ import { ROOT_DESTINATIONS } from '../../src/shared/navigation/root-destinations
 import { navigationTokens } from '../../src/shared/theme/component-tokens';
 
 test('five navigation icons use exact selected and unselected Google artwork', () => {
-  assert.equal(navigationTokens.selectedIconWeight, 400);
+  assert.equal(navigationTokens.selectedIconWeight, 300);
   assert.equal(navigationTokens.unselectedIconWeight, 200);
   assert.deepEqual(
     Object.keys(navIconSvg).sort(),
@@ -20,7 +20,7 @@ test('five navigation icons use exact selected and unselected Google artwork', (
     const unselected = readFileSync(prefix + name + '.svg', 'utf8');
     const selected = readFileSync(prefix + name + '-selected.svg', 'utf8');
     assert.equal(navIconSvg[name]['200'], unselected);
-    assert.equal(navIconSvg[name]['400'], selected);
+    assert.equal(navIconSvg[name]['300'], selected);
     assert.notEqual(selected, unselected);
   }
 });

@@ -56,7 +56,7 @@ is required.
 - Five bottom-tab glyphs use official **Google Material Symbols Outlined** SVGs
   (home, book_2, bar_chart_4_bars, account_balance and more_horiz), licensed
   Apache 2.0. The owner-approved 2026-11-21 selected-state rule is:
-  **400 regular when selected**, **200 when unselected**; the former all-tab
+  **300 when selected**, **200 when unselected**; the former all-tab
   maximum 200 is superseded for selected tabs only. Both are original 24px
   optical-size SVG XML paths selected by `navigationTokens.selectedIconWeight`
   and `.unselectedIconWeight`, tinted by existing active/inactive theme colors.
@@ -123,8 +123,8 @@ checks do not prove actual screen-reader or gesture behavior.
 ## Bottom navigation active icon weight (Issue #44, 2026-11-21)
 
 `RootTabBar` derives `active` from the existing pathname, then passes it to
-`RootTabIcon`. `navigationTokens.selectedIconWeight=400` chooses the exact Google
-Material Symbols Outlined **regular 400** SVG; `unselectedIconWeight=200` uses
+`RootTabIcon`. `navigationTokens.selectedIconWeight=300` chooses the exact Google
+Material Symbols Outlined **300-weight** SVG; `unselectedIconWeight=200` uses
 the original **200** SVG. Both remain 24dp via `iconTokens.size`, with unchanged
 brand/secondary color roles, labels, 1dp icon-to-label gap, tab heights, safe-area
 insets, navigation events and independent disabled Add FAB. No stroke-width
@@ -137,3 +137,11 @@ This design decision supersedes the previous all-tabs maximum-200 rule
 Review `tests/phase0/navigation-shell.test.ts` and `design-tokens.test.ts`
 for both local SVG variants, provenance and semantic token assertions. Android/
 iPhone visual verification is distinct from CI.
+
+### Owner refinement — selected bottom navigation weight 300 (2026-11-21)
+
+The previously proposed selected 400 was visually too heavy, so the owner's
+current decision uses official **300** selected and **200** unselected icons.
+These are exact `*_wght300_24px.svg` and `*_wght200_24px.svg` artwork at
+shared 24dp display size; theme colors, labels, spacing, navigation and
+accessibility roles are unchanged. The independent Add FAB remains 400.

@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #45 selected nav weight revised to 300 (Issue #44)
+
+- **Latest owner decision:** Active bottom-tab icon is **300** (initial 400 was too heavy); inactive remains **200**. The former 400/200 checkpoint below is superseded; FAB remains independent at 400.
+- **Scope:** Exact five upstream 300 selected SVGs and static JSON mapping; `navigationTokens.selectedIconWeight=300`, focused tests, theme/asset README and task checkpoint in existing PR #45. Preserve 24dp icon size, 50dp nav baseline, labels, colors, routes, safe areas and original 200 paths.
+- **Gate:** Latest commit needs fresh Phase 0, Governance, Codex review on current HEAD and device visual acceptance; original no-findings review applies only to previous head. No `tio-preview`, EAS or merge. [Owner override](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059814062).
+
+---
+
 ## 2026-11-21 — Bottom nav selected 400 / unselected 200 (Issue #44)
 
 - **Owner decision:** Bottom tab SVGs are official Material Symbols Outlined, **400 weight selected**, **200 unselected**. This supersedes the old maximum-200 rule only for selected bottom icons; 24dp size, colors, bar geometry, labels and disabled FAB remain unchanged.

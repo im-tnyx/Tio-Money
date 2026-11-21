@@ -29,7 +29,7 @@ export const navigationTokens = {
   borderWidth: size.dp1,
   iconLabelGap: size.dp1,
   labelFontSize: size.dp11,
-  selectedIconWeight: 400,
+  selectedIconWeight: 300,
   unselectedIconWeight: 200,
   horizontalPadding: size.dp8,
   topPadding: size.dp1,

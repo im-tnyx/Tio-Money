@@ -36,3 +36,10 @@
 ## Checkpoint
 
 - RFC and task scope recorded on 2026-11-21; verified source base `28af00b40020af4986bfd2843a22d88e6c584c0c`. Final PR/CI SHA to be added only after observation. Post-merge handoff not yet applicable.
+
+## 2026-11-21 — Owner-selected 300 supersedes original selected 400
+
+- **Latest owner decision:** 400 selected looked too heavy, so change selected bottom-nav icon weight to **300**, keep unselected **200**. This supersedes the historical 400/200 proposal above; [Issue #44 decision](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059814062).
+- **Owned PR:** [#45](https://github.com/im-tnyx/Tio-Money/pull/45), same existing branch (its name retains historical 400). Replace exactly five selected assets with official Google `*_wght300_24px.svg`; replace JSON `400` variants with `300`; update `navigationTokens.selectedIconWeight`, focused regression tests and theme/asset provenance. Keep all original weight-200 SVGs, disabled Add FAB (400), 24dp size, colors, labels, safe areas and navigation unchanged.
+- **CI/review:** Prior successful Phase 0/Governance and Codex review were for head `4a1ce947` (before this change), so they are not proof for the new head. Require fresh exact-head checks and assess new review findings. Owner approved weight refinement, not merge. `MERGE NOT AUTHORIZED`; no privileged Codespaces/EAS or `tio-preview`.
+- **Rollback:** The earlier 400/200 PR commit remains in history if needed; no schema/dependency change.

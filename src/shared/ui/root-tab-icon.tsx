@@ -6,7 +6,7 @@ import navIconSvg from '@/shared/assets/google-material-icons/root-tab-icon-svg.
 import type { RootTabIconName } from '@/shared/navigation/root-destinations';
 import { iconTokens, navigationTokens } from '@/shared/theme/component-tokens';
 
-/** Genuine Google Material Symbols Outlined SVGs: selected 400, unselected 200. */
+/** Genuine Google Material Symbols Outlined SVGs: selected 300, unselected 200. */
 export function RootTabIcon({
   name,
   color,
