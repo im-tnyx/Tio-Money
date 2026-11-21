@@ -175,6 +175,7 @@ export function AppearanceSheet({
               >
                 <Path
                   d="M18 6 6 18 M6 6l12 12"
+                  fill="none"
                   stroke={theme.colors.primaryText}
                   strokeWidth={theme.icons.stroke}
                   strokeLinecap="round"

@@ -84,6 +84,7 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(sheet, /borderBottomColor: theme\.colors\.border/);
   assert.match(sheet, /d="M18 6 6 18 M6 6l12 12"/);
+  assert.match(sheet, /fill="none"/);
   assert.match(sheet, /accessibilityLabel=\{t\('closeAppearance'\)\}/);
   assert.doesNotMatch(sheet, /t\('appearanceHint'\)/);
   assert.doesNotMatch(sheet, /<AppText>\{t\('close'\)\}<\/AppText>/);
