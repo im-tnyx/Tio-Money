@@ -201,3 +201,31 @@ when a quote exists, the Exchange Rate refresh row stays compact, the
 Unit Position control sits at the right edge, and both panels share
 the semantic card surface/dividers. No new network endpoint, account
 or ledger data operation or FX-provider approval is implied.
+
+### FX lifecycle and opt-in policy — PR #53, 2026-11-21
+
+**Latest owner direction supersedes unconditional screen-open/network
+refresh rules in section 02 for this MVP.** The global FX rate controller
+mounts once after local database initialization. If saved Sub Currency
+selection is empty, it must not read rates or call the FX provider.
+Only selected and distinct Sub/Main pairs are eligible (maximum 5).
+
+On a cold app launch with saved Subs, request each selected pair once.
+Adding/removing a Sub or changing Main updates eligible pairs and makes
+requests only for the new effective selection. Display settings changes,
+route navigation, opening the Sub screen, repeated renders and idle app
+time do not trigger requests. Users can explicitly press Refresh at any
+time for a currently saved Sub pair, with in-flight deduplication and
+visible spinner/status. Automatic background polling and a fixed timer are
+out of scope; a future finance feature may define additional purpose-specific
+checks after a separate review.
+
+The SQLite-backed, versioned local key-value cache stores **only** a
+validated pair quote, Frankfurter source and fetched timestamp. On cold
+start a cached quote may render immediately but is explicitly labeled
+**Cached** until a successful online verification; on failure preserve
+last valid pair and show an unavailable/cached state, never a fictional
+conversion. Invalid, mismatched or future-dated cache payloads are ignored.
+Removing all Sub selections ends all new FX requests; original ledger
+amounts never change. TM-ADR-023 provider/license/privacy approval remains
+separate and **not granted** by these code changes.
