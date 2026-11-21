@@ -2,6 +2,8 @@
 
 ## 2026-11-21 — More Currency preference foundation (RFC #52)
 
+- **Owner UI update:** [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54) / [PR #53](https://github.com/im-tnyx/Tio-Money/pull/53) extends the unmerged currency slice to a dedicated Main Currency screen, More Currency section, Back/title/Change, inline Front/End selection, and Decimal/Number Format bottom sheets. Earlier green checks belong to an older SHA; exact final HEAD requires revalidation. No merge authorization.
+
 - **Owner chat direction:** prioritize More → Main + optional Sub Currency before Accounts, Logs and Stats. Agent-recorded [RFC #52](https://github.com/im-tnyx/Tio-Money/issues/52) / [technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/52#issuecomment-7061682129) for **local, display-only preference/UI**, no approved FX provider/cross-currency ledger.
 - **Task:** [TM-CURRENCY-PREF-20261121-001](tasks/product/more-currency-preferences-20261121.md), branch `feat/more-currency-preferences-20261121` from `main` `b49a4a90d653090e1b4ed4de7302dd6b9f2365c0`; scoped shared context, local kv-store, More modal and tests. Four finance routes untouched.
 - **Gate:** validate exact PR HEAD CI/reviews and Android/iPhone QA separately. Independent review deferred, **MERGE_AUTHORIZATION=NOT_GRANTED**, no privileged preview, migrations, cloud or server.

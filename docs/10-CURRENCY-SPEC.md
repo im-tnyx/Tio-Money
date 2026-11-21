@@ -17,6 +17,8 @@
 
 **2026-11-21 finance decision split:** [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx) accepts per-currency exactness and forbids silent mixed-currency booking; actual balanced clearing/gain/rounding and cross-currency transfers remain **BLOCKED for implementation**. [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) accepts privacy, source/timestamp and refresh-on-use while **specific rate provider, license and supported codes** remain unapproved. Controllers/services fetch quotes; **screens may only render a provided rate ViewModel**, per [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
 
+**Unmerged PR #53 display UI refinement (2026-11-21):** More contains separate Currency section with Main Currency route and Sub Currency picker. Main Currency has Back/centered title/Change and large sample, Front/End inline radio buttons, Decimal Point, Indian/International Number Format and Large Numbers shared bottom sheets. This is a pure, versioned local display preference (with legacy Main/Sub values preserved), not an FX or canonical ledger-format change. [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54). Exact-head CI and on-device a11y acceptance are pending.
+
 **Preference foundation only:** a local versioned kv-store key and root-provided global hook let future finance controllers consume the same selection. Initial curated ISO-labelled codes are **display settings**, not a list approved for financial posting/FX quotes. Existing four finance screens remain blank. A Main/Sub collision clears Sub. Rate and accounting requirements below remain blocked by TM-ADR-018/023.
 
 ## 01 · Main and Sub Currency behavior

@@ -9,10 +9,10 @@
 | Agent | ChatGPT GPT-6; unknown prior source owner |
 | RFC | [#52](https://github.com/im-tnyx/Tio-Money/issues/52) |
 | Technical decision | [Agent PROCEED](https://github.com/im-tnyx/Tio-Money/issues/52#issuecomment-7061682129) bounded local preferences only |
-| Lifecycle | VALIDATING → IN_REVIEW after PR creation, checks and review |
+| Lifecycle | IN_PROGRESS — owner screenshot UI expansion under RFC #54; final-head checks pending |
 | Base | `b49a4a90d653090e1b4ed4de7302dd6b9f2365c0` (`main`) |
 | Branch | `feat/more-currency-preferences-20261121` |
-| PR | Not yet created; find via GitHub current state |
+| PR | [#53](https://github.com/im-tnyx/Tio-Money/pull/53), OPEN, changed under [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54) |
 | Owner merge authorization | **NOT_GRANTED** for the future PR |
 
 ## Architecture / security
@@ -28,3 +28,7 @@
 - On-device Android/iPhone selection, offline restart, VoiceOver/TalkBack, light/dark and dynamic text **NOT_RUN** unless independently documented.
 - Independent review **DEFERRED** until PR; no passing verdict presumed. Actual GitHub required checks, reviews, security findings and review threads must be verified; no protection bypass.
 - No direct `main` writes, merge/auto-merge, force-push, branch deletion, privileged preview or deployment. Future owner permission must name exact PR.
+
+## 2026-11-21 — Main Currency display UI expansion
+
+Owner screenshot and follow-up: More has a separate Currency section; Main Currency is a dedicated nested screen with Back/centered title/Change, preview amount, **inline Front/End buttons**, and Decimal Point + Indian/International Number Format + optional Large Numbers reusable bottom sheets. Change opens currency-list bottom sheet; Sub Currency remains accessible from More. This is same-feature, unmerged PR #53 scope under [RFC #54 technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/54#issuecomment-7061914160). New local display preference model preserves original saved Main/Sub payloads, never rewrites booked money; sample formatter is for UI preview only, not ledger math. Added deterministic UI/pure formatting coverage. Exact new-head CI/device QA pending. Merge still **NOT_GRANTED**.
