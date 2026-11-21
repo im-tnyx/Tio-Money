@@ -1,0 +1,26 @@
+# Dependabot version-update proposals only. This file does not enable alerts,
+# security updates, dependency graph, CodeQL, or repository security settings.
+# Security decision: https://github.com/im-tnyx/Tio-Money/issues/57
+# Do not auto-merge bot PRs; review each lockfile/action change and rerun CI.
+version: 2
+updates:
+  # Keep the sensitive isolated EAS CLI lockfile out of this root manifest scope.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 2
+
+  # Dependabot may propose workflow action upgrades; GitHub PR reviews and
+  # permission/attestation checks are still required before any merge.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "Asia/Kolkata"
+    open-pull-requests-limit: 2
