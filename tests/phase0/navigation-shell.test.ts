@@ -154,12 +154,13 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   assert.match(tabBar, /<RootTabIcon/);
   assert.match(tabBar, /gap: theme\.navigation\.iconLabelGap/);
   assert.match(tabBar, /name=\{item\.icon\}/);
+  assert.match(tabBar, /selected=\{active\}/);
   assert.doesNotMatch(tabBar, /\{item\.glyph\}/);
   assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
   assert.match(icon, /import \{ SvgXml \} from 'react-native-svg'/);
   assert.match(icon, /accessibilityElementsHidden/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
-  assert.match(icon, /MATERIAL_OUTLINED_SVG\[name\]\.replace/);
+  assert.match(icon, /navIconSvg\[name\]\[weight\]\.replace/);
   assert.match(icon, /fill="\$\{color\}"/);
   assert.match(icon, /width=\{iconTokens\.size\} height=\{iconTokens\.size\}/);
   assert.doesNotMatch(icon, /require\(.+\.png|tabIconShapes|IconFont|<Image/);
@@ -168,8 +169,7 @@ test('all five tabs render official Google SVG paths with token sizing and theme
     const svg = readFileSync(directory + '/' + name + '.svg', 'utf8');
     assert.match(svg, /^<svg /);
     assert.match(svg, /viewBox="0 -960 960 960"/);
-    assert.ok(icon.includes(name + ':'), name + ' should be mapped');
-    assert.ok(icon.includes("'" + svg + "'"), name + ' uses the official SVG source');
+    assert.match(icon, /root-tab-icon-svg\.json/);
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
     assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }

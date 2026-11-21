@@ -1,5 +1,30 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #45 bottom tab icon-label gap removed
+
+- **Latest owner refinement:** Bottom tab selected SVG **300**, unselected SVG **200**, and **icon-label gap 0dp** (formerly 1dp). The central `navigationTokens.iconLabelGap=size.dp0` drives all five tabs through existing `RootTabBar`. Older 1dp notes below are historical and superseded.
+- **Scope:** shared token, design-token regression, Theme and Google asset README, additive task checkpoint. Preserve 24dp icon size, 50dp bar baseline, typography, active colors, accessible tab semantics and disabled Add FAB. Do not add negative margins or touch navigation state.
+- **Safety:** PR #45 remains review-ready but unmerged. Requires current-HEAD CI/review on latest change; no privileged `tio-preview`, EAS, force push, auto-merge or main commit. Owner only requested refinement.
+
+---
+
+## 2026-11-21 — PR #45 selected nav weight revised to 300 (Issue #44)
+
+- **Latest owner decision:** Active bottom-tab icon is **300** (initial 400 was too heavy); inactive remains **200**. The former 400/200 checkpoint below is superseded; FAB remains independent at 400.
+- **Scope:** Exact five upstream 300 selected SVGs and static JSON mapping; `navigationTokens.selectedIconWeight=300`, focused tests, theme/asset README and task checkpoint in existing PR #45. Preserve 24dp icon size, 50dp nav baseline, labels, colors, routes, safe areas and original 200 paths.
+- **Gate:** Latest commit needs fresh Phase 0, Governance, Codex review on current HEAD and device visual acceptance; original no-findings review applies only to previous head. No `tio-preview`, EAS or merge. [Owner override](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059814062).
+
+---
+
+## 2026-11-21 — Bottom nav selected 400 / unselected 200 (Issue #44)
+
+- **Owner decision:** Bottom tab SVGs are official Material Symbols Outlined, **400 weight selected**, **200 unselected**. This supersedes the old maximum-200 rule only for selected bottom icons; 24dp size, colors, bar geometry, labels and disabled FAB remain unchanged.
+- **RFC/PROCEED:** [Issue #44](https://github.com/im-tnyx/Tio-Money/issues/44) and [technical decision](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059593229). **Task:** [TM-UI-NAV-WEIGHTS-20261121](tasks/ui/bottom-nav-icon-weights-20261121.md). Branch `feat/bottom-nav-selected-400-20261121` created from `main` `28af00b40020af4986bfd2843a22d88e6c584c0c`.
+- **Scoped work:** Add five exact Google default-400 SVGs, keep existing 200 SVGs unchanged, use selected/unselected navigation token roles and controlled `RootTabIcon` props; update provenance, theme README and regression tests. No dependencies/native/finance/workflow changes, no privileged preview.
+- **Gate:** Separate Draft PR, exact-head CI and review findings to be verified before Ready for Review. Owner requested **merge gate only**, explicit PR-specific merge permission **NOT_GRANTED**. Device visual QA pending.
+
+---
+
 ## 2026-11-21 — Issue #42 reusable AppBottomSheet implementation started
 
 - **Task:** [TM-UI-BOTTOM-SHEET-20261121-042](tasks/ui/shared-bottom-sheet-20261121.md); [Issue #42](https://github.com/im-tnyx/Tio-Money/issues/42) technical [PROCEED checkpoint](https://github.com/im-tnyx/Tio-Money/issues/42#issuecomment-7059311342) based on direct user instruction to start.
