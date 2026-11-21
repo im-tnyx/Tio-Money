@@ -22,6 +22,8 @@ test('candidate preserves exact EAS CLI, TypeScript and signed Babel pins withou
   assert.deepEqual(candidate.overrides['@expo/eas-json@27.4.1'], { joi: '17.13.9' });
   assert.deepEqual(candidate.overrides['eas-cli@27.4.1'], { joi: '17.13.9' });
   assert.equal(candidate.overrides.joi, undefined);
+  const alreadyApproved = { ...source, overrides: { ...candidate.overrides } };
+  assert.deepEqual(createCandidateManifest(alreadyApproved).overrides, candidate.overrides);
   assert.equal(candidate.overrides['minimatch'], undefined);
 });
 
@@ -29,6 +31,7 @@ test('candidate rejects EAS identity, Babel pin drift and unreviewed override ch
   assert.throws(() => createCandidateManifest({ ...source, dependencies: { 'eas-cli': '28.0.0' } }), /Refusing changed/);
   assert.throws(() => createCandidateManifest({ ...source, overrides: { ...source.overrides, 'node-forge': '*' } }), /Unexpected prior/);
   assert.throws(() => createCandidateManifest({ ...source, overrides: { ...source.overrides, '@babel/helper-module-transforms': '7.29.14' } }), /Refusing changed/);
+  assert.throws(() => createCandidateManifest({ ...source, overrides: { ...source.overrides, 'eas-cli@27.4.1': { joi: '0.0.0' } } }), /Unreviewed existing dependency override/);
 });
 
 test('lockfile candidate rejects missing SHA512 and untrusted registries, or unfixed copies', () => {
