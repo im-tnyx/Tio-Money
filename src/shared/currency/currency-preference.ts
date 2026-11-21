@@ -209,7 +209,7 @@ export function withSubCurrency(
   if (subCode !== null && !isCurrencyCode(subCode)) {
     throw new Error('Invalid Sub Currency');
   }
-  if (subCode === current.mainCode) {
+  if (subCode !== null && subCode === current.mainCode) {
     throw new Error('Sub Currency must differ from Main Currency');
   }
   return {
