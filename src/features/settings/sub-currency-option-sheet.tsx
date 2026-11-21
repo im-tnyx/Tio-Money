@@ -24,11 +24,6 @@ export function SubCurrencyOptionSheet({
       dismissAccessibilityLabel={t('currencyCloseOptions')}
       onDismiss={() => onAction({ type: 'add.dismiss' })}
     >
-      <View style={{ paddingHorizontal: theme.space.lg, paddingVertical: theme.space.sm }}>
-        <AppText variant="caption" muted>
-          {t('currencySubCount')}: {state.selected.length}/{state.limit}
-        </AppText>
-      </View>
       {atLimit ? (
         <View style={{ paddingHorizontal: theme.space.lg, paddingVertical: theme.space.md }}>
           <AppText>{t('currencySubLimitReached')}</AppText>
