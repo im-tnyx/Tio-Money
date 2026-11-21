@@ -124,15 +124,16 @@ export function MainCurrencyScreen({
 }) {
   const theme = useAppTheme();
   const sideWidth = theme.buttons.minimumHeight + theme.space.md;
+  // Paint the status-bar inset as part of the top bar; keep actions below the OS icons.
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={{ flex: 1, backgroundColor: theme.colors.canvas }}
+      style={{ flex: 1, backgroundColor: theme.colors.card }}
     >
       <View
         style={{
           flexDirection: 'row',
-          minHeight: theme.buttons.minimumHeight,
+          minHeight: theme.navigation.topBarHeight,
           alignItems: 'center',
           borderBottomWidth: theme.navigation.borderWidth,
           borderBottomColor: theme.colors.border,
@@ -187,6 +188,7 @@ export function MainCurrencyScreen({
         </Pressable>
       </View>
       <ScrollView
+        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
         contentContainerStyle={{
           paddingBottom: theme.space.xxxl,
           gap: theme.space.lg,

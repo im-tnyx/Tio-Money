@@ -187,3 +187,16 @@ light/dark background when the user overrides the device appearance.
 ## Segmented control visual reference — 2026-11-21 (PR #53)
 
 A user-supplied dark segmented `Write | Preview` control is a **visual reference**, not literal labels. The shared `AppSegmentedControl` uses equal-width rounded options, a dark/light semantic track and contrasting selected pill, with a canonical 48dp minimum option touch height and existing 4dp inset/100dp pill-radius primitives. `CurrencyUnitPositionControl` maps this reusable component to `Front | End`; it does not own persisted state. Theme palette keys `segmentedTrack`, `segmentedSelected`, `segmentedText` and `segmentedSelectedText` are maintained centrally in `tokens.ts`. Neither currency bottom-sheet chrome nor global 24dp icon roles are changed by the selector. Real Android/iOS dark/light contrast and accessibility QA remain required; see [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54).
+
+## Main Currency status-bar/header continuity — PR #53 (2026-11-21)
+
+The dedicated Main Currency screen paints its top safe-area inset with the same
+`theme.colors.card` surface as the header. This makes the bar visually extend
+behind the system battery/network/status icons without putting Back, title or
+Change underneath them. `navigationTokens.topBarHeight` aliases the existing
+`size.dp56` primitive for a **56dp header below the dynamic OS top inset**;
+header action hit areas retain the shared 48dp minimum and icon sizes remain
+24dp. The scrollable body explicitly uses `theme.colors.canvas`, preventing the
+header surface from bleeding into the content. This is local to Main Currency;
+root tab and global StatusBar behavior are unchanged. Device verification of
+Android edge-to-edge and iOS notches remains required.
