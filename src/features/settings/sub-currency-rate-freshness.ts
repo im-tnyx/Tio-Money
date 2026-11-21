@@ -73,3 +73,28 @@ export function formatSubCurrencyLastChecked(
     ? `${day} ${month}`
     : `${day} ${month} ${last.getFullYear()}`;
 }
+
+export interface SubCurrencyCheckState {
+  readonly status: FxDisplayStatus;
+  readonly fetchedAt: number | null;
+}
+
+/** One status below the entire selected Sub list; never imply all checked if one is missing. */
+export function summarizeSubCurrencyChecks(
+  rows: readonly SubCurrencyCheckState[],
+  now: number = Date.now(),
+): { staleCount: number; uncheckedCount: number; oldestCheckedAt: number | null } {
+  let staleCount = 0;
+  let uncheckedCount = 0;
+  let oldestCheckedAt: number | null = null;
+  for (const row of rows) {
+    if (shouldOfferSubCurrencyRefresh(row.status, row.fetchedAt, now)) staleCount += 1;
+    if (formatSubCurrencyLastChecked(row.fetchedAt, now) === null) {
+      uncheckedCount += 1;
+    } else if (row.fetchedAt !== null) {
+      oldestCheckedAt =
+        oldestCheckedAt === null ? row.fetchedAt : Math.min(oldestCheckedAt, row.fetchedAt);
+    }
+  }
+  return { staleCount, uncheckedCount, oldestCheckedAt };
+}
