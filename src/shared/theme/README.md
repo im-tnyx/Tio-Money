@@ -129,7 +129,8 @@ the original **200** SVG. Both remain 24dp via `iconTokens.size`, with unchanged
 brand/secondary color roles, labels, 1dp icon-to-label gap, tab heights, safe-area
 insets, navigation events and independent disabled Add FAB. No stroke-width
 simulation or new font/Metro transformer is used. Changing the tab's state
-only selects approved artwork: no extra screen or business logic.
+only selects approved artwork from the static, source-verified
+`root-tab-icon-svg.json` asset: no extra screen or business logic.
 
 This design decision supersedes the previous all-tabs maximum-200 rule
 **only for selected bottom navigation icons**. Appearance mode icons stay 200.

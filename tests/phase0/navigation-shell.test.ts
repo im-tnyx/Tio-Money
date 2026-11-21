@@ -150,6 +150,16 @@ test('bottom tabs use weight 400 when selected and original 200 otherwise', () =
     dependencies: Record<string, string>;
   };
   const directory = 'src/shared/assets/google-material-icons';
+  const navSvg = JSON.parse(
+    readFileSync(directory + '/root-tab-icon-svg.json', 'utf8'),
+  ) as Record<string, Record<'200' | '400', string>>;
+  assert.deepEqual(Object.keys(navSvg).sort(), [
+    'accounts',
+    'home',
+    'more',
+    'statistics',
+    'transactions',
+  ]);
 
   assert.match(tabBar, /<RootTabIcon/);
   assert.match(tabBar, /gap: theme\.navigation\.iconLabelGap/);
@@ -161,7 +171,7 @@ test('bottom tabs use weight 400 when selected and original 200 otherwise', () =
   assert.match(icon, /import \{ SvgXml \} from 'react-native-svg'/);
   assert.match(icon, /accessibilityElementsHidden/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
-  assert.match(icon, /MATERIAL_OUTLINED_SVG\[name\]\[weight\]\.replace/);
+  assert.match(icon, /navIconSvg\[name\]\[weight\]\.replace/);
   assert.match(icon, /selected \? navigationTokens\.selectedIconWeight/);
   assert.match(icon, /: navigationTokens\.unselectedIconWeight/);
   assert.match(icon, /selected: boolean/);
@@ -177,9 +187,8 @@ test('bottom tabs use weight 400 when selected and original 200 otherwise', () =
     assert.match(svg, /viewBox="0 -960 960 960"/);
     assert.match(selectedSvg, /viewBox="0 -960 960 960"/);
     assert.notEqual(svg, selectedSvg, name + ' weights must have distinct official paths');
-    assert.ok(icon.includes(name + ':'), name + ' should be mapped');
-    assert.ok(icon.includes("'" + svg + "'"), name + ' keeps its exact 200 SVG');
-    assert.ok(icon.includes("'" + selectedSvg + "'"), name + ' uses exact 400 SVG');
+    assert.equal(navSvg[name]['200'], svg, name + ' keeps its exact 200 SVG');
+    assert.equal(navSvg[name]['400'], selectedSvg, name + ' uses exact 400 SVG');
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
     assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }

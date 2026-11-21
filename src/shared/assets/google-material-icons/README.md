@@ -26,11 +26,13 @@ Unselected files: `home.svg`, `transactions.svg`, `statistics.svg`, `accounts.sv
 `home-selected.svg`, `transactions-selected.svg`, `statistics-selected.svg`,
 `accounts-selected.svg`, `more-selected.svg` (exact default 400-weight XML).
 `add.svg` still supplies the independent disabled FAB. All are byte-for-byte
-copies of their upstream SVGs. No PNG copies or icon font were added.
+copies of their upstream SVGs; `root-tab-icon-svg.json` contains the identical
+XML for runtime selection. No PNG copies or icon font were added.
 
-**Implementation:** `src/shared/ui/root-tab-icon.tsx` contains exactly the
-same five 200-weight and five 400-weight tab SVG XML strings as the source files.
-`RootTabBar` passes its existing active state to `RootTabIcon`, which uses
+**Implementation:** `root-tab-icon-svg.json` holds exact copies of the five
+200-weight and five 400-weight tab SVG XML strings, verified against source files.
+`src/shared/ui/root-tab-icon.tsx` imports this static asset without a Metro SVG
+transformer. `RootTabBar` passes its existing active state to `RootTabIcon`, which uses
 `navigationTokens.selectedIconWeight` (400) or `.unselectedIconWeight` (200) to
 choose the authentic SVG and uses `SvgXml` from `react-native-svg@15.16.0`.
 Only the root fill is injected from the active or inactive light/dark color role. `src/shared/ui/floating-add-button.tsx`
