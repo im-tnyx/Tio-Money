@@ -84,3 +84,26 @@ test('TM-CUR-036: tap opens detail sheet with refresh and decimal choices', () =
   assert.match(controller, /updateSubDisplay\(detailCode/);
   assert.match(provider, /withSubCurrencyDisplay\(current.current, code, patch\)/);
 });
+
+test('TM-CUR-039: USD and INR labels align above their values, with stable setting columns', () => {
+  const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
+  const appText = readFileSync('src/shared/ui/app-text.tsx', 'utf8');
+  const overviewStart = sheet.indexOf('      {detail && !decimalMode ? (');
+  const preview = sheet.slice(
+    overviewStart,
+    sheet.indexOf('backgroundColor: theme.colors.card', overviewStart),
+  );
+  assert.match(preview, /\{detail.label\}/);
+  assert.match(preview, /\{detail.subPreview\}/);
+  assert.match(preview, /\{state.mainCode\}/);
+  assert.match(preview, /\{detail.mainPreview\}/);
+  assert.equal((preview.match(/flex: 0\.9/g) ?? []).length, 2);
+  assert.equal((preview.match(/flex: 1\.25/g) ?? []).length, 2);
+  assert.equal((preview.match(/width: theme.space.xxl/g) ?? []).length, 2);
+  assert.match(preview, /numberOfLines=\{1\}/);
+  assert.match(preview, /adjustsFontSizeToFit/);
+  assert.match(preview, /minimumFontScale=\{0\.6\}/);
+  assert.equal((sheet.match(/width: '34%'/g) ?? []).length, 3);
+  assert.match(appText, /adjustsFontSizeToFit=\{adjustsFontSizeToFit\}/);
+  assert.match(appText, /minimumFontScale=\{minimumFontScale\}/);
+});

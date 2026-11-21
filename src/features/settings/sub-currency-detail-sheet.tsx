@@ -84,21 +84,59 @@ export function SubCurrencyDetailSheet({
             style={{
               paddingHorizontal: theme.space.lg,
               paddingVertical: theme.space.xl,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: theme.space.sm,
+              gap: theme.space.xs,
             }}
           >
-            <View style={{ flex: 1, gap: theme.space.xs }}>
-              <AppText variant="caption" muted>{detail.label}</AppText>
-              <AppText variant="title">{detail.subPreview}</AppText>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.space.sm,
+              }}
+            >
+              <View style={{ flex: 0.9, minWidth: theme.navigation.origin }}>
+                <AppText variant="caption" muted numberOfLines={1}>
+                  {detail.label}
+                </AppText>
+              </View>
+              <View style={{ width: theme.space.xxl }} />
+              <View style={{ flex: 1.25, minWidth: theme.navigation.origin }}>
+                <AppText variant="caption" muted style={{ textAlign: 'center' }}>
+                  {state.mainCode}
+                </AppText>
+              </View>
             </View>
-            <AppText variant="title">=</AppText>
-            <View style={{ flex: 1, gap: theme.space.xs, alignItems: 'flex-end' }}>
-              <AppText variant="caption" muted>{state.mainCode}</AppText>
-              <AppText variant="title" style={{ textAlign: 'right' }}>
-                {detail.mainPreview}
-              </AppText>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.space.sm,
+              }}
+            >
+              <View style={{ flex: 0.9, minWidth: theme.navigation.origin }}>
+                <AppText
+                  variant="title"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.6}
+                >
+                  {detail.subPreview}
+                </AppText>
+              </View>
+              <View style={{ width: theme.space.xxl, alignItems: 'center' }}>
+                <AppText variant="title">=</AppText>
+              </View>
+              <View style={{ flex: 1.25, minWidth: theme.navigation.origin }}>
+                <AppText
+                  variant="title"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.6}
+                  style={{ textAlign: 'center' }}
+                >
+                  {detail.mainPreview}
+                </AppText>
+              </View>
             </View>
           </View>
           <View
@@ -120,8 +158,8 @@ export function SubCurrencyDetailSheet({
                 borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText muted style={{ flex: 1 }}>{t('currencyFxExchangeRate')}</AppText>
-              <AppText style={{ flex: 1, textAlign: 'right' }}>{detail.rateValue}</AppText>
+              <AppText muted style={{ width: '34%' }}>{t('currencyFxExchangeRate')}</AppText>
+              <AppText style={{ flex: 1 }}>{detail.rateValue}</AppText>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('currencyFxRefresh')}
@@ -163,17 +201,18 @@ export function SubCurrencyDetailSheet({
                 paddingVertical: theme.space.sm,
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'space-between',
                 gap: theme.space.md,
                 borderBottomWidth: theme.navigation.borderWidth,
                 borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText muted style={{ flex: 1 }}>{t('currencyPosition')}</AppText>
-              <CurrencyUnitPositionControl
-                value={detail.unitPosition}
-                onChange={(value) => onAction({ type: 'detail.position.select', value })}
-              />
+              <AppText muted style={{ width: '34%' }}>{t('currencyPosition')}</AppText>
+              <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                <CurrencyUnitPositionControl
+                  value={detail.unitPosition}
+                  onChange={(value) => onAction({ type: 'detail.position.select', value })}
+                />
+              </View>
             </View>
             <Pressable
               accessibilityRole="button"
@@ -189,8 +228,8 @@ export function SubCurrencyDetailSheet({
                 gap: theme.space.md,
               }}
             >
-              <AppText muted style={{ flex: 1 }}>{t('currencyDecimals')}</AppText>
-              <AppText style={{ flex: 1, textAlign: 'right' }}>{detail.decimalLabel}</AppText>
+              <AppText muted style={{ width: '34%' }}>{t('currencyDecimals')}</AppText>
+              <AppText style={{ flex: 1 }}>{detail.decimalLabel}</AppText>
               <Svg
                 width={theme.iconRoles.card}
                 height={theme.iconRoles.card}

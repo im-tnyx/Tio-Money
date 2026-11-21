@@ -455,3 +455,15 @@ The Main and Sub Currency top bars use the same **fixed**
 rather than expandable min-height. Other pages continue their
 existing navigation contract. No hardcoded screen dimensions or new
 dependencies.
+
+## Sub Currency FX detail alignment — 2026-11-21
+
+The supplied reference uses two aligned caption/value rows with the
+same three column boundaries: Sub at left, a centered equals sign
+between, and Main at right. A narrower Sub column plus a wider Main
+column gives the six-decimal quote room. Amounts scale down on compact
+screens without clipping, while extended country labels remain one
+line. The setting labels (Exchange Rate, Unit Position, Decimal Point)
+share the same 34%-width column; their values begin in the same second
+column. This changes layout only: exchange rates and stored
+per-currency preferences are unchanged.
