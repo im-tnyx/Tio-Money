@@ -74,7 +74,7 @@ test('official-registry lockfile retains patched AJV/YAML/Forge copies and exact
   assert.equal(lock.packages['node_modules/ajv'].version, '8.18.0');
   assert.equal(lock.packages['node_modules/node-forge'].version, '1.4.3');
   assert.equal(lock.packages['node_modules/yaml'].version, '2.8.3');
-  assert.equal(lock.packages['node_modules/fast-uri'].version, '3.1.0');
+  assert.equal(lock.packages['node_modules/fast-uri'].version, '3.1.9');
   assert.equal(lock.packages['node_modules/uri-js'], undefined);
   assert.equal(lock.packages['node_modules/punycode'], undefined);
 });
