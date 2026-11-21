@@ -193,7 +193,7 @@ export function useSubCurrencyViewModel(): {
               rateStatus: selectedDetail.rateStatus,
               rateDate: selectedDetail.rate?.date ?? null,
               rateFetchedAt:
-                entries[fxPairKey(detailCode, preferences.mainCode)]?.fetchedAt ?? null,
+                entries[fxPairKey(selectedDetail.code, preferences.mainCode)]?.fetchedAt ?? null,
               unitPosition: subDisplay.unitPosition,
               decimalDigits: displayedDigits,
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
