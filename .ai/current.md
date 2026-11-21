@@ -1,5 +1,96 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 remove outer top border and 24dp rounded corners
+
+- **Owner change:** Delete bottom sheet **outer top border**, keep independent header divider. Use 24dp rounded top corners via new shared `radius.xl: size.dp24` token, not a hardcoded value. Retain centered Appearance title without X, compact handle, three radio rows and existing dismiss/persistence behavior.
+- **Scope:** Appearance sheet, theme radius token, appearance/design-token regression tests, guide and assigned task checkpoint. Prior `8d301e13` Phase 0 failed Prettier on appearance test, so simplify its index assertion in the same scoped change. Require exact-head checks and iPhone/Android visual QA; no CI success presumed.
+- **Security:** `tio-preview` is absent; preserve that through non-force guarded PR #18 branch update. No privileged preview, EAS, direct main merge or force push; no separate merge authorization.
+
+---
+
+## 2026-11-21 — PR #18 top border and 20dp rounded sheet corners
+
+- **Owner revision:** A subtle 1dp outer top-only border plus more prominent 20dp top corner radii, using semantic tokens and current clipping. Keep the compact handle, 48dp centered Appearance title without X, divider, modes and dismissal unchanged.
+- **Files:** Sheet presentation, appearance Phase 0 regression, feature documentation and assigned appearance task only. The previous HEAD `76319588` failed Phase 0 on test Prettier; simplify the offending escaped-string assertion as part of this scoped update.
+- **Safety:** Guarded non-force update to PR #18 branch; never merge to main or dispatch Codespaces/EAS. Keep `tio-preview` absent. Fresh exact-head CI and real-device visual/accessibility acceptance required; independent UI review deferred and no merge authorization.
+
+---
+
+## 2026-11-21 — PR #18 title centered without X (same header height)
+
+- **Owner revision:** Remove the visible X button and center `Appearance` in the existing 48dp minimum-height sheet header. This supersedes prior left-title/X arrangement without disturbing the restored handle, rounded top corners, header divider or mode radio rows.
+- **UI-only change:** Remove close SVG and center title across available header width; preserve backdrop and Android Back dismiss plus add iOS VoiceOver accessibility escape. No changes to ViewModel, persistence, finance, navigation or CI workflows. Update Phase 0 structure regressions and linked [task](tasks/ui/more-appearance-20261120.md).
+- **Safety/next gate:** Push only to PR #18 feature branch with exact-head non-force protection; keep `tio-preview` absent to prevent privileged Codespaces activation. New-head CI and device accessibility/visual testing required. Independent UI review deferred. No owner authorization to merge PR into main.
+
+---
+
+## 2026-11-21 — PR #18 slight title lift + rounded bottom-sheet top corners
+
+- **Owner direction:** With compact handle restored, shift Appearance header row slightly up for visual alignment and restore rounded top corners. Preserve left title/X, divider, 40×4dp handle, choice radio rows, and persistence.
+- **UI-only PROCEED:** Remove 4dp gap below the handle to lift header while retaining handle's 8dp top margin; use existing `theme.radius.md` (16dp) for top-left and top-right corners. Update existing regression assertions and [appearance task](tasks/ui/more-appearance-20261120.md). No new dependency, native/finance changes or feature logic.
+- **Safety:** Exact-head non-force feature-branch update; `tio-preview` must be absent to avoid privileged Codespaces activation. Fresh CI and physical-device screenshot acceptance remain pending. No PR merge authorization or workflow dispatch.
+
+---
+
+## 2026-11-21 — PR #18 restore small top handle after compact sheet revision
+
+- **Owner request:** The sheet is now sufficiently compact, restore its decorative top drag indicator. Preserve left-aligned Appearance header, right X, divider, flat top corners and existing radio rows.
+- **Implementation scope:** Reinsert a centered token-driven handle (40×4dp; 8dp top and 4dp bottom margin), avoiding the former oversized header spacing. Update structural tests, guide and task record. Indicator remains non-interactive; no invented drag gesture. No theme/persistence/finance/CI workflow edit.
+- **Safety/acceptance:** PR #18 branch-only non-force expected-head update; keep `tio-preview` absent during push to avoid unauthorized Codespaces activity. Exact-head CI and device visual QA remain required; independent UI review deferred. **No permission to merge PR #18 into main.**
+
+---
+
+## 2026-11-21 — PR #18 compact Appearance sheet owner screenshot refinement
+
+- **Owner screenshot/request:** iPhone Appearance bottom sheet wastes vertical area before heading; move title left and minimize whitespace. UI-only technical `PROCEED` within [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17) and [task](tasks/ui/more-appearance-20261120.md), replacing the earlier centered-title choice.
+- **Bounded change:** Remove decorative top drag handle/margin; left-align Appearance in compact 48dp-min header with accessible X on right and bottom divider. Reduce option vertical padding from `lg` to `md` while preserving 48dp minimum and all three radio options. Leave theme store and other tabs untouched; regression tests and guide updated.
+- **Safety:** Branch-only non-force update with exact old HEAD guard. Remove any live `tio-preview` label before branch push; do not activate privileged Codespaces or merge PR into main. Exact-head CI and fresh device screenshot validation required; independent UI review deferred and no PR #18 merge approval.
+
+---
+
+## 2026-11-21 — PR #18 latest-main safe reconciliation after bottom-sheet header refinement
+
+- **Owner action:** Reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main` without merging PR #18 into `main`. The PR head before reconciliation was `d6178ab26e0075302742b29ab60e88e37a4e13c5`; incoming main head `4614285071fd96e9010e2ca7f34653be1c2a61b4`. Both were based on `e0e4c617c2aea2b892baa9b5dd327d6a4483350d`.
+- **Disjoint integration:** Incoming main adds only changes to `.github/workflows/tio-money-eas-pr-preview.yml` and `tests/preview/eas-preview-config.test.mjs`; preserve the current 24 PR feature paths and the latest bottom-sheet center title, X dismiss, divider and square top. Use an exact two-parent non-force branch merge (existing PR HEAD first, incoming main second), not a protected-main merge; verify branch is zero behind current main.
+- **Controls:** Remove `tio-preview` before pushing to avoid unauthorized privileged Codespaces activation. Do not restore it automatically; no manual dispatch, EAS publish/build, force push or PR merge. Previous exact-head Phase 0 and Governance checks passed on `d6178ab26e0075302742b29ab60e88e37a4e13c5`; new merge-head CI, unresolved reviews and Android/iOS device QA must be checked independently.
+- **Decision:** This is branch-only reconciliation under existing UI task/RFC #17; independent UI review deferred (optional), PR #18 stays Draft and **NOT MERGE AUTHORIZED**.
+
+---
+
+## 2026-11-21 — PR #18 Appearance row and bottom-sheet UI revision
+
+- **Owner design:** [RFC #17 approved follow-up](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344). After safe non-force reconciliation with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6`, More → General Settings becomes unboxed section text with a full-width Appearance row/chevron; selection UI moves into a stateless native bottom sheet with the same radio rows/dividers.
+- **Architecture:** `MoreScreen` and `AppearanceSheet` hold no mutable state; `useMoreViewModel` and typed `MoreUiState/MoreAction` own presentation transitions, existing global theme persistence untouched. Only English strings, feature code, tests and docs change. No new dependency, native app config, finance data or privileged workflow dispatch.
+- **Preview safety:** `tio-preview` temporarily removed before branch commits to prevent automatic Codespaces activation. Draft PR #18 remains **NOT MERGE AUTHORIZED**. Original UI device QA does **not** prove revised bottom-sheet acceptance; exact-head CI and device recheck required.
+
+---
+
+## 2026-11-21 — PR #18 safe reconciliation with merged EAS/preview fixes (owner UI revision)
+
+- **Owner request:** Reconcile branch `feat/more-general-settings-appearance` with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6` **before** implementing accessible Appearance bottom sheet redesign. [RFC #17 decision](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344), [original UI task](tasks/ui/more-appearance-20261120.md).
+- **Merge method:** Non-force two-parent merge commit from former PR head `10ac52887451b6b774710a149720087bfe5987cd` and current `main` `a83c608c8cd6399712813d884e9179babb535ee6`. The original 17 feature paths were disjoint from main changes except this index; retain latest main for CI/workflows/finance docs, all existing PR #18 UI/source, tests and task docs, and additive current index records. Independent device QA applies to previous layout only; redesigned UI needs new device check.
+- **Activation boundary:** `tio-preview` temporarily removed before branch push to prevent automatic privileged Codespaces SSH/Expo sync. No Codespaces manual dispatch, EAS publish/build, production change, force update, or main-branch merge authorized.
+- **Review:** optional independent review DEFERRED; fresh exact-head CI, review findings, branch ancestry and UI test required. **PR #18 remains Draft / NOT MERGE AUTHORIZED.**
+
+---
+
+## 2026-11-21 — PR #18 appearance UI latest-main reconciliation
+
+- **Owner request:** safely reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main`, **not** permission to merge into `main` or launch privileged Codespaces. [Task](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17).
+- **Pre-reconciliation observation:** PR #18 `OPEN / DRAFT / NOT MERGED`, branch `feat/more-general-settings-appearance`, previous HEAD `7ed3a1c1c41eb2e730fb22e9e8d4b44e6cd5cf56`; `main` `0c295316940fc73e0c8e8bce127aaedede5d3d49` includes merged PR #21 diagnostic and PR #26 string input fix, plus finance documentation. The original UI commit has 17 changed files. All UI/theme/source/test paths are disjoint from changes in newer `main`; only this task index overlaps. The original appearance task/index and the latest `main` history must both be preserved.
+- **Reconciliation plan:** trusted `main` tree is authoritative except the original PR #18 owned UI/theme/test/docs/task blobs and this merged index. Integrate with a **non-force two-parent commit** (old PR HEAD + newer `main`), never overwrite preview workflow, newer finance documentation, dependencies, native config, tokens, or ledger. Keep **Dumb MoreScreen**, `MoreRoute` / `useMoreViewModel`, global appearance state and persistent preference adapter unchanged.
+- **Safety:** `tio-preview` label will be temporarily removed before branch push to avoid automatic privileged Codespace activation, and restored only after the triggered trusted worker safely skips. No privileged manual dispatch/SSH/EAS publishing or owner-editing Codespace mutation is authorized by this reconciliation.
+- **Validation handoff:** this checkpoint is *pre-new-head* evidence. New exact-head CI, unresolved review findings, and device QA must be checked after update. Independent review optional by TM-DEC-002; no approval or test success is fabricated. **Owner PR #18 merge authorization NOT_GRANTED.**
+
+---
+
+## 2026-11-20 — More appearance UI preview candidate (new workstream)
+
+**Task:** [TM-UI-APPEARANCE-20261120-001](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Owner requested a new `main`-based UI feature PR for **More → General Settings → Appearance (System / Light / Dark)**, also serving as the first controlled Codespaces PR preview candidate. Working branch `feat/more-general-settings-appearance` starts at `main` `fd154db417b1979d39f855317f252eed37c36e9d`. This is **new work**, distinct from existing documentation PRs #14/#16. Existing older entries below are historical checkpoints and do not represent current GitHub state. Actual exact-head CI, device QA, independent review and privileged workflow end-to-end operation are NOT_VERIFIED at branch kickoff. **NO PR merge authorization; NO Codespaces workflow dispatch/activation authorization.**
+
+
+---
+
 ## 2026-11-21 — Dedicated Codespaces preview start HTTP 409 race (RFC #38)
 
 - **Incident:** [Owner manual run #100](https://github.com/im-tnyx/Tio-Money/actions/runs/44870219796), trusted `main` `baeb77aef5ed16feec25cb4fc4b3f3209d357ee0`. PR #18 source and Codespace identity gates passed; pre-start GET saw non-`Available`, but POST /start returned `gh: The codespace is already running (HTTP 409)`. The workflow failed before SSH or Expo.

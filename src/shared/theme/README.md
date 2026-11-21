@@ -1,4 +1,4 @@
-# Tio Money — Core Theme Ownership (Phase 0)
+# Tio Money — Core Theme Ownership
 
 The shared React Native / TypeScript theme is the **single owner** of product-visible
 physical sizes, typography, color roles and reusable component visual contracts.
@@ -15,13 +15,14 @@ It draws on the *ownership pattern*, not the Flutter code, of the Tio-World core
    shadows, exceptional recovery and the tab icon vector-rendering size contract.
    All component roles alias the primitive physical values rather than declaring
    new numbers.
-4. **`theme-provider.tsx`** resolves `useColorScheme()` and exposes the typed,
-   centrally owned contracts through `useAppTheme()`. System light/dark is automatic.
-   **No manual selector**, extra settings screen or local per-route theme overrides.
-5. **`src/shared/ui/`** displays theme-driven elements. **`src/app/(tabs)/*.tsx`**
-   contains only blank screen exports and the minimal shell layout. Navigation
-   actions, responsive safe-area measurements, and splash dismissal belong to
-   `src/shared/navigation/` hooks; SQLite initialization remains in bootstrap/data.
+4. **`theme-provider.tsx`** resolves the locally persisted **System / Light / Dark** preference
+   and `useColorScheme()` once for the entire app, exposing tokens through `useAppTheme()`.
+   The root composes an `AppearancePreferenceStore` adapter backed by the already-installed
+   `expo-sqlite/kv-store`. No per-screen theme overrides or finance database migration.
+5. **`src/shared/ui/`** displays theme-driven elements. **`src/app/(tabs)/more.tsx`**
+   composes `MoreRoute` with `MoreScreen`, `useMoreViewModel`, typed `UiState` and `Action`.
+   Four other tab routes remain blank. Navigation, safe areas and splash dismissal
+   remain in the existing shell; finance SQLite initialization remains in bootstrap/data.
 
 ## Icon-size rule — every UI surface
 
@@ -65,8 +66,9 @@ is required.
   centered over More, separated from the visible bar by 16dp, based on the
   shared `minimumBottomPadding` role rather than an unrelated horizontal
   inset. These measured insets are runtime values, **not visual token literals**.
-- All five routes remain empty and selectable. No top bar, onboarding,
-  transaction editor, Settings, extra screen, finance posting or FAB action.
+- The historical Phase 0 baseline had five blank routes. This **owner-requested More-only
+  feature PR** adds General Settings and an Appearance selector within More while preserving
+  four empty tabs, five tab navigation, disabled FAB and no extra route or finance action.
   Native splash transitions directly to the five-tab shell after SQLite
   initialization; an actual bootstrap failure may show minimal recovery.
 - Never store ledger, navigation, data loading or feature business logic in
@@ -94,4 +96,4 @@ is required.
 - `npm run check` and Android/iOS Metro export run in the Phase 0 workflow.
   These **do not replace physical Expo Go visual/touch/accessibility QA**.
 
-Owner decision [TM-DEC-005](../../../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) remains the UI authority; all owners' PR merge authorization rules remain unchanged.
+Historical Phase 0 decision [TM-DEC-005](../../../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) remains the foundation; owner-requested More-only expansion is recorded in [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Separate owner PR merge authorization rules remain unchanged.

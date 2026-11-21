@@ -24,6 +24,7 @@ test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(space.sm, size.dp12);
   assert.equal(space.xl, size.dp24);
   assert.equal(radius.sm, size.dp12);
+  assert.equal(radius.xl, size.dp24);
   assert.equal(typeScale.body, size.dp16);
   assert.equal(typeScale.title, size.dp26);
   assert.equal(typographyTokens.navLabelSize, size.dp11);
@@ -63,12 +64,12 @@ test('one shared icon size serves bottom nav and every future reusable component
   assert.ok(navigationTokens.fabMarkSize < navigationTokens.fabDiameter);
 });
 
-test('only the root theme provider chooses system dark/light colors', () => {
+test('one root theme provider resolves the selected preference and system colors', () => {
   const provider = readFileSync('src/shared/theme/theme-provider.tsx', 'utf8');
   assert.match(provider, /useColorScheme\(\)/);
-  assert.match(provider, /systemScheme === 'dark' \? 'dark' : 'light'/);
+  assert.match(provider, /resolveAppearanceScheme\(settings\.preference, systemScheme\)/);
   assert.match(provider, /palettes\[scheme\]/);
-  assert.doesNotMatch(provider, /useState|AsyncStorage|setColorScheme/);
+  assert.doesNotMatch(provider, /AsyncStorage|setColorScheme/);
   assert.notEqual(palettes.light.canvas, palettes.dark.canvas);
   assert.notEqual(palettes.light.primaryText, palettes.dark.primaryText);
   assert.equal(
@@ -127,13 +128,19 @@ test('all current and future screen and shared UI surfaces own no raw visual siz
 });
 
 test('route screens are dumb blank UI and shell lifecycle/controller logic is external', () => {
-  const routes = ['index', 'transactions', 'reports', 'accounts', 'more'];
+  const routes = ['index', 'transactions', 'reports', 'accounts'];
   for (const route of routes) {
     const source = readFileSync(`src/app/(tabs)/${route}.tsx`, 'utf8');
     assert.match(source, /export default BlankScreen/);
     assert.doesNotMatch(source, /useState|useEffect|useRouter|usePathname|Sqlite|SQLite|fetch\(/);
   }
 
+  const more = readFileSync('src/app/(tabs)/more.tsx', 'utf8');
+  assert.match(more, /export \{ MoreRoute as default \}/);
+  assert.doesNotMatch(more, /useState|useEffect|useRouter|usePathname|Sqlite|SQLite|fetch\(/);
+
+  const moreScreen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
+  assert.doesNotMatch(moreScreen, /useState|useEffect|useRouter|usePathname|Sqlite|SQLite|fetch\(/);
   const shell = readFileSync('src/app/(tabs)/_layout.tsx', 'utf8');
   const tabs = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
   const fab = readFileSync('src/shared/ui/floating-add-button.tsx', 'utf8');
