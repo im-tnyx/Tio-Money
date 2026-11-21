@@ -56,6 +56,8 @@ const light = {
   shadow: '#000000',
   income: '#147D66',
   expense: '#BC4055',
+  deleteActionBackground: '#BC4055',
+  deleteActionText: '#FFFFFF',
   transfer: '#446A9C',
   warning: '#93611E',
 };
@@ -76,6 +78,8 @@ const dark = {
   shadow: '#000000',
   income: '#5DE0B0',
   expense: '#FF8D9C',
+  deleteActionBackground: '#A52F4A',
+  deleteActionText: '#FFFFFF',
   transfer: '#9AC6FF',
   warning: '#FFC77A',
 };
