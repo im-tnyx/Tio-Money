@@ -1,6 +1,6 @@
 # 🧩 Feature isolation and dependency contracts
 
-**Status (2026-11-21):** Proposed logical boundaries for separately authorized Stage 1 implementation. [Technical architecture](../../docs/05-TECH-ARCHITECTURE.md) is canonical; [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is **MERGED**, not a parallel draft. Source inspection at current main confirms five tab routes contain only `BlankScreen` imports/exports; layout/providers own boot/navigation wiring outside feature screens. The owner now mandates [strict dumb-screen boundaries](../../docs/12-DUMB-SCREEN-BOUNDARIES.md) (TM-DEC-011); paths in the example below are still a future proposal, not new files.
+**Status (2026-11-21):** Proposed logical boundaries for separately authorized Stage 1 implementation. [Technical architecture](../../docs/05-TECH-ARCHITECTURE.md) is canonical; [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is **MERGED**, not a parallel draft. Source inspection at current main confirms four routes (`index`, `transactions`, `reports`, `accounts`) export `BlankScreen` while `more.tsx` exports `MoreRoute` (`useMoreViewModel` controller + dumb `MoreScreen` presentation); layout/providers own boot/navigation wiring outside feature screens. The owner now mandates [strict dumb-screen boundaries](../../docs/12-DUMB-SCREEN-BOUNDARIES.md) (TM-DEC-011); paths in the example below are still a future proposal, not new files.
 
 ## Logical shape (not files to create in this PR)
 

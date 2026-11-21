@@ -5,18 +5,18 @@
 | Field | Current verified scope |
 | :--- | :--- |
 | Repository | `im-tnyx/Tio-Money` |
-| Base `main` | `f4332eb338ca75e27a5b35ff57511f522a4bb96a` |
+| Base `main` (latest verified) | `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` including merged Appearance, 300/200 nav icons with 0dp gap, 160ms crossfade and preview tooling; earlier base SHAs are historical |
 | Branch | `docs/postmerge-stage1-finance-adrs-20261121` |
 | Source request | "Naye main ke saath post-merge documentation reconciliation... finance ADRs finalize" and "all screen dump screen rahega koi bhi logic screen m nahi rahega verify ke baad go" |
 | Decision maker | ChatGPT GPT-6 agent technical PROCEED for docs; owner directive **TM-DEC-011** for screen boundaries, transcribed |
-| State — 2026-11-21 checkpoint | **IN_REVIEW / Ready for Review** — [PR #24](https://github.com/im-tnyx/Tio-Money/pull/24), base `main`; **NOT MERGED**. After a checkpoint at `e8c53ba35391527e54b9c28a4905b778cd2b4efd`, Phase 0 CI initially failed from isolated EAS CLI npm-ci subprocess (unrelated preview test); **controlled retry of the same failed job passed**. Any subsequent commit requires new exact-head checks. |
-| Independent review | **DEFERRED / requested next**; no formal independent APPROVED review claimed. Automated Codex review to be requested on exact new head. |
+| State — latest 2026-11-21 reconciliation | **OPEN / Ready for Review** — [PR #24](https://github.com/im-tnyx/Tio-Money/pull/24), base `main`, **NOT MERGED**. Safely reconciled with new main without force push; new-head GitHub CI and Codex review require verification. |
+| Independent review | Four prior P2 Codex findings addressed and threads author-side resolved. New P2 stale five-blank/1dp baseline finding requires exact-new-HEAD review/disposition. Agent review `COMMENTED` only, not independent human approval. |
 | Merge authorization | **NOT GRANTED** for any new PR; separately required by AGENTS.md |
 
 ## Verified preconditions
 
 - GitHub `main` `f4332eb...`; PR #14, #16, #22 all **CLOSED / MERGED** on separately approved squash commits. Their top task rows were inconsistent; date-stamped old snapshots are preserved historically. This change reconciles **remote docs only**, not a local checkout or archived task state.
-- Five current Phase 0 tab modules (`src/app/(tabs)/index.tsx`, transactions, reports, accounts, more) each only import/export `BlankScreen`. Root layouts delegate bootstrap/navigation to external providers/hooks; this is **read-only code inspection**. No app code was modified.
+- Current source-verified `main` has **four BlankScreen finance routes** (`index`, `transactions`, `reports`, `accounts`) and **MoreRoute** using `useMoreViewModel` state/controller and dumb `MoreScreen`/`AppearanceSheet` presentation. Root layout uses 160ms Reduced Motion-aware crossfade; selected icon 300/inactive 200, 0dp gap; Add stays disabled. **No app code changed in this task.**
 - Existing INR-only four-subtype DDL is legacy illustrative and not approved to support six groups/multi-currency; application SQLite is settings/bootstrap only.
 
 ## Owned files / implementation boundaries
@@ -37,7 +37,7 @@ Finance risk: preserve exact native currency, balanced postings, link-only bank 
 ## Current working checkpoint
 
 - 2026-11-21: RFC Issue #23 recorded technical PROCEED, new branch from verified main, and [Draft PR #24](https://github.com/im-tnyx/Tio-Money/pull/24) opened. Initial exact-HEAD GitHub checks (Phase 0 static, AI governance, preview signal) **3/3 SUCCESS** on `0929c4099feb34910e5099b677ed02e9654faad7`. Read-only docs audit on that head scanned **16 changed Markdown files, 291 internal relative file paths (0 missing), 82 section-anchor references** and 7 cross-document anchors; no forbidden co-author commit trailer, no diff-added trailing whitespace. 157 external URL occurrences NOT live-HTTP-tested. This task checkpoint itself will advance HEAD; recheck CI and reviewer findings before merge gate.
-- All screens remain blank in current actual app; future Stage 1 is a **design-only** planning contract.
+- All **four finance screens** remain blank in current source, while More Appearance is implemented; Stage 1 finance journal/UI is still a **design-only** contract and no device QA was executed by this task.
 
 ### 2026-11-21 — Currency precision consistency and CI diagnostic
 
@@ -51,3 +51,10 @@ Finance risk: preserve exact native currency, balanced postings, link-only bank 
 - **Disposition in this branch:** `TM-ADR-011–017` IDs now **preserve original Implementation Plan §9 subjects**; `012` imported provenance source, `015` card cash-advance/overdraft, `016` native amount cap/equal destination fee, `017` Save & Add Another controller UX. Atomic durability remains cross-cutting under `011`, not `012`. Added future tests `TM-ADR-T15–T17` for missing mappings and UX decisions (still unimplemented).
 - FX requests now strictly app-supplied **currency-pair only**, while unavoidable HTTP transport metadata is acknowledged without granting fields. Booked money is *only* currency-specific integer native minor units; decimal strings are input/quote not booked ledger. Historic PR #22 task review/rollback now terminal, no fake unmerged Draft instructions.
 - **Concurrent main:** verified PR #21 squash merge `097e014d7e2a2015230971751bd5c72ee91e6580`; PR #24 branch safely non-force merged main with both parent histories and preserved PR #21 preview workflow/tests. This fix moves HEAD; CI and Codex reviews must run on exact new SHA. No owner merge authorisation for PR #24.
+
+### 2026-11-21 — Owner Go: safe reconcile PR #24 to current UI main
+
+- Owner "Go" authorises **safe reconciliation, new-head CI and review**, not PR #24 merge. Main SHA `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` verified. Previous PR #24 at `a13ab70f8b90e9ecb7bcb77a61cf4e4bb652c3a2` was 52 commits behind and merge-conflicted; [Codex P2](https://github.com/im-tnyx/Tio-Money/pull/24) flagged outdated five-blank/1dp assertions.
+- Non-force two-parent reconciliation `150b98cd3adf69e5462c628d07a9afccfc337320` retained current main tree except 16 owned Markdown docs/task paths and semantically preserved entire latest main index. Follow-up corrected docs to **four blank finance routes + More Appearance, selected 300/inactive 200, 0dp icon-label gap, 160ms reduced-motion-aware crossfade**. All source, assets, UI, preview workflows, tests and other agents' changes were preserved.
+- Owner TM-DEC-011 **still mandatory**: presentational screen may resolve theme/i18n tokens, but all workflow/async persistence/navigation and ledger/FX/SQL logic must stay in controller/use case/domain/adapter layers. Negative-fixture architecture tests not yet implemented.
+- Audit new HEAD with links, finance invariants, changed-file scope and CI/Codex review; author-side review-thread disposition required. **No PR #24 merge authorization.**
