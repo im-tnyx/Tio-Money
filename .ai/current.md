@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-22 — PR #53 Sub FX Refresh result auto-hides after 3 seconds (unmerged)
+
+- **Owner direction / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067991690); successful `Checked / unchanged` or `Reference rate updated` feedback in the Sub Currency Detail Sheet disappears after 3000ms; errors remain until retry/dismiss.
+- **Implementation:** controller-owned cancellable `useEffect` timer scoped to successful `refreshResult` identity, preserving loading spinner, cleanup and unchanged FX provider/cache/ledger. Added `TM-CUR-049` and fixed test formatting for prior no-gap change `TM-CUR-048`. [Task](tasks/product/more-currency-preferences-20261121.md).
+- **Gate:** latest exact-HEAD Phase 0/governance and user on-device timing QA. PR #53 still OPEN, **MERGE NOT_AUTHORIZED**.
+
 ## 2026-11-22 — PR #53 Sub Currency compact UI refinement (unmerged)
 
 - **Owner request / technical PROCEED:** [PR #53 UI discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067789782). Main selected label shown above Subs; valid Main required before Sub creation, default INR remains valid; picker removes redundant counter; FX source/publication date one line; 1.5dp refresh stroke, tighter rate/icon gap, 24dp shared overflowing-list trailing padding.
