@@ -15,6 +15,10 @@ import {
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
 import { t } from '@/shared/i18n/strings';
 
+import {
+  formatSubCurrencyDecimalExample,
+  stepSubCurrencyDecimalDigits,
+} from './sub-currency-decimal-step';
 import type {
   SubCurrencyAction,
   SubCurrencyChoiceRow,
@@ -22,17 +26,8 @@ import type {
   SubCurrencyUiState,
 } from './sub-currency-contract';
 
-const decimalLabels = [
-  t('currencyDecimalNone'),
-  t('currencyDecimalOne'),
-  t('currencyDecimalTwo'),
-  t('currencyDecimalThree'),
-] as const;
-
 function currencyLabel(code: CurrencyCode): string {
-  const item = CURRENCY_OPTIONS.find((option) => option.code === code);
-  if (!item) return code;
-  return item.code + ' – ' + item.country + ' (' + item.symbol + ')';
+  return formatSubCurrencyDetailCaption(code);
 }
 
 export function useSubCurrencyViewModel(): {
@@ -45,7 +40,6 @@ export function useSubCurrencyViewModel(): {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [rates, setRates] = useState<Record<string, ReferenceRate | null>>({});
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
-  const [detailMode, setDetailMode] = useState<'overview' | 'decimal'>('overview');
   const [refreshingPair, setRefreshingPair] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const refreshRequest = useRef(0);
@@ -77,7 +71,6 @@ export function useSubCurrencyViewModel(): {
   const dismissDetail = useCallback(() => {
     refreshRequest.current += 1;
     setDetailCode(null);
-    setDetailMode('overview');
     setRefreshingPair(null);
     setRefreshError(null);
   }, []);
@@ -115,15 +108,13 @@ export function useSubCurrencyViewModel(): {
         case 'detail.position.select':
           if (detailCode) updateSubDisplay(detailCode, { unitPosition: action.value });
           break;
-        case 'detail.decimal.open':
-          if (detailCode) setDetailMode('decimal');
-          break;
-        case 'detail.decimal.back':
-          setDetailMode('overview');
-          break;
-        case 'detail.decimal.select':
-          if (detailCode && updateSubDisplay(detailCode, { decimalDigits: action.value })) {
-            setDetailMode('overview');
+        case 'detail.decimal.step':
+          if (detailCode && preferences.subCodes.includes(detailCode)) {
+            const current = resolveSubCurrencyDisplay(preferences, detailCode).decimalDigits;
+            const currency = CURRENCY_OPTIONS.find((item) => item.code === detailCode);
+            const effective = current === 'currency' ? (currency?.minorDigits ?? 2) : current;
+            const next = stepSubCurrencyDecimalDigits(effective, action.delta);
+            if (next !== effective) updateSubDisplay(detailCode, { decimalDigits: next });
           }
           break;
         case 'detail.refresh': {
@@ -191,6 +182,7 @@ export function useSubCurrencyViewModel(): {
       : null;
     return {
       mainCode: preferences.mainCode,
+      mainLabel: currencyLabel(preferences.mainCode),
       selected,
       choices,
       sheetVisible,
@@ -208,14 +200,14 @@ export function useSubCurrencyViewModel(): {
                       : 'currencyFxUnavailable',
                   ),
               rateStatus: selectedDetail.rateStatus,
+              rateDate: selectedDetail.rate?.date ?? null,
               unitPosition: subDisplay.unitPosition,
               decimalDigits: displayedDigits,
-              decimalLabel: decimalLabels[displayedDigits],
+              decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
               refreshing: refreshingPair === detailCode + '/' + preferences.mainCode,
               refreshError,
             }
           : null,
-      detailMode,
       limit: MAX_SUB_CURRENCIES,
       error,
     };
@@ -223,7 +215,6 @@ export function useSubCurrencyViewModel(): {
     preferences,
     rates,
     detailCode,
-    detailMode,
     sheetVisible,
     error,
     refreshingPair,
