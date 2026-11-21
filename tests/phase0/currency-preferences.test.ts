@@ -107,7 +107,7 @@ test('TM-CUR-006: one global context reaches future Accounts/Transactions/Stats'
   assert.doesNotMatch(root, /useState|useEffect|fetch\(/);
 });
 
-test('TM-CUR-007: FX only on Sub screen; Plus picker and swipe-only Delete', () => {
+test('TM-CUR-007: FX display on Sub screen; app-scoped fetching and swipe Delete', () => {
   const more = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const picker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
