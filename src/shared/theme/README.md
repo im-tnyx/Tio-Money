@@ -32,8 +32,8 @@ and `.textField` **all alias this same owner**. Future top bars, reusable button
 sheets, cards and text fields must consume this shared icon contract and not
 declare `width: 24`, `height: 24` or a new icon-size constant locally.
 
-Those future components **do not currently exist in Phase 0** and must not be
-created simply to demonstrate a token. A legitimately different icon size
+The reusable `AppBottomSheet` is introduced by Issue #42 on a separate feature branch.
+Other future components must not be created simply to demonstrate a token. A legitimately different icon size
 requires an approved **semantic role** and a design decision, not arbitrary
 per-screen numbers. The five bottom-tab icons use official Google Material
 Symbols Outlined SVG assets and the Expo SDK 58 compatible `react-native-svg`
@@ -97,3 +97,23 @@ is required.
   These **do not replace physical Expo Go visual/touch/accessibility QA**.
 
 Historical Phase 0 decision [TM-DEC-005](../../../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) remains the foundation; owner-requested More-only expansion is recorded in [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Separate owner PR merge authorization rules remain unchanged.
+
+## Shared bottom-sheet contract — Issue #42 (2026-11-21)
+
+`src/shared/ui/app-bottom-sheet.tsx` centralizes modal chrome and dismissal, while the
+feature layer supplies only its own body. `bottomSheetTokens` in `component-tokens.ts`
+sets **one global** default for top corner radius (24dp via `radius.xl`), handle size,
+handle margins, header minimum height/divider, horizontal inset, maximum height and backdrop
+opacity. The reusable shell reads the active semantic light/dark colors through `useAppTheme()`.
+There is **no sheet outer top border**. The centered header's divider is a distinct element.
+
+Callers pass `visible`, `title`, `dismissAccessibilityLabel`, `onDismiss`, and arbitrary
+`children`. Visibility and selection stay in feature ViewModels and are never stored in the
+shared shell. The handle is **visual only**, not an unimplemented drag-to-dismiss gesture.
+The component retains Android Back, backdrop tap, and iOS VoiceOver escape support. No global
+modal manager, navigation side effects or remote data access is included.
+
+Appearance's existing System/Light/Dark radio content is the first real consumer. A second
+**test-only** fixture demonstrates distinct content composition without creating a new app route.
+Device-level accessibility and dynamic-type smoke tests remain acceptance work; source/CI
+checks do not prove actual screen-reader or gesture behavior.

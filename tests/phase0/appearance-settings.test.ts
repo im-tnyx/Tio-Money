@@ -72,51 +72,23 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(screen, /<AppearanceSheet state=\{state\} onAction=\{onAction\} \/>/);
   assert.doesNotMatch(screen, /APPEARANCE_OPTIONS\.map/);
 
-  assert.match(sheet, /<Modal/);
+  assert.match(sheet, /<AppBottomSheet/);
   assert.match(sheet, /visible=\{state\.appearanceSheetVisible\}/);
-  assert.match(sheet, /animationType="slide"/);
-  assert.match(sheet, /onRequestClose=\{dismiss\}/);
-  assert.match(sheet, /accessibilityViewIsModal/);
-  assert.match(sheet, /onPress=\{dismiss\}/);
-  assert.match(sheet, /borderTopLeftRadius: theme\.radius\.xl/);
-  assert.match(sheet, /borderTopRightRadius: theme\.radius\.xl/);
-  const sheetSurface = sheet.split('<SafeAreaView')[1]?.split('>')[0] ?? '';
-  assert.doesNotMatch(
-    sheetSurface,
-    /borderTopWidth|borderTopColor|borderLeftWidth|borderRightWidth/,
-  );
-  assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1, textAlign: 'center' \}\}>/);
-  assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
-  assert.match(sheet, /onAccessibilityEscape=\{dismiss\}/);
-  assert.match(sheet, /width: theme\.space\.xxxl/);
-  assert.match(sheet, /height: theme\.space\.xxs/);
-  assert.match(sheet, /borderRadius: theme\.radius\.pill/);
-  assert.match(sheet, /alignSelf: 'center'/);
-  assert.match(sheet, /marginTop: theme\.space\.xs/);
-  assert.match(sheet, /marginBottom: theme\.navigation\.origin/);
-  assert.doesNotMatch(sheet, /marginBottom: theme\.space\.xxs/);
-  const handleIndex = sheet.indexOf('width: theme.space.xxxl');
-  const titleIndex = sheet.indexOf("textAlign: 'center'");
-  assert.ok(handleIndex >= 0 && titleIndex > handleIndex);
-  assert.doesNotMatch(sheet, /marginTop: theme\.space\.sm/);
-  assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
-  assert.match(sheet, /paddingVertical: theme\.space\.md/);
-  assert.doesNotMatch(sheet, /paddingVertical: theme\.space\.lg/);
-  assert.match(sheet, /paddingHorizontal: theme\.space\.lg/);
-  assert.match(sheet, /borderBottomWidth: theme\.navigation\.borderWidth/);
-  assert.match(sheet, /borderBottomColor: theme\.colors\.border/);
-  assert.doesNotMatch(sheet, /d="M18 6 6 18 M6 6l12 12"/);
-  assert.doesNotMatch(sheet, /<Svg/);
-  assert.doesNotMatch(sheet, /minWidth: theme\.buttons\.minimumHeight/);
-  assert.match(sheet, /accessibilityLabel=\{t\('closeAppearance'\)\}/);
-  assert.doesNotMatch(sheet, /t\('appearanceHint'\)/);
-  assert.doesNotMatch(sheet, /<AppText>\{t\('close'\)\}<\/AppText>/);
+  assert.match(sheet, /title=\{t\('appearance'\)\}/);
+  assert.match(sheet, /dismissAccessibilityLabel=\{t\('closeAppearance'\)\}/);
+  assert.match(sheet, /onDismiss=\{dismiss\}/);
+  assert.doesNotMatch(sheet, /<Modal|<SafeAreaView|StyleSheet\.absoluteFill/);
+  assert.doesNotMatch(sheet, /borderTopLeftRadius|borderTopRightRadius/);
   assert.match(sheet, /accessibilityRole="radiogroup"/);
   assert.match(sheet, /<AppearanceOptionIcon name=\{value\}/);
   assert.match(sheet, /color=\{theme\.colors\.secondaryText\}/);
   assert.match(sheet, /showDivider=\{index > 0\}/);
   assert.match(sheet, /borderTopWidth: showDivider \? theme\.navigation\.borderWidth/);
   assert.match(sheet, /selected=\{state\.appearance === option\}/);
+  assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
+  assert.match(sheet, /paddingVertical: theme\.space\.md/);
+  assert.doesNotMatch(sheet, /t\('appearanceHint'\)/);
+  assert.doesNotMatch(sheet, /<AppText variant="caption" muted>/);
 
   assert.match(contract, /appearanceSheetVisible: boolean/);
   assert.match(contract, /type: 'appearance.open'/);

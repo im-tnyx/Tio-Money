@@ -48,4 +48,5 @@ export const opacity = {
   fabShadow: 0.18,
   disabled: 0.48,
   pressed: 0.8,
+  bottomSheetBackdrop: 0.45,
 } as const;
