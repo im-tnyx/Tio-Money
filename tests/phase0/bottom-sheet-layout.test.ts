@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { test } from 'node:test';
+
+import { bottomSheetTokens } from '../../src/shared/theme/component-tokens';
+import {
+  getBottomSheetHeightLimits,
+  getDraggedBottomSheetHeight,
+  shouldExpandBottomSheet,
+} from '../../src/shared/ui/bottom-sheet-geometry';
+
+test('bottom sheet limits restore 90 percent initial cap and preserve top safe area', () => {
+  const bounds = getBottomSheetHeightLimits(800, 48, bottomSheetTokens);
+  assert.deepEqual(bounds, { collapsedMax: 720, expandedMax: 740 });
+  const { collapsedMax, expandedMax } = bounds;
+  assert.equal(getDraggedBottomSheetHeight(400, -160, collapsedMax, expandedMax), 560);
+  assert.equal(getDraggedBottomSheetHeight(400, -700, collapsedMax, expandedMax), 740);
+  assert.equal(getDraggedBottomSheetHeight(400, 160, collapsedMax, expandedMax), 400);
+  assert.equal(getDraggedBottomSheetHeight(740, 200, collapsedMax, expandedMax), 720);
+  assert.equal(shouldExpandBottomSheet(false, -32, 32), true);
+  assert.equal(shouldExpandBottomSheet(true, 32, 32), false);
+  assert.equal(shouldExpandBottomSheet(true, -10, 32), true);
+});
+
+test('visible handle and title stay unchanged; invisible drag target takes no space', () => {
+  const shell = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.match(shell, /height: sheet\.handleHeight/);
+  assert.match(shell, /marginTop: sheet\.handleTopMargin/);
+  assert.match(shell, /marginBottom: sheet\.handleBottomMargin/);
+  assert.match(shell, /minHeight: sheet\.headerMinHeight/);
+  assert.match(shell, /position: 'absolute'/);
+  assert.match(shell, /width: sheet\.handleTouchWidth/);
+  assert.match(shell, /height: sheet\.handleTouchHeight/);
+  assert.match(shell, /onResponderMove/);
+  assert.match(shell, /onResponderRelease/);
+});
+
+test('all sheets share one bottom-safe scroll area and expose final options', () => {
+  const shell = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  const main = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
+  const sub = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
+  const appearance = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
+  assert.equal(shell.match(/<ScrollView/g)?.length, 1);
+  assert.match(shell, /nestedScrollEnabled/);
+  assert.match(shell, /paddingBottom: sheet\.contentBottomPadding/);
+  assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
+  assert.doesNotMatch(main + sub, /<ScrollView|maxHeight: '70%'/);
+  assert.match(main, /<AppBottomSheet/);
+  assert.match(sub, /<AppBottomSheet/);
+  assert.match(appearance, /<AppBottomSheet/);
+  assert.equal(bottomSheetTokens.contentBottomPadding, 40);
+  assert.equal(bottomSheetTokens.handleTouchHeight, 48);
+});
