@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #53 bounded Sub-only FX owner approval (latest checkpoint)
+
+- **Owner decision:** [PR #53 approval](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) — Frankfurter v2 blended **reference** rate for saved Sub Currency display/refresh **only**, under TM-ADR-023 controls. Never ledger/transaction/account conversion, user identifiers or paid services. Not live trading quotes.
+- **Scope:** PR #53 FX adapter/cache/controller now part of explicitly limited owner-approved feature; earlier no-network statements below are historical. Provider/network safeguards, source date/last-check disclosure and pair-only requests are in the [Currency Spec](../docs/10-CURRENCY-SPEC.md) and [ADR](../docs/11-STAGE-1-FINANCE-ADRS.md).
+- **Gate:** latest branch edits require exact-HEAD CI, physical iPhone/Android UX and trusted EAS preview scope resolution. No independent reviewer approval is assumed. **Owner PR #53 merge authorization NOT_GRANTED.**
+
 ## 2026-11-21 — More Currency preference foundation (RFC #52)
 
 - **Owner UI update:** [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54) / [PR #53](https://github.com/im-tnyx/Tio-Money/pull/53) extends the unmerged currency slice to a dedicated Main Currency screen, More Currency section, Back/title/Change, inline Front/End selection, and Decimal/Number Format bottom sheets. Earlier green checks belong to an older SHA; exact final HEAD requires revalidation. No merge authorization.
