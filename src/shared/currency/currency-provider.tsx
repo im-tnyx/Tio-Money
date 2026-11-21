@@ -12,9 +12,11 @@ import { t } from '@/shared/i18n/strings';
 
 import {
   DEFAULT_CURRENCY_PREFERENCES,
+  withCurrencyDisplay,
   withMainCurrency,
   withSubCurrency,
   type CurrencyCode,
+  type CurrencyDisplayPreferences,
   type CurrencyPreferences,
   type CurrencyPreferenceStore,
 } from './currency-preference';
@@ -24,6 +26,7 @@ export interface CurrencySettings {
   readonly error: string | null;
   selectMainCurrency(code: CurrencyCode): void;
   selectSubCurrency(code: CurrencyCode | null): void;
+  updateDisplay(patch: Partial<CurrencyDisplayPreferences>): void;
 }
 
 interface CurrencyState {
@@ -78,14 +81,22 @@ export function CurrencyPreferencesProvider({
     [commit],
   );
 
+  const updateDisplay = useCallback(
+    (patch: Partial<CurrencyDisplayPreferences>) => {
+      commit(withCurrencyDisplay(current.current, patch));
+    },
+    [commit],
+  );
+
   const value = useMemo(
     () => ({
       preferences: state.preferences,
       error: state.error,
       selectMainCurrency,
       selectSubCurrency,
+      updateDisplay,
     }),
-    [state.preferences, state.error, selectMainCurrency, selectSubCurrency],
+    [state.preferences, state.error, selectMainCurrency, selectSubCurrency, updateDisplay],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

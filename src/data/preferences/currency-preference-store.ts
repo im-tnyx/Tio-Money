@@ -29,9 +29,6 @@ export const currencyPreferenceStore: CurrencyPreferenceStore = {
     if (!isCurrencyPreferences(value)) {
       throw new Error('Invalid currency preferences');
     }
-    Storage.setItemSync(
-      CURRENCY_PREFERENCE_KEY,
-      JSON.stringify({ version: 1, mainCode: value.mainCode, subCode: value.subCode }),
-    );
+    Storage.setItemSync(CURRENCY_PREFERENCE_KEY, JSON.stringify({ version: 1, ...value }));
   },
 };
