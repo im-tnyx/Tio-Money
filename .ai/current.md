@@ -1,4 +1,13 @@
 # 🧭 Current task index
+## 2026-11-22 — Isolated EAS CLI security audit (Issue #59, Draft PR #60)
+
+- **Active scoped task:** [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md); [RFC #59](https://github.com/im-tnyx/Tio-Money/issues/59); [Draft PR #60](https://github.com/im-tnyx/Tio-Money/pull/60). Owner Go permits bounded preparation while preserving **QR-free Android and iOS Expo Go testing**; **no merge authorization** for #60.
+- **Verified branch/base:** `security/eas-cli-advisory-gate-59-20261122`, from `main` `d765c97d71ba600b1838f34d180159855ac67dc1`. Read-only advisory-floor script and regression tests added; **neither root Expo Go nor isolated EAS package manifests/lockfiles changed**.
+- **Security status:** 17 High owner-reported transitive findings in `.github/preview-eas-cli/package-lock.json` are **NOT FIXED**. External npm registry DNS unavailable for full lockfile regeneration and signature verification; no device test performed by agent. Curated floors are guidance, not a clean audit. PR #53 and PR #58 independent and untouched.
+- **Gates:** Exact-HEAD PR #60 CI, security review and provenance pending. A future candidate must use official registry npm resolver and signatures, keep EAS identity/trusted workflow intact, and obtain owner-observed Android/iOS no-QR reconnection PASS before separate PR-specific merge permission. No privileged preview dispatch, security alert dismissal or merge.
+
+---
+
 
 ## 2026-11-21 — Docs audit readiness PR toward merge gate (Issue #50)
 
