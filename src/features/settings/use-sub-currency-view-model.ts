@@ -88,14 +88,21 @@ export function useSubCurrencyViewModel(): {
         const rate = rates[pair];
         return {
           code,
-          label: item ? item.code + ' – ' + item.country + ' (' + item.symbol + ')' : code,
+          label: item
+            ? item.code + ' – ' + item.country + ' (' + item.symbol + ')'
+            : code,
           rate: rate ?? null,
           rateStatus:
-            rate === undefined ? 'loading' : rate === null ? 'unavailable' : 'available',
+            rate === undefined
+              ? 'loading'
+              : rate === null
+                ? 'unavailable'
+                : 'available',
         } as const;
       }),
       choices: CURRENCY_OPTIONS.filter(
-        (item) => item.code !== preferences.mainCode && !preferences.subCodes.includes(item.code),
+        (item) =>
+          item.code !== preferences.mainCode && !preferences.subCodes.includes(item.code),
       ).map((item) => ({
         key: item.code,
         code: item.code,

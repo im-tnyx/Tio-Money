@@ -178,7 +178,9 @@ export function SubCurrencyScreen({
                   ) : (
                     <AppText variant="caption" muted>
                       {t(
-                        item.rateStatus === 'loading' ? 'currencyFxLoading' : 'currencyFxUnavailable',
+                        item.rateStatus === 'loading'
+                          ? 'currencyFxLoading'
+                          : 'currencyFxUnavailable',
                       )}
                     </AppText>
                   )}

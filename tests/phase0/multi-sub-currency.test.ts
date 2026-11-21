@@ -10,10 +10,7 @@ import {
   withMainCurrency,
   type CurrencyCode,
 } from '../../src/shared/currency/currency-preference';
-import {
-  formatReferenceRate,
-  parseReferenceRate,
-} from '../../src/data/market/fx-reference-rates';
+import { formatReferenceRate, parseReferenceRate } from '../../src/data/market/fx-reference-rates';
 
 test('TM-CUR-028: five distinct Subs, one-tap addition and per-code removal', () => {
   const first = addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
