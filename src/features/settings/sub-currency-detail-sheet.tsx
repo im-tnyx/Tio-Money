@@ -164,7 +164,9 @@ export function SubCurrencyDetailSheet({
                 borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText muted style={{ width: '34%' }}>{t('currencyFxExchangeRate')}</AppText>
+              <AppText muted style={{ width: '34%' }}>
+                {t('currencyFxExchangeRate')}
+              </AppText>
               <AppText style={{ flex: 1 }}>{detail.rateValue}</AppText>
               <Pressable
                 accessibilityRole="button"
@@ -212,7 +214,9 @@ export function SubCurrencyDetailSheet({
                 borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText muted style={{ width: '34%' }}>{t('currencyPosition')}</AppText>
+              <AppText muted style={{ width: '34%' }}>
+                {t('currencyPosition')}
+              </AppText>
               <View style={{ flex: 1, alignItems: 'flex-start' }}>
                 <CurrencyUnitPositionControl
                   value={detail.unitPosition}
@@ -234,7 +238,9 @@ export function SubCurrencyDetailSheet({
                 gap: theme.space.md,
               }}
             >
-              <AppText muted style={{ width: '34%' }}>{t('currencyDecimals')}</AppText>
+              <AppText muted style={{ width: '34%' }}>
+                {t('currencyDecimals')}
+              </AppText>
               <AppText style={{ flex: 1 }}>{detail.decimalLabel}</AppText>
               <Svg
                 width={theme.iconRoles.card}

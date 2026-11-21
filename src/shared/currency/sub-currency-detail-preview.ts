@@ -31,9 +31,7 @@ export function formatSubCurrencyDetailPreview(
   }).format(1);
   const subSymbol = subCode === 'USD' ? 'US' + sub.symbol : sub.symbol;
   const subPreview =
-    subDisplay.unitPosition === 'front'
-      ? subSymbol + ' ' + subNumber
-      : subNumber + ' ' + subSymbol;
+    subDisplay.unitPosition === 'front' ? subSymbol + ' ' + subNumber : subNumber + ' ' + subSymbol;
 
   if (rate === null || !Number.isFinite(rate) || rate <= 0) {
     return { subPreview, mainPreview: main.symbol + ' —' };
