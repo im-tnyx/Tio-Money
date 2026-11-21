@@ -1,5 +1,15 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Dedicated Codespaces preview start HTTP 409 race (RFC #38)
+
+- **Incident:** [Owner manual run #100](https://github.com/im-tnyx/Tio-Money/actions/runs/44870219796), trusted `main` `baeb77aef5ed16feec25cb4fc4b3f3209d357ee0`. PR #18 source and Codespace identity gates passed; pre-start GET saw non-`Available`, but POST /start returned `gh: The codespace is already running (HTTP 409)`. The workflow failed before SSH or Expo.
+- **Task/RFC:** [TM-OPS-CODESPACES-START409-20261121-001](tasks/preview/codespaces-start-http409-20261121.md), [RFC #38](https://github.com/im-tnyx/Tio-Money/issues/38). Bounded technical `PROCEED` to correct idempotent state transitions on `fix/codespaces-start-http409-race`, based on verified `main`.
+- **Fix:** Treat only the observed exact already-running HTTP 409 as a recoverable state race, then require repeated exact Codespace identity + `Available` polling; 403, other 409, deletion and timeout still fail closed. Add mocked branch-path tests.
+- **Separate blocker:** [Run #99](https://github.com/im-tnyx/Tio-Money/actions/runs/44869882591) previously failed on **unowned Metro** after verified bundle import. That remains unverified/unresolved and is excluded from this PR.
+- **Gate:** Fresh PR CI and independent security review pending. **Owner merge authorization NOT_GRANTED**. No privileged live Codespace dispatch or PR #18 source edits.
+
+---
+
 ## 2026-11-21 — Codespaces SCP quoted-path regression after PR #35 (RFC #36)
 
 - **Incident:** New owner-dispatched [Codespaces run #44828410270](https://github.com/im-tnyx/Tio-Money/actions/runs/44828410270) used `main` at `2f62f01b5869df4807452689f06ef561a2a9ae14` and failed `gh codespace cp`: remote SCP treated single quotes as filename characters. Authenticated bundle, immutable PR allowlist and Codespace identity passed. Not a new Expo UI compile failure.

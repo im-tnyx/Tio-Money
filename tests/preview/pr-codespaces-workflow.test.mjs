@@ -332,6 +332,53 @@ test('privileged Codespaces worker verifies preview-only identity before startin
   assert.equal(worker.match(/node \.github\/scripts\/verify-pr-preview-codespace\.mjs/g)?.length, 2);
 });
 
+test('already-running Codespaces HTTP 409 is the only tolerated start API failure', () => {
+  const step = worker.indexOf('      - name: Discover and start only the verified preview-only Codespace');
+  const start = worker.indexOf('          if [[ "$state" != "Available" ]]; then', step);
+  const loop = worker.indexOf('          for attempt in $(seq 1 120); do', start);
+  assert.ok(step >= 0 && start > step && loop > start);
+  const startScript = worker.slice(start, loop);
+  assert.ok(startScript.includes('gh api --method POST "/user/codespaces/${codespace}/start"'));
+  assert.ok(startScript.includes('gh: The codespace is already running (HTTP 409)'));
+  assert.ok(startScript.includes('exit 1'));
+  assert.ok(!startScript.includes('|| true'));
+  assert.ok(worker.indexOf('verify-pr-preview-codespace.mjs', loop) > loop);
+  assert.ok(worker.includes('if [[ "$state" == "Deleted" ]]; then'));
+  const script = [
+    'set -euo pipefail',
+    'codespace=dedicated-preview-only',
+    'state="$INITIAL_STATE"',
+    'gh() {',
+    '  [[ "$1" == api && "$2" == --method && "$3" == POST ]] || return 89',
+    '  [[ "$4" == "/user/codespaces/${codespace}/start" ]] || return 90',
+    '  case "$MOCK_RESULT" in',
+    '    ok) return 0 ;;',
+    '    already) echo "gh: The codespace is already running (HTTP 409)" >&2; return 1 ;;',
+    '    other409) echo "gh: The codespace is transitioning (HTTP 409)" >&2; return 1 ;;',
+    '    forbidden) echo "gh: Forbidden (HTTP 403)" >&2; return 1 ;;',
+    '    *) return 91 ;;',
+    '  esac',
+    '}',
+    startScript,
+    'echo VERIFIED_LOOP_REACHED',
+  ].join('\n');
+  const run = (initial, outcome) => spawnSync('bash', ['-c', script], {
+    encoding: 'utf8',
+    env: { ...process.env, INITIAL_STATE: initial, MOCK_RESULT: outcome },
+  });
+  const accepted = run('Starting', 'already');
+  assert.equal(accepted.status, 0, accepted.stderr);
+  assert.match(accepted.stdout, /VERIFIED_LOOP_REACHED/);
+  assert.match(accepted.stdout, /rechecking verified availability/);
+  assert.equal(run('Starting', 'ok').status, 0);
+  assert.equal(run('Available', 'forbidden').status, 0, 'already available skips start');
+  for (const bad of ['other409', 'forbidden']) {
+    const rejected = run('Starting', bad);
+    assert.equal(rejected.status, 1, bad);
+    assert.doesNotMatch(rejected.stdout, /VERIFIED_LOOP_REACHED/);
+    assert.match(rejected.stdout, /refusing to bypass an unexpected failure/);
+  }
+});
 test('dedicated preview identity gate fails closed for owner editing Codespace and spoofed metadata', () => {
   const previewName = 'dedicated-preview-abc123';
   const previewId = '123456';
