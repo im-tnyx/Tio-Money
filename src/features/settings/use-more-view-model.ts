@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
@@ -9,6 +10,7 @@ export function useMoreViewModel(): {
   state: MoreUiState;
   onAction: (action: MoreAction) => void;
 } {
+  const router = useRouter();
   const { preference, error, selectPreference } = useAppearanceSettings();
   const [appearanceSheetVisible, setAppearanceSheetVisible] = useState(false);
   const {
@@ -33,8 +35,11 @@ export function useMoreViewModel(): {
           selectPreference(action.preference);
           break;
         case 'currency.open':
-          setCurrencyStep('overview');
+          setCurrencyStep('sub');
           setCurrencySheetVisible(true);
+          break;
+        case 'currency.main.open':
+          router.push('/currency/main');
           break;
         case 'currency.dismiss':
           setCurrencySheetVisible(false);
@@ -56,11 +61,12 @@ export function useMoreViewModel(): {
           } else if (currencyStep === 'sub') {
             selectSubCurrency(action.code);
             setCurrencyStep('overview');
+            setCurrencySheetVisible(false);
           }
           break;
       }
     },
-    [selectPreference, currencyStep, selectMainCurrency, selectSubCurrency],
+    [router, selectPreference, currencyStep, selectMainCurrency, selectSubCurrency],
   );
 
   return {

@@ -16,6 +16,7 @@ export type MoreAction =
   | { readonly type: 'appearance.dismiss' }
   | { readonly type: 'appearance.select'; readonly preference: AppearancePreference }
   | { readonly type: 'currency.open' }
+  | { readonly type: 'currency.main.open' }
   | { readonly type: 'currency.dismiss' }
   | { readonly type: 'currency.back' }
   | { readonly type: 'currency.pick-main' }

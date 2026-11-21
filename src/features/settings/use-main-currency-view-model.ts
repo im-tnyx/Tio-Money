@@ -32,8 +32,6 @@ function sheetTitle(kind: MainCurrencySheetKind | null): string {
   switch (kind) {
     case 'currency':
       return t('currencyChooseMain');
-    case 'position':
-      return t('currencyPosition');
     case 'decimal':
       return t('currencyDecimals');
     case 'grouping':
@@ -61,6 +59,9 @@ export function useMainCurrencyViewModel(): {
         case 'open':
           setSheetKind(action.sheet);
           break;
+        case 'position.select':
+          updateDisplay({ unitPosition: action.value });
+          break;
         case 'dismiss':
           setSheetKind(null);
           break;
@@ -70,13 +71,11 @@ export function useMainCurrencyViewModel(): {
             selectMainCurrency(choice.code);
           } else {
             const patch: Partial<CurrencyDisplayPreferences> =
-              choice.kind === 'position'
-                ? { unitPosition: choice.value }
-                : choice.kind === 'decimal'
-                  ? { decimalDigits: choice.value }
-                  : choice.kind === 'grouping'
-                    ? { grouping: choice.value }
-                    : { largeAmounts: choice.value };
+              choice.kind === 'decimal'
+                ? { decimalDigits: choice.value }
+                : choice.kind === 'grouping'
+                  ? { grouping: choice.value }
+                  : { largeAmounts: choice.value };
             updateDisplay(patch);
           }
           setSheetKind(null);
@@ -94,7 +93,6 @@ export function useMainCurrencyViewModel(): {
         ? t('currencyDefaultDigits')
         : decimalChoices.find((item) => item.value === d.decimalDigits)?.label ?? '1.00';
     const rows = [
-      { key: 'position', label: t('currencyPosition'), value: d.unitPosition === 'front' ? t('currencyFront') : t('currencyEnd') },
       { key: 'decimal', label: t('currencyDecimals'), value: decimalLabel },
       { key: 'grouping', label: t('currencyGrouping'), value: d.grouping === 'indian' ? t('currencyIndian') : t('currencyInternational') },
       { key: 'compact', label: t('currencyCompact'), value: d.largeAmounts === 'full' ? t('currencyFull') : d.largeAmounts === 'indian' ? t('currencyLakhs') : t('currencyMillions') },
@@ -107,11 +105,6 @@ export function useMainCurrencyViewModel(): {
         selected: item.code === preferences.mainCode,
         choice: { kind: 'currency', code: item.code },
       }));
-    } else if (sheetKind === 'position') {
-      choices = ([
-        { key: 'front', label: t('currencyFront'), selected: d.unitPosition === 'front', choice: { kind: 'position', value: 'front' } },
-        { key: 'end', label: t('currencyEnd'), selected: d.unitPosition === 'end', choice: { kind: 'position', value: 'end' } },
-      ] as const);
     } else if (sheetKind === 'decimal') {
       choices = decimalChoices.map((item) => ({
         key: String(item.value),
@@ -133,6 +126,7 @@ export function useMainCurrencyViewModel(): {
     }
     return {
       label: getCurrencyLabel(preferences),
+      unitPosition: d.unitPosition,
       preview: formatCurrencyExample(preferences, 1),
       largePreview: formatCurrencyExample(preferences, 1234567.89, true),
       rows,

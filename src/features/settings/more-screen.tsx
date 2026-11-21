@@ -94,28 +94,34 @@ export function MoreScreen({
               />
             </Svg>
           </Pressable>
+        </View>
+        <View style={{ gap: theme.space.sm }}>
+          <View style={{ paddingHorizontal: theme.space.lg }}>
+            <AppText variant="section">{t('currency')}</AppText>
+          </View>
           <Pressable
-            onPress={() => onAction({ type: 'currency.open' })}
+            onPress={() => onAction({ type: 'currency.main.open' })}
             accessibilityRole="button"
-            accessibilityLabel={t('currency')}
-            accessibilityHint={t('currencyHint')}
-            accessibilityState={{ expanded: state.currencySheetVisible }}
+            accessibilityLabel={t('currencyMain')}
+            accessibilityHint={t('currencyOpenMainHint')}
             style={{
               width: '100%',
               minHeight: theme.buttons.minimumHeight,
               backgroundColor: theme.colors.card,
-              borderColor: theme.colors.border,
               borderTopWidth: theme.navigation.borderWidth,
               borderBottomWidth: theme.navigation.borderWidth,
-              borderRadius: theme.navigation.origin,
+              borderColor: theme.colors.border,
               paddingHorizontal: theme.space.lg,
               paddingVertical: theme.space.md,
               flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               gap: theme.space.sm,
+              alignItems: 'center',
             }}
           >
+            <View style={{ flex: 1 }}>
+              <AppText>{t('currencyMain')}</AppText>
+              <AppText variant="caption" muted>{state.currency.mainCode}</AppText>
+            </View>
             <Svg
               width={theme.iconRoles.card}
               height={theme.iconRoles.card}
@@ -124,17 +130,39 @@ export function MoreScreen({
               importantForAccessibility="no-hide-descendants"
             >
               <Path
-                d="M12 3v18M4 8h16M4 16h16"
+                d="m9 18 6-6-6-6"
                 stroke={theme.colors.secondaryText}
                 strokeWidth={theme.icons.stroke}
                 fill="none"
                 strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </Svg>
+          </Pressable>
+          <Pressable
+            onPress={() => onAction({ type: 'currency.open' })}
+            accessibilityRole="button"
+            accessibilityLabel={t('currencySub')}
+            accessibilityHint={t('currencyHint')}
+            accessibilityState={{ expanded: state.currencySheetVisible }}
+            style={{
+              width: '100%',
+              minHeight: theme.buttons.minimumHeight,
+              backgroundColor: theme.colors.card,
+              borderTopWidth: theme.navigation.borderWidth,
+              borderBottomWidth: theme.navigation.borderWidth,
+              borderColor: theme.colors.border,
+              paddingHorizontal: theme.space.lg,
+              paddingVertical: theme.space.md,
+              flexDirection: 'row',
+              gap: theme.space.sm,
+              alignItems: 'center',
+            }}
+          >
             <View style={{ flex: 1 }}>
-              <AppText>{t('currency')}</AppText>
+              <AppText>{t('currencySub')}</AppText>
               <AppText variant="caption" muted>
-                {state.currency.mainCode} · {state.currency.subCode ?? t('currencyNone')}
+                {state.currency.subCode ?? t('currencyNone')}
               </AppText>
             </View>
             <Svg

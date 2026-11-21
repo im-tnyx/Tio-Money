@@ -8,14 +8,12 @@ import type {
 
 export type MainCurrencySheetKind =
   | 'currency'
-  | 'position'
   | 'decimal'
   | 'grouping'
   | 'compact';
 
 export type MainCurrencyChoice =
   | { readonly kind: 'currency'; readonly code: CurrencyCode }
-  | { readonly kind: 'position'; readonly value: UnitPosition }
   | { readonly kind: 'decimal'; readonly value: DecimalDigits }
   | { readonly kind: 'grouping'; readonly value: NumberGrouping }
   | { readonly kind: 'compact'; readonly value: LargeAmountStyle };
@@ -35,6 +33,7 @@ export interface MainCurrencyChoiceRow {
 
 export interface MainCurrencyUiState {
   readonly label: string;
+  readonly unitPosition: UnitPosition;
   readonly preview: string;
   readonly largePreview: string;
   readonly rows: readonly MainCurrencyRow[];
@@ -47,5 +46,6 @@ export interface MainCurrencyUiState {
 export type MainCurrencyAction =
   | { readonly type: 'back' }
   | { readonly type: 'open'; readonly sheet: MainCurrencySheetKind }
+  | { readonly type: 'position.select'; readonly value: UnitPosition }
   | { readonly type: 'dismiss' }
   | { readonly type: 'select'; readonly choice: MainCurrencyChoice };
