@@ -20,6 +20,7 @@ import {
   formatSubCurrencyDecimalExample,
   stepSubCurrencyDecimalDigits,
 } from '../../src/features/settings/sub-currency-decimal-step';
+import { classifySubCurrencyRefresh } from '../../src/features/settings/sub-currency-refresh-feedback';
 
 test('TM-CUR-034: individual Sub display changes persist without touching Main display', () => {
   const base = addSubCurrency(addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'), 'EUR');
@@ -79,6 +80,16 @@ test('TM-CUR-036: Sub detail uses inline +/- precision without another sheet', (
   assert.match(sheet, /<AppBottomSheet/);
   assert.match(sheet, /<CurrencyUnitPositionControl/);
   assert.match(sheet, /type: 'detail.refresh'/);
+  assert.match(sheet, /<ActivityIndicator size="small"/);
+  assert.match(sheet, /detail.refreshing \? \(/);
+  assert.match(sheet, /accessibilityLiveRegion="polite"/);
+  assert.match(sheet, /\{detail.refreshStatus\}/);
+  assert.match(sheet, /detail.refreshError/);
+  assert.match(controller, /setRefreshResult\(null\)/);
+  assert.match(controller, /classifySubCurrencyRefresh\(previousRate, quote\)/);
+  assert.match(controller, /generation !== refreshRequest.current/);
+  assert.match(controller, /refreshResult\?\.pair === detailCode/);
+
   assert.match(sheet, /type: 'detail.position.select'/);
   assert.match(sheet, /type: 'detail.decimal.step', delta: -1/);
   assert.match(sheet, /type: 'detail.decimal.step', delta: 1/);
@@ -195,4 +206,23 @@ test('TM-CUR-042: inline Sub-only decimal controls respect 0–3 boundaries and 
   assert.match(main, /<MainCurrencyOptionSheet/);
   assert.match(mainSheet, /<AppBottomSheet/);
   assert.doesNotMatch(main + mainSheet, /sub-currency-decimal-step|detail\.decimal\.step/);
+});
+
+test('TM-CUR-043: refresh feedback distinguishes new, unchanged, and first valid quote', () => {
+  const oldQuote = { base: 'USD', quote: 'INR', rate: 82.5, date: '2026-11-20' } as const;
+  assert.equal(classifySubCurrencyRefresh(null, oldQuote), 'updated');
+  assert.equal(classifySubCurrencyRefresh(undefined, oldQuote), 'updated');
+  assert.equal(classifySubCurrencyRefresh(oldQuote, { ...oldQuote }), 'unchanged');
+  assert.equal(
+    classifySubCurrencyRefresh(oldQuote, { ...oldQuote, date: '2026-11-21' }),
+    'updated',
+  );
+  assert.equal(
+    classifySubCurrencyRefresh(oldQuote, { ...oldQuote, rate: 82.6 }),
+    'updated',
+  );
+  assert.equal(
+    classifySubCurrencyRefresh(oldQuote, { ...oldQuote, quote: 'USD' }),
+    'updated',
+  );
 });
