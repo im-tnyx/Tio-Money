@@ -582,3 +582,18 @@ payloads are rejected. Empty Sub selection makes zero FX requests,
 while no background polling or timers are introduced. No financial
 transaction/ledger writes or external user data are included. Provider
 licensing/privacy approval and on-device tests remain required.
+
+## iOS card-only swipe vs native swipe-back arbitration — 2026-11-21
+
+Card gestures and iOS native Back must have different touch ownership.
+The Sub Currency route enables the native Back swipe by default (including
+when Delete is revealed). While a user touches inside a currency card,
+only that route temporarily disables the native Back gesture; on touch
+release, cancellation or responder termination it restores navigation.
+Thus right swipe on a card closes the opened Delete action, while right
+swipe anywhere outside the currency card keeps the normal iOS Back behavior.
+The top-left Back button is always available, the screen's outside-tap
+dismissal is preserved, and the native gesture is not disabled for any
+other screen. Changes are scoped to gesture arbitration, not the stored
+currency or actual Delete handler. Real-device iPhone test remains required,
+especially for fast gestures beginning at the extreme left edge.
