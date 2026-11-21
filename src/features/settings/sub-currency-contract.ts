@@ -39,17 +39,14 @@ export interface SubCurrencyUiState {
   readonly sheetVisible: boolean;
   readonly detail: SubCurrencyDetail | null;
   readonly detailMode: 'overview' | 'decimal';
-  readonly editing: boolean;
   readonly limit: number;
   readonly error: string | null;
 }
 
 export type SubCurrencyAction =
   | { readonly type: 'back' }
-  | { readonly type: 'edit.cancel' }
   | { readonly type: 'add.open' }
   | { readonly type: 'add.dismiss' }
-  | { readonly type: 'edit.toggle' }
   | { readonly type: 'remove'; readonly code: CurrencyCode }
   | { readonly type: 'select'; readonly code: CurrencyCode }
   | { readonly type: 'detail.open'; readonly code: CurrencyCode }
