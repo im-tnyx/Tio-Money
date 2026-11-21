@@ -57,3 +57,15 @@ test('TM-FX-013: pair-checked FX, six decimals, and screen-only display', () => 
   assert.doesNotMatch(sheet, /rate\.date|formatReferenceRate|currencyFxSource/);
   assert.doesNotMatch(fx, /accountId|transactionId|ledger|balance/);
 });
+
+test('TM-CUR-031: no extra labels above or below the Sub Currency card', () => {
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const sheet = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
+  assert.doesNotMatch(screen, /t\('currencyMain'\)|t\('currencySubCount'\)/);
+  assert.doesNotMatch(screen, /t\('currencyFxDisclosure'\)/);
+  assert.match(screen, /state.selected.map/);
+  assert.match(screen, /formatReferenceRate\(item.rate\)/);
+  assert.match(screen, /currencyFxSource/);
+  assert.match(screen, /state.error/);
+  assert.match(sheet, /currencySubCount/);
+});

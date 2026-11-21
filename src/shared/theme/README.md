@@ -372,3 +372,14 @@ the v2 multi-Sub preference without deleting the prior key.
 The isolated Frankfurter reference data adapter needs provider/legal,
 privacy, offline-cache and stale-age review before merging/release.
 Quotes are informational, not ledger conversion or FX transaction data.
+
+## Sub Currency card external copy cleanup — PR #53 (2026-11-21)
+
+Remove the redundant `Main Currency: INR` text above the saved
+Sub Currency card, and the separate `Sub Currencies: N/5` and FX
+disclosure paragraphs below the card. Keep every saved currency row,
+its FX pair quote, source/date or unavailable state, and the persistence
+error banner when needed. The Add sheet retains its own count and limit
+feedback; the existing five-item backend limit remains enforced.
+Header/Plus/Pencil/X behavior, card appearance and add-sheet contents
+are unchanged.

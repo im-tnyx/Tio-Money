@@ -133,11 +133,6 @@ export function SubCurrencyScreen({
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}
         contentContainerStyle={{ paddingBottom: theme.space.xxxl, gap: theme.space.md }}
       >
-        <View style={{ paddingHorizontal: theme.space.lg, paddingTop: theme.space.lg }}>
-          <AppText muted>
-            {t('currencyMain')}: {state.mainCode}
-          </AppText>
-        </View>
         {state.selected.length > 0 ? (
           <View
             style={{
@@ -211,21 +206,11 @@ export function SubCurrencyScreen({
             <AppText muted>{t('currencyTapAddSub')}</AppText>
           </View>
         )}
-        <View style={{ paddingHorizontal: theme.space.lg }}>
-          <AppText variant="caption" muted>
-            {t('currencySubCount')}: {state.selected.length}/{state.limit}
-          </AppText>
-        </View>
         {state.error ? (
           <View accessibilityLiveRegion="polite" style={{ paddingHorizontal: theme.space.lg }}>
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
           </View>
         ) : null}
-        <View style={{ paddingHorizontal: theme.space.lg }}>
-          <AppText variant="caption" muted>
-            {t('currencyFxDisclosure')}
-          </AppText>
-        </View>
       </ScrollView>
       <SubCurrencyOptionSheet state={state} onAction={onAction} />
     </SafeAreaView>
