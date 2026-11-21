@@ -171,7 +171,7 @@ test('TM-CUR-040: short USD detail caption and its special symbol are presentati
   assert.match(vm, /formatSubCurrencyDetailCaption\(selectedDetail.code\)/);
   assert.match(vm, /return formatSubCurrencyDetailCaption\(code\)/);
   assert.match(vm, /mainLabel: mainConfigured \? currencyLabel\(preferences.mainCode\)/);
-  assert.match(vm, /selected.push\(\{ code, label: currencyLabel\(code\)/);
+  assert.match(vm, /selected.push\(\{\s*code,\s*label: currencyLabel\(code\),/);
 });
 
 test('TM-CUR-041: the preview and settings use one semantic card surface', () => {
