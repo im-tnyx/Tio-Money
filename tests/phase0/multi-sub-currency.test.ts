@@ -79,7 +79,7 @@ test('TM-CUR-032: Pencil edit shows left destructive minus icon, not right Remov
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const row = screen.slice(screen.indexOf('state.selected.map('));
   const removeAction = row.indexOf("onPress={() => onAction({ type: 'remove', code: item.code })}");
-  const details = row.indexOf('<View style={{ flex: 1, gap: theme.space.xxs }}>');
+  const details = row.indexOf('style={{ flex: 1, gap: theme.space.xxs }}');
   assert.ok(removeAction >= 0 && details >= 0);
   assert.ok(removeAction < details, 'remove icon must be left of the currency details');
   assert.match(row, /\{state.editing \? \(/);

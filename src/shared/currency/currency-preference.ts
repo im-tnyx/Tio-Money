@@ -73,11 +73,39 @@ export function resolveNumberGrouping(
 /** A small display-only list. Main/financial account currencies are not affected. */
 export const MAX_SUB_CURRENCIES = 5;
 
+/** Display-only overrides for an individual saved Sub Currency. */
+export interface SubCurrencyDisplayPreferences {
+  readonly unitPosition: UnitPosition;
+  readonly decimalDigits: DecimalDigits;
+}
+
+export const DEFAULT_SUB_CURRENCY_DISPLAY: SubCurrencyDisplayPreferences = {
+  unitPosition: 'front',
+  decimalDigits: 'currency',
+};
+
+export function isSubCurrencyDisplayPreferences(
+  value: unknown,
+): value is SubCurrencyDisplayPreferences {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<SubCurrencyDisplayPreferences>;
+  return (
+    (candidate.unitPosition === 'front' || candidate.unitPosition === 'end') &&
+    (candidate.decimalDigits === 'currency' ||
+      candidate.decimalDigits === 0 ||
+      candidate.decimalDigits === 1 ||
+      candidate.decimalDigits === 2 ||
+      candidate.decimalDigits === 3)
+  );
+}
+
 export interface CurrencyPreferences {
   readonly mainCode: CurrencyCode;
   /** Legacy first-selected alias kept compatible with existing consumers. */
   readonly subCode: CurrencyCode | null;
   readonly subCodes: readonly CurrencyCode[];
+  /** Optional for backward-compatible v2 preference records. */
+  readonly subDisplay?: Readonly<Partial<Record<CurrencyCode, SubCurrencyDisplayPreferences>>>;
   readonly display: CurrencyDisplayPreferences;
 }
 
@@ -107,10 +135,21 @@ export function isCurrencyPreferences(value: unknown): value is CurrencyPreferen
     return false;
   }
   const subCodes: readonly unknown[] = candidate.subCodes;
-  return (
+  const validCodes =
     subCodes.every((code) => isCurrencyCode(code) && code !== candidate.mainCode) &&
     new Set(subCodes).size === subCodes.length &&
-    (subCodes[0] ?? null) === candidate.subCode
+    (subCodes[0] ?? null) === candidate.subCode;
+  if (!validCodes) return false;
+  if (candidate.subDisplay === undefined) return true;
+  if (
+    !candidate.subDisplay ||
+    typeof candidate.subDisplay !== 'object' ||
+    Array.isArray(candidate.subDisplay)
+  ) {
+    return false;
+  }
+  return Object.entries(candidate.subDisplay).every(
+    ([code, display]) => subCodes.includes(code) && isSubCurrencyDisplayPreferences(display),
   );
 }
 
@@ -122,6 +161,7 @@ export function parseCurrencyPreferences(value: unknown): CurrencyPreferences {
     mainCode: value.mainCode,
     subCode: codes[0] ?? null,
     subCodes: [...codes],
+    ...(value.subDisplay ? { subDisplay: { ...value.subDisplay } } : {}),
     display: value.display
       ? {
           unitPosition: value.display.unitPosition,
@@ -143,6 +183,15 @@ export function withMainCurrency(
     mainCode,
     subCode: subCodes[0] ?? null,
     subCodes,
+    ...(current.subDisplay
+      ? {
+          subDisplay: Object.fromEntries(
+            Object.entries(current.subDisplay).filter(([code]) =>
+              subCodes.includes(code as CurrencyCode),
+            ),
+          ),
+        }
+      : {}),
     // A new Main selection restores the INR/other Auto grouping default.
     display:
       mainCode === current.mainCode ? current.display : { ...current.display, grouping: 'auto' },
@@ -164,6 +213,14 @@ export function withSubCurrency(
     ...current,
     subCode,
     subCodes: subCode === null ? [] : [subCode],
+    ...(current.subDisplay
+      ? {
+          subDisplay:
+            subCode === null || !current.subDisplay[subCode]
+              ? {}
+              : { [subCode]: current.subDisplay[subCode] },
+        }
+      : {}),
   };
 }
 
@@ -188,7 +245,36 @@ export function removeSubCurrency(
   code: CurrencyCode,
 ): CurrencyPreferences {
   const subCodes = current.subCodes.filter((item) => item !== code);
-  return { ...current, subCode: subCodes[0] ?? null, subCodes };
+  const subDisplay = current.subDisplay ? { ...current.subDisplay } : undefined;
+  if (subDisplay) delete subDisplay[code];
+  return {
+    ...current,
+    subCode: subCodes[0] ?? null,
+    subCodes,
+    ...(subDisplay ? { subDisplay } : {}),
+  };
+}
+
+export function resolveSubCurrencyDisplay(
+  preferences: CurrencyPreferences,
+  code: CurrencyCode,
+): SubCurrencyDisplayPreferences {
+  return preferences.subDisplay?.[code] ?? DEFAULT_SUB_CURRENCY_DISPLAY;
+}
+
+/** Isolated per-Sub display settings. Never change ledger or Main preferences. */
+export function withSubCurrencyDisplay(
+  current: CurrencyPreferences,
+  code: CurrencyCode,
+  patch: Partial<SubCurrencyDisplayPreferences>,
+): CurrencyPreferences {
+  if (!current.subCodes.includes(code)) throw new Error('Sub Currency is not saved');
+  const next = { ...resolveSubCurrencyDisplay(current, code), ...patch };
+  if (!isSubCurrencyDisplayPreferences(next)) throw new Error('Invalid Sub Currency display');
+  return {
+    ...current,
+    subDisplay: { ...current.subDisplay, [code]: next },
+  };
 }
 
 export function withCurrencyDisplay(

@@ -413,3 +413,27 @@ exchange-rate line or unavailable status; the extra visual
 FX source/date line has been removed to keep rows compact. The
 FX adapter continues validating effective dates internally.
 The Plus selection sheet remains currency-only.
+
+## Sub Currency row details as a bottom sheet — PR #53 (2026-11-21)
+
+Tapping the saved currency label/rate in normal mode opens a
+**separate, content-sized detail sheet**. The existing Plus sheet remains
+a names-only currency picker, and Pencil/Edit minus and horizontal
+swipe-delete remain distinct. The detail sheet reuses AppBottomSheet,
+CurrencyUnitPositionControl and shared theme tokens. It contains a
+two-currency comparison preview, a **read-only direct reference rate**
+with a 48dp refresh control, a per-Sub Front/End selector and a
+Decimal Point row with four choices (None, 1.0, 1.00, 1.000).
+Choosing Decimal swaps the same modal content to a short choice list,
+not an overlapping second modal.
+
+The local v2 preference shape gains an **optional per-Sub display
+mapping**, read safely from prior v2 records and validated by the same
+store. Main Currency display preferences are not modified by a Sub
+change; deleting a Sub removes that code's display override.
+Reference rate refresh uses the existing verified pair adapter,
+rejects stale async responses and keeps the last valid quote on failure.
+No manual exchange-rate override, account or ledger conversions,
+new backend endpoint or new dependency are introduced. FX data remains
+indicative; platform/device sheet, touch and network tests are still
+required.

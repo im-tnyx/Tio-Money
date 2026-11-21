@@ -9,6 +9,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
+import { SubCurrencyDetailSheet } from './sub-currency-detail-sheet';
 import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
 import { getSwipeOffset, isHorizontalSwipe, snapSwipeOffset } from './sub-currency-swipe';
 
@@ -278,7 +279,14 @@ export function SubCurrencyScreen({
                       </Svg>
                     </Pressable>
                   ) : null}
-                  <View style={{ flex: 1, gap: theme.space.xxs }}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={item.code + ' ' + t('currencySubDetails')}
+                    accessibilityHint={item.label}
+                    disabled={state.editing}
+                    onPress={() => onAction({ type: 'detail.open', code: item.code })}
+                    style={{ flex: 1, gap: theme.space.xxs }}
+                  >
                     <AppText>{item.label}</AppText>
                     {item.rateStatus === 'available' && item.rate ? (
                       <AppText variant="caption" muted>
@@ -293,7 +301,7 @@ export function SubCurrencyScreen({
                         )}
                       </AppText>
                     )}
-                  </View>
+                  </Pressable>
                 </View>
               </SwipeableCurrencyRow>
             ))}
@@ -311,6 +319,7 @@ export function SubCurrencyScreen({
         ) : null}
       </ScrollView>
       <SubCurrencyOptionSheet state={state} onAction={onAction} />
+      <SubCurrencyDetailSheet state={state} onAction={onAction} />
     </SafeAreaView>
   );
 }

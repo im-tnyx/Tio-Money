@@ -15,6 +15,7 @@ import {
   MAX_SUB_CURRENCIES,
   addSubCurrency,
   removeSubCurrency,
+  withSubCurrencyDisplay,
   withCurrencyDisplay,
   withMainCurrency,
   withSubCurrency,
@@ -22,6 +23,7 @@ import {
   type CurrencyDisplayPreferences,
   type CurrencyPreferences,
   type CurrencyPreferenceStore,
+  type SubCurrencyDisplayPreferences,
 } from './currency-preference';
 
 export interface CurrencySettings {
@@ -31,6 +33,7 @@ export interface CurrencySettings {
   selectSubCurrency(code: CurrencyCode | null): boolean;
   addSubCurrency(code: CurrencyCode): boolean;
   removeSubCurrency(code: CurrencyCode): boolean;
+  updateSubDisplay(code: CurrencyCode, patch: Partial<SubCurrencyDisplayPreferences>): boolean;
   updateDisplay(patch: Partial<CurrencyDisplayPreferences>): void;
 }
 
@@ -110,6 +113,18 @@ export function CurrencyPreferencesProvider({
     [commit],
   );
 
+  const updateSubDisplay = useCallback(
+    (code: CurrencyCode, patch: Partial<SubCurrencyDisplayPreferences>) => {
+      try {
+        return commit(withSubCurrencyDisplay(current.current, code, patch));
+      } catch {
+        setState((previous) => ({ ...previous, error: t('currencySaveError') }));
+        return false;
+      }
+    },
+    [commit],
+  );
+
   const updateDisplay = useCallback(
     (patch: Partial<CurrencyDisplayPreferences>) => {
       commit(withCurrencyDisplay(current.current, patch));
@@ -125,6 +140,7 @@ export function CurrencyPreferencesProvider({
       selectSubCurrency,
       addSubCurrency: addSubCurrencyChoice,
       removeSubCurrency: removeSubCurrencyChoice,
+      updateSubDisplay,
       updateDisplay,
     }),
     [
@@ -134,6 +150,7 @@ export function CurrencyPreferencesProvider({
       selectSubCurrency,
       addSubCurrencyChoice,
       removeSubCurrencyChoice,
+      updateSubDisplay,
       updateDisplay,
     ],
   );

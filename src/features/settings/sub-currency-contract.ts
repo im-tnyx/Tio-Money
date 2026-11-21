@@ -1,5 +1,9 @@
-import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import type { ReferenceRate } from '@/data/market/fx-reference-rates';
+import type {
+  CurrencyCode,
+  DecimalDigits,
+  UnitPosition,
+} from '@/shared/currency/currency-preference';
 
 export interface SubCurrencyChoiceRow {
   readonly key: string;
@@ -14,11 +18,27 @@ export interface SubCurrencySelectedRow {
   readonly rateStatus: 'loading' | 'available' | 'unavailable';
 }
 
+export interface SubCurrencyDetail {
+  readonly code: CurrencyCode;
+  readonly label: string;
+  readonly subPreview: string;
+  readonly mainPreview: string;
+  readonly rateValue: string;
+  readonly rateStatus: SubCurrencySelectedRow['rateStatus'];
+  readonly unitPosition: UnitPosition;
+  readonly decimalDigits: 0 | 1 | 2 | 3;
+  readonly decimalLabel: string;
+  readonly refreshing: boolean;
+  readonly refreshError: string | null;
+}
+
 export interface SubCurrencyUiState {
   readonly mainCode: CurrencyCode;
   readonly selected: readonly SubCurrencySelectedRow[];
   readonly choices: readonly SubCurrencyChoiceRow[];
   readonly sheetVisible: boolean;
+  readonly detail: SubCurrencyDetail | null;
+  readonly detailMode: 'overview' | 'decimal';
   readonly editing: boolean;
   readonly limit: number;
   readonly error: string | null;
@@ -31,4 +51,11 @@ export type SubCurrencyAction =
   | { readonly type: 'add.dismiss' }
   | { readonly type: 'edit.toggle' }
   | { readonly type: 'remove'; readonly code: CurrencyCode }
-  | { readonly type: 'select'; readonly code: CurrencyCode };
+  | { readonly type: 'select'; readonly code: CurrencyCode }
+  | { readonly type: 'detail.open'; readonly code: CurrencyCode }
+  | { readonly type: 'detail.dismiss' }
+  | { readonly type: 'detail.refresh' }
+  | { readonly type: 'detail.position.select'; readonly value: UnitPosition }
+  | { readonly type: 'detail.decimal.open' }
+  | { readonly type: 'detail.decimal.back' }
+  | { readonly type: 'detail.decimal.select'; readonly value: DecimalDigits };
