@@ -39,6 +39,30 @@ test('CI verifies isolated committed EAS CLI using npm ci and registry signature
     .slice(-4000);
   assert.equal(signatures.status, 0, `npm audit signatures failed: ${diagnostic || 'no diagnostic output'}`);
 
+  // Enforce that the committed isolated EAS dependency graph stays clear
+  // of Critical, High and Moderate advisories. Known Low findings are
+  // documented separately and never silently dismissed.
+  const audit = spawnSync('npm', [
+    'audit', '--json', '--registry=https://registry.npmjs.org'
+  ], { cwd: target, encoding: 'utf8', timeout: 180000, maxBuffer: 8 * 1024 * 1024 });
+  assert.ok(audit.status === 0 || audit.status === 1,
+    'npm audit execution failed: ' + (audit.stderr || audit.error?.message || audit.status));
+  let auditReport;
+  try {
+    auditReport = JSON.parse(audit.stdout);
+  } catch {
+    assert.fail('npm audit returned invalid JSON');
+  }
+  const severity = auditReport.metadata?.vulnerabilities;
+  assert.ok(severity && Number.isInteger(severity.moderate) &&
+    Number.isInteger(severity.high) && Number.isInteger(severity.critical),
+  'npm audit response lacks vulnerability severity totals');
+  assert.equal(severity.critical, 0, 'Isolated EAS CLI Critical advisory must be addressed');
+  assert.equal(severity.high, 0, 'Isolated EAS CLI High advisory must be addressed');
+  assert.equal(severity.moderate, 0, 'Isolated EAS CLI Moderate advisory must be addressed');
+  assert.ok(Number.isInteger(severity.low) && severity.low <= 2,
+    'New Low advisories require fresh risk disposition');
+
   const installed = JSON.parse(readFileSync(join(target, 'node_modules/eas-cli/package.json'), 'utf8'));
   assert.equal(installed.version, '27.4.1');
 
