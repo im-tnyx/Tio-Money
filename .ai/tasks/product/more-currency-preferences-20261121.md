@@ -143,3 +143,22 @@ Changed owner-approved feature branch only; tests `TM-CUR-051/-052`
 and original currency screens tests remain. Fresh exact-head CI,
 Android/iOS visual/a11y regression and independent review disposition
 are gate requirements. PR #53 MERGE_AUTHORIZATION=NOT_GRANTED.
+
+## 2026-11-22 — Sub Detail Number Format inline expansion (PR #53, unmerged)
+
+[Owner's agent-transcribed request and bounded technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068636655).
+Add per-Sub `grouping` to the existing versioned local
+`subDisplay` preference record (optional for prior saved data,
+default Auto: INR -> Lakhs, all other ISO codes -> Millions).
+No change to Main grouping or existing Sub Unit Position / Decimal
+Point. The Sub Detail **Format** row expands **inside the same
+AppBottomSheet** with Millions, Lakhs and No Format (radio options);
+selection persists immediately and collapses. Position, decimal
+stepper, Refresh, other Sub and sheet dismiss also collapse.
+Number-grouping updates illustrative Sub formatting only; raw FX
+quotes, accounts, ledgers, provider/network privacy and native
+permission model unchanged. Structural/unit regression tests
+`TM-CUR-053`, `TM-CUR-054`, `TM-CUR-055` cover old data,
+invalid grouping, isolation, panel toggles and accessibility.
+Fresh exact-HEAD CI/governance + iOS/Android long-label/scroll/
+a11y QA required. PR #53 MERGE_AUTHORIZATION=NOT_GRANTED.
