@@ -69,3 +69,21 @@ test('TM-CUR-031: no extra labels above or below the Sub Currency card', () => {
   assert.match(screen, /state.error/);
   assert.match(sheet, /currencySubCount/);
 });
+
+test('TM-CUR-032: Pencil edit shows left destructive minus icon, not right Remove text', () => {
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const row = screen.slice(screen.indexOf('state.selected.map('));
+  const removeAction = row.indexOf("onPress={() => onAction({ type: 'remove', code: item.code })}");
+  const details = row.indexOf('<View style={{ flex: 1, gap: theme.space.xxs }}>');
+  assert.ok(removeAction >= 0 && details >= 0);
+  assert.ok(removeAction < details, 'remove icon must be left of the currency details');
+  assert.match(row, /\{state.editing \? \(/);
+  assert.match(row, /accessibilityRole="button"/);
+  assert.match(row, /accessibilityLabel=\{t\('currencyRemoveSub'\) \+ ': ' \+ item.code\}/);
+  assert.match(row, /minHeight: theme.buttons.minimumHeight/);
+  assert.match(row, /minWidth: theme.buttons.minimumHeight/);
+  assert.match(row, /<Circle cx="12" cy="12" r="11" fill=\{theme.colors.expense\} \/>/);
+  assert.match(row, /d="M7 12h10"/);
+  assert.doesNotMatch(row, /\{t\('currencyRemoveSub'\)\}/);
+  assert.match(screen, /type: state.editing \? 'edit.cancel' : 'back'/);
+});

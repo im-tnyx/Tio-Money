@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { formatReferenceRate } from '@/data/market/fx-reference-rates';
@@ -159,6 +159,36 @@ export function SubCurrencyScreen({
                   borderBottomColor: theme.colors.border,
                 }}
               >
+                {state.editing ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t('currencyRemoveSub') + ': ' + item.code}
+                    onPress={() => onAction({ type: 'remove', code: item.code })}
+                    style={{
+                      minHeight: theme.buttons.minimumHeight,
+                      minWidth: theme.buttons.minimumHeight,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Svg
+                      width={theme.space.xxl}
+                      height={theme.space.xxl}
+                      viewBox="0 0 24 24"
+                      accessibilityElementsHidden
+                      importantForAccessibility="no-hide-descendants"
+                    >
+                      <Circle cx="12" cy="12" r="11" fill={theme.colors.expense} />
+                      <Path
+                        d="M7 12h10"
+                        stroke={theme.scheme === 'dark' ? theme.colors.canvas : theme.colors.card}
+                        strokeWidth={theme.icons.stroke}
+                        strokeLinecap="round"
+                        fill="none"
+                      />
+                    </Svg>
+                  </Pressable>
+                ) : null}
                 <View style={{ flex: 1, gap: theme.space.xxs }}>
                   <AppText>{item.label}</AppText>
                   {item.rateStatus === 'available' && item.rate ? (
@@ -180,23 +210,7 @@ export function SubCurrencyScreen({
                     </AppText>
                   )}
                 </View>
-                {state.editing ? (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t('currencyRemoveSub') + ': ' + item.code}
-                    onPress={() => onAction({ type: 'remove', code: item.code })}
-                    style={{
-                      minHeight: theme.buttons.minimumHeight,
-                      minWidth: theme.buttons.minimumHeight,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <AppText style={{ color: theme.colors.expense }}>
-                      {t('currencyRemoveSub')}
-                    </AppText>
-                  </Pressable>
-                ) : null}
+
               </View>
             ))}
           </View>

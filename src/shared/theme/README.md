@@ -383,3 +383,15 @@ error banner when needed. The Add sheet retains its own count and limit
 feedback; the existing five-item backend limit remains enforced.
 Header/Plus/Pencil/X behavior, card appearance and add-sheet contents
 are unchanged.
+
+## Sub Currency edit mode: left-side remove control — PR #53 (2026-11-21)
+
+Pencil enables Edit and retains the top-left X cancel action. For every
+saved currency row, show a 32dp semantic danger-colored circle with a
+minus glyph **before the currency label/rate**, on the left. The
+underlying accessibility-labeled Pressable maintains a 48dp minimum
+touch target and invokes the existing per-currency remove action. Hide
+the icon entirely outside Edit; remove the previous trailing text
+"Remove" action. Header, FX quote/date display, current five-currency
+limit and single-tap add sheet are unchanged. No reordering drag handle
+is introduced until reorder behavior is separately specified.
