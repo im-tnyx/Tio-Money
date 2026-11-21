@@ -77,3 +77,64 @@ export function AppSegmentedControl<T extends string>({
     </View>
   );
 }
+
+/**
+ * Button-action sibling of AppSegmentedControl.
+ * Shares the same compact pill geometry, surfaces, typography and 48dp hit targets.
+ * Actions must remain buttons rather than radios: minus/plus do not select a value.
+ */
+export function AppSegmentedActionControl({
+  actions,
+}: {
+  actions: readonly {
+    key: string;
+    label: string;
+    text: string;
+    disabled: boolean;
+    onPress: () => void;
+  }[];
+}) {
+  const theme = useAppTheme();
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        width: theme.segmentedControl.compactWidth,
+        padding: theme.segmentedControl.inset,
+        borderRadius: theme.segmentedControl.radius,
+        backgroundColor: theme.colors.segmentedTrack,
+      }}
+    >
+      {actions.map((action) => (
+        <Pressable
+          key={action.key}
+          accessibilityRole="button"
+          accessibilityLabel={action.label}
+          accessibilityState={{ disabled: action.disabled }}
+          disabled={action.disabled}
+          onPress={action.onPress}
+          hitSlop={{
+            top: theme.segmentedControl.compactHitSlop,
+            bottom: theme.segmentedControl.compactHitSlop,
+          }}
+          style={{
+            flex: 1,
+            minHeight: theme.segmentedControl.compactOptionHeight,
+            borderRadius: theme.segmentedControl.radius,
+            backgroundColor: theme.colors.segmentedSelected,
+            opacity: action.disabled
+              ? theme.buttons.disabledOpacity
+              : theme.buttons.enabledOpacity,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <AppText style={{ color: theme.colors.segmentedSelectedText }}>
+            {action.text}
+          </AppText>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
