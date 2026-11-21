@@ -1,5 +1,9 @@
 import type { ReferenceRate } from '@/data/market/fx-reference-rates';
-import type { CurrencyCode, UnitPosition } from '@/shared/currency/currency-preference';
+import type {
+  CurrencyCode,
+  NumberGrouping,
+  UnitPosition,
+} from '@/shared/currency/currency-preference';
 
 export interface SubCurrencyChoiceRow {
   readonly key: string;
@@ -31,6 +35,9 @@ export interface SubCurrencyDetail {
   readonly unitPosition: UnitPosition;
   readonly decimalDigits: 0 | 1 | 2 | 3;
   readonly decimalLabel: string;
+  readonly formatGrouping: 'indian' | 'international' | 'none';
+  readonly formatLabel: string;
+  readonly formatExpanded: boolean;
   readonly refreshing: boolean;
   readonly refreshError: string | null;
   readonly refreshStatus: string | null;
@@ -60,4 +67,6 @@ export type SubCurrencyAction =
   | { readonly type: 'detail.refresh' }
   | { readonly type: 'list.refresh' }
   | { readonly type: 'detail.position.select'; readonly value: UnitPosition }
-  | { readonly type: 'detail.decimal.step'; readonly delta: -1 | 1 };
+  | { readonly type: 'detail.decimal.step'; readonly delta: -1 | 1 }
+  | { readonly type: 'detail.format.toggle' }
+  | { readonly type: 'detail.format.select'; readonly value: Exclude<NumberGrouping, 'auto'> };
