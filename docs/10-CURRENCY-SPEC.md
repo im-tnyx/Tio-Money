@@ -279,3 +279,26 @@ by navigation/foreground. Manual retry uses the existing deduplicated
 Sub/Main-only provider action, subject to TM-ADR-023 privacy constraints.
 This is a non-posting presentation-only feature. [Owner-requested
 technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068050333).
+
+### 2026-11-22 — One unboxed Sub Currency freshness footer (owner revision, PR #53)
+
+The owner [revised the previous inline-per-card hint](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068449996):
+**a single unboxed row** appears only **immediately below the last selected
+Sub Currency card**, with `Checked D MMM` left and `Refresh now` right.
+It is not inside a card, not repeated between cards and does not alter
+any Sub card's height. The row disappears when every selected Sub/Main
+pair is verified on today's device-local date. If some pairs were never
+checked, the left caption reads `Some not checked` (or `Not checked`
+if none have a valid local fetched timestamp), instead of falsely giving
+a global all-checked date. Otherwise it shows the **oldest** validated
+last-check date across selected Sub pairs so a newer rate cannot mask a
+stale one. Provider publication date is separate and may be older
+during weekends/holidays. A single `Refresh now` action retries **all
+eligible stale/cached/unavailable saved pairs**, excluding already
+loading pairs, via the existing deduplicated pair-only FX provider;
+it is disabled and shows `Checking…` until the batch settles. On
+partial failure the row stays available. No auto-refresh is added by
+screen opening, polling or foregrounding. Keep minimum 48dp
+accessible touch height, safe area and swipe/Delete gestures; network
+scope, FX quote precision, cache and finance ledger remain unchanged.
+Tests: `TM-CUR-051`, `TM-CUR-052`, plus previous daily/pair tests.
