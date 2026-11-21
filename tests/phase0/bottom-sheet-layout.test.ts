@@ -50,7 +50,7 @@ test('all sheets share one bottom-safe scroll area and expose final options', ()
   assert.match(subPicker, /<AppBottomSheet/);
   assert.doesNotMatch(subPicker, /<ScrollView/);
   assert.match(appearance, /<AppBottomSheet/);
-  assert.equal(bottomSheetTokens.contentBottomPadding, 40);
+  assert.equal(bottomSheetTokens.contentBottomPadding, 24);
   assert.equal(bottomSheetTokens.handleTouchHeight, 48);
 });
 
@@ -104,6 +104,6 @@ test('short sheets add zero extra space below options; long sheets retain scroll
   assert.match(sheet, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
   assert.match(sheet, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.doesNotMatch(sheet, /paddingBottom: .*\+ bottomInset/);
-  assert.equal(bottomSheetTokens.contentBottomPadding, 40);
+  assert.equal(bottomSheetTokens.contentBottomPadding, 24);
   assert.equal(bottomSheetTokens.handleBottomMargin, 0);
 });
