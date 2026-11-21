@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-22 — PR #53 Sub Currency compact UI refinement (unmerged)
+
+- **Owner request / technical PROCEED:** [PR #53 UI discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067789782). Main selected label shown above Subs; valid Main required before Sub creation, default INR remains valid; picker removes redundant counter; FX source/publication date one line; 1.5dp refresh stroke, tighter rate/icon gap, 24dp shared overflowing-list trailing padding.
+- **Scope:** existing `feat/more-currency-preferences-20261121` branch, Sub screens/VM/provider and domain guards, shared semantic sheet token, tests and docs only. No finance/FX network or EAS workflow change. Prior non-force `main` reconciliation `4ad6a78d` remains preserved.
+- **Gate:** check **exact live PR HEAD** and fresh Phase 0 + governance, verify no `.github/` changes, review security/UX scope and new iOS/Android accessibility gestures. **PR #53 merge NOT_AUTHORIZED.**
+
 ## 2026-11-21 — PR #53 bounded Sub-only FX owner approval (latest checkpoint)
 
 - **Owner decision:** [PR #53 approval](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) — Frankfurter v2 blended **reference** rate for saved Sub Currency display/refresh **only**, under TM-ADR-023 controls. Never ledger/transaction/account conversion, user identifiers or paid services. Not live trading quotes.
