@@ -84,7 +84,7 @@ export const bottomSheetTokens = {
   handleTouchWidth: size.dp100 + space.lg,
   dragActivationDistance: size.dp8,
   dragSnapDistance: size.dp32,
-  contentBottomPadding: space.xxxl,
+  contentBottomPadding: space.xl,
   backdropOpacity: opacity.bottomSheetBackdrop,
   handleWidth: space.xxxl,
   handleHeight: space.xxs,
