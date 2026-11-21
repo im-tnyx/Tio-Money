@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { CURRENCY_OPTIONS } from '@/shared/currency/currency-preference';
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
@@ -13,6 +13,8 @@ export function useSubCurrencyViewModel(): {
 } {
   const router = useRouter();
   const { preferences, error, selectSubCurrency } = useCurrencySettings();
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const onAction = useCallback(
     (action: SubCurrencyAction) => {
@@ -20,25 +22,48 @@ export function useSubCurrencyViewModel(): {
         case 'back':
           router.back();
           break;
+        case 'add.open':
+          setEditing(false);
+          setSheetVisible(true);
+          break;
+        case 'add.dismiss':
+          setSheetVisible(false);
+          break;
+        case 'edit.toggle':
+          if (preferences.subCode !== null) setEditing((current) => !current);
+          break;
+        case 'remove':
+          if (preferences.subCode !== null && selectSubCurrency(null)) {
+            setEditing(false);
+          }
+          break;
         case 'select':
-          // Stay on this screen so a storage failure remains visible.
-          selectSubCurrency(action.code);
+          if (selectSubCurrency(action.code)) {
+            setSheetVisible(false);
+            setEditing(false);
+          }
           break;
       }
     },
-    [router, selectSubCurrency],
+    [router, preferences.subCode, selectSubCurrency],
   );
 
-  const state = useMemo<SubCurrencyUiState>(
-    () => ({
+  const state = useMemo<SubCurrencyUiState>(() => {
+    const selectedCurrency = CURRENCY_OPTIONS.find(
+      (option) => option.code === preferences.subCode,
+    );
+    return {
       mainCode: preferences.mainCode,
-      options: [
-        {
-          key: 'none',
-          code: null,
-          label: t('currencyNone'),
-          selected: preferences.subCode === null,
-        },
+      selectedLabel: selectedCurrency
+        ? selectedCurrency.code +
+          ' – ' +
+          selectedCurrency.country +
+          ' (' +
+          selectedCurrency.symbol +
+          ')'
+        : null,
+      choices: [
+        { key: 'none', code: null, label: t('currencyNone'), selected: preferences.subCode === null },
         ...CURRENCY_OPTIONS.filter((option) => option.code !== preferences.mainCode).map(
           (option) => ({
             key: option.code,
@@ -48,10 +73,11 @@ export function useSubCurrencyViewModel(): {
           }),
         ),
       ],
+      sheetVisible,
+      editing: editing && selectedCurrency !== undefined,
       error,
-    }),
-    [preferences.mainCode, preferences.subCode, error],
-  );
+    };
+  }, [preferences.mainCode, preferences.subCode, sheetVisible, editing, error]);
 
   return { state, onAction };
 }

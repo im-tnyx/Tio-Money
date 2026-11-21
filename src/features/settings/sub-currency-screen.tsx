@@ -7,8 +7,54 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
+import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
 
-/** Full screen presentation: no modal, storage or routing side effects. */
+function HeaderAction({
+  icon,
+  label,
+  onPress,
+  active = false,
+}: {
+  icon: 'plus' | 'pencil';
+  label: string;
+  onPress: () => void;
+  active?: boolean;
+}) {
+  const theme = useAppTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: active }}
+      onPress={onPress}
+      style={{
+        width: theme.buttons.minimumHeight,
+        minHeight: theme.buttons.minimumHeight,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Svg
+        width={theme.iconRoles.topBar}
+        height={theme.iconRoles.topBar}
+        viewBox="0 0 24 24"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <Path
+          d={icon === 'plus' ? 'M12 5v14M5 12h14' : 'M12 20h9M16 4l4 4L9 19H5v-4L16 4Z'}
+          stroke={active ? theme.colors.brand : theme.colors.primaryText}
+          strokeWidth={theme.icons.stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </Svg>
+    </Pressable>
+  );
+}
+
+/** Saved Sub Currency screen, with a separately controlled add-picker sheet. */
 export function SubCurrencyScreen({
   state,
   onAction,
@@ -17,7 +63,7 @@ export function SubCurrencyScreen({
   onAction: (action: SubCurrencyAction) => void;
 }) {
   const theme = useAppTheme();
-  const sideWidth = theme.buttons.minimumHeight + theme.space.xxxl;
+  const sideWidth = theme.buttons.minimumHeight * 2;
 
   return (
     <SafeAreaView
@@ -66,7 +112,21 @@ export function SubCurrencyScreen({
         <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
           {t('currencySub')}
         </AppText>
-        <View style={{ width: sideWidth }} />
+        <View style={{ width: sideWidth, flexDirection: 'row', justifyContent: 'flex-end' }}>
+          {state.selectedLabel ? (
+            <HeaderAction
+              icon="pencil"
+              label={t('currencyEditSub')}
+              active={state.editing}
+              onPress={() => onAction({ type: 'edit.toggle' })}
+            />
+          ) : null}
+          <HeaderAction
+            icon="plus"
+            label={t('currencyAddSub')}
+            onPress={() => onAction({ type: 'add.open' })}
+          />
+        </View>
       </View>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}
@@ -77,64 +137,51 @@ export function SubCurrencyScreen({
             {t('currencyMain')}: {state.mainCode}
           </AppText>
         </View>
-        <View
-          accessibilityRole="radiogroup"
-          style={{
-            backgroundColor: theme.colors.card,
-            borderTopWidth: theme.navigation.borderWidth,
-            borderBottomWidth: theme.navigation.borderWidth,
-            borderColor: theme.colors.border,
-          }}
-        >
-          {state.options.map((option, index) => (
-            <Pressable
-              key={option.key}
-              accessibilityRole="radio"
-              accessibilityLabel={option.label}
-              accessibilityState={{ checked: option.selected }}
-              onPress={() => onAction({ type: 'select', code: option.code })}
+        {state.selectedLabel ? (
+          <View
+            style={{
+              backgroundColor: theme.colors.card,
+              borderTopWidth: theme.navigation.borderWidth,
+              borderBottomWidth: theme.navigation.borderWidth,
+              borderColor: theme.colors.border,
+            }}
+          >
+            <View
               style={{
                 minHeight: theme.buttons.minimumHeight,
-                paddingVertical: theme.space.md,
                 paddingHorizontal: theme.space.lg,
+                paddingVertical: theme.space.md,
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: theme.space.md,
-                borderBottomWidth:
-                  index === state.options.length - 1
-                    ? theme.navigation.origin
-                    : theme.navigation.borderWidth,
-                borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText style={{ flex: 1 }}>{option.label}</AppText>
-              <View
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                style={{
-                  height: theme.iconRoles.card,
-                  width: theme.iconRoles.card,
-                  borderRadius: theme.radius.pill,
-                  borderWidth: theme.buttons.outlineWidth,
-                  borderColor: option.selected ? theme.colors.brand : theme.colors.secondaryText,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {option.selected ? (
-                  <View
-                    style={{
-                      height: theme.space.sm,
-                      width: theme.space.sm,
-                      borderRadius: theme.radius.pill,
-                      backgroundColor: theme.colors.brand,
-                    }}
-                  />
-                ) : null}
-              </View>
-            </Pressable>
-          ))}
-        </View>
+              <AppText style={{ flex: 1 }}>{state.selectedLabel}</AppText>
+              {state.editing ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('currencyRemoveSub')}
+                  onPress={() => onAction({ type: 'remove' })}
+                  style={{
+                    minHeight: theme.buttons.minimumHeight,
+                    minWidth: theme.buttons.minimumHeight,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <AppText style={{ color: theme.colors.expense }}>
+                    {t('currencyRemoveSub')}
+                  </AppText>
+                </Pressable>
+              ) : null}
+            </View>
+          </View>
+        ) : (
+          <View style={{ alignItems: 'center', padding: theme.space.xxl, gap: theme.space.sm }}>
+            <AppText>{t('currencyNoSubAdded')}</AppText>
+            <AppText muted>{t('currencyTapAddSub')}</AppText>
+          </View>
+        )}
         {state.error ? (
           <View accessibilityLiveRegion="polite" style={{ paddingHorizontal: theme.space.lg }}>
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
@@ -146,6 +193,7 @@ export function SubCurrencyScreen({
           </AppText>
         </View>
       </ScrollView>
+      <SubCurrencyOptionSheet state={state} onAction={onAction} />
     </SafeAreaView>
   );
 }

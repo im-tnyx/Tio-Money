@@ -111,19 +111,29 @@ test('TM-CUR-006: one global context reaches future Accounts/Transactions/Stats'
   assert.doesNotMatch(root, /useState|useEffect|fetch\(/);
 });
 
-test('TM-CUR-007: More Sub Currency opens its own accessible route, not a sheet', () => {
-  const screen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
-  const vm = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
-  const sub = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+test('TM-CUR-007: Sub Currency uses Plus picker and conditional Pencil in a dedicated screen', () => {
+  const more = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const picker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   const route = readFileSync('src/app/currency/sub.tsx', 'utf8');
-  assert.match(screen, /onAction\(\{ type: 'currency.sub.open' \}\)/);
-  assert.doesNotMatch(screen, /<CurrencySheet|currencySheetVisible/);
-  assert.match(vm, /router.push\('\/currency\/sub'\)/);
+  assert.match(more, /onAction\(\{ type: 'currency.sub.open' \}\)/);
   assert.match(route, /<SubCurrencyRoute \/>/);
-  assert.match(sub, /accessibilityRole="radiogroup"/);
-  assert.match(sub, /accessibilityRole="radio"/);
-  assert.match(sub, /accessibilityState=\{\{ checked: option.selected \}\}/);
-  assert.doesNotMatch(sub, /<AppBottomSheet|<Modal|Storage\.|fetch\(/);
+  assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
+  assert.match(screen, /minHeight: theme\.navigation\.topBarHeight/);
+  assert.match(screen, /icon="plus"/);
+  assert.match(screen, /icon="pencil"/);
+  assert.match(screen, /state.selectedLabel \?/);
+  assert.match(screen, /type: 'add.open'/);
+  assert.match(screen, /type: 'edit.toggle'/);
+  assert.match(picker, /<AppBottomSheet/);
+  assert.match(picker, /accessibilityRole="radiogroup"/);
+  assert.match(picker, /accessibilityRole="radio"/);
+  assert.match(picker, /accessibilityState=\{\{ checked: option.selected \}\}/);
+  assert.match(vm, /CURRENCY_OPTIONS\.filter/);
+  assert.match(vm, /option\.code !== preferences\.mainCode/);
+  assert.match(vm, /if \(selectSubCurrency\(action.code\)\)/);
+  assert.doesNotMatch(screen + picker, /Storage\.|fetch\(|useRouter\(/);
   assert.equal(en.currencyMain, 'Main Currency');
   assert.equal(en.currencySub, 'Sub Currency');
   assert.equal(en.currencyNone, 'None');
@@ -412,4 +422,18 @@ test('TM-CUR-024: Format sheet has three choices and resolves the currency defau
   assert.doesNotMatch(vm, /currencyAutoLakhs|currencyAutoMillions/);
   assert.match(vm, /resolveNumberGrouping\(preferences\.mainCode, d\.grouping\)/);
   assert.match(vm, /value:\s*effectiveGrouping === 'indian'/);
+});
+
+test('TM-CUR-026: Sub picker only closes after storage write succeeds', () => {
+  const provider = readFileSync('src/shared/currency/currency-provider.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const picker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
+  assert.match(provider, /selectSubCurrency\(code: CurrencyCode \| null\): boolean/);
+  assert.ok(provider.indexOf('store.write(next)') < provider.indexOf('return true'));
+  assert.match(provider, /return false/);
+  assert.match(vm, /if \(selectSubCurrency\(action.code\)\)/);
+  assert.match(vm, /if \(preferences.subCode !== null && selectSubCurrency\(null\)\)/);
+  assert.match(screen, /accessibilityLabel=\{t\('currencyRemoveSub'\)\}/);
+  assert.match(picker, /state.error/);
 });

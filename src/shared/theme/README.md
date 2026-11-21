@@ -343,3 +343,17 @@ and the current Sub is marked. The existing provider saves selections
 without silently navigating away if persistence fails. Main Currency,
 Appearance and the More shared card remain unchanged. Android/iOS
 screen and accessibility testing remain required.
+
+## Sub Currency Plus and conditional Pencil — PR #53 (2026-11-21)
+
+The Sub Currency route uses the unchanged 50dp title bar with Back at
+left, centered title and Plus at right. If a Sub is saved, a Pencil
+action appears immediately to the left of Plus. Plus opens an adaptive,
+scrollable shared currency-selection bottom sheet. The selected currency
+is rendered as a row on the screen. Pencil enables removal editing;
+pressing Remove writes None via the existing currency preference store.
+The shared 24dp icon and 48dp touch tokens apply throughout.
+The current single-Sub data contract is preserved: selecting another
+currency replaces the existing code. The sheet closes only when the
+local write succeeds, and remains open with an error on failure.
+No FX quotes, ledger changes, migration or additional packages.

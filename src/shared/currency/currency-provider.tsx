@@ -25,7 +25,7 @@ export interface CurrencySettings {
   readonly preferences: CurrencyPreferences;
   readonly error: string | null;
   selectMainCurrency(code: CurrencyCode): void;
-  selectSubCurrency(code: CurrencyCode | null): void;
+  selectSubCurrency(code: CurrencyCode | null): boolean;
   updateDisplay(patch: Partial<CurrencyDisplayPreferences>): void;
 }
 
@@ -61,8 +61,10 @@ export function CurrencyPreferencesProvider({
         store.write(next);
         current.current = next;
         setState({ preferences: next, error: null });
+        return true;
       } catch {
         setState((previous) => ({ ...previous, error: t('currencySaveError') }));
+        return false;
       }
     },
     [store],
@@ -75,9 +77,7 @@ export function CurrencyPreferencesProvider({
     [commit],
   );
   const selectSubCurrency = useCallback(
-    (code: CurrencyCode | null) => {
-      commit(withSubCurrency(current.current, code));
-    },
+    (code: CurrencyCode | null) => commit(withSubCurrency(current.current, code)),
     [commit],
   );
 

@@ -46,6 +46,9 @@ test('all sheets share one bottom-safe scroll area and expose final options', ()
   assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.doesNotMatch(main, /<ScrollView|maxHeight: '70%'/);
   assert.match(main, /<AppBottomSheet/);
+  const subPicker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
+  assert.match(subPicker, /<AppBottomSheet/);
+  assert.doesNotMatch(subPicker, /<ScrollView/);
   assert.match(appearance, /<AppBottomSheet/);
   assert.equal(bottomSheetTokens.contentBottomPadding, 40);
   assert.equal(bottomSheetTokens.handleTouchHeight, 48);

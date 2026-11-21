@@ -127,9 +127,21 @@ These are concept names for future architecture review, **not permission to crea
 
 More → Sub Currency navigates to `/currency/sub` instead of a bottom
 sheet. The screen has the same 50dp safe-area-aware title bar as Main Currency,
-an icon-only Back action and a scrollable radio list. `None` is always
+an icon-only Back action, a Plus picker button and a conditional Pencil button. `None` is always
 available; Main Currency cannot be selected as Sub. Choices save through the
-existing local preferences provider. Selection stays on the screen so storage
-failure messages remain visible; Back returns to More. A Main/Sub collision
+existing local preferences provider. The picker closes only after successful saving; failures stay visible.
+Back returns to More. A Main/Sub collision
 continues to auto-clear Sub. This change does not add FX quotes, network calls,
 data migrations, finance ledger operations or new persisted keys.
+
+### Sub Currency add/edit controls — PR #53 (2026-11-21)
+
+The 50dp top bar displays Back | Sub Currency | Pencil (only when a
+Sub is saved) | Plus. All icons use the shared 24dp role and 48dp
+touch size. Plus opens a shared bottom sheet containing None and the
+curated currencies other than Main. A saved Sub appears in the screen
+body. Pencil toggles an editing state exposing Remove. The existing
+single optional Sub preference is preserved; choosing another code
+replaces the current Sub until multi-Sub persistence/accounting is
+specified and reviewed. Synchronous storage failure leaves the picker
+open with an error. No new storage key, ledger mutation or FX call.
