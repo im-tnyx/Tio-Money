@@ -5,46 +5,10 @@ import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
+import { AppSegmentedActionControl } from '@/shared/ui/app-segmented-control';
 
 import { CurrencyUnitPositionControl } from './currency-unit-position-control';
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
-
-/** 48dp accessible step controls; only the Sub detail sheet uses these. */
-function DecimalStepButton({
-  label,
-  sign,
-  disabled,
-  onPress,
-}: {
-  label: string;
-  sign: string;
-  disabled: boolean;
-  onPress: () => void;
-}) {
-  const theme = useAppTheme();
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={{
-        minHeight: theme.buttons.minimumHeight,
-        minWidth: theme.buttons.minimumHeight,
-        borderRadius: theme.segmentedControl.radius,
-        backgroundColor: theme.colors.segmentedSelected,
-        justifyContent: 'center',
-        alignItems: 'center',
-        opacity: disabled ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
-      }}
-    >
-      <AppText variant="section" style={{ color: theme.colors.segmentedSelectedText }}>
-        {sign}
-      </AppText>
-    </Pressable>
-  );
-}
 
 /** A second, content-sized sheet; Add Currency stays a separate currency-only picker. */
 export function SubCurrencyDetailSheet({
@@ -258,28 +222,24 @@ export function SubCurrencyDetailSheet({
               >
                 {detail.decimalLabel}
               </AppText>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: theme.colors.segmentedTrack,
-                  borderRadius: theme.segmentedControl.radius,
-                  padding: theme.segmentedControl.inset,
-                }}
-              >
-                <DecimalStepButton
-                  label={t('currencyDecimalDecrease')}
-                  sign="−"
-                  disabled={detail.decimalDigits === 0}
-                  onPress={() => onAction({ type: 'detail.decimal.step', delta: -1 })}
-                />
-                <DecimalStepButton
-                  label={t('currencyDecimalIncrease')}
-                  sign="+"
-                  disabled={detail.decimalDigits === 3}
-                  onPress={() => onAction({ type: 'detail.decimal.step', delta: 1 })}
-                />
-              </View>
+              <AppSegmentedActionControl
+                actions={[
+                  {
+                    key: 'decrease',
+                    label: t('currencyDecimalDecrease'),
+                    text: '−',
+                    disabled: detail.decimalDigits === 0,
+                    onPress: () => onAction({ type: 'detail.decimal.step', delta: -1 }),
+                  },
+                  {
+                    key: 'increase',
+                    label: t('currencyDecimalIncrease'),
+                    text: '+',
+                    disabled: detail.decimalDigits === 3,
+                    onPress: () => onAction({ type: 'detail.decimal.step', delta: 1 }),
+                  },
+                ]}
+              />
             </View>
           </View>
         </>
