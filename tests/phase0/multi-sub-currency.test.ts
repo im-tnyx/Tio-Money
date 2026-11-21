@@ -131,6 +131,28 @@ test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => 
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
 });
 
+test('TM-CUR-044: iOS Back is suppressed only during touches that start on a Sub card', () => {
+  const route = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const root = readFileSync('src/app/_layout.tsx', 'utf8');
+  const main = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  assert.match(route, /<Stack.Screen options=\{\{ gestureEnabled: !cardTouchActive \}\} \/>/);
+  assert.match(route, /const \[cardTouchActive, setCardTouchActive\] = useState\(false\)/);
+  assert.match(route, /onCardTouchStart=\{onCardTouchStart\}/);
+  assert.match(route, /onCardTouchEnd=\{onCardTouchEnd\}/);
+  assert.match(screen, /onTouchStart=\{\(event\) => \{\s*onCardTouchStart\(\)/);
+  assert.match(screen, /onTouchEnd=\{onCardTouchEnd\}/);
+  assert.match(screen, /onTouchCancel=\{onCardTouchEnd\}/);
+  assert.match(screen, /onResponderTerminate=\{\(\) => \{[\s\S]*?onCardTouchEnd\(\);/);
+  assert.match(screen, /onResponderRelease=\{\(event\) => \{[\s\S]*?onCardTouchEnd\(\);/);
+  assert.match(screen, /shouldCloseRevealedSwipe/);
+  assert.doesNotMatch(route, /gestureEnabled: openSwipeCode === null/);
+  assert.doesNotMatch(screen + root + main, /gestureEnabled:\s*false/);
+  // Screen outside cards never calls onCardTouchStart, preserving system Back.
+  const outer = screen.slice(screen.indexOf('<ScrollView'), screen.indexOf('state.selected.map'));
+  assert.doesNotMatch(outer, /onCardTouchStart/);
+});
+
 test('TM-CUR-037: one swipe Delete action closes when tapping outside, without deletion', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   assert.match(
