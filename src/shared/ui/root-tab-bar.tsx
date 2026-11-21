@@ -46,6 +46,7 @@ export function RootTabBar() {
             <RootTabIcon
               name={item.icon}
               color={active ? theme.colors.brand : theme.colors.secondaryText}
+              selected={active}
             />
             <AppText
               variant="caption"

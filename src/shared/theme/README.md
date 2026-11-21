@@ -53,14 +53,16 @@ is required.
   and default weight 400 (FAB-only). These changes retain the 48dp tab touch targets,
   More-centered FAB positioning and **16dp FAB-to-bar separation** (increased
   from 12dp for better clearance).
-- The five bottom-tab glyphs are **Google Material Symbols Outlined, weight
-  200 maximum** (home, book_2, bar_chart_4_bars, account_balance and
-  more_horiz) with exact official local SVG assets, licensed Apache 2.0.
-  Their XML is embedded in `SvgXml` and tinted through the active/inactive
-  theme fill; the [asset provenance](../assets/google-material-icons/README.md)
-  records upstream filenames and licensing. The shared 24dp display size
-  remains unchanged. The disabled FAB mark retains its original native
-  Google Material Symbols Outlined `add` SVG (default weight 400) and behavior.
+- Five bottom-tab glyphs use official **Google Material Symbols Outlined** SVGs
+  (home, book_2, bar_chart_4_bars, account_balance and more_horiz), licensed
+  Apache 2.0. The owner-approved 2026-11-21 selected-state rule is:
+  **400 regular when selected**, **200 when unselected**; the former all-tab
+  maximum 200 is superseded for selected tabs only. Both are original 24px
+  optical-size SVG XML paths selected by `navigationTokens.selectedIconWeight`
+  and `.unselectedIconWeight`, tinted by existing active/inactive theme colors.
+  The [asset provenance](../assets/google-material-icons/README.md) records
+  exact upstream names and licensing. The display size remains shared 24dp;
+  FAB's original weight-400 add symbol and disabled behavior do not change.
 - Bottom bar adds the OS safe-area bottom inset to the 50dp baseline and
   remains safe-area-aware on Android and iPhone. The floating disabled FAB stays
   centered over More, separated from the visible bar by 16dp, based on the
@@ -117,3 +119,20 @@ Appearance's existing System/Light/Dark radio content is the first real consumer
 **test-only** fixture demonstrates distinct content composition without creating a new app route.
 Device-level accessibility and dynamic-type smoke tests remain acceptance work; source/CI
 checks do not prove actual screen-reader or gesture behavior.
+
+## Bottom navigation active icon weight (Issue #44, 2026-11-21)
+
+`RootTabBar` derives `active` from the existing pathname, then passes it to
+`RootTabIcon`. `navigationTokens.selectedIconWeight=400` chooses the exact Google
+Material Symbols Outlined **regular 400** SVG; `unselectedIconWeight=200` uses
+the original **200** SVG. Both remain 24dp via `iconTokens.size`, with unchanged
+brand/secondary color roles, labels, 1dp icon-to-label gap, tab heights, safe-area
+insets, navigation events and independent disabled Add FAB. No stroke-width
+simulation or new font/Metro transformer is used. Changing the tab's state
+only selects approved artwork: no extra screen or business logic.
+
+This design decision supersedes the previous all-tabs maximum-200 rule
+**only for selected bottom navigation icons**. Appearance mode icons stay 200.
+Review `tests/phase0/navigation-shell.test.ts` and `design-tokens.test.ts`
+for both local SVG variants, provenance and semantic token assertions. Android/
+iPhone visual verification is distinct from CI.

@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Bottom nav selected 400 / unselected 200 (Issue #44)
+
+- **Owner decision:** Bottom tab SVGs are official Material Symbols Outlined, **400 weight selected**, **200 unselected**. This supersedes the old maximum-200 rule only for selected bottom icons; 24dp size, colors, bar geometry, labels and disabled FAB remain unchanged.
+- **RFC/PROCEED:** [Issue #44](https://github.com/im-tnyx/Tio-Money/issues/44) and [technical decision](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059593229). **Task:** [TM-UI-NAV-WEIGHTS-20261121](tasks/ui/bottom-nav-icon-weights-20261121.md). Branch `feat/bottom-nav-selected-400-20261121` created from `main` `28af00b40020af4986bfd2843a22d88e6c584c0c`.
+- **Scoped work:** Add five exact Google default-400 SVGs, keep existing 200 SVGs unchanged, use selected/unselected navigation token roles and controlled `RootTabIcon` props; update provenance, theme README and regression tests. No dependencies/native/finance/workflow changes, no privileged preview.
+- **Gate:** Separate Draft PR, exact-head CI and review findings to be verified before Ready for Review. Owner requested **merge gate only**, explicit PR-specific merge permission **NOT_GRANTED**. Device visual QA pending.
+
+---
+
 ## 2026-11-21 — Issue #42 reusable AppBottomSheet implementation started
 
 - **Task:** [TM-UI-BOTTOM-SHEET-20261121-042](tasks/ui/shared-bottom-sheet-20261121.md); [Issue #42](https://github.com/im-tnyx/Tio-Money/issues/42) technical [PROCEED checkpoint](https://github.com/im-tnyx/Tio-Money/issues/42#issuecomment-7059311342) based on direct user instruction to start.

@@ -142,7 +142,7 @@ test('successful launch reveals five tab shell with one More settings surface', 
   assert.doesNotMatch(root, /name="settings"|name="transaction\/new"|name="welcome"/);
 });
 
-test('all five tabs render official Google SVG paths with token sizing and theme color', () => {
+test('bottom tabs use weight 400 when selected and original 200 otherwise', () => {
   const tabBar = readFileSync('src/shared/ui/root-tab-bar.tsx', 'utf8');
   const icon = readFileSync('src/shared/ui/root-tab-icon.tsx', 'utf8');
   const destinations = readFileSync('src/shared/navigation/root-destinations.ts', 'utf8');
@@ -154,22 +154,32 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   assert.match(tabBar, /<RootTabIcon/);
   assert.match(tabBar, /gap: theme\.navigation\.iconLabelGap/);
   assert.match(tabBar, /name=\{item\.icon\}/);
+  assert.match(tabBar, /selected=\{active\}/);
+  assert.match(tabBar, /accessibilityState=\{\{ selected: active \}\}/);
   assert.doesNotMatch(tabBar, /\{item\.glyph\}/);
   assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
   assert.match(icon, /import \{ SvgXml \} from 'react-native-svg'/);
   assert.match(icon, /accessibilityElementsHidden/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
-  assert.match(icon, /MATERIAL_OUTLINED_SVG\[name\]\.replace/);
+  assert.match(icon, /MATERIAL_OUTLINED_SVG\[name\]\[weight\]\.replace/);
+  assert.match(icon, /selected \? navigationTokens\.selectedIconWeight/);
+  assert.match(icon, /: navigationTokens\.unselectedIconWeight/);
+  assert.match(icon, /selected: boolean/);
   assert.match(icon, /fill="\$\{color\}"/);
   assert.match(icon, /width=\{iconTokens\.size\} height=\{iconTokens\.size\}/);
   assert.doesNotMatch(icon, /require\(.+\.png|tabIconShapes|IconFont|<Image/);
 
   for (const name of ['home', 'transactions', 'statistics', 'accounts', 'more']) {
     const svg = readFileSync(directory + '/' + name + '.svg', 'utf8');
+    const selectedSvg = readFileSync(directory + '/' + name + '-selected.svg', 'utf8');
     assert.match(svg, /^<svg /);
+    assert.match(selectedSvg, /^<svg /);
     assert.match(svg, /viewBox="0 -960 960 960"/);
+    assert.match(selectedSvg, /viewBox="0 -960 960 960"/);
+    assert.notEqual(svg, selectedSvg, name + ' weights must have distinct official paths');
     assert.ok(icon.includes(name + ':'), name + ' should be mapped');
-    assert.ok(icon.includes("'" + svg + "'"), name + ' uses the official SVG source');
+    assert.ok(icon.includes("'" + svg + "'"), name + ' keeps its exact 200 SVG');
+    assert.ok(icon.includes("'" + selectedSvg + "'"), name + ' uses exact 400 SVG');
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
     assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }
@@ -184,6 +194,11 @@ test('all five tabs render official Google SVG paths with token sizing and theme
     'bar_chart_4_bars_wght200_24px.svg',
     'account_balance_wght200_24px.svg',
     'more_horiz_wght200_24px.svg',
+    'home_24px.svg',
+    'book_2_24px.svg',
+    'bar_chart_4_bars_24px.svg',
+    'account_balance_24px.svg',
+    'more_horiz_24px.svg',
   ]) {
     assert.ok(origin.includes(id), id);
   }
