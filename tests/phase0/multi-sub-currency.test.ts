@@ -207,3 +207,17 @@ test('TM-CUR-045: Sub creation requires a valid Main while default INR remains v
   assert.match(controller, /currencyChooseMainFirst/);
   assert.match(vm, /if \(!isCurrencyCode\(preferences.mainCode\)\) break/);
 });
+
+test('TM-CUR-048: Main row and Sub list touch without an inter-card gap', () => {
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const scrollArea = screen.slice(screen.indexOf('<ScrollView'), screen.indexOf('{state.error ? ('));
+  assert.match(scrollArea, /gap: theme\.space\.md/);
+  assert.match(
+    scrollArea,
+    /<View>\s*<View[\s\S]*?\{t\('currencyMain'\)\}[\s\S]*?\{state\.selected\.length > 0 \? \(/,
+  );
+  const listCard = scrollArea.slice(scrollArea.indexOf('{state.selected.length > 0 ? ('));
+  assert.match(listCard, /backgroundColor: theme\.colors\.card/);
+  assert.doesNotMatch(listCard, /borderTopWidth: theme\.navigation\.borderWidth/);
+  assert.match(listCard, /borderBottomWidth: theme\.navigation\.borderWidth/);
+});
