@@ -11,7 +11,7 @@ export interface SubCurrencySelectedRow {
   readonly code: CurrencyCode;
   readonly label: string;
   readonly rate: ReferenceRate | null;
-  readonly rateStatus: 'loading' | 'available' | 'unavailable';
+  readonly rateStatus: 'loading' | 'available' | 'cached' | 'unavailable';
 }
 
 export interface SubCurrencyDetail {
@@ -22,6 +22,7 @@ export interface SubCurrencyDetail {
   readonly rateValue: string;
   readonly rateStatus: SubCurrencySelectedRow['rateStatus'];
   readonly rateDate: string | null;
+  readonly rateFetchedAt: number | null;
   readonly unitPosition: UnitPosition;
   readonly decimalDigits: 0 | 1 | 2 | 3;
   readonly decimalLabel: string;
