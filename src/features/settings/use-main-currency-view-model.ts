@@ -91,7 +91,7 @@ export function useMainCurrencyViewModel(): {
     const decimalLabel =
       d.decimalDigits === 'currency'
         ? t('currencyDefaultDigits')
-        : decimalChoices.find((item) => item.value === d.decimalDigits)?.label ?? '1.00';
+        : (decimalChoices.find((item) => item.value === d.decimalDigits)?.label ?? '1.00');
     const rows = [
       { key: 'decimal', label: t('currencyDecimals'), value: decimalLabel },
       {
@@ -116,7 +116,7 @@ export function useMainCurrencyViewModel(): {
         key: item.code,
         label: item.code + ' – ' + item.country + ' (' + item.symbol + ')',
         selected: item.code === preferences.mainCode,
-        choice: { kind: 'currency', code: item.code },
+        choice: { kind: 'currency' as const, code: item.code },
       }));
     } else if (sheetKind === 'decimal') {
       choices = decimalChoices.map((item) => ({

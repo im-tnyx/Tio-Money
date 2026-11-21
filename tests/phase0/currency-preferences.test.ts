@@ -173,10 +173,7 @@ test('TM-CUR-011: full, lakh/crore and million/billion summary previews are opti
   const international = withCurrencyDisplay(main, { largeAmounts: 'international' });
   assert.equal(formatCurrencyExample(international, 1234567.89, true), '₹ 1.23M');
   assert.equal(formatCurrencyExample(international, -1234567.89, true), '-₹ 1.23M');
-  assert.throws(
-    () => withCurrencyDisplay(main, { grouping: 'invalid' as 'indian' }),
-    /Invalid/,
-  );
+  assert.throws(() => withCurrencyDisplay(main, { grouping: 'invalid' as 'indian' }), /Invalid/);
 });
 
 test('TM-CUR-012: More Currency section and dedicated Main Currency screen are dumb', () => {
