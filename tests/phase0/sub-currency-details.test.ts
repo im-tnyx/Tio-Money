@@ -12,9 +12,7 @@ import {
   withMainCurrency,
   withSubCurrencyDisplay,
 } from '../../src/shared/currency/currency-preference';
-import {
-  formatSubCurrencyDetailPreview,
-} from '../../src/shared/currency/sub-currency-detail-preview';
+import { formatSubCurrencyDetailPreview } from '../../src/shared/currency/sub-currency-detail-preview';
 
 test('TM-CUR-034: individual Sub display changes persist without touching Main display', () => {
   const base = addSubCurrency(addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'), 'EUR');
