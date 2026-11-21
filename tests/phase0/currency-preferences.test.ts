@@ -293,7 +293,9 @@ test('TM-CUR-018: None decimal option displays exactly 1, never 1.0', () => {
   assert.equal(previewWithDecimals(2), '₹ 1.00');
   assert.equal(previewWithDecimals(3), '₹ 1.000');
   assert.equal(en.currencyDecimalNone, 'None');
-  assert.equal(en.currencyDecimalOne, '1 decimal (1.0)');
+  assert.equal(en.currencyDecimalOne, '1.0');
+  assert.equal(en.currencyDecimalTwo, '1.00');
+  assert.equal(en.currencyDecimalThree, '1.000');
   assert.match(vm, /value: 0/);
   assert.match(vm, /currencyDecimalNone/);
   assert.doesNotMatch(vm, /\{ label: '1\.0', value: 0 \}/);
