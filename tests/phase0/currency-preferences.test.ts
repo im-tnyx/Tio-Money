@@ -107,7 +107,7 @@ test('TM-CUR-006: one global context reaches future Accounts/Transactions/Stats'
   assert.doesNotMatch(root, /useState|useEffect|fetch\(/);
 });
 
-test('TM-CUR-007: FX only on Sub screen; Plus picker and Pencil X Cancel', () => {
+test('TM-CUR-007: FX only on Sub screen; Plus picker and swipe-only Delete', () => {
   const more = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const picker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
@@ -115,11 +115,11 @@ test('TM-CUR-007: FX only on Sub screen; Plus picker and Pencil X Cancel', () =>
   const route = readFileSync('src/app/currency/sub.tsx', 'utf8');
   assert.match(more, /onAction\(\{ type: 'currency.sub.open' \}\)/);
   assert.match(route, /<SubCurrencyRoute \/>/);
-  assert.match(screen, /icon="plus"/);
-  assert.match(screen, /icon="pencil"/);
-  assert.match(screen, /state\.selected\.length > 0/);
-  assert.match(screen, /state\.editing \? 'edit.cancel' : 'back'/);
-  assert.match(screen, /currencyCancelEdit/);
+  assert.match(screen, /<HeaderAction/);
+  assert.match(screen, /label=\{t\('currencyAddSub'\)\}/);
+  assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
+  assert.match(screen, /type: 'back'/);
+  assert.doesNotMatch(screen, /pencil|state\.editing|currencyCancelEdit|currencyEditSub/);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
   assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
   assert.match(picker, /<AppBottomSheet/);
@@ -127,7 +127,8 @@ test('TM-CUR-007: FX only on Sub screen; Plus picker and Pencil X Cancel', () =>
   assert.match(picker, /type: 'select', code: option\.code/);
   assert.doesNotMatch(picker, /formatReferenceRate|currencyFxSource/);
   assert.match(vm, /if \(addSubCurrency\(action.code\)\)/);
-  assert.match(vm, /case 'edit.cancel'/);
+  assert.match(vm, /case 'back'/);
+  assert.doesNotMatch(vm, /case 'edit.cancel'|case 'edit.toggle'|setEditing/);
   assert.doesNotMatch(screen + picker, /useRouter\(|Storage\.|fetch\(/);
   assert.equal(en.currencyMain, 'Main Currency');
   assert.equal(en.currencySub, 'Sub Currency');
