@@ -1,6 +1,6 @@
 # Repository security baseline — setup and verification
 
-**Status:** Proposed configuration on an unmerged feature PR. Source RFC and decision:
+**Status:** Configuration MERGED via [PR #58](https://github.com/im-tnyx/Tio-Money/pull/58) on 2026-11-22 IST. Source RFC and decision:
 [Security baseline issue #57](https://github.com/im-tnyx/Tio-Money/issues/57).
 **Observed on:** 2026-11-22. The facts below describe the then-current `main` SHA
 `d765c97d71ba600b1838f34d180159855ac67dc1`, not a permanent attestation.
@@ -77,3 +77,10 @@ GitHub guidance: [CodeQL default setup](https://docs.github.com/en/code-security
   repository-wide vulnerability clearance or enable any security setting.
 - To roll back the version-update policy, revert the configuration in a separate
   reviewed and owner-authorized PR; preserve a security/audit record.
+
+## Verified terminal and active follow-ups — 2026-11-22 IST
+
+- [PR #58](https://github.com/im-tnyx/Tio-Money/pull/58) merged via **non-force squash** at 2026-11-21 22:50:06 UTC / 2026-11-22 04:20:06 IST. Verified protected `main` resulting commit SHA: **`7d595bf334a2fd81c4e9e220fda00226c38d6305`**. Reconciled source PR HEAD: `d16b65aabef685a86c6fc616a4e0aae00b785e24`, latest verified base `c513e790f3729b24e4d85f08eac5ea96ba2fee51`. Owner explicitly requested **“Go to merge 58”** and exact-head `static`, `Governance` and `signal` checks all passed; 0 unresolved review threads and no branch-protection bypass. [Issue #57 terminal evidence](https://github.com/im-tnyx/Tio-Money/issues/57#issuecomment-7070466985).
+- This versioned policy configures **weekly, bounded non-auto-merge Dependabot version-update proposals** for **root npm and GitHub Actions** only. It is **not** an activation or verification of Dependabot alerts, security updates, dependency graph, CodeQL, paid licensing or required status contexts. Existing EAS CLI isolated lockfile is not targeted for npm version-update proposals. Root Expo Go, Codespaces and trusted EAS workflow unchanged.
+- Post-merge `.github/dependabot.yml` validation check reported **SUCCESS** on the merge SHA; of the two Dependabot jobs, one was SUCCESS and the other was still IN_PROGRESS at the next check. Do not infer the pending job passed; verify live Actions and any bot-created PR before accepting updates. A successful Dependabot check is not a security-alert scan or a real Android/iOS device test.
+- Admin-only tasks **remain OPEN** under Issue #57: inspect CodeQL/default setup and private-repo eligibility; verify actual Dependabot alerts, update settings and dependency graph state; inspect legacy branch rules/required contexts with repository owner permission. Never enable/disable premium features, modify branch rules or auto-merge bot PRs without separate owner approval. Any future Dependabot update PR requires normal code/attestation review and checked current HEAD.
