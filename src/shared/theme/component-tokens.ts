@@ -1,4 +1,5 @@
-import { opacity, size } from './primitives';
+import { motion, opacity, size } from './primitives';
+import { radius, space } from './tokens';
 
 /**
  * One canonical default icon dimension for current navigation and shared UI.
@@ -26,8 +27,11 @@ export const navigationTokens = {
   origin: size.dp0,
   itemHeight: size.dp48,
   borderWidth: size.dp1,
-  iconLabelGap: size.dp1,
+  iconLabelGap: size.dp0,
   labelFontSize: size.dp11,
+  selectedIconWeight: 300,
+  unselectedIconWeight: 200,
+  tabCrossfadeDurationMs: motion.tabCrossfadeDurationMs,
   horizontalPadding: size.dp8,
   topPadding: size.dp1,
   minimumBottomPadding: size.dp0,
@@ -57,4 +61,19 @@ export const shadowTokens = {
 
 export const recoveryTokens = {
   messageLineHeight: size.dp24,
+} as const;
+
+/** Shared native bottom-sheet geometry. No individual feature may override the shell. */
+export const bottomSheetTokens = {
+  topCornerRadius: radius.xl,
+  maxHeight: '90%' as const,
+  backdropOpacity: opacity.bottomSheetBackdrop,
+  handleWidth: space.xxxl,
+  handleHeight: space.xxs,
+  handleRadius: radius.pill,
+  handleTopMargin: space.xs,
+  handleBottomMargin: navigationTokens.origin,
+  headerMinHeight: buttonTokens.minimumHeight,
+  headerHorizontalPadding: space.lg,
+  headerDividerWidth: navigationTokens.borderWidth,
 } as const;

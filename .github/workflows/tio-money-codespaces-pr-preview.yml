@@ -9,7 +9,7 @@ on:
       pr_number:
         description: Owner-authored, repo-local PR selected for Expo Go preview
         required: true
-        type: number
+        type: string
   workflow_run:
     workflows:
       - Tio Money preview push signal
@@ -19,6 +19,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
   group: tio-money-codespaces-pr-preview
@@ -202,6 +203,35 @@ jobs:
             exit 1
           fi
 
+      - name: Prepare exact immutable PR source bundle
+        if: steps.pr.outputs.selected == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          # Repository contents are read with the scoped Actions token, never
+          # with the Codespaces credential and never in a remote Codespace.
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Invalid immutable preview SHA."
+            exit 1
+          fi
+          gh auth setup-git
+          if [[ "$(git rev-parse --is-shallow-repository)" == "true" ]]; then
+            git fetch --no-tags --unshallow origin
+          fi
+          git fetch --no-tags origin "$TARGET_SHA"
+          test "$(git rev-parse FETCH_HEAD^{commit})" = "$TARGET_SHA"
+          git update-ref refs/tio-preview/selected "$TARGET_SHA"
+          bundle="$RUNNER_TEMP/tio-money-preview.bundle"
+          git bundle create "$bundle" refs/tio-preview/selected
+          git bundle verify "$bundle"
+          bundle_bytes="$(stat -c '%s' -- "$bundle")"
+          if (( bundle_bytes < 1 || bundle_bytes > 134217728 )); then
+            rm -f -- "$bundle"
+            echo "::error::Immutable preview bundle exceeds the 128 MiB transfer limit."
+            exit 1
+          fi
       - name: Discover and start only the verified preview-only Codespace
         id: codespace
         if: steps.pr.outputs.selected == 'true'
@@ -241,7 +271,18 @@ jobs:
           codespace="$PREFERRED_CODESPACE"
           state="$(jq -r '.state // empty' "$selected_json")"
           if [[ "$state" != "Available" ]]; then
-            gh api --method POST "/user/codespaces/${codespace}/start" >/dev/null
+            # GitHub Codespaces can transition to running after the initial GET
+            # but before POST /start. Only the exact known already-running 409
+            # is idempotent; every other API failure still aborts this job.
+            start_failure=""
+            if start_failure="$(gh api --method POST "/user/codespaces/${codespace}/start" 2>&1 >/dev/null)"; then
+              :
+            elif [[ "$start_failure" == "gh: The codespace is already running (HTTP 409)" ]]; then
+              echo "Codespace start raced with another transition; rechecking verified availability."
+            else
+              echo "::error::Dedicated Codespace start API failed; refusing to bypass an unexpected failure."
+              exit 1
+            fi
           fi
           for attempt in $(seq 1 120); do
             gh api "/user/codespaces/${codespace}" > "$selected_json"
@@ -270,8 +311,48 @@ jobs:
           TARGET_PR: ${{ steps.pr.outputs.pr_number }}
         run: |
           set -euo pipefail
-          # SSH receives this script from the trusted main checkout. Never
-          # execute a PR-provided shell script in the privileged Actions runner.
+          # The Codespaces credential only establishes SSH, never fetches Git
+          # objects and is never forwarded into the remote environment.
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-f]{40}$ || ! "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Invalid immutable SHA or run identifier."
+            exit 1
+          fi
+          bundle="$RUNNER_TEMP/tio-money-preview.bundle"
+          test -s "$bundle"
+          remote_dir="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}"
+          remote_bundle="${remote_dir}/source.bundle"
+          bundle_sha256="$(sha256sum -- "$bundle" | cut -d ' ' -f 1)"
+          # Use a fresh private directory so SCP cannot follow an attacker-owned
+          # pre-existing destination, and keep credentials on the trusted runner.
+          printf -v remote_prepare_command \
+            'set -eu; umask 077; mkdir -m 700 -- %q' "$remote_dir"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_prepare_command"
+          # The cleanup only targets the directory created above. It is also
+          # attempted when a copy or subsequent validation fails.
+          cleanup_remote_bundle() {
+            local cleanup
+            printf -v cleanup \
+              'set -eu; if [ -d %q ] && [ ! -L %q ] && [ "$(stat -c %%u -- %q)" = "$(id -u)" ]; then rm -f -- %q; rmdir -- %q; fi' \
+              "$remote_dir" "$remote_dir" "$remote_dir" "$remote_bundle" "$remote_dir"
+            gh codespace ssh --codespace "$CODESPACE_NAME" -- "$cleanup" >/dev/null 2>&1 || true
+          }
+          trap cleanup_remote_bundle EXIT
+          # Official Codespaces file-copy transport, rather than piping bundle
+          # bytes through a remote-shell command's stdin.
+          # GitHub CLI's default SCP literal path quoting can become part of
+          # the destination filename with SFTP (observed run #92). --expand
+          # avoids literal quote wrapping. This is safe ONLY for the fixed
+          # path built from the validated hex TARGET_SHA and numeric RUN_ID.
+          gh codespace cp --expand -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"
+          rm -f -- "$bundle"
+          # SCP can preserve the source mode; enforce the exact remote mode
+          # only after verifying a regular, non-symlink user-owned file.
+          printf -v remote_finalize_command \
+            'set -eu; test -f %q; test ! -L %q; test "$(stat -c %%u -- %q)" = "$(id -u)"; chmod 600 -- %q' \
+            "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_finalize_command"
+          # Trusted main script verifies private-dir ownership, file size,
+          # permissions, SHA-256, Git bundle and exact selected PR commit.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            bash -s -- "$TARGET_SHA" "$TARGET_PR" \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" \
             < .github/scripts/sync-pr-codespaces-preview.sh

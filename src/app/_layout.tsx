@@ -2,16 +2,22 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { appearancePreferenceStore } from '@/data/preferences/appearance-preference-store';
 import { DatabaseGate } from '@/shared/bootstrap/database-gate';
-import { AppThemeProvider } from '@/shared/theme/theme-provider';
+import { AppThemeProvider, useAppTheme } from '@/shared/theme/theme-provider';
 
-/** Phase 0 contains only the five-tab navigation shell; there is no app top bar. */
+/** Respect app-selected appearance even when it differs from the OS. */
+function ThemedStatusBar() {
+  const theme = useAppTheme();
+  return <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />;
+}
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AppThemeProvider>
+      <AppThemeProvider appearanceStore={appearancePreferenceStore}>
         <DatabaseGate>
-          <StatusBar style="auto" />
+          <ThemedStatusBar />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
           </Stack>

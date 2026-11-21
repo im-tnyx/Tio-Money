@@ -1,12 +1,10 @@
 # 🧭 Current task index
 
-## 2026-11-21 — Concurrent PR #21 merge safely reconciled into PR #24
+## 2026-11-21 — PR #24 reconciled onto current main (UI ownership preserved)
 
-**Codex review follow-up:** Previous HEAD `983d90ed332b2ad1f044b8438cd6a291c90b1414` had **four P2 docs findings** (FX pair-only data, native minor units, PR #22 terminal handoff, preserved original ADR-011–017 IDs). This PR reconciles those in docs; recheck current HEAD CI and automated review. No merge permission for PR #24.
-
-- **Live new `main`**: `097e014d7e2a2015230971751bd5c72ee91e6580` after [PR #21](https://github.com/im-tnyx/Tio-Money/pull/21) squash-merged a scoped preview HTTP 403 diagnostic. Earlier main index text describing PR #21 as open is **historical pre-merge evidence**; no PR #21 workflow or preview test source code has been overwritten.
-- **PR #24 integration:** two-parent **non-force merge commit** with first parent `983d90ed332b2ad1f044b8438cd6a291c90b1414` and second parent new `main`. Use new `main` tree and overlay only PR #24's 15 Markdown-owned blobs; semantic-merge `.ai/current.md` by prepending our ongoing task section to all of new main's original index.
-- **Gate:** all prior CI/Codex evidence is for the earlier SHA and must be rechecked on this reconciliation commit. **Owner merge authorization NOT GRANTED** for PR #24.
+- **Owner Go:** safely reconcile PR #24, verify CI and review; this is **NOT merge authorization**. Current `main` `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` includes independently merged Appearance, bottom-tab 300/200 SVG and 0dp gap, 160ms reduced-motion-aware crossfade, preview workflow and Codespaces task changes. Previous PR24 `a13ab70f8b90e9ecb7bcb77a61cf4e4bb652c3a2` is a historical pre-reconciliation HEAD.
+- **Integration method:** non-force two-parent merge with first parent prior PR24 and second parent latest main, built from **new main's tree**; overlay only PR24's fifteen Markdown-owned blobs. This index retains **all original latest main handoff text** and prepends PR24 current checkpoint. No app source, theme, navigation, assets, tests, preview files or other agents' work touched.
+- **New Codex P2:** previous docs described five blank routes and 1dp gap. Actual current main has **four blank finance tabs + MoreRoute/useMoreViewModel/MoreScreen**, selected 300/inactive 200 and 0dp; reconcile these historical assertions in next scoped docs-only commit. New HEAD CI/review and links must be verified. **PR #24 NOT MERGED.**
 
 ---
 
@@ -24,8 +22,218 @@
 - **Handoff:** validate exact PR branch HEAD, all Markdown paths/anchors, zero co-author trailers, current GitHub checks/review. Independent finance/security review strongly recommended. **Owner merge authorization for this new PR NOT GRANTED**; no direct `main` write or merge.
 
 
+
 ---
 
+
+## 2026-11-21 — PR #49 third interactive Expo Go task (Issue #48)
+
+- **Owner follow-up:** Add a third selectable Codespaces task, **Expo Go Tunnel (Interactive)** (Expo Go `--tunnel --go`), alongside managed **Start Expo Project (Tunnel)** and branch-aware **Git Pull (FF-only)**. [Issue #48 technical addendum](https://github.com/im-tnyx/Tio-Money/issues/48#issuecomment-7060391801).
+- **Safety:** Reuse managed launcher account verification via its new check-only mode; verified managed Metro stops before interactive CLI begins, never kill unowned port 8081. `CI=false npm run mobile` displays console; Ctrl+C stops it. No automatic Codespace wake, EAS, new token or mobile app change.
+- **Gate:** [Draft PR #49](https://github.com/im-tnyx/Tio-Money/pull/49), fresh exact-head CI/review and live Codespaces/phone check pending. Merge authorization `NOT_GRANTED`; prior two-task evidence is superseded by this new scope.
+
+---
+
+## 2026-11-21 — Issue #48 Codespaces one-click Run Tasks
+
+- **Scope/PROCEED:** [Issue #48](https://github.com/im-tnyx/Tio-Money/issues/48) records the user-requested VS Code **Start Expo Project (Tunnel)** (managed idempotent starter) and **Git Pull (FF-only)** (current checked-out tracking branch). Task: [TM-DEV-CODESPACES-TASKS-20261121](tasks/preview/codespaces-run-tasks-20261121.md).
+- **Branch/base:** `chore/codespaces-run-tasks-20261121` from `main` `9d2f0c793442b76131834a9ffc0c1962734ab00d`. Only tracked VS Code task configuration, narrow gitignore exception, task tests, Codespaces guide and additive task checkpoint; no Expo/auth/preview workflow changes.
+- **Gate:** Physical Codespaces Expo Go behavior and current-head CI `NOT_VERIFIED` at initial checkpoint. Review `DEFERRED`; explicit PR-specific merge permission `NOT_GRANTED`. Do not merge or enable automation.
+
+---
+
+## 2026-11-21 — Five-tab 160ms crossfade setup (Issue #46)
+
+- **Owner-directed scope:** Implement a smooth **160ms screen-content crossfade** between Home/Trans./Stats./Account/More, take a new PR to merge gate only. Bar/FAB remain stationary and owner-approved (selected 300, inactive 200, icon-label gap 0dp, 24dp glyphs, 50dp bar baseline).
+- **Task:** [TM-UI-TAB-CROSSFADE-20261121](tasks/ui/root-tab-crossfade-20261121.md). [RFC #46](https://github.com/im-tnyx/Tio-Money/issues/46) / [technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/46#issuecomment-7060225970). Base `main` `9d2f0c793442b76131834a9ffc0c1962734ab00d`, branch `feat/root-tab-crossfade-160ms-46`.
+- **Boundaries:** Expo Router JS Tabs as scene host only, custom existing bar/FAB untouched, 160ms shared motion token and native Reduced Motion support. New exact-head CI/review and physical-device QA required; no native/data/dependency changes. No privileged preview, direct main write, or merge permission.
+
+---
+
+## 2026-11-21 — PR #45 bottom tab icon-label gap removed
+
+- **Latest owner refinement:** Bottom tab selected SVG **300**, unselected SVG **200**, and **icon-label gap 0dp** (formerly 1dp). The central `navigationTokens.iconLabelGap=size.dp0` drives all five tabs through existing `RootTabBar`. Older 1dp notes below are historical and superseded.
+- **Scope:** shared token, design-token regression, Theme and Google asset README, additive task checkpoint. Preserve 24dp icon size, 50dp bar baseline, typography, active colors, accessible tab semantics and disabled Add FAB. Do not add negative margins or touch navigation state.
+- **Safety:** PR #45 remains review-ready but unmerged. Requires current-HEAD CI/review on latest change; no privileged `tio-preview`, EAS, force push, auto-merge or main commit. Owner only requested refinement.
+
+---
+
+## 2026-11-21 — PR #45 selected nav weight revised to 300 (Issue #44)
+
+- **Latest owner decision:** Active bottom-tab icon is **300** (initial 400 was too heavy); inactive remains **200**. The former 400/200 checkpoint below is superseded; FAB remains independent at 400.
+- **Scope:** Exact five upstream 300 selected SVGs and static JSON mapping; `navigationTokens.selectedIconWeight=300`, focused tests, theme/asset README and task checkpoint in existing PR #45. Preserve 24dp icon size, 50dp nav baseline, labels, colors, routes, safe areas and original 200 paths.
+- **Gate:** Latest commit needs fresh Phase 0, Governance, Codex review on current HEAD and device visual acceptance; original no-findings review applies only to previous head. No `tio-preview`, EAS or merge. [Owner override](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059814062).
+
+---
+
+## 2026-11-21 — Bottom nav selected 400 / unselected 200 (Issue #44)
+
+- **Owner decision:** Bottom tab SVGs are official Material Symbols Outlined, **400 weight selected**, **200 unselected**. This supersedes the old maximum-200 rule only for selected bottom icons; 24dp size, colors, bar geometry, labels and disabled FAB remain unchanged.
+- **RFC/PROCEED:** [Issue #44](https://github.com/im-tnyx/Tio-Money/issues/44) and [technical decision](https://github.com/im-tnyx/Tio-Money/issues/44#issuecomment-7059593229). **Task:** [TM-UI-NAV-WEIGHTS-20261121](tasks/ui/bottom-nav-icon-weights-20261121.md). Branch `feat/bottom-nav-selected-400-20261121` created from `main` `28af00b40020af4986bfd2843a22d88e6c584c0c`.
+- **Scoped work:** Add five exact Google default-400 SVGs, keep existing 200 SVGs unchanged, use selected/unselected navigation token roles and controlled `RootTabIcon` props; update provenance, theme README and regression tests. No dependencies/native/finance/workflow changes, no privileged preview.
+- **Gate:** Separate Draft PR, exact-head CI and review findings to be verified before Ready for Review. Owner requested **merge gate only**, explicit PR-specific merge permission **NOT_GRANTED**. Device visual QA pending.
+
+---
+
+## 2026-11-21 — Issue #42 reusable AppBottomSheet implementation started
+
+- **Task:** [TM-UI-BOTTOM-SHEET-20261121-042](tasks/ui/shared-bottom-sheet-20261121.md); [Issue #42](https://github.com/im-tnyx/Tio-Money/issues/42) technical [PROCEED checkpoint](https://github.com/im-tnyx/Tio-Money/issues/42#issuecomment-7059311342) based on direct user instruction to start.
+- **Base/branch:** merged `main` `001d5338836faeffdaf7450e66351d3d5b3f7868` → `feat/shared-app-bottom-sheet-42`. Extract common visual-only Modal chrome to `src/shared/ui/app-bottom-sheet.tsx`, centralize sheet geometry in shared tokens and retain Appearance radio content/state untouched. Add fixture, regression tests and guide.
+- **Safety:** Never change `main` directly; no privileged Codespaces/EAS, new native capability, finance change, additional product flow or auto-merge. New Draft PR and exact-head CI required. Review disposition DEFERRED (optional UI); new merge permission **NOT_GRANTED**.
+
+---
+
+## 2026-11-21 — PR #18 remove outer top border and 24dp rounded corners
+
+- **Owner change:** Delete bottom sheet **outer top border**, keep independent header divider. Use 24dp rounded top corners via new shared `radius.xl: size.dp24` token, not a hardcoded value. Retain centered Appearance title without X, compact handle, three radio rows and existing dismiss/persistence behavior.
+- **Scope:** Appearance sheet, theme radius token, appearance/design-token regression tests, guide and assigned task checkpoint. Prior `8d301e13` Phase 0 failed Prettier on appearance test, so simplify its index assertion in the same scoped change. Require exact-head checks and iPhone/Android visual QA; no CI success presumed.
+- **Security:** `tio-preview` is absent; preserve that through non-force guarded PR #18 branch update. No privileged preview, EAS, direct main merge or force push; no separate merge authorization.
+
+---
+
+## 2026-11-21 — PR #18 top border and 20dp rounded sheet corners
+
+- **Owner revision:** A subtle 1dp outer top-only border plus more prominent 20dp top corner radii, using semantic tokens and current clipping. Keep the compact handle, 48dp centered Appearance title without X, divider, modes and dismissal unchanged.
+- **Files:** Sheet presentation, appearance Phase 0 regression, feature documentation and assigned appearance task only. The previous HEAD `76319588` failed Phase 0 on test Prettier; simplify the offending escaped-string assertion as part of this scoped update.
+- **Safety:** Guarded non-force update to PR #18 branch; never merge to main or dispatch Codespaces/EAS. Keep `tio-preview` absent. Fresh exact-head CI and real-device visual/accessibility acceptance required; independent UI review deferred and no merge authorization.
+
+---
+
+## 2026-11-21 — PR #18 title centered without X (same header height)
+
+- **Owner revision:** Remove the visible X button and center `Appearance` in the existing 48dp minimum-height sheet header. This supersedes prior left-title/X arrangement without disturbing the restored handle, rounded top corners, header divider or mode radio rows.
+- **UI-only change:** Remove close SVG and center title across available header width; preserve backdrop and Android Back dismiss plus add iOS VoiceOver accessibility escape. No changes to ViewModel, persistence, finance, navigation or CI workflows. Update Phase 0 structure regressions and linked [task](tasks/ui/more-appearance-20261120.md).
+- **Safety/next gate:** Push only to PR #18 feature branch with exact-head non-force protection; keep `tio-preview` absent to prevent privileged Codespaces activation. New-head CI and device accessibility/visual testing required. Independent UI review deferred. No owner authorization to merge PR into main.
+
+---
+
+## 2026-11-21 — PR #18 slight title lift + rounded bottom-sheet top corners
+
+- **Owner direction:** With compact handle restored, shift Appearance header row slightly up for visual alignment and restore rounded top corners. Preserve left title/X, divider, 40×4dp handle, choice radio rows, and persistence.
+- **UI-only PROCEED:** Remove 4dp gap below the handle to lift header while retaining handle's 8dp top margin; use existing `theme.radius.md` (16dp) for top-left and top-right corners. Update existing regression assertions and [appearance task](tasks/ui/more-appearance-20261120.md). No new dependency, native/finance changes or feature logic.
+- **Safety:** Exact-head non-force feature-branch update; `tio-preview` must be absent to avoid privileged Codespaces activation. Fresh CI and physical-device screenshot acceptance remain pending. No PR merge authorization or workflow dispatch.
+
+---
+
+## 2026-11-21 — PR #18 restore small top handle after compact sheet revision
+
+- **Owner request:** The sheet is now sufficiently compact, restore its decorative top drag indicator. Preserve left-aligned Appearance header, right X, divider, flat top corners and existing radio rows.
+- **Implementation scope:** Reinsert a centered token-driven handle (40×4dp; 8dp top and 4dp bottom margin), avoiding the former oversized header spacing. Update structural tests, guide and task record. Indicator remains non-interactive; no invented drag gesture. No theme/persistence/finance/CI workflow edit.
+- **Safety/acceptance:** PR #18 branch-only non-force expected-head update; keep `tio-preview` absent during push to avoid unauthorized Codespaces activity. Exact-head CI and device visual QA remain required; independent UI review deferred. **No permission to merge PR #18 into main.**
+
+---
+
+## 2026-11-21 — PR #18 compact Appearance sheet owner screenshot refinement
+
+- **Owner screenshot/request:** iPhone Appearance bottom sheet wastes vertical area before heading; move title left and minimize whitespace. UI-only technical `PROCEED` within [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17) and [task](tasks/ui/more-appearance-20261120.md), replacing the earlier centered-title choice.
+- **Bounded change:** Remove decorative top drag handle/margin; left-align Appearance in compact 48dp-min header with accessible X on right and bottom divider. Reduce option vertical padding from `lg` to `md` while preserving 48dp minimum and all three radio options. Leave theme store and other tabs untouched; regression tests and guide updated.
+- **Safety:** Branch-only non-force update with exact old HEAD guard. Remove any live `tio-preview` label before branch push; do not activate privileged Codespaces or merge PR into main. Exact-head CI and fresh device screenshot validation required; independent UI review deferred and no PR #18 merge approval.
+
+---
+
+## 2026-11-21 — PR #18 latest-main safe reconciliation after bottom-sheet header refinement
+
+- **Owner action:** Reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main` without merging PR #18 into `main`. The PR head before reconciliation was `d6178ab26e0075302742b29ab60e88e37a4e13c5`; incoming main head `4614285071fd96e9010e2ca7f34653be1c2a61b4`. Both were based on `e0e4c617c2aea2b892baa9b5dd327d6a4483350d`.
+- **Disjoint integration:** Incoming main adds only changes to `.github/workflows/tio-money-eas-pr-preview.yml` and `tests/preview/eas-preview-config.test.mjs`; preserve the current 24 PR feature paths and the latest bottom-sheet center title, X dismiss, divider and square top. Use an exact two-parent non-force branch merge (existing PR HEAD first, incoming main second), not a protected-main merge; verify branch is zero behind current main.
+- **Controls:** Remove `tio-preview` before pushing to avoid unauthorized privileged Codespaces activation. Do not restore it automatically; no manual dispatch, EAS publish/build, force push or PR merge. Previous exact-head Phase 0 and Governance checks passed on `d6178ab26e0075302742b29ab60e88e37a4e13c5`; new merge-head CI, unresolved reviews and Android/iOS device QA must be checked independently.
+- **Decision:** This is branch-only reconciliation under existing UI task/RFC #17; independent UI review deferred (optional), PR #18 stays Draft and **NOT MERGE AUTHORIZED**.
+
+---
+
+## 2026-11-21 — PR #18 Appearance row and bottom-sheet UI revision
+
+- **Owner design:** [RFC #17 approved follow-up](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344). After safe non-force reconciliation with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6`, More → General Settings becomes unboxed section text with a full-width Appearance row/chevron; selection UI moves into a stateless native bottom sheet with the same radio rows/dividers.
+- **Architecture:** `MoreScreen` and `AppearanceSheet` hold no mutable state; `useMoreViewModel` and typed `MoreUiState/MoreAction` own presentation transitions, existing global theme persistence untouched. Only English strings, feature code, tests and docs change. No new dependency, native app config, finance data or privileged workflow dispatch.
+- **Preview safety:** `tio-preview` temporarily removed before branch commits to prevent automatic Codespaces activation. Draft PR #18 remains **NOT MERGE AUTHORIZED**. Original UI device QA does **not** prove revised bottom-sheet acceptance; exact-head CI and device recheck required.
+
+---
+
+## 2026-11-21 — PR #18 safe reconciliation with merged EAS/preview fixes (owner UI revision)
+
+- **Owner request:** Reconcile branch `feat/more-general-settings-appearance` with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6` **before** implementing accessible Appearance bottom sheet redesign. [RFC #17 decision](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344), [original UI task](tasks/ui/more-appearance-20261120.md).
+- **Merge method:** Non-force two-parent merge commit from former PR head `10ac52887451b6b774710a149720087bfe5987cd` and current `main` `a83c608c8cd6399712813d884e9179babb535ee6`. The original 17 feature paths were disjoint from main changes except this index; retain latest main for CI/workflows/finance docs, all existing PR #18 UI/source, tests and task docs, and additive current index records. Independent device QA applies to previous layout only; redesigned UI needs new device check.
+- **Activation boundary:** `tio-preview` temporarily removed before branch push to prevent automatic privileged Codespaces SSH/Expo sync. No Codespaces manual dispatch, EAS publish/build, production change, force update, or main-branch merge authorized.
+- **Review:** optional independent review DEFERRED; fresh exact-head CI, review findings, branch ancestry and UI test required. **PR #18 remains Draft / NOT MERGE AUTHORIZED.**
+
+---
+
+## 2026-11-21 — PR #18 appearance UI latest-main reconciliation
+
+- **Owner request:** safely reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main`, **not** permission to merge into `main` or launch privileged Codespaces. [Task](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17).
+- **Pre-reconciliation observation:** PR #18 `OPEN / DRAFT / NOT MERGED`, branch `feat/more-general-settings-appearance`, previous HEAD `7ed3a1c1c41eb2e730fb22e9e8d4b44e6cd5cf56`; `main` `0c295316940fc73e0c8e8bce127aaedede5d3d49` includes merged PR #21 diagnostic and PR #26 string input fix, plus finance documentation. The original UI commit has 17 changed files. All UI/theme/source/test paths are disjoint from changes in newer `main`; only this task index overlaps. The original appearance task/index and the latest `main` history must both be preserved.
+- **Reconciliation plan:** trusted `main` tree is authoritative except the original PR #18 owned UI/theme/test/docs/task blobs and this merged index. Integrate with a **non-force two-parent commit** (old PR HEAD + newer `main`), never overwrite preview workflow, newer finance documentation, dependencies, native config, tokens, or ledger. Keep **Dumb MoreScreen**, `MoreRoute` / `useMoreViewModel`, global appearance state and persistent preference adapter unchanged.
+- **Safety:** `tio-preview` label will be temporarily removed before branch push to avoid automatic privileged Codespace activation, and restored only after the triggered trusted worker safely skips. No privileged manual dispatch/SSH/EAS publishing or owner-editing Codespace mutation is authorized by this reconciliation.
+- **Validation handoff:** this checkpoint is *pre-new-head* evidence. New exact-head CI, unresolved review findings, and device QA must be checked after update. Independent review optional by TM-DEC-002; no approval or test success is fabricated. **Owner PR #18 merge authorization NOT_GRANTED.**
+
+---
+
+## 2026-11-20 — More appearance UI preview candidate (new workstream)
+
+**Task:** [TM-UI-APPEARANCE-20261120-001](tasks/ui/more-appearance-20261120.md), [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Owner requested a new `main`-based UI feature PR for **More → General Settings → Appearance (System / Light / Dark)**, also serving as the first controlled Codespaces PR preview candidate. Working branch `feat/more-general-settings-appearance` starts at `main` `fd154db417b1979d39f855317f252eed37c36e9d`. This is **new work**, distinct from existing documentation PRs #14/#16. Existing older entries below are historical checkpoints and do not represent current GitHub state. Actual exact-head CI, device QA, independent review and privileged workflow end-to-end operation are NOT_VERIFIED at branch kickoff. **NO PR merge authorization; NO Codespaces workflow dispatch/activation authorization.**
+
+
+---
+
+## 2026-11-21 — Dedicated Codespaces preview start HTTP 409 race (RFC #38)
+
+- **Incident:** [Owner manual run #100](https://github.com/im-tnyx/Tio-Money/actions/runs/44870219796), trusted `main` `baeb77aef5ed16feec25cb4fc4b3f3209d357ee0`. PR #18 source and Codespace identity gates passed; pre-start GET saw non-`Available`, but POST /start returned `gh: The codespace is already running (HTTP 409)`. The workflow failed before SSH or Expo.
+- **Task/RFC:** [TM-OPS-CODESPACES-START409-20261121-001](tasks/preview/codespaces-start-http409-20261121.md), [RFC #38](https://github.com/im-tnyx/Tio-Money/issues/38). Bounded technical `PROCEED` to correct idempotent state transitions on `fix/codespaces-start-http409-race`, based on verified `main`.
+- **Fix:** Treat only the observed exact already-running HTTP 409 as a recoverable state race, then require repeated exact Codespace identity + `Available` polling; 403, other 409, deletion and timeout still fail closed. Add mocked branch-path tests.
+- **Separate blocker:** [Run #99](https://github.com/im-tnyx/Tio-Money/actions/runs/44869882591) previously failed on **unowned Metro** after verified bundle import. That remains unverified/unresolved and is excluded from this PR.
+- **Gate:** Fresh PR CI and independent security review pending. **Owner merge authorization NOT_GRANTED**. No privileged live Codespace dispatch or PR #18 source edits.
+
+---
+
+## 2026-11-21 — Codespaces SCP quoted-path regression after PR #35 (RFC #36)
+
+- **Incident:** New owner-dispatched [Codespaces run #44828410270](https://github.com/im-tnyx/Tio-Money/actions/runs/44828410270) used `main` at `2f62f01b5869df4807452689f06ef561a2a9ae14` and failed `gh codespace cp`: remote SCP treated single quotes as filename characters. Authenticated bundle, immutable PR allowlist and Codespace identity passed. Not a new Expo UI compile failure.
+- **Task/RFC:** [TM-OPS-CODESPACES-SCP-20261121-001](tasks/preview/codespaces-scp-quoted-path-20261121.md), [RFC #36](https://github.com/im-tnyx/Tio-Money/issues/36). Implementation `PROCEED` on `fix/codespaces-scp-literal-quote-preview`, fresh from verified `main`, but not authority to merge/deploy.
+- **Fix:** For exact generated destination path from validated 40-hex SHA and positive decimal run ID, opt in to documented GitHub CLI `gh codespace cp --expand`; add regression and leave all owner/label, immutable snapshot, dedicated Codespace, hash, mode, cleanup and credential boundaries in place. No PR #18 application/source edit.
+- **Status:** Draft implementation candidate; current-head CI and independent security review pending. **Owner PR merge authorization NOT_GRANTED; no trusted workflow dispatch authorized.**
+
+---
+
+## 2026-11-21 — Codespaces bundle integrity failure after PR #33 (RFC #34)
+
+- **Task:** [TM-OPS-CODESPACES-BUNDLE-20261121-001](tasks/preview/codespaces-bundle-integrity-20261121.md), [RFC #34](https://github.com/im-tnyx/Tio-Money/issues/34); scoped `PROCEED` to fix trusted Codespaces preview in new branch `fix/codespaces-preview-bundle-transfer-integrity`, based on `main` `3f8b888342c947244bbec811c198be7b18ae81c2`.
+- **Evidence:** New manual PR #18 Codespaces runs [#80](https://github.com/im-tnyx/Tio-Money/actions/runs/44825288224) and [#81](https://github.com/im-tnyx/Tio-Money/actions/runs/44825952573) passed immutable selection, bundle creation and dedicated identity, but remote import rejected the bundle size/mode/owner. Exact subcondition unknown, so no unsupported root cause claimed.
+- **Bounded change:** replace base64-over-SSH upload with private-directory `gh codespace cp` transport, retain owner/main/label/source-only security gates; add file mode/UID/size/SHA-256 validation, exact commit check, cleanup and tests. No PR #18, EAS, finance, tokens, permissions, native or Codespace mutation.
+- **Gate:** [Draft PR #35](https://github.com/im-tnyx/Tio-Money/pull/35) open; initial exact-head [Phase 0 #44827308287](https://github.com/im-tnyx/Tio-Money/actions/runs/44827308287) and [Governance #44827308350](https://github.com/im-tnyx/Tio-Money/actions/runs/44827308350) passed on source SHA `69df4bee9`, but subsequent formatting/handoff commits require fresh checks. Independent security review `DEFERRED` (recommended); **NO merge authorization** and **NO privileged workflow dispatch**. No runtime preview success claimed.
+
+---
+
+## 2026-11-21 — EAS PR REVIEW numeric dispatch input `18.0` failure (RFC #31)
+
+- **Task:** [TM-EAS-DISPATCH-STRING-20261121-001](tasks/preview/eas-pr-dispatch-string-20261121.md), [RFC #31](https://github.com/im-tnyx/Tio-Money/issues/31), branch `fix/eas-pr-dispatch-string`. Owner requested a scoped fix to repeated `TIO MONEY EXPO PR REVIEW` failure on valid PR `18`. [Run #44810555603](https://github.com/im-tnyx/Tio-Money/actions/runs/44810555603) logged `PR_NUMBER=18.0` due to `workflow_dispatch.inputs.pr_number.type: number`; shell rejects non-integer before checkout.
+- **Source base:** `main` `0ac1f6a23e2224b3c2e8d0e10a63699abc53a10e`. Fix `type: string` with strict `^[1-9][0-9]* validation and a static regression test; preserve manual-only owner/main/rerun gates, open **non-draft** PR and strict `src/*|assets/*` allowlist, EAS project identity, isolated token and OTA/build choices.
+- **Safety:** PR #18 remains **Draft** with non-source docs/tests, so it is **not** eligible for OTA publication or internal EAS build even after this input fix. No EAS publish, build, privileged workflow dispatch, secret or Codespace mutation, PR #18 source edit or direct `main` write is authorized here.
+- **Checkpoint:** new head CI / review / PR status not yet verified at task creation. Independent security review **DEFERRED**, optional under TM-DEC-002 but recommended. **Owner merge authorization NOT_GRANTED** for any new PR; live GitHub is authoritative.
+
+---
+
+## 2026-11-21 — PR #18 immutable compare API shape correction
+
+- **Task:** [TM-OPS-PREVIEW-COMPARE-HEAD-20261121-001](tasks/preview/preview-compare-head-shape-20261121.md), [RFC #29](https://github.com/im-tnyx/Tio-Money/issues/29), branch `fix/preview-compare-head-commit-shape`. Source failure: [manual run #44806734241](https://github.com/im-tnyx/Tio-Money/actions/runs/44806734241) and [#44806945990](https://github.com/im-tnyx/Tio-Money/actions/runs/44806945990); PR-read/label gate passed, but snapshot validator assumed nonexistent `compare.head_commit`, despite GitHub Compare API returning `commits[]` and 17 files.
+- **Starting `main`:** `cff662ebd00f5333c348a45c2bc7c196961ae4dd`. Narrow correction validates the **last returned commit SHA** plus a positive, fully returned `total_commits`; preserves exact base SHA, captured/current immutable PR head, file count, path safety and privileged worker gates. No change to PR #18, `tio-preview`, tokens, workflow permissions, owner SSH/Codespace, Android UI or finance docs.
+- **Checkpoint:** prior to final fix PR SHA and exact-head CI. Independent review `DEFERRED` per optional TM-DEC-002, recommended for security-sensitive validator. No owner merge authorization for this fix PR; **no actual Codespace Preview success or manual privileged workflow run**. Validate live GitHub state before a future merge.
+
+---
+
+## 2026-11-21 — Codespaces preview labeled PR Issues API HTTP 403 (RFC #27)
+
+- **Task:** [TM-OPS-CODESPACES-ISSUES-READ-20261121-001](tasks/preview/codespaces-preview-issues-read-20261121.md), [RFC #27](https://github.com/im-tnyx/Tio-Money/issues/27), branch `fix/codespaces-preview-issues-read`. [Manual run #44805243638](https://github.com/im-tnyx/Tio-Money/actions/runs/44805243638) received `INPUT_PR=18`, then HTTP 403 after PR metadata fetch at labeled `GET /issues`. GitHub documents `Issues: read` for that API; current trusted worker only granted Contents/Pull requests read. This is a narrow root-cause hypothesis backed by endpoint permissions, **not a verified successful Codespace run**.
+- **Observed starting `main`:** `0c295316940fc73e0c8e8bce127aaedede5d3d49`. Proposed change grants only `issues: read`, retains PR uniqueness and all existing owner/main/immutable-sha, Codespace identity and source-path security gates. No `issues: write`, no PAT, no `pull_request_target`, no app source or PR #18 change.
+- **Checkpoint:** recorded before new final PR SHA and CI results. Exact-head CI, review, and GitHub ruleset gates must be checked live. Independent review `DEFERRED`, optional under TM-DEC-002. **Owner merge authorization NOT_GRANTED.** No manual privileged workflow run authorized by this task; `main` and PR #18 stay untouched by branch work.
+
+---
+
+## 2026-11-21 — Codespaces manual preview input `18.0` regression (PR #26)
+
+- **Task:** [TM-DEV-PREVIEW-INPUT-20261121-001](tasks/preview/codespaces-preview-input-20261121.md) · [RFC #25](https://github.com/im-tnyx/Tio-Money/issues/25) · [PR #26](https://github.com/im-tnyx/Tio-Money/pull/26) · branch `fix/codespaces-preview-dispatch-pr-string`. **Scope: PR dispatch parser only**, intended to fix [failed manual preview run #44798703853](https://github.com/im-tnyx/Tio-Money/actions/runs/44798703853), which received `INPUT_PR: 18.0` from the workflow's `type: number` input and rejected it before HTTP diagnostic.
+- **Observed source before change:** `main` `097e014d7e2a2015230971751bd5c72ee91e6580` (PR #21 squash merged), `pr_number` workflow input `type: number`, strict `^[1-9][0-9]* shell guard. Proposed correction changes input metadata to `type: string` and adds regression tests, without relaxing validation or changing credentials/security gates.
+- **Observed pre-index-update:** initial fix commit `e8483afdf17baf3c1ea2b574fd6bbf1e4b522338`; PR #26 **OPEN / DRAFT / NOT MERGED** when inspected. This index-only correction advances HEAD; new exact-head CI and review must be verified, not inferred from prior runs. Independent review disposition **DEFERRED** (optional under TM-DEC-002). No owner authorization to merge any new PR or run a privileged Codespace workflow; neither `main` nor PR #18 modified. The original GitHub PR-read 403, SSH and Expo tunnel remain unverified. Check GitHub for live branch/PR status rather than interpreting this as the current state.
+
+---
 
 ## 2026-11-21 — PR #21 trusted Codespaces diagnostic, P3 index handoff
 

@@ -15,7 +15,6 @@ const screenRoutes = [
   'src/app/(tabs)/transactions.tsx',
   'src/app/(tabs)/reports.tsx',
   'src/app/(tabs)/accounts.tsx',
-  'src/app/(tabs)/more.tsx',
 ];
 
 test('exactly five English bottom tabs remain', () => {
@@ -32,13 +31,16 @@ test('exactly five English bottom tabs remain', () => {
   );
 });
 
-test('each tab is a blank themed screen with no top/header/finance preview', () => {
+test('the four unchanged Phase 0 tabs remain blank, while More composes its feature Route', () => {
   for (const path of screenRoutes) {
     const source = readFileSync(path, 'utf8');
     assert.match(source, /import \{ BlankScreen \}/);
     assert.match(source, /export default BlankScreen/);
     assert.doesNotMatch(source, /ScreenHeader|StatePanel|TextField|SectionCard/);
   }
+  const more = readFileSync('src/app/(tabs)/more.tsx', 'utf8');
+  assert.match(more, /MoreRoute/);
+  assert.doesNotMatch(more, /useState|useEffect|Sqlite|SQLite|fetch\(/);
   const blank = readFileSync('src/shared/ui/blank-screen.tsx', 'utf8');
   assert.match(blank, /backgroundColor: theme.colors.canvas/);
   assert.doesNotMatch(blank, /<Text|<AppText|<ScreenHeader|<ScrollView/);
@@ -46,7 +48,7 @@ test('each tab is a blank themed screen with no top/header/finance preview', () 
   const files = readdirSync('src/app/(tabs)').filter((name) => name.endsWith('.tsx'));
   assert.deepEqual(
     files.sort(),
-    [...screenRoutes.map((path) => path.split('/').at(-1)), '_layout.tsx'].sort(),
+    [...screenRoutes.map((path) => path.split('/').at(-1)), 'more.tsx', '_layout.tsx'].sort(),
   );
 });
 
@@ -119,7 +121,7 @@ test('floating disabled icon remains centered over More and above bar with safe 
   }
 });
 
-test('successful launch reveals only five blank tabs after the native splash', () => {
+test('successful launch reveals five tab shell with one More settings surface', () => {
   const bootstrap = readFileSync('src/shared/bootstrap/database-gate.tsx', 'utf8');
   const root = readFileSync('src/app/_layout.tsx', 'utf8');
   const tabs = readFileSync('src/app/(tabs)/_layout.tsx', 'utf8');
@@ -152,12 +154,13 @@ test('all five tabs render official Google SVG paths with token sizing and theme
   assert.match(tabBar, /<RootTabIcon/);
   assert.match(tabBar, /gap: theme\.navigation\.iconLabelGap/);
   assert.match(tabBar, /name=\{item\.icon\}/);
+  assert.match(tabBar, /selected=\{active\}/);
   assert.doesNotMatch(tabBar, /\{item\.glyph\}/);
   assert.doesNotMatch(destinations, /glyph:|⌂|▥|▤|•••/);
   assert.match(icon, /import \{ SvgXml \} from 'react-native-svg'/);
   assert.match(icon, /accessibilityElementsHidden/);
   assert.match(icon, /importantForAccessibility="no-hide-descendants"/);
-  assert.match(icon, /MATERIAL_OUTLINED_SVG\[name\]\.replace/);
+  assert.match(icon, /navIconSvg\[name\]\[weight\]\.replace/);
   assert.match(icon, /fill="\$\{color\}"/);
   assert.match(icon, /width=\{iconTokens\.size\} height=\{iconTokens\.size\}/);
   assert.doesNotMatch(icon, /require\(.+\.png|tabIconShapes|IconFont|<Image/);
@@ -166,8 +169,7 @@ test('all five tabs render official Google SVG paths with token sizing and theme
     const svg = readFileSync(directory + '/' + name + '.svg', 'utf8');
     assert.match(svg, /^<svg /);
     assert.match(svg, /viewBox="0 -960 960 960"/);
-    assert.ok(icon.includes(name + ':'), name + ' should be mapped');
-    assert.ok(icon.includes("'" + svg + "'"), name + ' uses the official SVG source');
+    assert.match(icon, /root-tab-icon-svg\.json/);
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
     assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }
