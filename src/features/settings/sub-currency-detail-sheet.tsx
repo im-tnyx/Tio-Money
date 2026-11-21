@@ -188,9 +188,7 @@ export function SubCurrencyDetailSheet({
               }}
             >
               <AppText muted style={{ flex: 1 }}>{t('currencyDecimals')}</AppText>
-              <AppText style={{ flex: 1, textAlign: 'right' }}>
-                {detail.decimalLabel}
-              </AppText>
+              <AppText style={{ flex: 1, textAlign: 'right' }}>{detail.decimalLabel}</AppText>
               <Svg
                 width={theme.iconRoles.card}
                 height={theme.iconRoles.card}
