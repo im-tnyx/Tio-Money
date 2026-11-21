@@ -45,17 +45,19 @@ export function AppSegmentedControl<T extends string>({
             accessibilityLabel={option.label}
             accessibilityState={{ checked: selected }}
             onPress={() => onChange(option.value)}
+            hitSlop={
+              compact
+                ? {
+                    top: theme.segmentedControl.compactHitSlop,
+                    bottom: theme.segmentedControl.compactHitSlop,
+                  }
+                : undefined
+            }
             style={{
               flex: 1,
               minHeight: compact
                 ? theme.segmentedControl.compactOptionHeight
                 : theme.segmentedControl.minimumOptionHeight,
-              hitSlop: compact
-                ? {
-                    top: theme.segmentedControl.compactHitSlop,
-                    bottom: theme.segmentedControl.compactHitSlop,
-                  }
-                : undefined,
               borderRadius: theme.segmentedControl.radius,
               backgroundColor: selected
                 ? theme.colors.segmentedSelected
