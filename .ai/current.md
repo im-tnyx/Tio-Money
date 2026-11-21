@@ -1,4 +1,13 @@
 # 🧭 Current task index
+### 2026-11-22 — Verified EAS dependency candidate staged in Draft PR #60
+
+- Owner **“Go next”** enabled bounded isolated EAS transitive dependency remediation, **not** merge/deployment. [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59); task [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md); [Draft PR #60](https://github.com/im-tnyx/Tio-Money/pull/60).
+- Official-npm **unprivileged PR-only** [candidate run #44952056378, attempt 2](https://github.com/im-tnyx/Tio-Money/actions/runs/44952056378) validated original EAS 27.4.1 identity, npm install/audit signatures and 0 High, 0 Critical (17 Moderate and 1 Low remain). Initial runner attestation intermittency did not lead to a verification bypass.
+- Proposed official npm-generated isolated `.github/preview-eas-cli/package.json` and `package-lock.json` staged on feature branch; initial staged candidate head `ef9c91fa23379a865f94003c991ec613ee140dc8`; 11 installed package version updates, 2 redundant Joi copies removed, no added packages. Read-only audit/test scripts and separate low-privilege candidate workflow included. **No root app/Expo SDK/QR-free Codespaces tunnel change, no trusted EAS workflow edit.**
+- **Current gates:** Reverify final PR HEAD and CI **after** documentation updates; independently review supply chain; owner-observed Android+iOS Expo Go **without QR** must still PASS; Moderate/Low findings remain. PR #60 **DRAFT / NOT AUTHORIZED TO MERGE**; PR #53 and #58 separate. No branch protections or production credentials used.
+
+---
+
 ## 2026-11-22 — Isolated EAS CLI security audit (Issue #59, Draft PR #60)
 
 - **Active scoped task:** [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md); [RFC #59](https://github.com/im-tnyx/Tio-Money/issues/59); [Draft PR #60](https://github.com/im-tnyx/Tio-Money/pull/60). Owner Go permits bounded preparation while preserving **QR-free Android and iOS Expo Go testing**; **no merge authorization** for #60.
