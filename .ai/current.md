@@ -34,6 +34,34 @@
 
 ---
 
+## 2026-11-21 — Dedicated Codespaces preview start HTTP 409 race (RFC #38)
+
+- **Incident:** [Owner manual run #100](https://github.com/im-tnyx/Tio-Money/actions/runs/44870219796), trusted `main` `baeb77aef5ed16feec25cb4fc4b3f3209d357ee0`. PR #18 source and Codespace identity gates passed; pre-start GET saw non-`Available`, but POST /start returned `gh: The codespace is already running (HTTP 409)`. The workflow failed before SSH or Expo.
+- **Task/RFC:** [TM-OPS-CODESPACES-START409-20261121-001](tasks/preview/codespaces-start-http409-20261121.md), [RFC #38](https://github.com/im-tnyx/Tio-Money/issues/38). Bounded technical `PROCEED` to correct idempotent state transitions on `fix/codespaces-start-http409-race`, based on verified `main`.
+- **Fix:** Treat only the observed exact already-running HTTP 409 as a recoverable state race, then require repeated exact Codespace identity + `Available` polling; 403, other 409, deletion and timeout still fail closed. Add mocked branch-path tests.
+- **Separate blocker:** [Run #99](https://github.com/im-tnyx/Tio-Money/actions/runs/44869882591) previously failed on **unowned Metro** after verified bundle import. That remains unverified/unresolved and is excluded from this PR.
+- **Gate:** Fresh PR CI and independent security review pending. **Owner merge authorization NOT_GRANTED**. No privileged live Codespace dispatch or PR #18 source edits.
+
+---
+
+## 2026-11-21 — Codespaces SCP quoted-path regression after PR #35 (RFC #36)
+
+- **Incident:** New owner-dispatched [Codespaces run #44828410270](https://github.com/im-tnyx/Tio-Money/actions/runs/44828410270) used `main` at `2f62f01b5869df4807452689f06ef561a2a9ae14` and failed `gh codespace cp`: remote SCP treated single quotes as filename characters. Authenticated bundle, immutable PR allowlist and Codespace identity passed. Not a new Expo UI compile failure.
+- **Task/RFC:** [TM-OPS-CODESPACES-SCP-20261121-001](tasks/preview/codespaces-scp-quoted-path-20261121.md), [RFC #36](https://github.com/im-tnyx/Tio-Money/issues/36). Implementation `PROCEED` on `fix/codespaces-scp-literal-quote-preview`, fresh from verified `main`, but not authority to merge/deploy.
+- **Fix:** For exact generated destination path from validated 40-hex SHA and positive decimal run ID, opt in to documented GitHub CLI `gh codespace cp --expand`; add regression and leave all owner/label, immutable snapshot, dedicated Codespace, hash, mode, cleanup and credential boundaries in place. No PR #18 application/source edit.
+- **Status:** Draft implementation candidate; current-head CI and independent security review pending. **Owner PR merge authorization NOT_GRANTED; no trusted workflow dispatch authorized.**
+
+---
+
+## 2026-11-21 — Codespaces bundle integrity failure after PR #33 (RFC #34)
+
+- **Task:** [TM-OPS-CODESPACES-BUNDLE-20261121-001](tasks/preview/codespaces-bundle-integrity-20261121.md), [RFC #34](https://github.com/im-tnyx/Tio-Money/issues/34); scoped `PROCEED` to fix trusted Codespaces preview in new branch `fix/codespaces-preview-bundle-transfer-integrity`, based on `main` `3f8b888342c947244bbec811c198be7b18ae81c2`.
+- **Evidence:** New manual PR #18 Codespaces runs [#80](https://github.com/im-tnyx/Tio-Money/actions/runs/44825288224) and [#81](https://github.com/im-tnyx/Tio-Money/actions/runs/44825952573) passed immutable selection, bundle creation and dedicated identity, but remote import rejected the bundle size/mode/owner. Exact subcondition unknown, so no unsupported root cause claimed.
+- **Bounded change:** replace base64-over-SSH upload with private-directory `gh codespace cp` transport, retain owner/main/label/source-only security gates; add file mode/UID/size/SHA-256 validation, exact commit check, cleanup and tests. No PR #18, EAS, finance, tokens, permissions, native or Codespace mutation.
+- **Gate:** [Draft PR #35](https://github.com/im-tnyx/Tio-Money/pull/35) open; initial exact-head [Phase 0 #44827308287](https://github.com/im-tnyx/Tio-Money/actions/runs/44827308287) and [Governance #44827308350](https://github.com/im-tnyx/Tio-Money/actions/runs/44827308350) passed on source SHA `69df4bee9`, but subsequent formatting/handoff commits require fresh checks. Independent security review `DEFERRED` (recommended); **NO merge authorization** and **NO privileged workflow dispatch**. No runtime preview success claimed.
+
+---
+
 ## 2026-11-21 — EAS PR REVIEW numeric dispatch input `18.0` failure (RFC #31)
 
 - **Task:** [TM-EAS-DISPATCH-STRING-20261121-001](tasks/preview/eas-pr-dispatch-string-20261121.md), [RFC #31](https://github.com/im-tnyx/Tio-Money/issues/31), branch `fix/eas-pr-dispatch-string`. Owner requested a scoped fix to repeated `TIO MONEY EXPO PR REVIEW` failure on valid PR `18`. [Run #44810555603](https://github.com/im-tnyx/Tio-Money/actions/runs/44810555603) logged `PR_NUMBER=18.0` due to `workflow_dispatch.inputs.pr_number.type: number`; shell rejects non-integer before checkout.
