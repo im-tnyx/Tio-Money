@@ -153,3 +153,33 @@ icon and label. The shared `navigationTokens.iconLabelGap` is now `size.dp0`;
 all five tabs consume it through the existing `RootTabBar` gap property. No
 change to the selected 300/unselected 200 icon artwork, typography, baseline
 height, touch targets, colors, safe areas or the independent disabled Add FAB.
+
+## Five-tab scene crossfade — Issue #46 (2026-11-21)
+
+The owner-approved screen-content navigation animation is a subtle **160ms crossfade**.
+`motion.tabCrossfadeDurationMs` in `primitives.ts` owns the single numeric time
+value and `navigationTokens.tabCrossfadeDurationMs` aliases it; duration is not
+scattered across screens. `src/app/(tabs)/_layout.tsx` uses Expo Router JS
+`Tabs` as a **scene host** with `animation: 'fade'` and timing `transitionSpec`.
+It hides the built-in navigator bar and retains the independently rendered, existing
+`RootTabBar` and disabled `FloatingAddButton` siblings **without movement**.
+The same five route filenames/labels and current 300/200 icon SVG weights, 0dp
+icon-label gap, 50dp baseline, colors and safe areas remain authoritative.
+
+`src/shared/navigation/use-reduced-tab-motion.ts` reads platform Reduced Motion
+using `AccessibilityInfo` and subscribes to changes. Unknown/unavailable preference
+defaults to **no animation**; when Reduced Motion is enabled use `animation: 'none'`.
+A timing fade is applied only when the OS permits it. Route navigation stays in the
+existing controller and feature screens remain dumb. The tab host uses history-style
+Back behavior, which requires on-device Android Back/deep-link testing (a Metro
+bundle alone does not validate it). Appearance's own bottom-sheet animation,
+splash and finance state are out of scope. See [Issue #46](https://github.com/im-tnyx/Tio-Money/issues/46).
+
+Actual crossfade, quick taps, screen lifetime (including preserved More appearance
+state), Reduced Motion toggle, TalkBack/VoiceOver, Android Back and iPhone safe areas
+must be verified on devices before final product acceptance. Structural tests and
+Android/iOS Metro checks are not substitutes for device evidence.
+
+The JavaScript tab navigator also sets its `sceneStyle.backgroundColor` from
+`theme.colors.canvas` to prevent the transition host from showing an unrelated
+light/dark background when the user overrides the device appearance.

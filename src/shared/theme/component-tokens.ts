@@ -1,4 +1,4 @@
-import { opacity, size } from './primitives';
+import { motion, opacity, size } from './primitives';
 import { radius, space } from './tokens';
 
 /**
@@ -31,6 +31,7 @@ export const navigationTokens = {
   labelFontSize: size.dp11,
   selectedIconWeight: 300,
   unselectedIconWeight: 200,
+  tabCrossfadeDurationMs: motion.tabCrossfadeDurationMs,
   horizontalPadding: size.dp8,
   topPadding: size.dp1,
   minimumBottomPadding: size.dp0,
