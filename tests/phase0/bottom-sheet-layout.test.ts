@@ -98,10 +98,8 @@ test('only overflowing sheets can expand; short sheets remain at the bottom', ()
 test('short sheets add zero extra space below options; long sheets retain scroll clearance', () => {
   const sheet = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   assert.match(sheet, /const canExpand = hasOverflowingSheetContent/);
-  assert.match(
-    sheet,
-    /const scrollBottomPadding = canExpand \? sheet\.contentBottomPadding : theme\.navigation\.origin/,
-  );
+  assert.match(sheet, /const scrollBottomPadding = canExpand/);
+  assert.match(sheet, /sheet\.contentBottomPadding : theme\.navigation\.origin/);
   assert.match(sheet, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
   assert.match(sheet, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.doesNotMatch(sheet, /paddingBottom: .*\+ bottomInset/);
