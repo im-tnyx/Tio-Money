@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Modal,
   PanResponder,
@@ -7,6 +7,8 @@ import {
   StyleSheet,
   View,
   useWindowDimensions,
+  type GestureResponderEvent,
+  type PanResponderGestureState,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,10 +22,7 @@ import {
   shouldExpandBottomSheet,
 } from './bottom-sheet-geometry';
 
-/**
- * One scrollable modal shell for every feature. Presentation-only expansion
- * is local; callers still own visibility, selection and dismiss actions.
- */
+/** Visibility/dismissal remains owned by callers. Unmount resets local drag state. */
 export function AppBottomSheet({
   visible,
   title,
@@ -32,6 +31,39 @@ export function AppBottomSheet({
   children,
 }: {
   visible: boolean;
+  title: string;
+  dismissAccessibilityLabel: string;
+  onDismiss: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onDismiss}
+      statusBarTranslucent
+    >
+      {visible ? (
+        <SheetSurface
+          title={title}
+          dismissAccessibilityLabel={dismissAccessibilityLabel}
+          onDismiss={onDismiss}
+        >
+          {children}
+        </SheetSurface>
+      ) : null}
+    </Modal>
+  );
+}
+
+/** One safe, scrollable and draggable presentation shell for all bottom sheets. */
+function SheetSurface({
+  title,
+  dismissAccessibilityLabel,
+  onDismiss,
+  children,
+}: {
   title: string;
   dismissAccessibilityLabel: string;
   onDismiss: () => void;
@@ -47,7 +79,6 @@ export function AppBottomSheet({
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
   const expandedRef = useRef(expanded);
-  expandedRef.current = expanded;
 
   const { collapsedMax, expandedMax } = getBottomSheetHeightLimits(
     viewportHeight,
@@ -55,139 +86,144 @@ export function AppBottomSheet({
     sheet,
   );
   const geometryRef = useRef({ collapsedMax, expandedMax, sheet });
-  geometryRef.current = { collapsedMax, expandedMax, sheet };
 
+  // Only event handlers read refs, never the render path.
   useEffect(() => {
-    if (!visible) {
-      setExpanded(false);
-      setDragHeight(null);
-    }
-  }, [visible]);
+    expandedRef.current = expanded;
+    geometryRef.current = { collapsedMax, expandedMax, sheet };
+  }, [expanded, collapsedMax, expandedMax, sheet]);
 
-  // Only the handle captures drags; list swipes stay native ScrollView gestures.
+  const shouldHandleDrag = useCallback(
+    (_event: GestureResponderEvent, gesture: PanResponderGestureState) =>
+      Math.abs(gesture.dy) > geometryRef.current.sheet.dragActivationDistance &&
+      Math.abs(gesture.dy) > Math.abs(gesture.dx),
+    [],
+  );
+  const onDragStart = useCallback(() => {
+    dragStartHeight.current = currentHeight.current || geometryRef.current.collapsedMax;
+    setDragHeight(dragStartHeight.current);
+  }, []);
+  const onDragMove = useCallback(
+    (_event: GestureResponderEvent, gesture: PanResponderGestureState) => {
+      const { collapsedMax: min, expandedMax: max } = geometryRef.current;
+      setDragHeight(
+        getDraggedBottomSheetHeight(dragStartHeight.current, gesture.dy, min, max),
+      );
+    },
+    [],
+  );
+  const onDragRelease = useCallback(
+    (_event: GestureResponderEvent, gesture: PanResponderGestureState) => {
+      setExpanded(
+        shouldExpandBottomSheet(
+          expandedRef.current,
+          gesture.dy,
+          geometryRef.current.sheet.dragSnapDistance,
+        ),
+      );
+      setDragHeight(null);
+    },
+    [],
+  );
+  const onDragTerminate = useCallback(() => setDragHeight(null), []);
+
+  // The handle captures drags; options keep native vertical scrolling.
   const handleResponder = useMemo(
     () =>
       PanResponder.create({
         onStartShouldSetPanResponder: () => false,
-        onMoveShouldSetPanResponder: (_event, gesture) =>
-          Math.abs(gesture.dy) > geometryRef.current.sheet.dragActivationDistance &&
-          Math.abs(gesture.dy) > Math.abs(gesture.dx),
-        onPanResponderGrant: () => {
-          dragStartHeight.current = currentHeight.current || geometryRef.current.collapsedMax;
-          setDragHeight(dragStartHeight.current);
-        },
-        onPanResponderMove: (_event, gesture) => {
-          const { collapsedMax: min, expandedMax: max } = geometryRef.current;
-          setDragHeight(
-            getDraggedBottomSheetHeight(dragStartHeight.current, gesture.dy, min, max),
-          );
-        },
-        onPanResponderRelease: (_event, gesture) => {
-          setExpanded(
-            shouldExpandBottomSheet(
-              expandedRef.current,
-              gesture.dy,
-              geometryRef.current.sheet.dragSnapDistance,
-            ),
-          );
-          setDragHeight(null);
-        },
-        onPanResponderTerminate: () => setDragHeight(null),
+        onMoveShouldSetPanResponder: shouldHandleDrag,
+        onPanResponderGrant: onDragStart,
+        onPanResponderMove: onDragMove,
+        onPanResponderRelease: onDragRelease,
+        onPanResponderTerminate: onDragTerminate,
       }),
-    [],
+    [shouldHandleDrag, onDragStart, onDragMove, onDragRelease, onDragTerminate],
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onDismiss}
-      statusBarTranslucent
+    <View
+      onLayout={(event) => {
+        const measured = event.nativeEvent.layout.height;
+        setViewportHeight((previous) => (previous === measured ? previous : measured));
+      }}
+      style={{ flex: 1, justifyContent: 'flex-end' }}
     >
-      <View
+      <Pressable
+        onPress={onDismiss}
+        accessibilityRole="button"
+        accessibilityLabel={dismissAccessibilityLabel}
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: theme.colors.shadow, opacity: sheet.backdropOpacity },
+        ]}
+      />
+      <SafeAreaView
+        edges={['bottom', 'left', 'right']}
+        accessibilityViewIsModal
+        onAccessibilityEscape={onDismiss}
         onLayout={(event) => {
-          const measured = event.nativeEvent.layout.height;
-          setViewportHeight((previous) => (previous === measured ? previous : measured));
+          currentHeight.current = event.nativeEvent.layout.height;
         }}
-        style={{ flex: 1, justifyContent: 'flex-end' }}
+        style={{
+          width: '100%',
+          maxHeight: dragHeight === null && !expanded ? collapsedMax : expandedMax,
+          height: dragHeight ?? (expanded ? expandedMax : undefined),
+          backgroundColor: theme.colors.card,
+          borderTopLeftRadius: sheet.topCornerRadius,
+          borderTopRightRadius: sheet.topCornerRadius,
+          overflow: 'hidden',
+        }}
       >
-        <Pressable
-          onPress={onDismiss}
-          accessibilityRole="button"
-          accessibilityLabel={dismissAccessibilityLabel}
-          style={[
-            StyleSheet.absoluteFill,
-            { backgroundColor: theme.colors.shadow, opacity: sheet.backdropOpacity },
-          ]}
-        />
-        <SafeAreaView
-          edges={['bottom', 'left', 'right']}
-          accessibilityViewIsModal
-          onAccessibilityEscape={onDismiss}
-          onLayout={(event) => {
-            currentHeight.current = event.nativeEvent.layout.height;
-          }}
-          style={{
-            width: '100%',
-            maxHeight: dragHeight === null && !expanded ? collapsedMax : expandedMax,
-            height: dragHeight ?? (expanded ? expandedMax : undefined),
-            backgroundColor: theme.colors.card,
-            borderTopLeftRadius: sheet.topCornerRadius,
-            borderTopRightRadius: sheet.topCornerRadius,
-            overflow: 'hidden',
-          }}
-        >
-          <View {...handleResponder.panHandlers}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t(expanded ? 'sheetCollapse' : 'sheetExpand')}
-              accessibilityHint={t('sheetHandleHint')}
-              onPress={() => setExpanded((current) => !current)}
-              style={{
-                minHeight: sheet.handleTouchHeight,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <View
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                style={{
-                  width: sheet.handleWidth,
-                  height: sheet.handleHeight,
-                  borderRadius: sheet.handleRadius,
-                  backgroundColor: theme.colors.border,
-                  marginTop: sheet.handleTopMargin,
-                  marginBottom: sheet.handleBottomMargin,
-                }}
-              />
-            </Pressable>
-          </View>
-          <View
+        <View {...handleResponder.panHandlers}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t(expanded ? 'sheetCollapse' : 'sheetExpand')}
+            accessibilityHint={t('sheetHandleHint')}
+            onPress={() => setExpanded((current) => !current)}
             style={{
-              flexDirection: 'row',
+              minHeight: sheet.handleTouchHeight,
+              justifyContent: 'center',
               alignItems: 'center',
-              minHeight: sheet.headerMinHeight,
-              paddingHorizontal: sheet.headerHorizontalPadding,
-              borderBottomWidth: sheet.headerDividerWidth,
-              borderBottomColor: theme.colors.border,
             }}
           >
-            <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
-              {title}
-            </AppText>
-          </View>
-          <ScrollView
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
-            style={{ flexShrink: 1, flexGrow: expanded || dragHeight !== null ? 1 : undefined }}
-            contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding }}
-          >
-            {children}
-          </ScrollView>
-        </SafeAreaView>
-      </View>
-    </Modal>
+            <View
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+              style={{
+                width: sheet.handleWidth,
+                height: sheet.handleHeight,
+                borderRadius: sheet.handleRadius,
+                backgroundColor: theme.colors.border,
+                marginTop: sheet.handleTopMargin,
+                marginBottom: sheet.handleBottomMargin,
+              }}
+            />
+          </Pressable>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            minHeight: sheet.headerMinHeight,
+            paddingHorizontal: sheet.headerHorizontalPadding,
+            borderBottomWidth: sheet.headerDividerWidth,
+            borderBottomColor: theme.colors.border,
+          }}
+        >
+          <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
+            {title}
+          </AppText>
+        </View>
+        <ScrollView
+          nestedScrollEnabled
+          keyboardShouldPersistTaps="handled"
+          style={{ flexShrink: 1, flexGrow: expanded || dragHeight !== null ? 1 : undefined }}
+          contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding }}
+        >
+          {children}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
