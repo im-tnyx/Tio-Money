@@ -16,11 +16,18 @@ test('candidate preserves exact EAS CLI, TypeScript and signed Babel pins withou
   assert.equal(JSON.stringify(source), serialized);
   const proposed = readPlan().proposed;
   assert.deepEqual(Object.keys(proposed).sort(), [
-    '@expo/build-tools@27.4.1', '@expo/eas-json@27.4.1', 'eas-cli@27.4.1', 'minimatch@5.1.2', 'nanoid@3.3.8', 'node-forge@1.4.0', 'tar@7.5.19',
+    '@expo/build-tools@27.4.1', '@expo/eas-json@27.4.1', 'eas-cli@27.4.1',
+    '@expo/config@55.0.10', '@expo/config@11.0.13', '@expo/config-plugins@55.0.7',
+    '@expo/config-plugins@10.1.2', 'sucrase@3.35.0', 'glob@14.0.2',
+    '@oclif/core@4.14.0', '@expo/bunyan@4.0.1', '@expo/rudder-sdk-node@1.1.1',
+    'xcode@3.0.1', 'minimatch@5.1.2', 'nanoid@3.3.8', 'node-forge@1.4.0', 'tar@7.5.19',
   ].sort());
   assert.equal(candidate.overrides['minimatch@5.1.2'], '5.1.8');
   assert.deepEqual(candidate.overrides['@expo/eas-json@27.4.1'], { joi: '17.13.9' });
-  assert.deepEqual(candidate.overrides['eas-cli@27.4.1'], { joi: '17.13.9', ajv: '8.18.0', yaml: '2.8.3' });
+  assert.deepEqual(candidate.overrides['eas-cli@27.4.1'], { joi: '17.13.9', ajv: '8.18.0', yaml: '2.8.3', 'ts-deepmerge': '8.0.0' });
+  assert.deepEqual(candidate.overrides['glob@14.0.2'], { minimatch: '11.0.1' });
+  assert.deepEqual(candidate.overrides['@expo/bunyan@4.0.1'], { uuid: '11.1.1' });
+  assert.deepEqual(candidate.overrides['@expo/config@55.0.10'], { glob: '14.0.2' });
   assert.deepEqual(candidate.overrides['@expo/build-tools@27.4.1'], { joi: '17.13.9' });
   assert.equal(candidate.overrides['node-forge@1.4.0'], '1.4.3');
   assert.equal(candidate.overrides.joi, undefined);
@@ -75,6 +82,13 @@ test('official-registry lockfile retains patched AJV/YAML/Forge copies and exact
   assert.equal(lock.packages['node_modules/node-forge'].version, '1.4.3');
   assert.equal(lock.packages['node_modules/yaml'].version, '2.8.3');
   assert.equal(lock.packages['node_modules/fast-uri'].version, '3.1.9');
+  assert.equal(lock.packages['node_modules/glob'].version, '14.0.2');
+  assert.equal(lock.packages['node_modules/glob/node_modules/minimatch'].version, '11.0.9');
+  assert.equal(lock.packages['node_modules/@oclif/core/node_modules/minimatch'].version, '11.0.1');
+  assert.equal(lock.packages['node_modules/uuid'].version, '11.1.1');
+  assert.equal(lock.packages['node_modules/ts-deepmerge'].version, '8.0.0');
+  assert.equal(lock.packages['node_modules/@expo/bunyan/node_modules/uuid'], undefined);
+  assert.equal(lock.packages['node_modules/@expo/prebuild-config/node_modules/glob'], undefined);
   assert.equal(lock.packages['node_modules/uri-js'], undefined);
   assert.equal(lock.packages['node_modules/punycode'], undefined);
 });
