@@ -52,3 +52,10 @@
 
 - Previous Phase 0 attempts consistently passed TypeScript/ESLint but failed Prettier on long inline SVG literals in `appearance-option-icon.tsx`. Extract those exact literals into bundled `appearance-option-svg.json` with byte-for-byte equality regression against official `.svg` assets; the small stateless TypeScript icon component uses `SvgXml`. No runtime network, package or native change.
 - While preparing this fix, parallel branch commits added the owner's edge-to-edge flat Appearance row and `Settings` heading plus matching tests. Reconcile on current live PR HEAD, preserve those changes and use non-force expected-head ref update. `tio-preview` remains absent; CI and owner revised-layout device QA still required, no PR merge permission.
+
+## 2026-11-21 — Owner bottom-sheet header + flat-top refinement
+
+- **Owner chat change:** In PR #18 Appearance bottom sheet, center the `Appearance` title, remove the visible extra sentence beneath it, add a divider immediately beneath the header, replace the visible `Close` text with an accessible X icon, and remove rounded sheet corners.
+- **Decision:** Bounded UI-only `PROCEED` within previously approved RFC #17 feature; preserve stateless `AppearanceSheet`, `useMoreViewModel` ownership, three selectable radios and local theme persistence. Avoid unrelated More-screen heading changes, finance, workflows, dependencies or native config.
+- **Safety:** Because this PR has the `tio-preview` label, remove it before any branch push to prevent unauthorized automatic privileged preview activation; do not restore or dispatch without separate approval. No merge permission.
+- **Acceptance:** Regression assertions for balanced centered title, no hint caption/Close text, accessible X button, divider below title, square top corners, dismissal, unchanged selection and current-head CI. Android/iPhone device acceptance remains pending; independent UI review deferred, not claimed as performed.

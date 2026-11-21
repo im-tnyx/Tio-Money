@@ -78,6 +78,15 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /onRequestClose=\{dismiss\}/);
   assert.match(sheet, /accessibilityViewIsModal/);
   assert.match(sheet, /onPress=\{dismiss\}/);
+  assert.match(sheet, /borderTopLeftRadius: theme\.navigation\.origin/);
+  assert.match(sheet, /borderTopRightRadius: theme\.navigation\.origin/);
+  assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1, textAlign: 'center' \}\}>/);
+  assert.match(sheet, /borderBottomWidth: theme\.navigation\.borderWidth/);
+  assert.match(sheet, /borderBottomColor: theme\.colors\.border/);
+  assert.match(sheet, /d="M18 6 6 18 M6 6l12 12"/);
+  assert.match(sheet, /accessibilityLabel=\{t\('closeAppearance'\)\}/);
+  assert.doesNotMatch(sheet, /t\('appearanceHint'\)/);
+  assert.doesNotMatch(sheet, /<AppText>\{t\('close'\)\}<\/AppText>/);
   assert.match(sheet, /accessibilityRole="radiogroup"/);
   assert.match(sheet, /<AppearanceOptionIcon name=\{value\}/);
   assert.match(sheet, /color=\{theme\.colors\.secondaryText\}/);

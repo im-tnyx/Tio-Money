@@ -4,7 +4,7 @@
 
 ## Product flow
 
-1. Open the **More** bottom tab. **General Settings** is plain unboxed section text. A single full-available-width card below it shows **Appearance** with a right-side chevron. Tap this row to open a native bottom sheet with the existing **System / Light / Dark** radio choices, descriptions, and dividers. Tap **Close**, the backdrop, or Android Back to dismiss the sheet. No separate Settings route.
+1. Open the **More** bottom tab. **General Settings** is plain unboxed section text. A single full-available-width card below it shows **Appearance** with a right-side chevron. Tap this row to open a flat-top native bottom sheet with a **centered Appearance title**, an **X dismiss icon** on the right, a **divider directly below the title** and the existing **System / Light / Dark** radio choices. The extra visible description under Appearance is removed; individual option descriptions remain accessible as hints. Tap **X**, the backdrop, or Android Back to dismiss the sheet. No separate Settings route.
 2. **System** is the default; existing app palettes follow the Android/iOS device's effective light/dark mode, including later device changes.
 3. **Light** and **Dark** immediately re-theme all app tabs and the status-bar foreground, regardless of the device mode.
 4. On restart, the selected choice is loaded locally before the UI is rendered. Missing/unrecognized values fall back to **System**. A storage read failure falls back to System with safe error feedback; a failed write keeps the last persisted selection and tells the user to retry.
@@ -16,7 +16,7 @@
 - `src/features/settings/more-route.tsx`: wires ViewModel to Screen and its modal child.
 - `src/features/settings/use-more-view-model.ts` + `more-contract.ts`: typed `MoreUiState` and `MoreAction`; no storage in UI.
 - `src/features/settings/more-screen.tsx`: theme-token-only, stateless General Settings heading and full-width Appearance card/chevron.
-- `src/features/settings/appearance-sheet.tsx`: stateless accessible React Native Modal bottom sheet with System/Light/Dark circular radios, row dividers, backdrop dismissal and Close button.
+- `src/features/settings/appearance-sheet.tsx`: stateless accessible React Native Modal bottom sheet with System/Light/Dark circular radios, a header divider, row dividers, backdrop dismissal and an accessible X close icon; flat (square) top corners.
 - `src/shared/theme/appearance-preference.ts`: pure parsing/scheme-resolution and injected store port.
 - `src/data/preferences/appearance-preference-store.ts`: `expo-sqlite/kv-store` local adapter, separate from financial ledger `tio-money.db`.
 - `src/shared/theme/theme-provider.tsx`: one global stored selection plus live OS appearance subscription; persistence attempted before updating state.
@@ -41,3 +41,7 @@ No new dependency, workflow, native configuration, account, financial data or ac
 The option order is not a user requirement; keep the existing stable `system / light / dark` keys and list order. The owner supplied a three-row reference screenshot. Each selectable row shows the official **Google Material Symbols Outlined 200-weight** `routine` (System Mode), `dark_mode` (Dark Mode) or `light_mode` (Light Mode) SVG at the shared 24dp `bottomSheet` icon token, left-aligned. Place the existing accessible circle/radio selection at the **far right**, with a semantic divider **between** rows. Keep descriptions as accessibility hints, not extra visible subtitle lines, to match the reference. Selected theme color is the shared semantic brand token; do not introduce a hardcoded coral color. Choice selection, persistence, dismissal, and English-only i18n remain unchanged. The sheet remains a dumb component and `useMoreViewModel` owns visibility.
 
 **Icon packaging:** each upstream `.svg` is preserved byte-for-byte in shared assets; the matching static `src/features/settings/appearance-option-svg.json` map is bundled into the app and rendered via `react-native-svg` without a remote request, font, or new dependency. Tests verify equal XML.
+
+## 2026-11-21 — Owner bottom-sheet header refinement
+
+Center the Appearance title between equal-width leading spacer and trailing X-button touch target. Remove the visible help sentence directly below the title (preserve accessible hints on choices and the More entry row). Add a semantic-token divider immediately beneath the header. Remove the bottom sheet's rounded top corners; retain safe-area layout, screen-reader close label, backdrop/Android Back dismissal, stateless screen architecture, persistence, and radio behavior. Scope is presentation, regression tests and documentation only; no privileged Codespaces activation or PR merge authorized.
