@@ -17,6 +17,7 @@ test('tab scenes use a 160ms native crossfade, with no animation on the shared b
   assert.match(layout, /animation: 'timing'/);
   assert.match(layout, /duration: theme\.navigation\.tabCrossfadeDurationMs/);
   assert.match(layout, /tabBar=\{\(\) => null\}/);
+  assert.match(layout, /sceneStyle: \{ backgroundColor: theme\.colors\.canvas \}/);
   assert.match(layout, /backBehavior="history"/);
   assert.doesNotMatch(layout, /<Slot|animation: 'shift'|Animated\.View/);
   assert.match(layout, /<RootTabBar \/>/);

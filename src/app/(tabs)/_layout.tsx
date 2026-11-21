@@ -21,6 +21,7 @@ export default function RootTabsLayout() {
           tabBar={() => null}
           screenOptions={{
             headerShown: false,
+            sceneStyle: { backgroundColor: theme.colors.canvas },
             animation: reduceMotion ? 'none' : 'fade',
             transitionSpec: {
               animation: 'timing',

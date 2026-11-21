@@ -179,3 +179,7 @@ Actual crossfade, quick taps, screen lifetime (including preserved More appearan
 state), Reduced Motion toggle, TalkBack/VoiceOver, Android Back and iPhone safe areas
 must be verified on devices before final product acceptance. Structural tests and
 Android/iOS Metro checks are not substitutes for device evidence.
+
+The JavaScript tab navigator also sets its `sceneStyle.backgroundColor` from
+`theme.colors.canvas` to prevent the transition host from showing an unrelated
+light/dark background when the user overrides the device appearance.
