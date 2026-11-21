@@ -219,12 +219,6 @@ test('TM-CUR-043: refresh feedback distinguishes new, unchanged, and first valid
     classifySubCurrencyRefresh(oldQuote, { ...oldQuote, date: '2026-11-21' }),
     'updated',
   );
-  assert.equal(
-    classifySubCurrencyRefresh(oldQuote, { ...oldQuote, rate: 82.6 }),
-    'updated',
-  );
-  assert.equal(
-    classifySubCurrencyRefresh(oldQuote, { ...oldQuote, quote: 'USD' }),
-    'updated',
-  );
+  assert.equal(classifySubCurrencyRefresh(oldQuote, { ...oldQuote, rate: 82.6 }), 'updated');
+  assert.equal(classifySubCurrencyRefresh(oldQuote, { ...oldQuote, quote: 'USD' }), 'updated');
 });
