@@ -1,5 +1,6 @@
 import {
   CURRENCY_OPTIONS,
+  resolveNumberGrouping,
   resolveSubCurrencyDisplay,
   type CurrencyCode,
   type CurrencyPreferences,
@@ -13,6 +14,33 @@ export function formatSubCurrencyDetailCaption(subCode: CurrencyCode): string {
   return currency.code + ' – ' + currency.country + ' (' + currency.symbol + ')';
 }
 
+/**
+ * Format an illustrative Sub amount using only that saved Sub's display
+ * preferences. This must never round or mutate financial ledger values.
+ */
+export function formatSubCurrencyNumberExample(
+  preferences: CurrencyPreferences,
+  subCode: CurrencyCode,
+  illustrativeAmount: number,
+): string {
+  if (!Number.isFinite(illustrativeAmount)) throw new Error('Invalid illustrative amount');
+  const sub = CURRENCY_OPTIONS.find((item) => item.code === subCode);
+  if (!sub) throw new Error('Unrecognized currency');
+  const display = resolveSubCurrencyDisplay(preferences, subCode);
+  const digits = display.decimalDigits === 'currency' ? sub.minorDigits : display.decimalDigits;
+  const grouping = resolveNumberGrouping(subCode, display.grouping ?? 'auto');
+  const number = new Intl.NumberFormat(grouping === 'indian' ? 'en-IN' : 'en-US', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+    useGrouping: grouping !== 'none',
+  }).format(Math.abs(illustrativeAmount));
+  const symbol = subCode === 'USD' ? 'US' + sub.symbol : sub.symbol;
+  const signed = illustrativeAmount < 0 ? '-' : '';
+  return display.unitPosition === 'front'
+    ? signed + symbol + ' ' + number
+    : signed + number + ' ' + symbol;
+}
+
 /** UI-only preview. Rates never alter ledger balances or booked amounts. */
 export function formatSubCurrencyDetailPreview(
   preferences: CurrencyPreferences,
@@ -22,16 +50,7 @@ export function formatSubCurrencyDetailPreview(
   const sub = CURRENCY_OPTIONS.find((item) => item.code === subCode);
   const main = CURRENCY_OPTIONS.find((item) => item.code === preferences.mainCode);
   if (!sub || !main) throw new Error('Unrecognized currency');
-  const subDisplay = resolveSubCurrencyDisplay(preferences, subCode);
-  const digits =
-    subDisplay.decimalDigits === 'currency' ? sub.minorDigits : subDisplay.decimalDigits;
-  const subNumber = new Intl.NumberFormat(subCode === 'INR' ? 'en-IN' : 'en-US', {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  }).format(1);
-  const subSymbol = subCode === 'USD' ? 'US' + sub.symbol : sub.symbol;
-  const subPreview =
-    subDisplay.unitPosition === 'front' ? subSymbol + ' ' + subNumber : subNumber + ' ' + subSymbol;
+  const subPreview = formatSubCurrencyNumberExample(preferences, subCode, 1);
 
   if (rate === null || !Number.isFinite(rate) || rate <= 0) {
     return { subPreview, mainPreview: main.symbol + ' —' };
