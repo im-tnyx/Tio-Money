@@ -244,38 +244,41 @@ export function SubCurrencyDetailSheet({
                 paddingHorizontal: theme.space.lg,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: theme.space.md,
+                gap: theme.space.sm,
               }}
             >
               <AppText muted style={{ width: '34%' }}>
                 {t('currencyDecimals')}
               </AppText>
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    backgroundColor: theme.colors.segmentedTrack,
-                    borderRadius: theme.segmentedControl.radius,
-                    padding: theme.segmentedControl.inset,
-                  }}
-                >
-                  <DecimalStepButton
-                    label={t('currencyDecimalDecrease')}
-                    sign="−"
-                    disabled={detail.decimalDigits === 0}
-                    onPress={() => onAction({ type: 'detail.decimal.step', delta: -1 })}
-                  />
-                  <AppText style={{ width: theme.space.xxxl, textAlign: 'center', flexShrink: 0 }}>
-                    {detail.decimalLabel}
-                  </AppText>
-                  <DecimalStepButton
-                    label={t('currencyDecimalIncrease')}
-                    sign="+"
-                    disabled={detail.decimalDigits === 3}
-                    onPress={() => onAction({ type: 'detail.decimal.step', delta: 1 })}
-                  />
-                </View>
+              <AppText
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
+                style={{ flex: 1, textAlign: 'right' }}
+              >
+                {detail.decimalLabel}
+              </AppText>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: theme.colors.segmentedTrack,
+                  borderRadius: theme.segmentedControl.radius,
+                  padding: theme.segmentedControl.inset,
+                }}
+              >
+                <DecimalStepButton
+                  label={t('currencyDecimalDecrease')}
+                  sign="−"
+                  disabled={detail.decimalDigits === 0}
+                  onPress={() => onAction({ type: 'detail.decimal.step', delta: -1 })}
+                />
+                <DecimalStepButton
+                  label={t('currencyDecimalIncrease')}
+                  sign="+"
+                  disabled={detail.decimalDigits === 3}
+                  onPress={() => onAction({ type: 'detail.decimal.step', delta: 1 })}
+                />
               </View>
             </View>
           </View>
