@@ -87,7 +87,10 @@ test('TM-CUR-036: Sub detail uses inline +/- precision without another sheet', (
   assert.match(sheet, /disabled=\{detail.decimalDigits === 0\}/);
   assert.match(sheet, /disabled=\{detail.decimalDigits === 3\}/);
   assert.doesNotMatch(sheet, /detail\.decimal\.open|detail\.decimal\.back|decimalMode|radiogroup/);
-  assert.doesNotMatch(contract + controller, /detailMode|detail\.decimal\.open|detail\.decimal\.back/);
+  assert.doesNotMatch(
+    contract + controller,
+    /detailMode|detail\.decimal\.open|detail\.decimal\.back/,
+  );
   assert.doesNotMatch(add, /currencyFxExchangeRate|detail.refresh|CurrencyUnitPositionControl/);
   assert.match(controller, /getReferenceRate\(detailCode, main\)/);
   assert.match(controller, /setRefreshingPair\(pair\)/);
