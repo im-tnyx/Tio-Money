@@ -8,6 +8,7 @@ export function ActionButton({
   label,
   onPress,
   variant = 'primary',
+  compact = false,
   disabled = false,
   loading = false,
   accessibilityLabel,
@@ -15,6 +16,7 @@ export function ActionButton({
   label: string;
   onPress?: () => void;
   variant?: ButtonVariant;
+  compact?: boolean;
   disabled?: boolean;
   loading?: boolean;
   accessibilityLabel?: string;
@@ -37,7 +39,7 @@ export function ActionButton({
       onPress={onPress}
       style={({ pressed }) => ({
         minHeight: theme.buttons.minimumHeight,
-        paddingHorizontal: theme.space.lg,
+        paddingHorizontal: compact ? theme.space.sm : theme.space.lg,
         paddingVertical: theme.space.sm,
         borderRadius: theme.radius.sm,
         backgroundColor,

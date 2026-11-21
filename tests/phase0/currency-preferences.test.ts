@@ -184,7 +184,7 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   assert.match(more, /onAction\(\{ type: 'currency.main.open' \}\)/);
   assert.match(more, /onAction\(\{ type: 'currency.open' \}\)/);
   assert.match(screen, /\{t\('currencyMain'\)\}/);
-  assert.match(screen, /value=\{t\('currencyChange'\)\}/);
+  assert.match(screen, /label=\{t\('currencyChange'\)\}/);
   assert.match(screen, /type: 'position.select'/);
   const position = readFileSync('src/features/settings/currency-unit-position-control.tsx', 'utf8');
   assert.match(screen, /<CurrencyUnitPositionControl/);
@@ -272,9 +272,9 @@ test('TM-CUR-016: unit position is a compact right-side selector in the same row
 
 test('TM-CUR-017: top bar removes double padding and preserves true center', () => {
   const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
-  assert.match(screen, /sideWidth = theme\.buttons\.minimumHeight \+ theme\.space\.md/);
+  assert.match(screen, /sideWidth = theme\.buttons\.minimumHeight \+ theme\.space\.xxxl/);
   assert.match(screen, /paddingLeft: theme\.space\.sm/);
-  assert.match(screen, /<View style=\{\{ width: sideWidth \}\} \/>/);
+  assert.match(screen, /width: sideWidth/);
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
   assert.match(screen, /width=\{theme\.iconRoles\.topBar\}/);
   assert.doesNotMatch(screen, /sideWidth = theme\.buttons\.minimumHeight \* 2/);
@@ -373,28 +373,32 @@ test('TM-CUR-022: Main Currency top bar extends behind status icons with safe 50
     /<ScrollView\s+style=\{\{ flex: 1, backgroundColor: theme\.colors\.canvas \}\}/,
   );
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
-  assert.match(screen, /value=\{t\('currencyChange'\)\}/);
+  assert.match(screen, /label=\{t\('currencyChange'\)\}/);
 });
 
-test('TM-CUR-023: Change moves from top bar to the four-option settings card', () => {
+test('TM-CUR-023: Change uses the reusable compact top-right button', () => {
   const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  const reusableButton = readFileSync('src/shared/ui/action-button.tsx', 'utf8');
   const card = screen.slice(
     screen.indexOf('function CurrencySettingsCard('),
     screen.indexOf('/** Presentation only:'),
   );
   const header = screen.slice(screen.indexOf('/** Presentation only:'));
-  assert.match(
-    card,
-    /label=\{t\('currencyMain'\)\}[\s\S]*?value=\{t\('currencyChange'\)\}[\s\S]*?onPress=\{\(\) => onAction\(\{ type: 'open', sheet: 'currency' \}\)\}/,
-  );
-  assert.ok(card.indexOf("label={t('currencyMain')}") < card.indexOf("{t('currencyPosition')}"));
+  assert.doesNotMatch(card, /label=\{t\('currencyMain'\)\}/);
+  assert.doesNotMatch(card, /value=\{t\('currencyChange'\)\}/);
   assert.match(card, /<CurrencyUnitPositionControl/);
   assert.match(card, /state\.rows\.map/);
-  assert.match(header, /<View style=\{\{ width: sideWidth \}\} \/>/);
-  assert.doesNotMatch(header, /accessibilityLabel=\{t\('currencyChange'\)\}/);
+  assert.match(header, /<ActionButton/);
+  assert.match(header, /label=\{t\('currencyChange'\)\}/);
+  assert.match(header, /accessibilityLabel=\{t\('currencyChange'\)\}/);
+  assert.match(header, /variant="ghost"/);
+  assert.match(header, /\scompact\s/);
+  assert.match(header, /sheet: 'currency'/);
+  assert.equal(header.match(/width: sideWidth/g)?.length, 2);
   assert.match(header, /minHeight: theme\.navigation\.topBarHeight/);
+  assert.match(reusableButton, /compact \? theme\.space\.sm : theme\.space\.lg/);
+  assert.match(reusableButton, /minHeight: theme\.buttons\.minimumHeight/);
 });
-
 test('TM-CUR-024: Format sheet has three choices and resolves the currency default', () => {
   const vm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
   const start = vm.indexOf("} else if (sheetKind === 'grouping') {");

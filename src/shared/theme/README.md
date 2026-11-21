@@ -303,3 +303,17 @@ Only overflowing Currency/Country lists receive the existing 40dp scroll
 clearance. The original 4dp handle, 8dp top margin and 48dp title/header
 geometry are completely unchanged, as is safe-area-aware long-list
 scrolling and handle expansion. Physical Android/iOS checks remain needed.
+
+## Main Currency Change action returns to header — PR #53 (2026-11-21)
+
+The latest owner direction supersedes the earlier four-option settings card.
+The Main Currency page retains its 50dp top bar, with icon-only Back on
+the left and an **existing reusable ActionButton** on the right labeled
+**Change**. The reusable button's optional `compact` variant adjusts only
+horizontal padding using the existing theme spacing tokens, preserving its
+48dp minimum touch height, ghost presentation, accessibility and all other
+existing button variants. Left and right top-bar slots use equal token-derived
+widths, keeping the title centered. The card below again shows exactly the
+three settings: Unit Position, Decimal Point and Format. Change opens the
+existing Main Currency selection sheet; persistence, financial values and
+sheet layout are unchanged.

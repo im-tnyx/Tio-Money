@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
+import { ActionButton } from '@/shared/ui/action-button';
 import { AppText } from '@/shared/ui/app-text';
 
 import { CurrencyUnitPositionControl } from './currency-unit-position-control';
@@ -80,12 +81,6 @@ function CurrencySettingsCard({
         borderColor: theme.colors.border,
       }}
     >
-      <CurrencyFormatRow
-        label={t('currencyMain')}
-        value={t('currencyChange')}
-        last={false}
-        onPress={() => onAction({ type: 'open', sheet: 'currency' })}
-      />
       <View
         style={{
           minHeight: theme.buttons.minimumHeight,
@@ -129,7 +124,8 @@ export function MainCurrencyScreen({
   onAction: (action: MainCurrencyAction) => void;
 }) {
   const theme = useAppTheme();
-  const sideWidth = theme.buttons.minimumHeight + theme.space.md;
+  // Equal side slots keep the title centered while Change uses the shared compact button.
+  const sideWidth = theme.buttons.minimumHeight + theme.space.xxxl;
   // Paint the status-bar inset as part of the top bar; keep actions below the OS icons.
   return (
     <SafeAreaView
@@ -178,7 +174,22 @@ export function MainCurrencyScreen({
         <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
           {t('currencyMain')}
         </AppText>
-        <View style={{ width: sideWidth }} />
+        <View
+          style={{
+            width: sideWidth,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            paddingRight: theme.space.xxs,
+          }}
+        >
+          <ActionButton
+            label={t('currencyChange')}
+            accessibilityLabel={t('currencyChange')}
+            variant="ghost"
+            compact
+            onPress={() => onAction({ type: 'open', sheet: 'currency' })}
+          />
+        </View>
       </View>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}
