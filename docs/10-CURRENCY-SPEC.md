@@ -13,9 +13,9 @@
 ---
 
 > [!IMPORTANT]
-> **Incremental implementation underway (RFC [#52](https://github.com/im-tnyx/Tio-Money/issues/52)):** A More → Currency **local display-preferences** module (Main default INR, optional distinct Sub) is being built on an unmerged feature branch. **No FX provider, live exchange rate, converted totals, cross-currency ledger entry, SQLite ledger migration or rate-refresh integration is approved/implemented.** The existing [Ledger Draft](04-DATABASE-DESIGN.md) is **INR-only** (`CHECK(currency = 'INR')`) and assumes integer paise; **do not code mixed-currency accounting under that schema**. Owner direction: [TM-DEC-008](DECISIONS.md#tm-dec-008--main-and-optional-sub-currency-with-refresh-on-use), [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13). A finance ADR is required before changing the journal.
+> **Current unmerged PR #53 scope (2026-11-21):** More → Currency saves Main and up to five optional Sub preferences locally. The owner [explicitly approved](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) **Frankfurter v2 blended reference rates only for the saved Sub Currency display/refresh**, conditional on [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) privacy/security controls. The rate is the latest *published indicative reference*, **not a real-time executable exchange rate**. No ledger conversion, posted FX, account valuation, balances, reports, bank operations, Auth/cloud or paid provider are authorized. The [Ledger Draft](04-DATABASE-DESIGN.md) remains INR-only; no mixed-currency accounting is implemented or approved. This is NOT merge authorization. Older local-only/no-network statements below describe superseded initial scope, not the current code.
 
-**2026-11-21 finance decision split:** [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx) accepts per-currency exactness and forbids silent mixed-currency booking; actual balanced clearing/gain/rounding and cross-currency transfers remain **BLOCKED for implementation**. [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) accepts privacy, source/timestamp and refresh-on-use while **specific rate provider, license and supported codes** remain unapproved. Controllers/services fetch quotes; **screens may only render a provided rate ViewModel**, per [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
+**2026-11-21 finance decision split:** [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx) accepts per-currency exactness and forbids silent mixed-currency booking; actual balanced clearing/gain/rounding and cross-currency transfers remain **BLOCKED for implementation**. [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) conditionally approves **Frankfurter v2 blended rates for saved Sub Currency display only**; other uses, unsupported pairs and provider-specific datasets remain unapproved. Controllers/services fetch quotes; **screens may only render a provided rate ViewModel**, per [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
 
 **Unmerged PR #53 display UI refinement (2026-11-21):** More groups Main Currency and Sub Currency in one card; each opens a dedicated screen. Sub Currency offers None or a different currency directly on its screen without a bottom sheet. Main Currency has Back/centered title/Change and large sample, Front/End inline radio buttons, Decimal Point, Indian/International Number Format and Large Numbers shared bottom sheets. This is a pure, versioned local display preference (with legacy Main/Sub values preserved), not an FX or canonical ledger-format change. [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54). Exact-head CI and on-device a11y acceptance are pending.
 
@@ -30,7 +30,7 @@ Unit Position, Decimal Point and optional Sub Currency settings do not change
 except that a Sub equal to the new Main is cleared. This affects display
 preferences only, never the exact native ledger amount or FX behavior.
 
-**Preference foundation only:** a local versioned kv-store key and root-provided global hook let future finance controllers consume the same selection. Initial curated ISO-labelled codes are **display settings**, not a list approved for financial posting/FX quotes. Existing four finance screens remain blank. A Main/Sub collision clears Sub. Rate and accounting requirements below remain blocked by TM-ADR-018/023.
+**Preference + approved Sub-only reference display:** a local versioned kv-store key and root-provided global hook share saved choices; the app-scoped optional Sub-only FX controller displays validated date-stamped quotes. The curated ISO-labelled codes are **display settings**, not a promise of supported provider pairs or approved financial posting. Existing four finance screens remain blank. A Main/Sub collision clears Sub. Rate and accounting requirements below remain blocked by TM-ADR-018/023.
 
 ## 01 · Main and Sub Currency behavior
 
@@ -52,7 +52,7 @@ preferences only, never the exact native ledger amount or FX behavior.
 
 | Trigger | Required behavior |
 | :--- | :--- |
-| Open app / resume foreground with active Sub Currency | Refresh attempt for the active pair |
+| Cold-open app with saved Sub Currency | Refresh once per selected unique Sub/Main pair; no automatic resume timer |
 | Select or change Sub Currency / Main Currency | Request fresh rate for the newly selected distinct pair |
 | Open conversion view or perform conversion | Request fresh rate before presenting a quote as fresh |
 | Enter multi-currency-aware transaction or report | Refresh attempt; show quoted time and stale fallback when applicable |
@@ -166,9 +166,9 @@ uniqueness are enforced in the preference data layer.
 The v2 preference reads v1 and preserves a saved Sub at position 1;
 new preference writes use the separate v2 key, leaving legacy v1
 unchanged. FX is a display-only reference quote; neither ledger, balance
-nor journal amounts are converted. Provider licensing, privacy review,
-reference-rate cache/offline/stale policy and coverage remain pending
-under the rate-provider ADR. This prototype is not release-approved.
+nor journal amounts are converted. Provider choice for Sub-only indicative rates is now owner-approved subject to
+TM-ADR-023 conditions; device QA, commercial/privacy review of the deployed
+environment and trusted preview integration remain release gates.
 
 ### Sub Currency deletion — swipe-only UI supersedes Pencil/Edit (2026-11-21)
 
@@ -227,5 +227,10 @@ start a cached quote may render immediately but is explicitly labeled
 last valid pair and show an unavailable/cached state, never a fictional
 conversion. Invalid, mismatched or future-dated cache payloads are ignored.
 Removing all Sub selections ends all new FX requests; original ledger
-amounts never change. TM-ADR-023 provider/license/privacy approval remains
-separate and **not granted** by these code changes.
+amounts never change. A subsequent explicit owner decision **approved**
+Frankfurter blended v2 only for this Sub Currency reference display.
+See [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy)
+for its conditional privacy/security/accuracy constraints. Never label the
+blended daily reference as a guaranteed live bank/trade rate. The adapter
+rejects future/invalid dates and times out after 8 seconds. UI shows both
+the provider publication date and the cached/online last-checked UTC time.
