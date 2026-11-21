@@ -60,6 +60,8 @@ function SwipeableCurrencyRow({
   onReveal,
   onClose,
   onDelete,
+  onCardTouchStart,
+  onCardTouchEnd,
   children,
 }: {
   code: string;
@@ -68,6 +70,8 @@ function SwipeableCurrencyRow({
   onReveal: () => void;
   onClose: () => void;
   onDelete: () => void;
+  onCardTouchStart: () => void;
+  onCardTouchEnd: () => void;
   children: ReactNode;
 }) {
   const theme = useAppTheme();
@@ -80,12 +84,15 @@ function SwipeableCurrencyRow({
   return (
     <View
       onTouchStart={(event) => {
+        onCardTouchStart();
         start.current = {
           x: event.nativeEvent.pageX,
           y: event.nativeEvent.pageY,
           offset: displayedOffset,
         };
       }}
+      onTouchEnd={onCardTouchEnd}
+      onTouchCancel={onCardTouchEnd}
       onMoveShouldSetResponderCapture={(event) =>
         isHorizontalSwipe(
           event.nativeEvent.pageX - start.current.x,
@@ -109,6 +116,7 @@ function SwipeableCurrencyRow({
         const dy = event.nativeEvent.pageY - start.current.y;
         const current = getSwipeOffset(start.current.offset, dx, revealWidth);
         setDragOffset(null);
+        onCardTouchEnd();
         if (
           shouldCloseRevealedSwipe(
             start.current.offset,
@@ -124,7 +132,10 @@ function SwipeableCurrencyRow({
           onClose();
         }
       }}
-      onResponderTerminate={() => setDragOffset(null)}
+      onResponderTerminate={() => {
+        setDragOffset(null);
+        onCardTouchEnd();
+      }}
       style={{
         overflow: 'hidden',
         backgroundColor: theme.colors.card,
@@ -168,9 +179,13 @@ function SwipeableCurrencyRow({
 export function SubCurrencyScreen({
   state,
   onAction,
+  onCardTouchStart,
+  onCardTouchEnd,
 }: {
   state: SubCurrencyUiState;
   onAction: (action: SubCurrencyAction) => void;
+  onCardTouchStart: () => void;
+  onCardTouchEnd: () => void;
 }) {
   const theme = useAppTheme();
   const sideWidth = theme.buttons.minimumHeight * 2;
@@ -261,6 +276,8 @@ export function SubCurrencyScreen({
                 isOpen={openSwipeCode === item.code}
                 onReveal={() => setOpenSwipeCode(item.code)}
                 onClose={() => setOpenSwipeCode(null)}
+                onCardTouchStart={onCardTouchStart}
+                onCardTouchEnd={onCardTouchEnd}
                 onDelete={() => {
                   setOpenSwipeCode(null);
                   onAction({ type: 'remove', code: item.code });
