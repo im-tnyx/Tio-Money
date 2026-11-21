@@ -29,6 +29,10 @@ test('security audit compares numeric versions and never treats prereleases as f
   assert.equal(researchFloorFor('node-forge', '1.4.1'), '1.4.3');
   assert.equal(researchFloorFor('ajv', '8.11.0'), '8.18.0');
   assert.equal(researchFloorFor('yaml', '2.6.0'), '2.8.3');
+  assert.equal(researchFloorFor('glob', '14.0.2'), '14.0.2');
+  assert.equal(researchFloorFor('minimatch', '11.0.9'), '11.0.1');
+  assert.equal(researchFloorFor('uuid', '11.1.1'), '11.1.1');
+  assert.equal(researchFloorFor('ts-deepmerge', '8.0.0'), '8.0.0');
   assert.equal(researchFloorFor('nanoid', '6.0.0'), null);
 });
 
@@ -59,6 +63,8 @@ test('actual isolated lockfile remains valid and auditable without any installat
   const report = inventoryLockfile(lock);
   assert.equal(report.cliVersion, '27.4.1');
   assert.ok(Array.isArray(report.copies));
+  assert.equal(report.belowFloor, 0);
+  assert.equal(report.unknown, 0);
 });
 
 test('QR-free Expo Go entry point and project identity stay unchanged', () => {
