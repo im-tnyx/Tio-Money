@@ -135,7 +135,7 @@ export function MainCurrencyScreen({
       <View
         style={{
           flexDirection: 'row',
-          minHeight: theme.navigation.topBarHeight,
+          height: theme.navigation.topBarHeight,
           alignItems: 'center',
           borderBottomWidth: theme.navigation.borderWidth,
           borderBottomColor: theme.colors.border,

@@ -369,7 +369,7 @@ test('TM-CUR-022: Main Currency top bar extends behind status icons with safe 50
   assert.match(tokens, /topBarHeight: size\.dp50/);
   assert.match(screen, /edges=\{\['top', 'left', 'right'\]\}/);
   assert.match(screen, /style=\{\{ flex: 1, backgroundColor: theme\.colors\.card \}\}/);
-  assert.match(screen, /minHeight: theme\.navigation\.topBarHeight/);
+  assert.match(screen, /height: theme\.navigation\.topBarHeight/);
   assert.match(
     screen,
     /<ScrollView\s+style=\{\{ flex: 1, backgroundColor: theme\.colors\.canvas \}\}/,
@@ -397,7 +397,7 @@ test('TM-CUR-023: Change uses the reusable compact top-right button', () => {
   assert.match(header, /\scompact\s/);
   assert.match(header, /sheet: 'currency'/);
   assert.equal(header.match(/width: sideWidth/g)?.length, 2);
-  assert.match(header, /minHeight: theme\.navigation\.topBarHeight/);
+  assert.match(header, /height: theme\.navigation\.topBarHeight/);
   assert.match(reusableButton, /compact \? theme\.space\.sm : theme\.space\.lg/);
   assert.match(reusableButton, /minHeight: theme\.buttons\.minimumHeight/);
 });

@@ -113,7 +113,37 @@ test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => 
   assert.match(screen, /backgroundColor: theme.colors.expense/);
   assert.match(screen, /translateX: -displayedOffset/);
   assert.match(screen, /onDelete=\{\(\) => onAction\(\{ type: 'remove', code: item.code \}\)\}/);
-  assert.match(screen, /key=\{item.code \+ \(state.editing \? ':edit' : ':normal'\)\}/);
+  assert.match(screen, /key=\{item.code\}/);
   assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
+});
+
+test('TM-CUR-037: one swipe Delete action closes when tapping outside, without deletion', () => {
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  assert.match(
+    screen,
+    /const \[openSwipeCode, setOpenSwipeCode\] = useState<string \| null>\(null\)/,
+  );
+  assert.match(screen, /isOpen=\{openSwipeCode === item.code\}/);
+  assert.match(screen, /onReveal=\{\(\) => setOpenSwipeCode\(item.code\)\}/);
+  assert.match(screen, /onClose=\{\(\) => setOpenSwipeCode\(null\)\}/);
+  assert.match(screen, /accessibilityLabel=\{t\('currencyHideDelete'\)\}/);
+  assert.match(screen, /onPress=\{\(\) => setOpenSwipeCode\(null\)\}/);
+  assert.match(screen, /\{t\('currencyDelete'\)\}/);
+  assert.match(screen, /dragOffset \?\? \(isOpen \? revealWidth : 0\)/);
+  assert.match(screen, /onResponderTerminate=\{\(\) => setDragOffset\(null\)\}/);
+  assert.doesNotMatch(screen, /setOffset\(/);
+});
+
+test('TM-CUR-038: both currency headers use shared fixed 50dp token', () => {
+  const sub = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const main = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  const theme = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+  assert.match(theme, /topBarHeight: size\.dp50/);
+  for (const source of [sub, main]) {
+    assert.match(source, /height: theme\.navigation\.topBarHeight/);
+    assert.doesNotMatch(source, /minHeight: theme\.navigation\.topBarHeight/);
+  }
+  assert.match(sub, /minHeight: theme\.buttons\.minimumHeight \+ theme\.space\.xxl/);
+  assert.match(sub, /minHeight: theme\.buttons\.minimumHeight/);
 });

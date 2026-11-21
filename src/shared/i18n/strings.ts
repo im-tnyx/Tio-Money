@@ -41,6 +41,8 @@ export const en = {
   currencyReplaceSub: 'Change Sub Currency',
   currencyEditSub: 'Edit Sub Currency',
   currencyRemoveSub: 'Remove Sub Currency',
+  currencyDelete: 'Delete',
+  currencyHideDelete: 'Hide Delete action',
   currencyNoSubAdded: 'No Sub Currency added',
   currencyTapAddSub: 'Tap the plus icon to add one.',
   currencySubReplaceHint: 'Tap a currency to add it instantly.',

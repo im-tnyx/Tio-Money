@@ -437,3 +437,21 @@ No manual exchange-rate override, account or ledger conversions,
 new backend endpoint or new dependency are introduced. FX data remains
 indicative; platform/device sheet, touch and network tests are still
 required.
+
+## Sub Currency swipe dismissal and stable geometry — 2026-11-21
+
+Each saved row exposes a short visible `Delete` label (but keeps a
+currency-specific accessible Remove label) on left swipe. The screen
+owns exactly one currently revealed row; tapping blank space, any
+other saved row, Back/X, Pencil or Plus hides the reveal without
+changing persisted currencies. Swipe right also closes it. A Delete
+tap remains the **only** swipe-path removal trigger. This does not
+change the separate Pencil minus control or FX-detail-sheet actions.
+
+Currency row minimum height is now identical in normal and Pencil
+modes: the shared 48dp minimum tap target plus existing 32dp spacing.
+The Main and Sub Currency top bars use the same **fixed**
+`theme.navigation.topBarHeight` (50dp) below the OS safe-area inset,
+rather than expandable min-height. Other pages continue their
+existing navigation contract. No hardcoded screen dimensions or new
+dependencies.
