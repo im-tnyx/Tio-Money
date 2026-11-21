@@ -535,3 +535,15 @@ of the Decimal Point row, in that order. The preview stays outside
 the button group instead of being sandwiched between minus and plus.
 This affects only the Sub Currency detail bottom sheet. Main Currency,
 other shared selectors, persistence, FX source and the ledger are unchanged.
+
+## Sub Currency +/- uses the shared Front/End segmented-pill design (2026-11-21)
+
+The owner requested that the minus and plus actions look the same as the
+Front/End button pair in Unit Position, with the decimal sample kept to
+their left (as the exchange rate is left of Refresh). The Sub detail sheet
+now composes AppSegmentedActionControl, a button-action sibling of the shared
+AppSegmentedControl, using the exact same compactWidth, compactOptionHeight,
+inset, radius, hit slop, track and semantic pill colors. Unlike selectable
+Front/End radio choices, minus/plus remain accessible *buttons* and never
+claim a selected value. Each disables correctly at zero/three digits.
+No Main Currency control or shared AppBottomSheet behavior is modified.
