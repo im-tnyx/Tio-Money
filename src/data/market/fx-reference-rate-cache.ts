@@ -5,10 +5,7 @@ import {
   type FxReferenceRateCache,
 } from './fx-reference-rate-cache-contract';
 
-export type {
-  CachedReferenceRate,
-  FxReferenceRateCache,
-} from './fx-reference-rate-cache-contract';
+export type { CachedReferenceRate, FxReferenceRateCache } from './fx-reference-rate-cache-contract';
 
 const CACHE_PREFIX = 'tio-money.fx-reference.v1.';
 const SOURCE = 'frankfurter';
