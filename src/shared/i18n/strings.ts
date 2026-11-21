@@ -56,6 +56,7 @@ export const en = {
   currencyCancelEdit: 'Cancel editing',
   currencyFxLoading: 'Loading reference rate…',
   currencyFxUnavailable: 'Reference rate unavailable',
+  currencyFxCached: 'Cached rate',
   currencyFxSource: 'Frankfurter reference rate',
   currencySubDetails: 'Sub Currency Details',
   currencyFxExchangeRate: 'Exchange rate',
