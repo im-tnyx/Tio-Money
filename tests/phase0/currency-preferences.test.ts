@@ -243,3 +243,37 @@ test('TM-CUR-014: image-style Front/End pill selector shares themed semantic tok
   assert.match(colors, /segmentedSelected: '#62666F'/);
   assert.doesNotMatch(control + unit, /#[0-9a-fA-F]{3,8}|useState|useEffect|fetch\(|Storage\./);
 });
+
+test('TM-CUR-015: preview floats free, all options share a single card', () => {
+  const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  assert.match(screen, /<CurrencySettingsCard state=\{state\} onAction=\{onAction\} \/>/);
+  assert.match(screen, /borderRadius: theme\.radius\.lg/);
+  assert.match(screen, /overflow: 'hidden'/);
+  assert.match(screen, /last=\{index === state\.rows\.length - 1\}/);
+  assert.doesNotMatch(screen, /\{t\('currencyDisplayFormat'\)\}/);
+  assert.doesNotMatch(screen, /\{t\('currencyLargePreview'\)\}/);
+  assert.doesNotMatch(screen, /backgroundColor: theme\.colors\.card,\s*alignItems: 'center'/);
+});
+
+test('TM-CUR-016: unit position is a compact right-side selector in the same row', () => {
+  const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  const unit = readFileSync('src/features/settings/currency-unit-position-control.tsx', 'utf8');
+  const segmented = readFileSync('src/shared/ui/app-segmented-control.tsx', 'utf8');
+  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+  assert.match(screen, /justifyContent: 'space-between'/);
+  assert.match(screen, /<CurrencyUnitPositionControl/);
+  assert.match(unit, /<AppSegmentedControl\s+compact/);
+  assert.match(segmented, /compact \? theme\.segmentedControl\.compactWidth/);
+  assert.match(tokens, /compactWidth: size\.dp100 \+ size\.dp8/);
+  assert.match(tokens, /minimumOptionHeight: buttonTokens\.minimumHeight/);
+});
+
+test('TM-CUR-017: top bar removes double padding and preserves true center', () => {
+  const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  assert.match(screen, /sideWidth = theme\.buttons\.minimumHeight \+ theme\.space\.md/);
+  assert.match(screen, /paddingLeft: theme\.space\.sm/);
+  assert.match(screen, /paddingRight: theme\.space\.sm/);
+  assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
+  assert.match(screen, /width=\{theme\.iconRoles\.topBar\}/);
+  assert.doesNotMatch(screen, /sideWidth = theme\.buttons\.minimumHeight \* 2/);
+});

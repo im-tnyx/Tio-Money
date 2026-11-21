@@ -6,18 +6,20 @@ import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
+import { CurrencyUnitPositionControl } from './currency-unit-position-control';
 import type { MainCurrencyAction, MainCurrencyUiState } from './main-currency-contract';
 import { MainCurrencyOptionSheet } from './main-currency-option-sheet';
-import { CurrencyUnitPositionControl } from './currency-unit-position-control';
 
 function CurrencyFormatRow({
   label,
   value,
   onPress,
+  last,
 }: {
   label: string;
   value: string;
   onPress: () => void;
+  last: boolean;
 }) {
   const theme = useAppTheme();
   return (
@@ -32,14 +34,13 @@ function CurrencyFormatRow({
         paddingHorizontal: theme.space.lg,
         flexDirection: 'row',
         alignItems: 'center',
-        borderBottomWidth: theme.navigation.borderWidth,
+        borderBottomWidth: last ? theme.navigation.origin : theme.navigation.borderWidth,
         borderBottomColor: theme.colors.border,
-        backgroundColor: theme.colors.card,
         gap: theme.space.md,
       }}
     >
       <AppText muted style={{ flex: 1 }}>{label}</AppText>
-      <AppText style={{ flex: 2 }}>{value}</AppText>
+      <AppText style={{ flex: 1, textAlign: 'right' }}>{value}</AppText>
       <Svg
         width={theme.iconRoles.card}
         height={theme.iconRoles.card}
@@ -60,7 +61,56 @@ function CurrencyFormatRow({
   );
 }
 
-/** Strictly presentational: no navigation, storage, FX, amount math or workflow hooks. */
+function CurrencySettingsCard({
+  state,
+  onAction,
+}: {
+  state: MainCurrencyUiState;
+  onAction: (action: MainCurrencyAction) => void;
+}) {
+  const theme = useAppTheme();
+  return (
+    <View
+      style={{
+        marginHorizontal: theme.space.lg,
+        backgroundColor: theme.colors.card,
+        borderRadius: theme.radius.lg,
+        overflow: 'hidden',
+      }}
+    >
+      <View
+        style={{
+          minHeight: theme.buttons.minimumHeight,
+          paddingHorizontal: theme.space.lg,
+          paddingVertical: theme.space.sm,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottomWidth: theme.navigation.borderWidth,
+          borderBottomColor: theme.colors.border,
+          gap: theme.space.md,
+        }}
+      >
+        <AppText muted style={{ flex: 1 }}>{t('currencyPosition')}</AppText>
+        <CurrencyUnitPositionControl
+          value={state.unitPosition}
+          onChange={(value) => onAction({ type: 'position.select', value })}
+        />
+      </View>
+      {state.rows.map((row, index) => (
+        <CurrencyFormatRow
+          key={row.key}
+          label={row.label}
+          value={row.value}
+          last={index === state.rows.length - 1}
+          onPress={() => onAction({ type: 'open', sheet: row.key })}
+        />
+      ))}
+    </View>
+  );
+}
+
+/** Presentation only: no routing, data persistence or accounting math. */
 export function MainCurrencyScreen({
   state,
   onAction,
@@ -69,7 +119,7 @@ export function MainCurrencyScreen({
   onAction: (action: MainCurrencyAction) => void;
 }) {
   const theme = useAppTheme();
-  const sideWidth = theme.buttons.minimumHeight * 2;
+  const sideWidth = theme.buttons.minimumHeight + theme.space.md;
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
@@ -80,7 +130,6 @@ export function MainCurrencyScreen({
           flexDirection: 'row',
           minHeight: theme.buttons.minimumHeight,
           alignItems: 'center',
-          paddingHorizontal: theme.space.sm,
           borderBottomWidth: theme.navigation.borderWidth,
           borderBottomColor: theme.colors.border,
           backgroundColor: theme.colors.card,
@@ -93,9 +142,9 @@ export function MainCurrencyScreen({
           style={{
             width: sideWidth,
             minHeight: theme.buttons.minimumHeight,
-            paddingHorizontal: theme.space.sm,
-            flexDirection: 'row',
-            alignItems: 'center',
+            paddingLeft: theme.space.sm,
+            justifyContent: 'center',
+            alignItems: 'flex-start',
           }}
         >
           <Svg
@@ -127,7 +176,7 @@ export function MainCurrencyScreen({
             minHeight: theme.buttons.minimumHeight,
             justifyContent: 'center',
             alignItems: 'flex-end',
-            paddingHorizontal: theme.space.sm,
+            paddingRight: theme.space.sm,
           }}
         >
           <AppText style={{ color: theme.colors.brand }}>{t('currencyChange')}</AppText>
@@ -143,7 +192,6 @@ export function MainCurrencyScreen({
           style={{
             paddingVertical: theme.space.xxl,
             paddingHorizontal: theme.space.lg,
-            backgroundColor: theme.colors.card,
             alignItems: 'center',
             gap: theme.space.md,
           }}
@@ -151,40 +199,7 @@ export function MainCurrencyScreen({
           <AppText muted>{state.label}</AppText>
           <AppText variant="display">{state.preview}</AppText>
         </View>
-        <View style={{ gap: theme.space.sm }}>
-          <View style={{ paddingHorizontal: theme.space.lg }}>
-            <AppText variant="section">{t('currencyDisplayFormat')}</AppText>
-          </View>
-          <View
-            style={{
-              paddingVertical: theme.space.md,
-              paddingHorizontal: theme.space.lg,
-              backgroundColor: theme.colors.card,
-              borderBottomWidth: theme.navigation.borderWidth,
-              borderBottomColor: theme.colors.border,
-              gap: theme.space.md,
-            }}
-          >
-            <AppText>{t('currencyPosition')}</AppText>
-            <CurrencyUnitPositionControl
-              value={state.unitPosition}
-              onChange={(value) => onAction({ type: 'position.select', value })}
-            />
-          </View>
-          {state.rows.map((row) => (
-            <CurrencyFormatRow
-              key={row.key}
-              label={row.label}
-              value={row.value}
-              onPress={() => onAction({ type: 'open', sheet: row.key })}
-            />
-          ))}
-        </View>
-        <View style={{ paddingHorizontal: theme.space.lg, gap: theme.space.xs }}>
-          <AppText variant="caption" muted>{t('currencyLargePreview')}</AppText>
-          <AppText variant="section">{state.largePreview}</AppText>
-          <AppText variant="caption" muted>{t('currencyDisplayOnly')}</AppText>
-        </View>
+        <CurrencySettingsCard state={state} onAction={onAction} />
         {state.error ? (
           <View
             accessibilityLiveRegion="polite"

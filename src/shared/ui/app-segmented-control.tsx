@@ -16,10 +16,12 @@ export function AppSegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  compact = false,
 }: {
   options: readonly SegmentedOption<T>[];
   value: T;
   onChange: (next: T) => void;
+  compact?: boolean;
 }) {
   const theme = useAppTheme();
 
@@ -28,6 +30,7 @@ export function AppSegmentedControl<T extends string>({
       accessibilityRole="radiogroup"
       style={{
         flexDirection: 'row',
+        width: compact ? theme.segmentedControl.compactWidth : undefined,
         padding: theme.segmentedControl.inset,
         borderRadius: theme.segmentedControl.radius,
         backgroundColor: theme.colors.segmentedTrack,

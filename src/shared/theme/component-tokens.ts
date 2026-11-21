@@ -52,6 +52,7 @@ export const buttonTokens = {
 /** Rounded segmented selectors use the shared button touch size and existing spacing scale. */
 export const segmentedControlTokens = {
   minimumOptionHeight: buttonTokens.minimumHeight,
+  compactWidth: size.dp100 + size.dp8,
   inset: space.xxs,
   radius: radius.pill,
 } as const;

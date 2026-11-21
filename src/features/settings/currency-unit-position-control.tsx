@@ -12,6 +12,7 @@ export function CurrencyUnitPositionControl({
 }) {
   return (
     <AppSegmentedControl
+      compact
       value={value}
       onChange={onChange}
       options={[
