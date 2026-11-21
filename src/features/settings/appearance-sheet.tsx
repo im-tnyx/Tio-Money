@@ -120,8 +120,10 @@ export function AppearanceSheet({
             width: '100%',
             maxHeight: '90%',
             backgroundColor: theme.colors.card,
-            borderTopLeftRadius: theme.radius.md,
-            borderTopRightRadius: theme.radius.md,
+            borderTopLeftRadius: theme.radius.lg,
+            borderTopRightRadius: theme.radius.lg,
+            borderTopWidth: theme.navigation.borderWidth,
+            borderTopColor: theme.colors.border,
             overflow: 'hidden',
           }}
         >

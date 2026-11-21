@@ -94,3 +94,10 @@
 - **Technical PROCEED:** Keep `minHeight: theme.buttons.minimumHeight` (48dp), horizontal inset, bottom divider; center single title full width and delete unused X SVG. Preserve backdrop and Android Back dismissal; support iOS VoiceOver escape with `onAccessibilityEscape` for accessibility after removing visible X.
 - **Scope:** Sheet, Phase 0 structural tests, appearance guide and additive task/index checkpoint only. No theme state/store, other tabs, finance, native config, new dependency or privileged workflow edits.
 - **Safety:** Only guarded, non-force feature-branch commit on draft PR #18. Keep `tio-preview` absent; no Codespaces dispatch, EAS release or `main` merge. Exact-head CI and owner device test remain acceptance gates. Independent UI review deferred and no merge permission granted.
+
+## 2026-11-21 — Owner top-only outline and more rounded corners
+
+- **Owner direction:** Add a light outer top border, integrated with rounded top corners. The former 16dp rounding looked too subtle; increase to the shared 20dp radius.
+- **Technical PROCEED:** Set both sheet top radii to `theme.radius.lg` and only the top outer border to 1dp `theme.navigation.borderWidth` and semantic `theme.colors.border`. Keep existing clipping, centered 48dp header without X, drag indicator, divider and three accessible radio options. No side/bottom outer border or extra shadow.
+- **Quality fix:** Prior commit `76319588` failed Phase 0 Prettier on the appearance regression test. Simplify the escaped-quote assertion and assert the border/corner theme tokens. Require exact-head CI and device acceptance.
+- **Scope/security:** Feature UI, tests, docs and task/index records only. No ViewModel/store/finance changes, dependencies, native setup, CI workflow or EAS. Keep `tio-preview` absent before non-force PR branch push; no Codespaces dispatch, force push or PR #18 merge. Independent UI review deferred.

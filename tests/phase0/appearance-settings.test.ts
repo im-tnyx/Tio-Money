@@ -78,9 +78,12 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /onRequestClose=\{dismiss\}/);
   assert.match(sheet, /accessibilityViewIsModal/);
   assert.match(sheet, /onPress=\{dismiss\}/);
-  assert.match(sheet, /borderTopLeftRadius: theme\.radius\.md/);
-  assert.match(sheet, /borderTopRightRadius: theme\.radius\.md/);
-  assert.doesNotMatch(sheet, /borderTopLeftRadius: theme\.navigation\.origin/);
+  assert.match(sheet, /borderTopLeftRadius: theme\.radius\.lg/);
+  assert.match(sheet, /borderTopRightRadius: theme\.radius\.lg/);
+  assert.match(sheet, /borderTopWidth: theme\.navigation\.borderWidth/);
+  assert.match(sheet, /borderTopColor: theme\.colors\.border/);
+  assert.doesNotMatch(sheet, /borderLeftWidth: theme\.navigation\.borderWidth/);
+  assert.doesNotMatch(sheet, /borderRightWidth: theme\.navigation\.borderWidth/);
   assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1, textAlign: 'center' \}\}>/);
   assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
   assert.match(sheet, /onAccessibilityEscape=\{dismiss\}/);
@@ -93,7 +96,7 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.doesNotMatch(sheet, /marginBottom: theme\.space\.xxs/);
   assert.ok(
     sheet.indexOf('width: theme.space.xxxl') <
-      sheet.indexOf("<AppText variant=\"section\" style={{ flex: 1, textAlign: 'center' }}>"),
+      sheet.indexOf("textAlign: 'center'"),
     'compact drag handle must precede the centered header',
   );
   assert.doesNotMatch(sheet, /marginTop: theme\.space\.sm/);

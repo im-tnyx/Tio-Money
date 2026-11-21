@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 top border and 20dp rounded sheet corners
+
+- **Owner revision:** A subtle 1dp outer top-only border plus more prominent 20dp top corner radii, using semantic tokens and current clipping. Keep the compact handle, 48dp centered Appearance title without X, divider, modes and dismissal unchanged.
+- **Files:** Sheet presentation, appearance Phase 0 regression, feature documentation and assigned appearance task only. The previous HEAD `76319588` failed Phase 0 on test Prettier; simplify the offending escaped-string assertion as part of this scoped update.
+- **Safety:** Guarded non-force update to PR #18 branch; never merge to main or dispatch Codespaces/EAS. Keep `tio-preview` absent. Fresh exact-head CI and real-device visual/accessibility acceptance required; independent UI review deferred and no merge authorization.
+
+---
+
 ## 2026-11-21 — PR #18 title centered without X (same header height)
 
 - **Owner revision:** Remove the visible X button and center `Appearance` in the existing 48dp minimum-height sheet header. This supersedes prior left-title/X arrangement without disturbing the restored handle, rounded top corners, header divider or mode radio rows.
