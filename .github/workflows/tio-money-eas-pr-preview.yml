@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Open owner-authored PR targeting main (JS/assets-only change)
+        description: Open non-Draft owner-authored PR targeting main (src/assets only)
         required: true
         type: string
       operation:
@@ -65,7 +65,7 @@ jobs:
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
-          jq -e --arg repo "$GITHUB_REPOSITORY" '
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
             .state == "open" and
             .draft == false and
             .user.login == "im-tnyx" and
@@ -73,7 +73,14 @@ jobs:
             .base.repo.full_name == $repo and
             .base.ref == "main" and
             .head.sha != null and .base.sha != null
-          ' "$RUNNER_TEMP/pr.json" >/dev/null
+          ' "$RUNNER_TEMP/pr.json" >/dev/null; then
+            if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
+              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+            else
+              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+            fi
+            exit 1
+          fi
           echo "head_sha=$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
           echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
 
@@ -116,12 +123,14 @@ jobs:
             case "$path" in
               src/*|assets/*) ;;
               *)
-                echo "::error::Non-preview source/config change $path; requires separate review."
                 native_change=1
                 ;;
             esac
           done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
-          if [[ "$native_change" -ne 0 ]]; then exit 1; fi
+          if [[ "$native_change" -ne 0 ]]; then
+            echo "::error title=Source-only gate::EAS deployment accepts only src/ and assets/ changes. This PR also changes non-preview files. Use the trusted Codespaces preview for draft UI review or a separately reviewed source-only PR for OTA/build."
+            exit 1
+          fi
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then

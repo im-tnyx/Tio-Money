@@ -74,7 +74,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.match(dispatchInputs, /      pr_number:\n        description: Open owner-authored PR targeting main \(JS\/assets-only change\)\n        required: true\n        type: string\n/);
+  assert.match(dispatchInputs, /      pr_number:\n        description: Open non-Draft owner-authored PR targeting main \(src\/assets only\)\n        required: true\n        type: string\n/);
   assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
@@ -153,6 +153,10 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
   assert.match(workflow, /github\.run_attempt == '1'/);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.ok(workflow.includes('.draft == false'));
+  assert.ok(workflow.includes('if ! jq -e --arg repo "$GITHUB_REPOSITORY"'));
+  assert.ok(workflow.includes('::error title=Draft PR not eligible::'));
+  assert.ok(workflow.includes('::error title=Invalid PR selection::'));
+  assert.ok(workflow.includes('::error title=Source-only gate::'));
   assert.ok(workflow.includes('.head.repo.full_name == $repo'));
   assert.ok(workflow.includes('.base.ref == "main"'));
   assert.ok(workflow.includes('src/*|assets/*'));
