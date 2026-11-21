@@ -253,3 +253,21 @@ system bottom safe-area padding. The final row must be fully reachable
 without being covered or cut at the screen edge. Expansion may grow toward
 96% while preserving the top safe inset and theme gap. Verify on Android
 and iPhone before treating the visual/gesture behavior as accepted.
+
+## Main Currency Format: no Auto UI option; short-sheet bottom protection — 2026-11-21
+
+Format presents exactly **three options**: Millions Format, Lakhs Format and
+No Format. The underlying `grouping: 'auto'` remains an internal display
+default: INR resolves to Lakhs, all other Main currencies resolve to Millions.
+The Format card value and the selected option show the **resolved style**,
+without an Auto label or a fourth row. Choosing a style stores the explicit
+user selection until Main Currency changes. Ledger and FX behavior are not
+affected.
+
+The original 4dp visible handle, top margins and 48dp title area remain
+untouched. The shared `ScrollView` now reserves the actual measured safe-area
+bottom inset when limiting the scrolling viewport, keeps flex-grow disabled
+for content-sized sheets (Decimal and Format), and adds bottom inset to its
+existing scrollable end padding. The last option should remain reachable and
+fully readable above the bottom edge on Android and iOS. Physical-device
+safe-area and scroll-to-last-item QA is still required.

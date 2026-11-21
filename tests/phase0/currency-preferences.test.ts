@@ -345,9 +345,9 @@ test('TM-CUR-020: selected segment uses theme brand and is wider by 11.1 percent
   assert.match(control, /theme\.colors\.brandText\s*:\s*theme\.colors\.segmentedText/);
   assert.match(tokens, /compactWidth: size\.dp100 \+ size\.dp20/);
   assert.match(vm, /resolveNumberGrouping\(preferences\.mainCode, d\.grouping\)/);
-  assert.match(vm, /key: 'auto'/);
-  assert.equal(en.currencyAutoLakhs, 'Auto (Lakhs Format)');
-  assert.equal(en.currencyAutoMillions, 'Auto (Millions Format)');
+  assert.doesNotMatch(vm, /key: 'auto'|currencyAutoLakhs|currencyAutoMillions/);
+  assert.match(vm, /selected: effectiveGrouping === 'indian'/);
+  assert.match(vm, /selected: effectiveGrouping === 'international'/);
 });
 
 test('TM-CUR-021: decimal sheet contains only None and 1.0 through 1.000', () => {
@@ -393,4 +393,20 @@ test('TM-CUR-023: Change moves from top bar to the four-option settings card', (
   assert.match(header, /<View style=\{\{ width: sideWidth \}\} \/>/);
   assert.doesNotMatch(header, /accessibilityLabel=\{t\('currencyChange'\)\}/);
   assert.match(header, /minHeight: theme\.navigation\.topBarHeight/);
+});
+
+test('TM-CUR-024: Format sheet has three choices and resolves the currency default', () => {
+  const vm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  const start = vm.indexOf("} else if (sheetKind === 'grouping') {");
+  const groupingChoices = vm.slice(start, vm.indexOf('    return {', start));
+  assert.ok(start >= 0);
+  assert.equal(groupingChoices.match(/key: '/g)?.length, 3);
+  for (const mode of ['international', 'indian', 'none']) {
+    assert.ok(groupingChoices.includes("key: '" + mode + "'"));
+    assert.ok(groupingChoices.includes("selected: effectiveGrouping === '" + mode + "'"));
+  }
+  assert.doesNotMatch(groupingChoices, /key: 'auto'|label: autoLabel/);
+  assert.doesNotMatch(vm, /currencyAutoLakhs|currencyAutoMillions/);
+  assert.match(vm, /resolveNumberGrouping\(preferences\.mainCode, d\.grouping\)/);
+  assert.match(vm, /value:\s*effectiveGrouping === 'indian'/);
 });

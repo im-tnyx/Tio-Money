@@ -51,3 +51,17 @@ test('all sheets share one bottom-safe scroll area and expose final options', ()
   assert.equal(bottomSheetTokens.contentBottomPadding, 40);
   assert.equal(bottomSheetTokens.handleTouchHeight, 48);
 });
+
+test('short Decimal and Format sheets reserve bottom safe inset without clipping choices', () => {
+  const shell = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  const main = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
+  assert.match(shell, /top: topInset, bottom: bottomInset/);
+  assert.match(shell, /const contentMaxHeight = Math\.max\(/);
+  assert.match(shell, /maxHeight: contentMaxHeight/);
+  assert.match(shell, /flexGrow: expanded \|\| dragHeight !== null \? 1 : 0/);
+  assert.match(shell, /paddingBottom: sheet\.contentBottomPadding \+ bottomInset/);
+  assert.match(shell, /height: sheet\.handleHeight/);
+  assert.match(shell, /minHeight: sheet\.headerMinHeight/);
+  assert.match(main, /state\.choices\.map/);
+  assert.doesNotMatch(main, /maxHeight: '70%'|<ScrollView/);
+});

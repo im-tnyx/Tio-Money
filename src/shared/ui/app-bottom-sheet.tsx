@@ -62,7 +62,7 @@ function SheetSurface({
   const theme = useAppTheme();
   const sheet = theme.bottomSheet;
   const { height: windowHeight } = useWindowDimensions();
-  const { top: topInset } = useSafeAreaInsets();
+  const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
   const [viewportHeight, setViewportHeight] = useState(windowHeight);
   const [expanded, setExpanded] = useState(false);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
@@ -71,6 +71,18 @@ function SheetSurface({
 
   const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet);
   const { collapsedMax, expandedMax } = limits;
+  const visibleMaxHeight = dragHeight ?? (expanded ? expandedMax : collapsedMax);
+  // Reserve the original handle/header geometry and the OS bottom inset.
+  const contentMaxHeight = Math.max(
+    0,
+    visibleMaxHeight -
+      sheet.handleHeight -
+      sheet.handleTopMargin -
+      sheet.handleBottomMargin -
+      sheet.headerMinHeight -
+      sheet.headerDividerWidth -
+      bottomInset,
+  );
   const touchStartY = useRef(0);
 
   return (
@@ -137,8 +149,12 @@ function SheetSurface({
         <ScrollView
           nestedScrollEnabled
           keyboardShouldPersistTaps="handled"
-          style={{ flexShrink: 1, flexGrow: expanded || dragHeight !== null ? 1 : undefined }}
-          contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding }}
+          style={{
+            flexShrink: 1,
+            flexGrow: expanded || dragHeight !== null ? 1 : 0,
+            maxHeight: contentMaxHeight,
+          }}
+          contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding + bottomInset }}
         >
           {children}
         </ScrollView>

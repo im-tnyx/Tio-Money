@@ -85,8 +85,6 @@ export function useMainCurrencyViewModel(): {
   const state = useMemo<MainCurrencyUiState>(() => {
     const d = preferences.display;
     const effectiveGrouping = resolveNumberGrouping(preferences.mainCode, d.grouping);
-    const autoLabel =
-      effectiveGrouping === 'indian' ? t('currencyAutoLakhs') : t('currencyAutoMillions');
     // Preserve native minor-digit defaults without exposing a separate sheet option.
     const displayedDigits =
       d.decimalDigits === 'currency'
@@ -101,13 +99,11 @@ export function useMainCurrencyViewModel(): {
         key: 'grouping',
         label: t('currencyFormat'),
         value:
-          d.grouping === 'auto'
-            ? autoLabel
-            : d.grouping === 'indian'
-              ? t('currencyLakhs')
-              : d.grouping === 'international'
-                ? t('currencyMillions')
-                : t('currencyNoFormat'),
+          effectiveGrouping === 'indian'
+            ? t('currencyLakhs')
+            : effectiveGrouping === 'international'
+              ? t('currencyMillions')
+              : t('currencyNoFormat'),
       },
     ] as const;
     let choices: readonly MainCurrencyChoiceRow[] = [];
@@ -128,27 +124,21 @@ export function useMainCurrencyViewModel(): {
     } else if (sheetKind === 'grouping') {
       choices = [
         {
-          key: 'auto',
-          label: autoLabel,
-          selected: d.grouping === 'auto',
-          choice: { kind: 'grouping', value: 'auto' },
-        },
-        {
           key: 'international',
           label: t('currencyMillionsExample'),
-          selected: d.grouping === 'international',
+          selected: effectiveGrouping === 'international',
           choice: { kind: 'grouping', value: 'international' },
         },
         {
           key: 'indian',
           label: t('currencyLakhsExample'),
-          selected: d.grouping === 'indian',
+          selected: effectiveGrouping === 'indian',
           choice: { kind: 'grouping', value: 'indian' },
         },
         {
           key: 'none',
           label: t('currencyNoFormatExample'),
-          selected: d.grouping === 'none',
+          selected: effectiveGrouping === 'none',
           choice: { kind: 'grouping', value: 'none' },
         },
       ] as const;
