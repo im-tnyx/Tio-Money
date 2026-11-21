@@ -48,7 +48,7 @@ test('TM-CUR-034: individual Sub display changes persist without touching Main d
 test('TM-CUR-035: Sub detail preview shows symbols and exact six-decimal FX only', () => {
   const preferences = addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
   assert.deepEqual(formatSubCurrencyDetailPreview(preferences, 'USD', 92.680507), {
-    subPreview: 'US$ 1.00',
+    subPreview: 'US' + String.fromCharCode(36) + ' 1.00',
     mainPreview: '₹ 92.680507',
   });
   const changed = withSubCurrencyDisplay(preferences, 'USD', {
@@ -56,7 +56,7 @@ test('TM-CUR-035: Sub detail preview shows symbols and exact six-decimal FX only
     decimalDigits: 0,
   });
   assert.deepEqual(formatSubCurrencyDetailPreview(changed, 'USD', 92.680507), {
-    subPreview: '1 US
+    subPreview: '1 US' + String.fromCharCode(36),
     mainPreview: '₹ 92.680507',
   });
   assert.equal(formatSubCurrencyDetailPreview(changed, 'USD', null).mainPreview, '₹ —');
@@ -94,61 +94,7 @@ test('TM-CUR-039: USD and INR labels align above their values, with stable setti
   const overviewStart = sheet.indexOf('      {detail && !decimalMode ? (');
   const preview = sheet.slice(
     overviewStart,
-    sheet.indexOf('backgroundColor: theme.colors.card', overviewStart),
-  );
-  assert.match(preview, /\{detail.label\}/);
-  assert.match(preview, /\{detail.subPreview\}/);
-  assert.match(preview, /\{state.mainCode\}/);
-  assert.match(preview, /\{detail.mainPreview\}/);
-  assert.equal((preview.match(/flex: 0\.9/g) ?? []).length, 2);
-  assert.equal((preview.match(/flex: 1\.25/g) ?? []).length, 2);
-  assert.equal((preview.match(/width: theme.space.xxl/g) ?? []).length, 2);
-  assert.match(preview, /numberOfLines=\{1\}/);
-  assert.match(preview, /adjustsFontSizeToFit/);
-  assert.match(preview, /minimumFontScale=\{0\.6\}/);
-  assert.equal((sheet.match(/width: '34%'/g) ?? []).length, 3);
-  assert.match(appText, /adjustsFontSizeToFit=\{adjustsFontSizeToFit\}/);
-  assert.match(appText, /minimumFontScale=\{minimumFontScale\}/);
-});
-,
-    mainPreview: '₹ 92.680507',
-  });
-  assert.equal(formatSubCurrencyDetailPreview(changed, 'USD', null).mainPreview, '₹ —');
-  assert.equal(formatSubCurrencyDetailPreview(changed, 'USD', Number.NaN).mainPreview, '₹ —');
-});
-
-test('TM-CUR-036: tap opens detail sheet with refresh and decimal choices', () => {
-  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
-  const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
-  const add = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
-  const controller = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
-  const provider = readFileSync('src/shared/currency/currency-provider.tsx', 'utf8');
-  assert.match(screen, /type: 'detail.open', code: item.code/);
-  assert.match(screen, /disabled=\{state.editing\}/);
-  assert.match(screen, /<SubCurrencyDetailSheet state=\{state\} onAction=\{onAction\} \/>/);
-  assert.match(sheet, /<AppBottomSheet/);
-  assert.match(sheet, /<CurrencyUnitPositionControl/);
-  assert.match(sheet, /type: 'detail.refresh'/);
-  assert.match(sheet, /type: 'detail.position.select'/);
-  assert.match(sheet, /type: 'detail.decimal.open'/);
-  assert.match(sheet, /type: 'detail.decimal.select'/);
-  assert.match(sheet, /state.detailMode === 'decimal'/);
-  assert.match(sheet, /accessibilityRole="radio"/);
-  assert.doesNotMatch(add, /currencyFxExchangeRate|detail.refresh|CurrencyUnitPositionControl/);
-  assert.match(controller, /getReferenceRate\(detailCode, main\)/);
-  assert.match(controller, /setRefreshingPair\(pair\)/);
-  assert.match(controller, /generation !== refreshRequest.current/);
-  assert.match(controller, /updateSubDisplay\(detailCode/);
-  assert.match(provider, /withSubCurrencyDisplay\(current.current, code, patch\)/);
-});
-
-test('TM-CUR-039: USD and INR labels align above their values, with stable setting columns', () => {
-  const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
-  const appText = readFileSync('src/shared/ui/app-text.tsx', 'utf8');
-  const overviewStart = sheet.indexOf('      {detail && !decimalMode ? (');
-  const preview = sheet.slice(
-    overviewStart,
-    sheet.indexOf('backgroundColor: theme.colors.card', overviewStart),
+    sheet.indexOf('backgroundColor: theme.colors.elevated', overviewStart),
   );
   assert.match(preview, /\{detail.label\}/);
   assert.match(preview, /\{detail.subPreview\}/);
@@ -165,14 +111,27 @@ test('TM-CUR-039: USD and INR labels align above their values, with stable setti
   assert.match(appText, /minimumFontScale=\{minimumFontScale\}/);
 });
 
-test('TM-CUR-040: USD reference caption uses USA and US$ only in detail, not saved catalog', () => {
-  assert.equal(formatSubCurrencyDetailCaption('USD'), 'USD - USA (US$)');
+test('TM-CUR-040: short USD detail caption and its special symbol are presentation-only', () => {
+  assert.equal(
+    formatSubCurrencyDetailCaption('USD'),
+    'USD - USA (US' + String.fromCharCode(36) + ')',
+  );
   assert.equal(formatSubCurrencyDetailCaption('EUR'), 'EUR – Euro Area (€)');
   const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
-  const controller = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   assert.match(sheet, /minimumFontScale=\{0\.7\}/);
   assert.match(sheet, /numberOfLines=\{1\}/);
-  assert.match(sheet, /\{detail.label\}/);
-  assert.match(controller, /label: formatSubCurrencyDetailCaption\(selectedDetail.code\)/);
-  assert.match(controller, /selected.push\(\{ code, label: currencyLabel\(code\)/);
+  assert.match(vm, /formatSubCurrencyDetailCaption\(selectedDetail.code\)/);
+  assert.match(vm, /selected.push\(\{ code, label: currencyLabel\(code\)/);
+});
+
+test('TM-CUR-041: the preview and settings panel use different semantic theme surfaces', () => {
+  const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
+  const first = sheet.indexOf('backgroundColor: theme.colors.card');
+  const second = sheet.indexOf('backgroundColor: theme.colors.elevated', first);
+  assert.ok(first >= 0 && second > first);
+  assert.match(sheet, /borderTopWidth: theme.navigation.borderWidth/);
+  assert.doesNotMatch(sheet, /#[0-9A-Fa-f]{6}/);
+  const tokens = readFileSync('src/shared/theme/tokens.ts', 'utf8');
+  assert.match(tokens, /elevated: /);
 });

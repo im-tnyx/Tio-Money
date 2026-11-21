@@ -478,3 +478,14 @@ on compact devices. Other currency captions and the saved Sub Currency
 list retain their existing metadata, and the shared currency catalog,
 ISO identity, persistence, FX pair/rates and financial amounts remain
 unchanged.
+
+## Sub Currency detail two-tone panel — 2026-11-21
+
+Match the reference using the existing light/dark semantic palette:
+the currency conversion preview uses `theme.colors.card` while the
+settings section uses `theme.colors.elevated`, separated by the
+tokenized divider. The default reusable sheet header, drag handle,
+safe area and other sheets remain unchanged; no screenshot color
+values are hardcoded. USD's short display-only caption is
+`USD - USA (US$)` and its displayed amount uses `US$`.
+The shared ISO metadata, stored settings and FX pair/rate are intact.

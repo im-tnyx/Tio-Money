@@ -83,6 +83,7 @@ export function SubCurrencyDetailSheet({
             style={{
               paddingHorizontal: theme.space.lg,
               paddingVertical: theme.space.xl,
+              backgroundColor: theme.colors.card,
               gap: theme.space.xs,
             }}
           >
@@ -146,7 +147,7 @@ export function SubCurrencyDetailSheet({
           </View>
           <View
             style={{
-              backgroundColor: theme.colors.card,
+              backgroundColor: theme.colors.elevated,
               borderTopWidth: theme.navigation.borderWidth,
               borderColor: theme.colors.border,
             }}
