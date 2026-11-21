@@ -105,3 +105,22 @@ status; preceding Main/Sub zero-gap test `TM-CUR-048` Prettier formatting
 was corrected following CI failure. Exact-HEAD Phase 0/governance checks
 and physical iOS/Android refreshed-state QA remain evidence gates.
 PR #53 MERGE_AUTHORIZATION=NOT_GRANTED.
+
+## 2026-11-22 — Owner requested per-Sub stale-check hint (PR #53, unmerged)
+
+[Agent-transcribed owner discussion / technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068050333).
+Show small `Checked D MMM / Refresh now` text on **right side of the
+existing Sub row** only when its FX pair has not been successfully checked
+today (local calendar date), or cache/failure still requires retry.
+No extra card height or new sheet; one tap performs a manual, saved-pair-only
+refresh through the shared FX provider and its in-flight deduplication.
+The provider's publication date is NOT used for this check (weekends and
+holidays may publish no new rate). On success the hint disappears; on
+failure retry stays available; pressing retry shows `Checking…` and
+blocks repeated taps. Foreground only updates screen freshness time,
+not network polling. Tests `TM-CUR-050` and `TM-CUR-051` cover
+local-date/weekend/failure cases and card/controller boundaries.
+Last successful quote and cache remain intact; no financial conversion
+or permissions/dependencies/workflows changes. Review exact-head CI and
+physical Android/iOS narrow-row/swipe/accessibility acceptance before
+any merge; PR #53 merge authorization NOT_GRANTED.
