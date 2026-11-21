@@ -1,0 +1,83 @@
+# One-time, unprivileged read-only audit of the PR #60 EAS CLI lockfile.
+# Audit only. NO package install, EAS CLI execution, token, preview, publish or merge.
+name: EAS CLI moderate advisory inventory (diagnostic only)
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - security/eas-cli-advisory-gate-59-20261122
+permissions:
+  contents: read
+jobs:
+  inventory:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'audit/eas-moderate-diagnostic-20261122' && github.event.pull_request.base.ref == 'security/eas-cli-advisory-gate-59-20261122' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      NPM_CONFIG_IGNORE_SCRIPTS: 'true'
+      NPM_CONFIG_AUDIT: 'false'
+      NODE_AUTH_TOKEN: ''
+      EXPO_TOKEN: ''
+      GITHUB_TOKEN: ''
+    steps:
+      - name: Checkout test merge tree, without persistent credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Read official npm audit without installing anything
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd .github/preview-eas-cli
+          set +e
+          npm audit --json --package-lock-only --registry=https://registry.npmjs.org > "$RUNNER_TEMP/eas-audit.json"
+          audit_rc=$?
+          set -e
+          if (( audit_rc > 1 )); then
+            echo "::error::npm audit failed unexpectedly (exit $audit_rc)"
+            exit "$audit_rc"
+          fi
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const report = JSON.parse(readFileSync(process.env.RUNNER_TEMP + '/eas-audit.json', 'utf8'));
+          const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+          const counts = report.metadata?.vulnerabilities;
+          if (!counts || !Number.isInteger(counts.moderate) || !report.vulnerabilities) {
+            throw new Error('npm returned incomplete audit response');
+          }
+          const findings = Object.entries(report.vulnerabilities)
+            .filter(([, finding]) => finding.severity === 'moderate')
+            .map(([name, finding]) => ({
+              package: name,
+              severity: finding.severity,
+              direct: Boolean(finding.isDirect),
+              installed: (finding.nodes || []).map((path) => ({
+                path,
+                version: lock.packages?.[path]?.version ?? 'UNKNOWN',
+              })),
+              affectedRange: finding.range,
+              ghsa: (finding.via || [])
+                .filter((via) => via !== null && typeof via === 'object')
+                .map(({ title, url, range, severity, source }) => ({
+                  title, url, range, severity, source,
+                })),
+              viaPackages: (finding.via || []).filter((via) => typeof via === 'string'),
+              effects: finding.effects || [],
+              fixAvailable: finding.fixAvailable,
+            })).sort((a,b)=>a.package.localeCompare(b.package));
+          console.log('AUDIT_SUMMARY=' + JSON.stringify(counts));
+          for (const entry of findings) {
+            console.log('MODERATE_FINDING=' + JSON.stringify(entry));
+          }
+          console.log('MODERATE_FINDING_COUNT=' + findings.length);
+          if (findings.length !== counts.moderate) {
+            throw new Error('npm metadata count differs from finding entries');
+          }
+          if (counts.high || counts.critical) {
+            throw new Error('Regressed: High or Critical advisories reappeared');
+          }
+          NODE
