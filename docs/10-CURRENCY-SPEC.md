@@ -19,6 +19,17 @@
 
 **Unmerged PR #53 display UI refinement (2026-11-21):** More contains separate Currency section with Main Currency route and Sub Currency picker. Main Currency has Back/centered title/Change and large sample, Front/End inline radio buttons, Decimal Point, Indian/International Number Format and Large Numbers shared bottom sheets. This is a pure, versioned local display preference (with legacy Main/Sub values preserved), not an FX or canonical ledger-format change. [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54). Exact-head CI and on-device a11y acceptance are pending.
 
+**Currency-dependent format default (PR #53):** On a real **Main Currency change**,
+the grouping preference returns to **Auto**: INR displays Indian lakh/crore
+separators (e.g. `12,34,567.89`), every other currently selectable currency
+displays international million grouping (e.g. `1,234,567.89`). Users can
+override to Millions, Lakhs or No Format in the existing Format bottom sheet;
+the override remains effective until they select a different Main Currency.
+Selecting the same currency again preserves an existing manual choice.
+Unit Position, Decimal Point and optional Sub Currency settings do not change
+except that a Sub equal to the new Main is cleared. This affects display
+preferences only, never the exact native ledger amount or FX behavior.
+
 **Preference foundation only:** a local versioned kv-store key and root-provided global hook let future finance controllers consume the same selection. Initial curated ISO-labelled codes are **display settings**, not a list approved for financial posting/FX quotes. Existing four finance screens remain blank. A Main/Sub collision clears Sub. Rate and accounting requirements below remain blocked by TM-ADR-018/023.
 
 ## 01 · Main and Sub Currency behavior

@@ -312,7 +312,29 @@ test('TM-CUR-019: default Auto follows INR lakhs and other currencies millions',
   assert.equal(formatCurrencyExample(manualIndian, 1234567.89), '$ 12,34,567.89');
   const manualMillions = withCurrencyDisplay(main, { grouping: 'international' });
   assert.equal(formatCurrencyExample(manualMillions, 1234567.89), '₹ 1,234,567.89');
-  assert.equal(withMainCurrency(manualIndian, 'EUR').display.grouping, 'indian');
+  const euro = withMainCurrency(manualIndian, 'EUR');
+  assert.equal(euro.display.grouping, 'auto');
+  assert.equal(formatCurrencyExample(euro, 1234567.89), '€ 1,234,567.89');
+  const rupeesAgain = withMainCurrency(euro, 'INR');
+  assert.equal(rupeesAgain.display.grouping, 'auto');
+  assert.equal(formatCurrencyExample(rupeesAgain, 1234567.89), '₹ 12,34,567.89');
+  const dollarsAfterOverride = withMainCurrency(manualMillions, 'USD');
+  assert.equal(dollarsAfterOverride.display.grouping, 'auto');
+  assert.equal(formatCurrencyExample(dollarsAfterOverride, 1234567.89), '$ 1,234,567.89');
+  // Re-selecting the current currency must not silently erase a manual choice.
+  assert.equal(withMainCurrency(manualIndian, 'USD').display.grouping, 'indian');
+  // Currency changes must not reset the separate unit-position or decimal settings.
+  const custom = withCurrencyDisplay(main, {
+    unitPosition: 'end',
+    decimalDigits: 1,
+    grouping: 'none',
+  });
+  const changed = withMainCurrency(custom, 'EUR');
+  assert.deepEqual(changed.display, {
+    unitPosition: 'end',
+    decimalDigits: 1,
+    grouping: 'auto',
+  });
 });
 
 test('TM-CUR-020: selected segment uses theme brand and is wider by 11.1 percent', () => {

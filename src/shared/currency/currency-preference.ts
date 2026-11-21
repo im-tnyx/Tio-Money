@@ -59,7 +59,8 @@ export function isCurrencyDisplayPreferences(value: unknown): value is CurrencyD
 
 /**
  * Automatic display grouping: INR uses lakhs, all other selectable currencies
- * use international millions. Explicit user choices always take precedence.
+ * use international millions. An explicit user choice takes precedence until
+ * Main Currency changes again; a new Main selection resets grouping to Auto.
  */
 export function resolveNumberGrouping(
   mainCode: CurrencyCode,
@@ -123,6 +124,10 @@ export function withMainCurrency(
     ...current,
     mainCode,
     subCode: current.subCode === mainCode ? null : current.subCode,
+    // A genuinely new Main Currency starts with its own INR/other Auto format.
+    // Explicit manual grouping stays in effect until the user changes Main again.
+    display:
+      mainCode === current.mainCode ? current.display : { ...current.display, grouping: 'auto' },
   };
 }
 
