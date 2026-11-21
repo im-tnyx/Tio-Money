@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-22 — PR #53 inline Sub FX stale-check indicator (unmerged)
+
+- **Decision:** [owner-requested PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068050333) — small right-side `Checked / Refresh now` CTA in existing Sub card when today's *successful network check* is missing; provider publication date may lag (weekend), so never conflate the two.
+- **Scope:** pure local calendar helper, typed controller/manual saved-pair action and existing dumb Sub screen (same card height), tests/docs only. No automatic foreground FX request or changes to provider endpoint, ledger, Auth, secrets, permissions or EAS.
+- **Gate:** exact final-HEAD CI/governance, phone UI/swipe accessibility, no PR #53 merge permission. [Task](tasks/product/more-currency-preferences-20261121.md).
+
 ## 2026-11-22 — PR #53 Sub FX Refresh result auto-hides after 3 seconds (unmerged)
 
 - **Owner direction / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067991690); successful `Checked / unchanged` or `Reference rate updated` feedback in the Sub Currency Detail Sheet disappears after 3000ms; errors remain until retry/dismiss.
