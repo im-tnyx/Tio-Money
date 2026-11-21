@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { t } from '@/shared/i18n/strings';
@@ -148,7 +148,9 @@ export function SubCurrencyDetailSheet({
               </AppText>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={t('currencyFxRefresh')}
+                accessibilityLabel={t(
+                  detail.refreshing ? 'currencyFxChecking' : 'currencyFxRefresh',
+                )}
                 accessibilityState={{ disabled: detail.refreshing }}
                 disabled={detail.refreshing}
                 onPress={() => onAction({ type: 'detail.refresh' })}
@@ -162,24 +164,50 @@ export function SubCurrencyDetailSheet({
                     : theme.buttons.enabledOpacity,
                 }}
               >
-                <Svg
-                  width={theme.iconRoles.button}
-                  height={theme.iconRoles.button}
-                  viewBox="0 0 24 24"
-                  accessibilityElementsHidden
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  <Path
-                    d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"
-                    fill="none"
-                    stroke={theme.colors.primaryText}
-                    strokeWidth={theme.icons.stroke}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </Svg>
+                {detail.refreshing ? (
+                  <ActivityIndicator size="small" color={theme.colors.primaryText} />
+                ) : (
+                  <Svg
+                    width={theme.iconRoles.button}
+                    height={theme.iconRoles.button}
+                    viewBox="0 0 24 24"
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                  >
+                    <Path
+                      d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"
+                      fill="none"
+                      stroke={theme.colors.primaryText}
+                      strokeWidth={theme.icons.stroke}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                )}
               </Pressable>
             </View>
+            {detail.refreshStatus ? (
+              <View
+                accessibilityLiveRegion="polite"
+                style={{
+                  paddingHorizontal: theme.space.lg,
+                  paddingVertical: theme.space.xs,
+                  borderBottomWidth: theme.navigation.borderWidth,
+                  borderBottomColor: theme.colors.border,
+                }}
+              >
+                <AppText
+                  variant="caption"
+                  style={{
+                    color: detail.refreshError
+                      ? theme.colors.expense
+                      : theme.colors.secondaryText,
+                  }}
+                >
+                  {detail.refreshStatus}
+                </AppText>
+              </View>
+            ) : null}
             <View
               style={{
                 minHeight: theme.buttons.minimumHeight,
@@ -244,14 +272,12 @@ export function SubCurrencyDetailSheet({
           </View>
         </>
       ) : null}
-      {detail?.refreshError || state.error ? (
+      {state.error ? (
         <View
           accessibilityLiveRegion="polite"
           style={{ paddingHorizontal: theme.space.lg, paddingVertical: theme.space.sm }}
         >
-          <AppText style={{ color: theme.colors.expense }}>
-            {detail?.refreshError ?? state.error}
-          </AppText>
+          <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
         </View>
       ) : null}
     </AppBottomSheet>
