@@ -233,8 +233,8 @@ test('TM-CUR-014: image-style Front/End pill selector shares themed semantic tok
   assert.match(control, /flex: 1/);
   assert.match(control, /theme\.segmentedControl\.radius/);
   assert.match(control, /theme\.colors\.segmentedTrack/);
-  assert.match(control, /theme\.colors\.segmentedSelected/);
-  assert.match(control, /theme\.colors\.segmentedSelectedText/);
+  assert.match(control, /theme\.colors\.brand/);
+  assert.match(control, /theme\.colors\.brandText/);
   assert.match(tokens, /minimumOptionHeight: buttonTokens\.minimumHeight/);
   assert.match(tokens, /radius: radius\.pill/);
   assert.match(theme, /segmentedControl: segmentedControlTokens/);
@@ -264,7 +264,7 @@ test('TM-CUR-016: unit position is a compact right-side selector in the same row
   assert.match(screen, /<CurrencyUnitPositionControl/);
   assert.match(unit, /<AppSegmentedControl\s+compact/);
   assert.match(segmented, /compact \? theme\.segmentedControl\.compactWidth/);
-  assert.match(tokens, /compactWidth: size\.dp100 \+ size\.dp8/);
+  assert.match(tokens, /compactWidth: size\.dp100 \+ size\.dp20/);
   assert.match(tokens, /minimumOptionHeight: buttonTokens\.minimumHeight/);
   assert.match(tokens, /compactOptionHeight: size\.dp24/);
   assert.match(segmented, /theme\.segmentedControl\.compactOptionHeight/);
@@ -292,9 +292,36 @@ test('TM-CUR-018: None decimal option displays exactly 1, never 1.0', () => {
   assert.equal(previewWithDecimals(1), '₹ 1.0');
   assert.equal(previewWithDecimals(2), '₹ 1.00');
   assert.equal(previewWithDecimals(3), '₹ 1.000');
-  assert.equal(en.currencyDecimalNone, 'None (1)');
+  assert.equal(en.currencyDecimalNone, 'None');
   assert.equal(en.currencyDecimalOne, '1 decimal (1.0)');
   assert.match(vm, /value: 0/);
   assert.match(vm, /currencyDecimalNone/);
   assert.doesNotMatch(vm, /\{ label: '1\.0', value: 0 \}/);
+});
+
+test('TM-CUR-019: default Auto follows INR lakhs and other currencies millions', () => {
+  const main = DEFAULT_CURRENCY_PREFERENCES;
+  assert.equal(main.display.grouping, 'auto');
+  assert.equal(formatCurrencyExample(main, 1234567.89), '₹ 12,34,567.89');
+  const dollars = withMainCurrency(main, 'USD');
+  assert.equal(dollars.display.grouping, 'auto');
+  assert.equal(formatCurrencyExample(dollars, 1234567.89), '$ 1,234,567.89');
+  const manualIndian = withCurrencyDisplay(dollars, { grouping: 'indian' });
+  assert.equal(formatCurrencyExample(manualIndian, 1234567.89), '$ 12,34,567.89');
+  const manualMillions = withCurrencyDisplay(main, { grouping: 'international' });
+  assert.equal(formatCurrencyExample(manualMillions, 1234567.89), '₹ 1,234,567.89');
+  assert.equal(withMainCurrency(manualIndian, 'EUR').display.grouping, 'indian');
+});
+
+test('TM-CUR-020: selected segment uses theme brand and is wider by 11.1 percent', () => {
+  const control = readFileSync('src/shared/ui/app-segmented-control.tsx', 'utf8');
+  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+  const vm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  assert.match(control, /theme\.colors\.brand\s*:\s*theme\.colors\.segmentedTrack/);
+  assert.match(control, /theme\.colors\.brandText\s*:\s*theme\.colors\.segmentedText/);
+  assert.match(tokens, /compactWidth: size\.dp100 \+ size\.dp20/);
+  assert.match(vm, /resolveNumberGrouping\(preferences\.mainCode, d\.grouping\)/);
+  assert.match(vm, /key: 'auto'/);
+  assert.equal(en.currencyAutoLakhs, 'Auto (Lakhs Format)');
+  assert.equal(en.currencyAutoMillions, 'Auto (Millions Format)');
 });

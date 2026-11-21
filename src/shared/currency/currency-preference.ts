@@ -25,7 +25,7 @@ export const CURRENCY_OPTIONS = [
 export type CurrencyCode = (typeof CURRENCY_OPTIONS)[number]['code'];
 
 export type UnitPosition = 'front' | 'end';
-export type NumberGrouping = 'indian' | 'international' | 'none';
+export type NumberGrouping = 'auto' | 'indian' | 'international' | 'none';
 export type DecimalDigits = 'currency' | 0 | 1 | 2 | 3;
 
 export interface CurrencyDisplayPreferences {
@@ -37,7 +37,7 @@ export interface CurrencyDisplayPreferences {
 export const DEFAULT_CURRENCY_DISPLAY: CurrencyDisplayPreferences = {
   unitPosition: 'front',
   decimalDigits: 'currency',
-  grouping: 'indian',
+  grouping: 'auto',
 };
 
 export function isCurrencyDisplayPreferences(value: unknown): value is CurrencyDisplayPreferences {
@@ -50,10 +50,23 @@ export function isCurrencyDisplayPreferences(value: unknown): value is CurrencyD
       candidate.decimalDigits === 1 ||
       candidate.decimalDigits === 2 ||
       candidate.decimalDigits === 3) &&
-    (candidate.grouping === 'indian' ||
+    (candidate.grouping === 'auto' ||
+      candidate.grouping === 'indian' ||
       candidate.grouping === 'international' ||
       candidate.grouping === 'none')
   );
+}
+
+/**
+ * Automatic display grouping: INR uses lakhs, all other selectable currencies
+ * use international millions. Explicit user choices always take precedence.
+ */
+export function resolveNumberGrouping(
+  mainCode: CurrencyCode,
+  grouping: NumberGrouping,
+): 'indian' | 'international' | 'none' {
+  if (grouping === 'auto') return mainCode === 'INR' ? 'indian' : 'international';
+  return grouping;
 }
 
 export interface CurrencyPreferences {

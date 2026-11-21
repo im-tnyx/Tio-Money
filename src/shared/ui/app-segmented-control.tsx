@@ -59,16 +59,14 @@ export function AppSegmentedControl<T extends string>({
                 ? theme.segmentedControl.compactOptionHeight
                 : theme.segmentedControl.minimumOptionHeight,
               borderRadius: theme.segmentedControl.radius,
-              backgroundColor: selected
-                ? theme.colors.segmentedSelected
-                : theme.colors.segmentedTrack,
+              backgroundColor: selected ? theme.colors.brand : theme.colors.segmentedTrack,
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
             <AppText
               style={{
-                color: selected ? theme.colors.segmentedSelectedText : theme.colors.segmentedText,
+                color: selected ? theme.colors.brandText : theme.colors.segmentedText,
               }}
             >
               {option.label}

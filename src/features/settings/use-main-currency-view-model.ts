@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import {
   CURRENCY_OPTIONS,
+  resolveNumberGrouping,
   type CurrencyDisplayPreferences,
 } from '@/shared/currency/currency-preference';
 import {
@@ -84,6 +85,9 @@ export function useMainCurrencyViewModel(): {
 
   const state = useMemo<MainCurrencyUiState>(() => {
     const d = preferences.display;
+    const effectiveGrouping = resolveNumberGrouping(preferences.mainCode, d.grouping);
+    const autoLabel =
+      effectiveGrouping === 'indian' ? t('currencyAutoLakhs') : t('currencyAutoMillions');
     const decimalLabel =
       d.decimalDigits === 'currency'
         ? t('currencyDefaultDigits')
@@ -95,11 +99,13 @@ export function useMainCurrencyViewModel(): {
         key: 'grouping',
         label: t('currencyFormat'),
         value:
-          d.grouping === 'indian'
-            ? t('currencyLakhs')
-            : d.grouping === 'international'
-              ? t('currencyMillions')
-              : t('currencyNoFormat'),
+          d.grouping === 'auto'
+            ? autoLabel
+            : d.grouping === 'indian'
+              ? t('currencyLakhs')
+              : d.grouping === 'international'
+                ? t('currencyMillions')
+                : t('currencyNoFormat'),
       },
     ] as const;
     let choices: readonly MainCurrencyChoiceRow[] = [];
@@ -119,6 +125,12 @@ export function useMainCurrencyViewModel(): {
       }));
     } else if (sheetKind === 'grouping') {
       choices = [
+        {
+          key: 'auto',
+          label: autoLabel,
+          selected: d.grouping === 'auto',
+          choice: { kind: 'grouping', value: 'auto' },
+        },
         {
           key: 'international',
           label: t('currencyMillionsExample'),

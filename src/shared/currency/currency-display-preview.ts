@@ -1,4 +1,8 @@
-import { CURRENCY_OPTIONS, type CurrencyPreferences } from './currency-preference';
+import {
+  CURRENCY_OPTIONS,
+  resolveNumberGrouping,
+  type CurrencyPreferences,
+} from './currency-preference';
 
 /**
  * Illustrative UI preview only. Never pass booked ledger money through JS number,
@@ -17,11 +21,12 @@ export function formatCurrencyExample(
     preferences.display.decimalDigits === 'currency'
       ? option.minorDigits
       : preferences.display.decimalDigits;
-  const locale = preferences.display.grouping === 'indian' ? 'en-IN' : 'en-US';
+  const grouping = resolveNumberGrouping(preferences.mainCode, preferences.display.grouping);
+  const locale = grouping === 'indian' ? 'en-IN' : 'en-US';
   const number = new Intl.NumberFormat(locale, {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
-    useGrouping: preferences.display.grouping !== 'none',
+    useGrouping: grouping !== 'none',
   }).format(Math.abs(illustrativeAmount));
   const signed = illustrativeAmount < 0 ? '-' : '';
   const formatted = number;
