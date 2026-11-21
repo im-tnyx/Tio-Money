@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Open non-Draft owner-authored PR targeting main (src/assets only)
+        description: Open non-Draft owner PR (src/assets, tests and Markdown docs)
         required: true
         type: string
       operation:
@@ -115,20 +115,21 @@ jobs:
               throw Error("Refusing to publish from a changed Expo project identity");
             }
           '
-          # Both operations accept only reviewed JS/assets from a PR. Native,
-          # build config and signing changes must first land through their own
-          # separately reviewed PR rather than execute with an Expo token here.
+          # Reviewed PRs may also carry tests and Markdown task/documentation
+          # records. These paths do not change the Expo runtime or build config.
+          # Native/tooling/dependency/signing changes must land in a separately
+          # reviewed PR before executing any source with an Expo token here.
           native_change=0
           while IFS= read -r -d '' path; do
             case "$path" in
-              src/*|assets/*) ;;
+              src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;
               *)
                 native_change=1
                 ;;
             esac
           done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
           if [[ "$native_change" -ne 0 ]]; then
-            echo "::error title=Source-only gate::EAS deployment accepts only src/ and assets/ changes. This PR also changes non-preview files. Use the trusted Codespaces preview for draft UI review or a separately reviewed source-only PR for OTA/build."
+            echo "::error title=Preview change scope::EAS permits app source/assets, tests and Markdown documentation/AI task records only. Native, tooling, dependency and other config changes require separate review and merge before OTA/build."
             exit 1
           fi
           # A preview build must not prompt CI to invent app identifiers or
