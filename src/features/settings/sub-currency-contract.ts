@@ -12,6 +12,9 @@ export interface SubCurrencySelectedRow {
   readonly label: string;
   readonly rate: ReferenceRate | null;
   readonly rateStatus: 'loading' | 'available' | 'cached' | 'unavailable';
+  readonly showRefresh: boolean;
+  readonly refreshing: boolean;
+  readonly lastCheckedLabel: string;
 }
 
 export interface SubCurrencyDetail {
@@ -52,5 +55,6 @@ export type SubCurrencyAction =
   | { readonly type: 'detail.open'; readonly code: CurrencyCode }
   | { readonly type: 'detail.dismiss' }
   | { readonly type: 'detail.refresh' }
+  | { readonly type: 'card.refresh'; readonly code: CurrencyCode }
   | { readonly type: 'detail.position.select'; readonly value: UnitPosition }
   | { readonly type: 'detail.decimal.step'; readonly delta: -1 | 1 };
