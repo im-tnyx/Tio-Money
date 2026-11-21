@@ -16,6 +16,7 @@ const PATCHES = Object.freeze({
   'minimatch@5.1.2': '5.1.8',
   'nanoid@3.3.8': '3.3.18',
   '@expo/eas-json@27.4.1': Object.freeze({ joi: '17.13.9' }),
+  'eas-cli@27.4.1': Object.freeze({ joi: '17.13.9' }),
   'tar@7.5.19': '7.5.21',
 });
 
