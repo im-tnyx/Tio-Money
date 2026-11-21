@@ -127,10 +127,14 @@ export function FxRateProvider({
   );
 
   useEffect(() => {
-    // After each committed pair selection, only these pairs may update the shared cache.
+    // Only new selected pairs fetch. Opening screens, changing display settings
+    // or adding another Sub never re-fetches unchanged existing pairs.
+    const previousKeys = activeKeys.current;
     activeKeys.current = new Set(pairs.map((pair) => pair.key));
     for (const pair of pairs) {
-      void refreshRate(pair.base, pair.quote).catch(() => undefined);
+      if (!previousKeys.has(pair.key)) {
+        void refreshRate(pair.base, pair.quote).catch(() => undefined);
+      }
     }
   }, [pairs, refreshRate]);
 
