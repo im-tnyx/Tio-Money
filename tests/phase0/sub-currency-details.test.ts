@@ -82,17 +82,30 @@ test('TM-CUR-036: Sub detail uses inline +/- precision without another sheet', (
   assert.match(sheet, /type: 'detail.position.select'/);
   assert.match(sheet, /type: 'detail.decimal.step', delta: -1/);
   assert.match(sheet, /type: 'detail.decimal.step', delta: 1/);
-  assert.match(sheet, /label=\{t\('currencyDecimalDecrease'\)\}/);
-  assert.match(sheet, /label=\{t\('currencyDecimalIncrease'\)\}/);
-  assert.match(sheet, /disabled=\{detail.decimalDigits === 0\}/);
-  assert.match(sheet, /disabled=\{detail.decimalDigits === 3\}/);
+  assert.match(sheet, /<AppSegmentedActionControl/);
+  assert.match(sheet, /label: t\('currencyDecimalDecrease'\)/);
+  assert.match(sheet, /label: t\('currencyDecimalIncrease'\)/);
+  assert.match(sheet, /disabled: detail.decimalDigits === 0/);
+  assert.match(sheet, /disabled: detail.decimalDigits === 3/);
   const decimalRow = sheet.slice(sheet.indexOf("{t('currencyDecimals')}"));
   const valueIndex = decimalRow.indexOf('{detail.decimalLabel}');
-  const minusIndex = decimalRow.indexOf("label={t('currencyDecimalDecrease')}");
-  const plusIndex = decimalRow.indexOf("label={t('currencyDecimalIncrease')}");
-  assert.ok(valueIndex >= 0 && valueIndex < minusIndex && minusIndex < plusIndex);
+  const actionIndex = decimalRow.indexOf('<AppSegmentedActionControl');
+  const minusIndex = decimalRow.indexOf("key: 'decrease'");
+  const plusIndex = decimalRow.indexOf("key: 'increase'");
+  assert.ok(valueIndex >= 0 && valueIndex < actionIndex && actionIndex < minusIndex);
+  assert.ok(minusIndex < plusIndex);
   assert.match(decimalRow, /style=\{\{ flex: 1, textAlign: 'right' \}\}/);
-  assert.doesNotMatch(decimalRow, /width: theme.space.xxxl, textAlign: 'center'/);
+  const actionControl = readFileSync('src/shared/ui/app-segmented-control.tsx', 'utf8');
+  const actionStart = actionControl.indexOf('export function AppSegmentedActionControl');
+  const action = actionControl.slice(actionStart);
+  assert.ok(actionStart >= 0);
+  assert.match(action, /width: theme.segmentedControl.compactWidth/);
+  assert.match(action, /minHeight: theme.segmentedControl.compactOptionHeight/);
+  assert.match(action, /theme.segmentedControl.compactHitSlop/);
+  assert.match(action, /theme.colors.segmentedTrack/);
+  assert.match(action, /theme.colors.segmentedSelected/);
+  assert.match(action, /accessibilityRole="button"/);
+  assert.doesNotMatch(action, /accessibilityRole="radio"/);
 
   assert.doesNotMatch(sheet, /detail\.decimal\.open|detail\.decimal\.back|decimalMode|radiogroup/);
   assert.doesNotMatch(
