@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Five-tab 160ms crossfade setup (Issue #46)
+
+- **Owner-directed scope:** Implement a smooth **160ms screen-content crossfade** between Home/Trans./Stats./Account/More, take a new PR to merge gate only. Bar/FAB remain stationary and owner-approved (selected 300, inactive 200, icon-label gap 0dp, 24dp glyphs, 50dp bar baseline).
+- **Task:** [TM-UI-TAB-CROSSFADE-20261121](tasks/ui/root-tab-crossfade-20261121.md). [RFC #46](https://github.com/im-tnyx/Tio-Money/issues/46) / [technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/46#issuecomment-7060225970). Base `main` `9d2f0c793442b76131834a9ffc0c1962734ab00d`, branch `feat/root-tab-crossfade-160ms-46`.
+- **Boundaries:** Expo Router JS Tabs as scene host only, custom existing bar/FAB untouched, 160ms shared motion token and native Reduced Motion support. New exact-head CI/review and physical-device QA required; no native/data/dependency changes. No privileged preview, direct main write, or merge permission.
+
+---
+
 ## 2026-11-21 — PR #45 bottom tab icon-label gap removed
 
 - **Latest owner refinement:** Bottom tab selected SVG **300**, unselected SVG **200**, and **icon-label gap 0dp** (formerly 1dp). The central `navigationTokens.iconLabelGap=size.dp0` drives all five tabs through existing `RootTabBar`. Older 1dp notes below are historical and superseded.
