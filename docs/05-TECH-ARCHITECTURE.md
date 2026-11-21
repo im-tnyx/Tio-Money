@@ -25,7 +25,7 @@
 
 
 > [!IMPORTANT]
-> **Documentation-only future design.** [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) and [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) set this stage order: **Stage 1 complete local SQLite app with optional FX quote requests only → Stage 2 encrypted user-directed Drive/iCloud backup → Stage 3 optional Supabase sync with signup/signin only after explicit opt-in**. Existing Phase 0 source is still the blank five-tab shell + disabled FAB + settings-only SQLite migration; no financial journal, FX provider, backup, authentication or remote sync is implemented. Original "no P0 cloud/network" paragraphs below mean no **account data** networking; FX quotes are a narrowly scoped future **public pair-metadata exception**, not backend financial storage.
+> **Documentation-only future design.** [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) and [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) set this stage order: **Stage 1 complete local SQLite app with optional FX quote requests only → Stage 2 encrypted user-directed Drive/iCloud backup → Stage 3 optional Supabase sync with signup/signin only after explicit opt-in**. Current Phase 0 source has four blank finance tabs plus implemented More → Appearance, the disabled FAB and settings-only SQLite bootstrap; no financial journal, FX provider, backup, authentication or remote sync is implemented. Original "no P0 cloud/network" paragraphs below mean no **account data** networking; FX quotes are a narrowly scoped future **public pair-metadata exception**, not backend financial storage.
 
 ### 00.1 Stage 1 module ownership and data movement
 
@@ -136,7 +136,7 @@ flowchart TD
 
 ### 1.1 Non-negotiable boundaries
 
-- **Current Phase 0:** Home and the other four tabs are blank; the single floating `+` above More is **disabled and has no handler/editor route**. **Future product contract only:** once separately authorized, enable a single unified **Income | Expense | Transfer** editor, never three Home shortcut cards. Do not advertise the future editor as implemented.
+- **Current Phase 0:** Home, Trans., Stats. and Account are blank finance tabs; **More → Appearance** is implemented as controller-driven, dumb-screen UI. The single floating `+` above More is **disabled and has no handler/editor route**. **Future product contract only:** once separately authorized, enable a single unified **Income | Expense | Transfer** editor, never three Home shortcut cards. Do not advertise the future editor as implemented.
 - Transfer principal between tracked accounts is not reported as income/expense. **Optional transfer fee is an expense**, including bank/wallet/card-related real charges.
 - A credit card is a **liability**, not a cash balance.
 - **Legacy INR-only examples** use integer paise; planned Stage 1 monetary amounts require exact **currency-specific native integer minor units with ISO currency/exponent**, never JS floating-point ledger totals. Mixed-currency journal posting remains **BLOCKED** until accepted TM-ADR-018 FX clearing/rounding and migration rules.
@@ -187,7 +187,7 @@ flowchart TD
 
 ## 03 · Proposed repository structure
 
-### Actual Phase 0 source boundaries (implemented on PR #1)
+### Current Phase 0 source boundaries (PR #1 foundation plus later merged UI refinements)
 
 ```text
 src/
@@ -216,11 +216,11 @@ src/
 
 **Current route ownership:** `index`, `transactions`, `reports` and `accounts` export `BlankScreen`; `more.tsx` exports [`MoreRoute`](../src/features/settings/more-route.tsx), composing a **controller** (`useMoreViewModel`) and dumb **presenter** (`MoreScreen`). [`use-root-tab-navigation.ts`](../src/shared/navigation/use-root-tab-navigation.ts) owns navigation, root layout delegates crossfade/Reduced Motion to shared hooks and the floating Add remains independent. No SQL or finance logic is in these screens.
 
-**Central token ownership:** [`primitives.ts`](../src/shared/theme/primitives.ts) holds fixed physical sizes; [`tokens.ts`](../src/shared/theme/tokens.ts) defines semantic spacing, radii, type and light/dark palettes; [`component-tokens.ts`](../src/shared/theme/component-tokens.ts) defines one **24dp icon-size** token with aliases for navigation, future top bars, buttons, sheets, cards and text fields, plus current 50dp navigation baseline / 50dp FAB, 1dp icon-label spacing, 16dp FAB-to-bar clearance and shadow contracts. `useColorScheme()` selects **system** appearance in the root provider. No theme chooser, unapproved new features or per-screen hardcoded dimensions. See the [implementation ownership guide](../src/shared/theme/README.md) and [enforcement tests](../tests/phase0/design-tokens.test.ts). The future folder tree and proposed APIs below must follow these contracts.
+**Central token ownership:** [`primitives.ts`](../src/shared/theme/primitives.ts) holds fixed physical sizes; [`tokens.ts`](../src/shared/theme/tokens.ts) defines semantic spacing, radii, type and light/dark palettes; [`component-tokens.ts`](../src/shared/theme/component-tokens.ts) defines one **24dp icon-size** token with aliases for navigation, future top bars, buttons, sheets, cards and text fields, plus current 50dp navigation baseline / 50dp FAB, **0dp icon-label spacing, selected icon weight 300 / inactive 200**, 16dp FAB-to-bar clearance, **160ms Reduced Motion-aware tab crossfade** and shadow contracts. The root theme provider defaults to **system** appearance, with implemented **More → Appearance (System/Light/Dark)** user override and local preference persistence. No unapproved financial features or per-screen hardcoded dimensions. See the [implementation ownership guide](../src/shared/theme/README.md) and [enforcement tests](../tests/phase0/design-tokens.test.ts). The future folder tree and proposed APIs below must follow these contracts.
 
 ### Future feature-oriented repository proposal (not implemented)
 
-The route files stay thin and presentation-only. Feature modules own workflows; `src/domain/` owns finance contracts/invariants. **The large example tree below represents future planned folders/routes, not the actual Phase 0 tree.** Current Phase 0 deliberately has no `(setup)`, `transaction/new`, `settings`, old `history` or extra feature routes. Current working structure is summarized first.
+The route files stay thin and presentation-only. Feature modules own workflows; `src/domain/` owns finance contracts/invariants. **The large example tree below represents future planned folders/routes, not the actual Phase 0 tree.** Current Phase 0 deliberately has no `(setup)`, `transaction/new`, standalone `/settings`, old `history` or extra feature routes; implemented Appearance remains inside More, not a new route. Current working structure is summarized first.
 
 ```text
 Tio-Money/
@@ -294,11 +294,11 @@ Tio-Money/
 
 ## 04 · Navigation contract
 
-**Current Phase 0 navigation contract (owner-approved, source implemented):** five selectable blank routes `/` (Home), `/transactions` (Trans.), `/reports` (Stats.), `/accounts` (Account), `/more` (More). A **separate disabled floating `+`** is centered above More, has no press handler and no route; there is **no header**, welcome, Settings, History, editor or financial feature screen. Normal startup keeps splash visible for SQLite initialization and reveals the shell directly. One exceptional bootstrap error may show safe recovery. Owner reports a current physical-device UI smoke PASS and no recurring `ExpoSQLite` crash; the full Android+iPhone device matrix and SQLite PRAGMA/migration/restart QA remain NOT_VERIFIED.
+**Current Phase 0 navigation contract (owner-approved, source implemented):** five selectable routes `/` (Home), `/transactions` (Trans.), `/reports` (Stats.), `/accounts` (Account), `/more` (More). **Four finance tabs are blank; More implements the Settings → Appearance bottom sheet (System/Light/Dark) through `MoreRoute`/`useMoreViewModel` and dumb presentation.** The source-defined nav tokens use selected weight **300**, inactive **200**, **0dp** icon-label gap and **160ms Reduced Motion-aware** tab-content crossfade. A **separate disabled floating `+`** is centered above More, has no press handler and no editor route; there is **no root header**, welcome, standalone Settings route, History route or financial feature screen. Normal startup keeps splash visible for SQLite initialization and reveals the shell directly. One exceptional bootstrap error may show safe recovery. Owner reports a current physical-device UI smoke PASS and no recurring `ExpoSQLite` crash; the full Android+iPhone device matrix and SQLite PRAGMA/migration/restart QA remain NOT_VERIFIED.
 
 ```mermaid
 flowchart LR
-  SPLASH["Native splash + SQLite readiness"] --> ROOT["Blank five-tab shell"]
+  SPLASH["Native splash + SQLite readiness"] --> ROOT["Five-tab shell: four blank finance screens + More Appearance"]
   ROOT --> HOME["Home"]
   ROOT --> TRANS["Trans."]
   ROOT --> STATS["Stats."]
