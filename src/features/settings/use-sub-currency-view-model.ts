@@ -19,6 +19,10 @@ import {
   formatSubCurrencyDecimalExample,
   stepSubCurrencyDecimalDigits,
 } from './sub-currency-decimal-step';
+import {
+  classifySubCurrencyRefresh,
+  type SubCurrencyRefreshResult,
+} from './sub-currency-refresh-feedback';
 import type {
   SubCurrencyAction,
   SubCurrencyChoiceRow,
@@ -42,6 +46,10 @@ export function useSubCurrencyViewModel(): {
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
   const [refreshingPair, setRefreshingPair] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [refreshResult, setRefreshResult] = useState<{
+    pair: string;
+    result: SubCurrencyRefreshResult;
+  } | null>(null);
   const refreshRequest = useRef(0);
 
   useEffect(() => {
@@ -73,6 +81,7 @@ export function useSubCurrencyViewModel(): {
     setDetailCode(null);
     setRefreshingPair(null);
     setRefreshError(null);
+    setRefreshResult(null);
   }, []);
 
   const onAction = useCallback(
@@ -122,13 +131,19 @@ export function useSubCurrencyViewModel(): {
           const main = preferences.mainCode;
           const pair = detailCode + '/' + main;
           if (refreshingPair === pair) break;
+          const previousRate = rates[pair];
           const generation = ++refreshRequest.current;
           setRefreshError(null);
+          setRefreshResult(null);
           setRefreshingPair(pair);
           void getReferenceRate(detailCode, main)
             .then((quote) => {
               if (generation !== refreshRequest.current) return;
               setRates((previous) => ({ ...previous, [pair]: quote }));
+              setRefreshResult({
+                pair,
+                result: classifySubCurrencyRefresh(previousRate, quote),
+              });
             })
             .catch(() => {
               if (generation !== refreshRequest.current) return;
@@ -146,6 +161,7 @@ export function useSubCurrencyViewModel(): {
       detailCode,
       refreshingPair,
       dismissDetail,
+      rates,
       preferences,
       addSubCurrency,
       removeSubCurrency,
@@ -205,12 +221,33 @@ export function useSubCurrencyViewModel(): {
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
               refreshing: refreshingPair === detailCode + '/' + preferences.mainCode,
               refreshError,
+              refreshStatus:
+                refreshingPair === detailCode + '/' + preferences.mainCode
+                  ? t('currencyFxChecking')
+                  : refreshError
+                    ? refreshError
+                    : refreshResult?.pair === detailCode + '/' + preferences.mainCode
+                      ? t(
+                          refreshResult.result === 'updated'
+                            ? 'currencyFxRefreshUpdated'
+                            : 'currencyFxRefreshUnchanged',
+                        )
+                      : null,
             }
           : null,
       limit: MAX_SUB_CURRENCIES,
       error,
     };
-  }, [preferences, rates, detailCode, sheetVisible, error, refreshingPair, refreshError]);
+  }, [
+    preferences,
+    rates,
+    detailCode,
+    sheetVisible,
+    error,
+    refreshingPair,
+    refreshError,
+    refreshResult,
+  ]);
 
   return { state, onAction };
 }
