@@ -170,7 +170,7 @@ test('TM-CUR-040: short USD detail caption and its special symbol are presentati
   assert.match(sheet, /numberOfLines=\{1\}/);
   assert.match(vm, /formatSubCurrencyDetailCaption\(selectedDetail.code\)/);
   assert.match(vm, /return formatSubCurrencyDetailCaption\(code\)/);
-  assert.match(vm, /mainLabel: currencyLabel\(preferences.mainCode\)/);
+  assert.match(vm, /mainLabel: mainConfigured \? currencyLabel\(preferences.mainCode\)/);
   assert.match(vm, /selected.push\(\{ code, label: currencyLabel\(code\)/);
 });
 
@@ -220,4 +220,21 @@ test('TM-CUR-043: refresh feedback distinguishes new, unchanged, and first valid
   );
   assert.equal(classifySubCurrencyRefresh(oldQuote, { ...oldQuote, rate: 82.6 }), 'updated');
   assert.equal(classifySubCurrencyRefresh(oldQuote, { ...oldQuote, quote: 'USD' }), 'updated');
+});
+
+test('TM-CUR-046: Sub detail keeps one dated source row and fine refresh icon stroke', () => {
+  const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
+  const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+  assert.match(sheet, /\{t\('currencyFxSource'\)\} · \{detail.rateDate\}/);
+  assert.match(sheet, /numberOfLines=\{1\}[\s\S]*?\{t\('currencyFxSource'\)\}/);
+  assert.doesNotMatch(sheet, /detail.rateFetchedLabel/);
+  assert.doesNotMatch(contract + vm, /rateFetchedLabel/);
+  assert.match(vm, /rateFetchedAt: fetchedAt/);
+  assert.match(sheet, /strokeWidth=\{theme.icons.fineStroke\}/);
+  assert.match(tokens, /fineStroke: size.dp1_5/);
+  assert.match(sheet, /gap: theme.space.xs,[\s\S]*?currencyFxExchangeRate/);
+  assert.match(sheet, /minWidth: theme.buttons.minimumHeight/);
+  assert.match(sheet, /accessibilityLabel=\{t\(/);
 });
