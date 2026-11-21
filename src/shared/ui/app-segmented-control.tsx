@@ -55,9 +55,7 @@ export function AppSegmentedControl<T extends string>({
           >
             <AppText
               style={{
-                color: selected
-                  ? theme.colors.segmentedSelectedText
-                  : theme.colors.segmentedText,
+                color: selected ? theme.colors.segmentedSelectedText : theme.colors.segmentedText,
               }}
             >
               {option.label}
