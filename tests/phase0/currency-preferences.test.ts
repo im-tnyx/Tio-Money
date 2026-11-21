@@ -199,3 +199,21 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   assert.match(route, /<MainCurrencyRoute \/>/);
   assert.doesNotMatch(screen + sheet, /useState|useEffect|useRouter|SQLite|Storage\.|fetch\(/);
 });
+
+test('TM-CUR-013: icon-only Back, shared icon sizes and reusable sheet shell', () => {
+  const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  const options = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
+  const subSheet = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
+  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+
+  assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
+  assert.match(screen, /width=\{theme\.iconRoles\.topBar\}/);
+  assert.match(screen, /height=\{theme\.iconRoles\.topBar\}/);
+  assert.doesNotMatch(screen, /<AppText>\{t\('currencyPageBack'\)\}<\/AppText>/);
+  assert.match(tokens, /topBar: iconTokens\.size/);
+  assert.match(tokens, /bottomSheet: iconTokens\.size/);
+  assert.match(options, /<AppBottomSheet/);
+  assert.match(subSheet, /<AppBottomSheet/);
+  assert.match(options, /theme\.iconRoles\.bottomSheet/);
+  assert.match(subSheet, /theme\.iconRoles\.bottomSheet/);
+});

@@ -47,8 +47,8 @@ export function MainCurrencyOptionSheet({
                 accessibilityElementsHidden
                 importantForAccessibility="no-hide-descendants"
                 style={{
-                  height: theme.icons.size,
-                  width: theme.icons.size,
+                  height: theme.iconRoles.bottomSheet,
+                  width: theme.iconRoles.bottomSheet,
                   borderRadius: theme.radius.pill,
                   borderWidth: theme.buttons.outlineWidth,
                   borderColor: row.selected ? theme.colors.brand : theme.colors.secondaryText,

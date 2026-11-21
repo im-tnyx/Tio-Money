@@ -77,8 +77,8 @@ function CurrencyChoice({
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
         style={{
-          width: theme.icons.size,
-          height: theme.icons.size,
+          width: theme.iconRoles.bottomSheet,
+          height: theme.iconRoles.bottomSheet,
           borderRadius: theme.radius.pill,
           borderWidth: theme.buttons.outlineWidth,
           borderColor: selected ? theme.colors.brand : theme.colors.secondaryText,

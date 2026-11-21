@@ -96,12 +96,11 @@ export function MainCurrencyScreen({
             paddingHorizontal: theme.space.sm,
             flexDirection: 'row',
             alignItems: 'center',
-            gap: theme.space.xs,
           }}
         >
           <Svg
-            width={theme.iconRoles.card}
-            height={theme.iconRoles.card}
+            width={theme.iconRoles.topBar}
+            height={theme.iconRoles.topBar}
             viewBox="0 0 24 24"
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
@@ -115,7 +114,6 @@ export function MainCurrencyScreen({
               fill="none"
             />
           </Svg>
-          <AppText>{t('currencyPageBack')}</AppText>
         </Pressable>
         <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
           {t('currencyMain')}
