@@ -10,6 +10,12 @@ import { AppSegmentedActionControl } from '@/shared/ui/app-segmented-control';
 import { CurrencyUnitPositionControl } from './currency-unit-position-control';
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
 
+const numberFormatChoices = [
+  { value: 'international', labelKey: 'currencyMillionsExample' },
+  { value: 'indian', labelKey: 'currencyLakhsExample' },
+  { value: 'none', labelKey: 'currencyNoFormatExample' },
+] as const;
+
 /** A second, content-sized sheet; Add Currency stays a separate currency-only picker. */
 export function SubCurrencyDetailSheet({
   state,
@@ -274,6 +280,109 @@ export function SubCurrencyDetailSheet({
                 ]}
               />
             </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('currencyFormat')}
+              accessibilityValue={{ text: detail.formatLabel }}
+              accessibilityState={{ expanded: detail.formatExpanded }}
+              onPress={() => onAction({ type: 'detail.format.toggle' })}
+              style={{
+                minHeight: theme.buttons.minimumHeight,
+                paddingHorizontal: theme.space.lg,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.space.sm,
+                borderTopWidth: theme.navigation.borderWidth,
+                borderTopColor: theme.colors.border,
+              }}
+            >
+              <AppText muted style={{ width: '34%' }}>
+                {t('currencyFormat')}
+              </AppText>
+              <AppText
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
+                style={{ flex: 1, textAlign: 'right' }}
+              >
+                {detail.formatLabel}
+              </AppText>
+              <Svg
+                width={theme.iconRoles.card}
+                height={theme.iconRoles.card}
+                viewBox="0 0 24 24"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Path
+                  d={detail.formatExpanded ? 'm6 9 6 6 6-6' : 'm9 18 6-6-6-6'}
+                  fill="none"
+                  stroke={theme.colors.secondaryText}
+                  strokeWidth={theme.icons.stroke}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            </Pressable>
+            {detail.formatExpanded ? (
+              <View accessibilityRole="radiogroup">
+                {numberFormatChoices.map((choice, index) => {
+                  const checked = detail.formatGrouping === choice.value;
+                  return (
+                    <Pressable
+                      key={choice.value}
+                      accessibilityRole="radio"
+                      accessibilityLabel={t(choice.labelKey)}
+                      accessibilityState={{ checked }}
+                      onPress={() =>
+                        onAction({ type: 'detail.format.select', value: choice.value })
+                      }
+                      style={{
+                        minHeight: theme.buttons.minimumHeight,
+                        paddingHorizontal: theme.space.lg,
+                        paddingVertical: theme.space.sm,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: theme.space.md,
+                        borderTopWidth:
+                          index === 0 ? theme.navigation.borderWidth : theme.navigation.origin,
+                        borderBottomWidth:
+                          index < numberFormatChoices.length - 1
+                            ? theme.navigation.borderWidth
+                            : theme.navigation.origin,
+                        borderColor: theme.colors.border,
+                      }}
+                    >
+                      <AppText style={{ flex: 1 }}>{t(choice.labelKey)}</AppText>
+                      <View
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
+                        style={{
+                          width: theme.iconRoles.bottomSheet,
+                          height: theme.iconRoles.bottomSheet,
+                          borderRadius: theme.radius.pill,
+                          borderWidth: theme.buttons.outlineWidth,
+                          borderColor: checked ? theme.colors.brand : theme.colors.secondaryText,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {checked ? (
+                          <View
+                            style={{
+                              width: theme.space.sm,
+                              height: theme.space.sm,
+                              borderRadius: theme.radius.pill,
+                              backgroundColor: theme.colors.brand,
+                            }}
+                          />
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
           </View>
         </>
       ) : null}
