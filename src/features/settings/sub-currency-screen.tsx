@@ -271,111 +271,112 @@ export function SubCurrencyScreen({
           gap: theme.space.md,
         }}
       >
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            minHeight: theme.buttons.minimumHeight,
-            paddingHorizontal: theme.space.lg,
-            paddingVertical: theme.space.sm,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.sm,
-            borderBottomWidth: theme.navigation.borderWidth,
-            borderBottomColor: theme.colors.border,
-          }}
-        >
-          <AppText muted style={{ flex: 1 }}>
-            {t('currencyMain')}
-          </AppText>
-          <AppText
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.7}
-            style={{ flex: 1, textAlign: 'right' }}
-          >
-            {state.mainLabel}
-          </AppText>
-        </View>
-        {state.selected.length > 0 ? (
+        <View>
           <View
             style={{
               backgroundColor: theme.colors.card,
-              borderTopWidth: theme.navigation.borderWidth,
+              minHeight: theme.buttons.minimumHeight,
+              paddingHorizontal: theme.space.lg,
+              paddingVertical: theme.space.sm,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.space.sm,
               borderBottomWidth: theme.navigation.borderWidth,
-              borderColor: theme.colors.border,
+              borderBottomColor: theme.colors.border,
             }}
           >
-            {state.selected.map((item, index) => (
-              <SwipeableCurrencyRow
-                key={item.code}
-                code={item.code}
-                last={index === state.selected.length - 1}
-                isOpen={openSwipeCode === item.code}
-                onReveal={() => setOpenSwipeCode(item.code)}
-                onClose={() => setOpenSwipeCode(null)}
-                onCardTouchStart={onCardTouchStart}
-                onCardTouchEnd={onCardTouchEnd}
-                onDelete={() => {
-                  setOpenSwipeCode(null);
-                  onAction({ type: 'remove', code: item.code });
-                }}
-              >
-                <View
-                  style={{
-                    minHeight: theme.buttons.minimumHeight + theme.space.xxl,
-                    paddingHorizontal: theme.space.lg,
-                    paddingVertical: theme.space.md,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: theme.space.md,
+            <AppText muted style={{ flex: 1 }}>
+              {t('currencyMain')}
+            </AppText>
+            <AppText
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+              style={{ flex: 1, textAlign: 'right' }}
+            >
+              {state.mainLabel}
+            </AppText>
+          </View>
+          {state.selected.length > 0 ? (
+            <View
+              style={{
+                backgroundColor: theme.colors.card,
+                borderBottomWidth: theme.navigation.borderWidth,
+                borderColor: theme.colors.border,
+              }}
+            >
+              {state.selected.map((item, index) => (
+                <SwipeableCurrencyRow
+                  key={item.code}
+                  code={item.code}
+                  last={index === state.selected.length - 1}
+                  isOpen={openSwipeCode === item.code}
+                  onReveal={() => setOpenSwipeCode(item.code)}
+                  onClose={() => setOpenSwipeCode(null)}
+                  onCardTouchStart={onCardTouchStart}
+                  onCardTouchEnd={onCardTouchEnd}
+                  onDelete={() => {
+                    setOpenSwipeCode(null);
+                    onAction({ type: 'remove', code: item.code });
                   }}
                 >
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={item.code + ' ' + t('currencySubDetails')}
-                    accessibilityHint={item.label}
-                    accessibilityActions={[
-                      { name: 'delete', label: t('currencyRemoveSub') + ': ' + item.code },
-                    ]}
-                    onAccessibilityAction={(event) => {
-                      if (event.nativeEvent.actionName === 'delete') {
-                        setOpenSwipeCode(null);
-                        onAction({ type: 'remove', code: item.code });
-                      }
+                  <View
+                    style={{
+                      minHeight: theme.buttons.minimumHeight + theme.space.xxl,
+                      paddingHorizontal: theme.space.lg,
+                      paddingVertical: theme.space.md,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: theme.space.md,
                     }}
-                    onPress={() => {
-                      if (openSwipeCode !== null) setOpenSwipeCode(null);
-                      else onAction({ type: 'detail.open', code: item.code });
-                    }}
-                    style={{ flex: 1, gap: theme.space.xxs }}
                   >
-                    <AppText>{item.label}</AppText>
-                    {(item.rateStatus === 'available' || item.rateStatus === 'cached') &&
-                    item.rate ? (
-                      <AppText variant="caption" muted>
-                        {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
-                        {formatReferenceRate(item.rate)}
-                      </AppText>
-                    ) : (
-                      <AppText variant="caption" muted>
-                        {t(
-                          item.rateStatus === 'loading'
-                            ? 'currencyFxLoading'
-                            : 'currencyFxUnavailable',
-                        )}
-                      </AppText>
-                    )}
-                  </Pressable>
-                </View>
-              </SwipeableCurrencyRow>
-            ))}
-          </View>
-        ) : (
-          <View style={{ alignItems: 'center', padding: theme.space.xxl, gap: theme.space.sm }}>
-            <AppText>{t('currencyNoSubAdded')}</AppText>
-            <AppText muted>{t('currencyTapAddSub')}</AppText>
-          </View>
-        )}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={item.code + ' ' + t('currencySubDetails')}
+                      accessibilityHint={item.label}
+                      accessibilityActions={[
+                        { name: 'delete', label: t('currencyRemoveSub') + ': ' + item.code },
+                      ]}
+                      onAccessibilityAction={(event) => {
+                        if (event.nativeEvent.actionName === 'delete') {
+                          setOpenSwipeCode(null);
+                          onAction({ type: 'remove', code: item.code });
+                        }
+                      }}
+                      onPress={() => {
+                        if (openSwipeCode !== null) setOpenSwipeCode(null);
+                        else onAction({ type: 'detail.open', code: item.code });
+                      }}
+                      style={{ flex: 1, gap: theme.space.xxs }}
+                    >
+                      <AppText>{item.label}</AppText>
+                      {(item.rateStatus === 'available' || item.rateStatus === 'cached') &&
+                      item.rate ? (
+                        <AppText variant="caption" muted>
+                          {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
+                          {formatReferenceRate(item.rate)}
+                        </AppText>
+                      ) : (
+                        <AppText variant="caption" muted>
+                          {t(
+                            item.rateStatus === 'loading'
+                              ? 'currencyFxLoading'
+                              : 'currencyFxUnavailable',
+                          )}
+                        </AppText>
+                      )}
+                    </Pressable>
+                  </View>
+                </SwipeableCurrencyRow>
+              ))}
+            </View>
+          ) : (
+            <View style={{ alignItems: 'center', padding: theme.space.xxl, gap: theme.space.sm }}>
+              <AppText>{t('currencyNoSubAdded')}</AppText>
+              <AppText muted>{t('currencyTapAddSub')}</AppText>
+            </View>
+          )}
+        </View>
         {state.error ? (
           <View accessibilityLiveRegion="polite" style={{ paddingHorizontal: theme.space.lg }}>
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
