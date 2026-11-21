@@ -49,7 +49,7 @@ function AppearanceOption({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.space.lg,
-        paddingVertical: theme.space.lg,
+        paddingVertical: theme.space.md,
         gap: theme.space.md,
         borderTopWidth: showDivider ? theme.navigation.borderWidth : theme.navigation.origin,
         borderTopColor: theme.colors.border,
@@ -126,33 +126,16 @@ export function AppearanceSheet({
           }}
         >
           <View
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            style={{
-              width: theme.space.xxxl,
-              height: theme.space.xxs,
-              borderRadius: theme.radius.pill,
-              backgroundColor: theme.colors.border,
-              alignSelf: 'center',
-              marginTop: theme.space.sm,
-            }}
-          />
-          <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingHorizontal: theme.space.md,
-              paddingVertical: theme.space.sm,
+              minHeight: theme.buttons.minimumHeight,
+              paddingHorizontal: theme.space.lg,
               borderBottomWidth: theme.navigation.borderWidth,
               borderBottomColor: theme.colors.border,
             }}
           >
-            <View
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-              style={{ width: theme.buttons.minimumHeight }}
-            />
-            <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
+            <AppText variant="section" style={{ flex: 1 }}>
               {t('appearance')}
             </AppText>
             <Pressable

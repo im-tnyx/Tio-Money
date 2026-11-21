@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 compact Appearance sheet owner screenshot refinement
+
+- **Owner screenshot/request:** iPhone Appearance bottom sheet wastes vertical area before heading; move title left and minimize whitespace. UI-only technical `PROCEED` within [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17) and [task](tasks/ui/more-appearance-20261120.md), replacing the earlier centered-title choice.
+- **Bounded change:** Remove decorative top drag handle/margin; left-align Appearance in compact 48dp-min header with accessible X on right and bottom divider. Reduce option vertical padding from `lg` to `md` while preserving 48dp minimum and all three radio options. Leave theme store and other tabs untouched; regression tests and guide updated.
+- **Safety:** Branch-only non-force update with exact old HEAD guard. Remove any live `tio-preview` label before branch push; do not activate privileged Codespaces or merge PR into main. Exact-head CI and fresh device screenshot validation required; independent UI review deferred and no PR #18 merge approval.
+
+---
+
 ## 2026-11-21 — PR #18 latest-main safe reconciliation after bottom-sheet header refinement
 
 - **Owner action:** Reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main` without merging PR #18 into `main`. The PR head before reconciliation was `d6178ab26e0075302742b29ab60e88e37a4e13c5`; incoming main head `4614285071fd96e9010e2ca7f34653be1c2a61b4`. Both were based on `e0e4c617c2aea2b892baa9b5dd327d6a4483350d`.

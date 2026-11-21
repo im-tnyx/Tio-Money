@@ -80,7 +80,14 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /onPress=\{dismiss\}/);
   assert.match(sheet, /borderTopLeftRadius: theme\.navigation\.origin/);
   assert.match(sheet, /borderTopRightRadius: theme\.navigation\.origin/);
-  assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1, textAlign: 'center' \}\}>/);
+  assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1 \}\}>/);
+  assert.doesNotMatch(sheet, /textAlign: 'center'/);
+  assert.doesNotMatch(sheet, /width: theme\.space\.xxxl/);
+  assert.doesNotMatch(sheet, /marginTop: theme\.space\.sm/);
+  assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
+  assert.match(sheet, /paddingVertical: theme\.space\.md/);
+  assert.doesNotMatch(sheet, /paddingVertical: theme\.space\.lg/);
+  assert.match(sheet, /paddingHorizontal: theme\.space\.lg/);
   assert.match(sheet, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(sheet, /borderBottomColor: theme\.colors\.border/);
   assert.match(sheet, /d="M18 6 6 18 M6 6l12 12"/);
