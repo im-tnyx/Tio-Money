@@ -124,3 +124,22 @@ Last successful quote and cache remain intact; no financial conversion
 or permissions/dependencies/workflows changes. Review exact-head CI and
 physical Android/iOS narrow-row/swipe/accessibility acceptance before
 any merge; PR #53 merge authorization NOT_GRANTED.
+
+## 2026-11-22 — Owner revision: one footer after final Sub card (PR #53)
+
+[Durable owner-requested technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068449996)
+supersedes the *location* of the previous per-card `Checked /
+Refresh now` hint only. When any saved pair needs manual verification,
+render **one unboxed caption/action row below the very last card**:
+left oldest verified day (`Checked D MMM`) or `Some not checked /
+Not checked` if timestamps are missing; right `Refresh now`. No
+per-card repetition and no Sub row height change. Batch Refresh
+checks **all eligible stale saved pairs** using existing FX provider
+and in-flight deduplication; loading pairs are skipped, no uncontrolled
+polling/new host or FX-accounting side effects, 48dp accessible button
+size and existing gestures maintained. On partial failure retry stays,
+and publication date is not conflated with verification day.
+Changed owner-approved feature branch only; tests `TM-CUR-051/-052`
+and original currency screens tests remain. Fresh exact-head CI,
+Android/iOS visual/a11y regression and independent review disposition
+are gate requirements. PR #53 MERGE_AUTHORIZATION=NOT_GRANTED.
