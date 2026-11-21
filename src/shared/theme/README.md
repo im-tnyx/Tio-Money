@@ -317,3 +317,16 @@ widths, keeping the title centered. The card below again shows exactly the
 three settings: Unit Position, Decimal Point and Format. Change opens the
 existing Main Currency selection sheet; persistence, financial values and
 sheet layout are unchanged.
+
+## More: Main/Sub Currency shared group — PR #53 (2026-11-21)
+
+The latest owner reference shows two selectable rows within one continuous
+surface, separated by a thin inset divider rather than separate full-border
+cards. The More screen's Currency section now wraps **Main Currency** and
+**Sub Currency** in one `theme.colors.card` group with a single shared
+outer top/bottom border and one inset `theme.colors.border` separator.
+Both rows retain their existing icon roles, text hierarchy, currency values,
+48dp minimum touch targets, accessibility labels and actions. Main Currency
+still opens its dedicated screen and Sub Currency its existing sheet.
+Appearance, section spacing, navigation, persistence and other screen behavior
+remain unchanged. Android/iOS visual verification is required.

@@ -99,91 +99,101 @@ export function MoreScreen({
           <View style={{ paddingHorizontal: theme.space.lg }}>
             <AppText variant="section">{t('currency')}</AppText>
           </View>
-          <Pressable
-            onPress={() => onAction({ type: 'currency.main.open' })}
-            accessibilityRole="button"
-            accessibilityLabel={t('currencyMain')}
-            accessibilityHint={t('currencyOpenMainHint')}
+          <View
             style={{
               width: '100%',
-              minHeight: theme.buttons.minimumHeight,
               backgroundColor: theme.colors.card,
               borderTopWidth: theme.navigation.borderWidth,
               borderBottomWidth: theme.navigation.borderWidth,
               borderColor: theme.colors.border,
-              paddingHorizontal: theme.space.lg,
-              paddingVertical: theme.space.md,
-              flexDirection: 'row',
-              gap: theme.space.sm,
-              alignItems: 'center',
             }}
           >
-            <View style={{ flex: 1 }}>
-              <AppText>{t('currencyMain')}</AppText>
-              <AppText variant="caption" muted>
-                {state.currency.mainCode}
-              </AppText>
-            </View>
-            <Svg
-              width={theme.iconRoles.card}
-              height={theme.iconRoles.card}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
+            <Pressable
+              onPress={() => onAction({ type: 'currency.main.open' })}
+              accessibilityRole="button"
+              accessibilityLabel={t('currencyMain')}
+              accessibilityHint={t('currencyOpenMainHint')}
+              style={{
+                width: '100%',
+                minHeight: theme.buttons.minimumHeight,
+                paddingHorizontal: theme.space.lg,
+                paddingVertical: theme.space.md,
+                flexDirection: 'row',
+                gap: theme.space.sm,
+                alignItems: 'center',
+              }}
             >
-              <Path
-                d="m9 18 6-6-6-6"
-                stroke={theme.colors.secondaryText}
-                strokeWidth={theme.icons.stroke}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          </Pressable>
-          <Pressable
-            onPress={() => onAction({ type: 'currency.open' })}
-            accessibilityRole="button"
-            accessibilityLabel={t('currencySub')}
-            accessibilityHint={t('currencyHint')}
-            accessibilityState={{ expanded: state.currencySheetVisible }}
-            style={{
-              width: '100%',
-              minHeight: theme.buttons.minimumHeight,
-              backgroundColor: theme.colors.card,
-              borderTopWidth: theme.navigation.borderWidth,
-              borderBottomWidth: theme.navigation.borderWidth,
-              borderColor: theme.colors.border,
-              paddingHorizontal: theme.space.lg,
-              paddingVertical: theme.space.md,
-              flexDirection: 'row',
-              gap: theme.space.sm,
-              alignItems: 'center',
-            }}
-          >
-            <View style={{ flex: 1 }}>
-              <AppText>{t('currencySub')}</AppText>
-              <AppText variant="caption" muted>
-                {state.currency.subCode ?? t('currencyNone')}
-              </AppText>
-            </View>
-            <Svg
-              width={theme.iconRoles.card}
-              height={theme.iconRoles.card}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
+              <View style={{ flex: 1 }}>
+                <AppText>{t('currencyMain')}</AppText>
+                <AppText variant="caption" muted>
+                  {state.currency.mainCode}
+                </AppText>
+              </View>
+              <Svg
+                width={theme.iconRoles.card}
+                height={theme.iconRoles.card}
+                viewBox="0 0 24 24"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Path
+                  d="m9 18 6-6-6-6"
+                  stroke={theme.colors.secondaryText}
+                  strokeWidth={theme.icons.stroke}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            </Pressable>
+            <View
+              accessible={false}
+              style={{
+                marginLeft: theme.space.lg,
+                borderBottomWidth: theme.navigation.borderWidth,
+                borderBottomColor: theme.colors.border,
+              }}
+            />
+            <Pressable
+              onPress={() => onAction({ type: 'currency.open' })}
+              accessibilityRole="button"
+              accessibilityLabel={t('currencySub')}
+              accessibilityHint={t('currencyHint')}
+              accessibilityState={{ expanded: state.currencySheetVisible }}
+              style={{
+                width: '100%',
+                minHeight: theme.buttons.minimumHeight,
+                paddingHorizontal: theme.space.lg,
+                paddingVertical: theme.space.md,
+                flexDirection: 'row',
+                gap: theme.space.sm,
+                alignItems: 'center',
+              }}
             >
-              <Path
-                d="m9 18 6-6-6-6"
-                stroke={theme.colors.secondaryText}
-                strokeWidth={theme.icons.stroke}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          </Pressable>
+              <View style={{ flex: 1 }}>
+                <AppText>{t('currencySub')}</AppText>
+                <AppText variant="caption" muted>
+                  {state.currency.subCode ?? t('currencyNone')}
+                </AppText>
+              </View>
+              <Svg
+                width={theme.iconRoles.card}
+                height={theme.iconRoles.card}
+                viewBox="0 0 24 24"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Path
+                  d="m9 18 6-6-6-6"
+                  stroke={theme.colors.secondaryText}
+                  strokeWidth={theme.icons.stroke}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            </Pressable>
+          </View>
           {state.error && !state.appearanceSheetVisible ? (
             <View accessibilityLiveRegion="polite">
               <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
