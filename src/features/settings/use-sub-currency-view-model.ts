@@ -6,6 +6,7 @@ import {
   CURRENCY_OPTIONS,
   MAX_SUB_CURRENCIES,
   isCurrencyCode,
+  resolveNumberGrouping,
   resolveSubCurrencyDisplay,
   type CurrencyCode,
 } from '@/shared/currency/currency-preference';
@@ -56,6 +57,7 @@ export function useSubCurrencyViewModel(): {
   const [freshnessNow, setFreshnessNow] = useState(() => Date.now());
   const [refreshingList, setRefreshingList] = useState(false);
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
+  const [formatExpanded, setFormatExpanded] = useState(false);
   const [refreshingPair, setRefreshingPair] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshResult, setRefreshResult] = useState<{
@@ -95,6 +97,7 @@ export function useSubCurrencyViewModel(): {
   const dismissDetail = useCallback(() => {
     refreshRequest.current += 1;
     setDetailCode(null);
+    setFormatExpanded(false);
     setRefreshingPair(null);
     setRefreshError(null);
     setRefreshResult(null);
@@ -133,15 +136,28 @@ export function useSubCurrencyViewModel(): {
           dismissDetail();
           break;
         case 'detail.position.select':
+          setFormatExpanded(false);
           if (detailCode) updateSubDisplay(detailCode, { unitPosition: action.value });
           break;
         case 'detail.decimal.step':
+          setFormatExpanded(false);
           if (detailCode && preferences.subCodes.includes(detailCode)) {
             const current = resolveSubCurrencyDisplay(preferences, detailCode).decimalDigits;
             const currency = CURRENCY_OPTIONS.find((item) => item.code === detailCode);
             const effective = current === 'currency' ? (currency?.minorDigits ?? 2) : current;
             const next = stepSubCurrencyDecimalDigits(effective, action.delta);
             if (next !== effective) updateSubDisplay(detailCode, { decimalDigits: next });
+          }
+          break;
+        case 'detail.format.toggle':
+          if (detailCode && preferences.subCodes.includes(detailCode)) {
+            setFormatExpanded((current) => !current);
+          }
+          break;
+        case 'detail.format.select':
+          setFormatExpanded(false);
+          if (detailCode && preferences.subCodes.includes(detailCode)) {
+            updateSubDisplay(detailCode, { grouping: action.value });
           }
           break;
         case 'list.refresh': {
@@ -168,6 +184,7 @@ export function useSubCurrencyViewModel(): {
           break;
         }
         case 'detail.refresh': {
+          setFormatExpanded(false);
           if (!detailCode || !preferences.subCodes.includes(detailCode)) break;
           const main = preferences.mainCode;
           const pair = fxPairKey(detailCode, main);
@@ -254,6 +271,15 @@ export function useSubCurrencyViewModel(): {
       ? (entries[fxPairKey(selectedDetail.code, preferences.mainCode)]?.fetchedAt ?? null)
       : null;
     const subDisplay = detailCode ? resolveSubCurrencyDisplay(preferences, detailCode) : null;
+    const formatGrouping = detailCode
+      ? resolveNumberGrouping(detailCode, subDisplay?.grouping ?? 'auto')
+      : 'international';
+    const formatLabel =
+      formatGrouping === 'indian'
+        ? t('currencyLakhs')
+        : formatGrouping === 'international'
+          ? t('currencyMillions')
+          : t('currencyNoFormat');
     const currency = CURRENCY_OPTIONS.find((item) => item.code === detailCode);
     const displayedDigits = subDisplay
       ? subDisplay.decimalDigits === 'currency'
@@ -291,6 +317,9 @@ export function useSubCurrencyViewModel(): {
               unitPosition: subDisplay.unitPosition,
               decimalDigits: displayedDigits,
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
+              formatGrouping,
+              formatLabel,
+              formatExpanded,
               refreshing: refreshingPair === detailCode + '/' + preferences.mainCode,
               refreshError,
               refreshStatus:
@@ -321,6 +350,7 @@ export function useSubCurrencyViewModel(): {
     refreshResult,
     freshnessNow,
     refreshingList,
+    formatExpanded,
   ]);
 
   return { state, onAction };
