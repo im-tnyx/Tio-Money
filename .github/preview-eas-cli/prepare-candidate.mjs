@@ -12,11 +12,12 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 const REGISTRY = 'https://registry.npmjs.org';
 const PATCHES = Object.freeze({
   // Target only the old resolved versions: do not downgrade nested minimatch 9/10.
-  'node-forge@1.4.0': '1.4.1',
+  'node-forge@1.4.0': '1.4.3',
   'minimatch@5.1.2': '5.1.8',
   'nanoid@3.3.8': '3.3.18',
   '@expo/eas-json@27.4.1': Object.freeze({ joi: '17.13.9' }),
-  'eas-cli@27.4.1': Object.freeze({ joi: '17.13.9' }),
+  'eas-cli@27.4.1': Object.freeze({ joi: '17.13.9', ajv: '8.18.0', yaml: '2.8.3' }),
+  '@expo/build-tools@27.4.1': Object.freeze({ joi: '17.13.9' }),
   'tar@7.5.19': '7.5.21',
 });
 
