@@ -16,7 +16,8 @@
 - `src/features/settings/more-route.tsx`: wires ViewModel to Screen and its modal child.
 - `src/features/settings/use-more-view-model.ts` + `more-contract.ts`: typed `MoreUiState` and `MoreAction`; no storage in UI.
 - `src/features/settings/more-screen.tsx`: theme-token-only, stateless General Settings heading and full-width Appearance card/chevron.
-- `src/features/settings/appearance-sheet.tsx`: stateless accessible React Native Modal bottom sheet with System/Light/Dark circular radios, a header divider, row dividers, backdrop/Android Back dismissal and iOS VoiceOver accessibility escape; no visible X button and softly rounded top corners.
+- `src/shared/ui/app-bottom-sheet.tsx`: stateless reusable native Modal shell owning rounded corners, handle, centered header/divider, safe area, backdrop/Android Back/VoiceOver escape dismissal and shared tokens.
+- `src/features/settings/appearance-sheet.tsx`: stateless feature-specific System/Light/Dark circular radio content and error feedback, composed inside the reusable shell; no visible X button.
 - `src/shared/theme/appearance-preference.ts`: pure parsing/scheme-resolution and injected store port.
 - `src/data/preferences/appearance-preference-store.ts`: `expo-sqlite/kv-store` local adapter, separate from financial ledger `tio-money.db`.
 - `src/shared/theme/theme-provider.tsx`: one global stored selection plus live OS appearance subscription; persistence attempted before updating state.
@@ -69,3 +70,16 @@ Apply a subtle **top-only outer border** to the sheet using `borderTopWidth: the
 ## 2026-11-21 — Owner final top treatment: no outer border, 24dp token radius
 
 Remove only the outer sheet's top stroke (`borderTopWidth` and `borderTopColor`), as specifically requested. Increase both top-left and top-right corner radius to 24dp using newly defined shared `radius.xl = size.dp24`, consumed as `theme.radius.xl`—no hardcoded UI value. Keep `overflow: 'hidden'`, handle, centered 48dp Appearance title without X, the **separate divider below the title**, all three mode rows, overlay/Android Back/VoiceOver dismissal and theme persistence. Add radius-token and no-outer-top-stroke regression checks. Previous Phase 0 build failed Prettier on the appearance test; simplify the ordering assertion and require current-head CI again. No Codespaces/EAS activity or PR merge is authorized by this change.
+
+## 2026-11-21 — Issue #42: reusable modal shell extraction
+
+The original Appearance visual baseline merged under [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18).
+Follow-up Issue [#42](https://github.com/im-tnyx/Tio-Money/issues/42) extracts its identical modal chrome
+into `AppBottomSheet`. One set of `bottomSheetTokens` provides 24dp rounded top corners,
+no outer top border, a compact centered visual-only handle, centered 48dp-min header,
+separate header divider, backdrop opacity and safe-area/max-height geometry. Only the radio
+rows, accessibility hints and error text remain inside `AppearanceSheet`. The ViewModel owns
+open/close events and the shared provider owns theme persistence. A standalone test fixture
+composes unrelated content to verify the shared API without introducing another feature.
+No swipe gesture or new close icon is added. Review static CI and actual iOS/Android behavior
+before authorizing merge of the follow-up PR.

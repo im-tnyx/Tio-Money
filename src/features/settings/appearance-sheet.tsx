@@ -1,5 +1,4 @@
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 import { t } from '@/shared/i18n/strings';
 import {
@@ -7,6 +6,7 @@ import {
   type AppearancePreference,
 } from '@/shared/theme/appearance-preference';
 import { useAppTheme } from '@/shared/theme/theme-provider';
+import { AppBottomSheet } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
 
 import { AppearanceOptionIcon } from './appearance-option-icon';
@@ -86,7 +86,7 @@ function AppearanceOption({
   );
 }
 
-/** Stateless native bottom sheet. All visibility and selection state is injected. */
+/** Feature-only content. All modal chrome and dismissal semantics are shared. */
 export function AppearanceSheet({
   state,
   onAction,
@@ -98,84 +98,34 @@ export function AppearanceSheet({
   const dismiss = () => onAction({ type: 'appearance.dismiss' });
 
   return (
-    <Modal
+    <AppBottomSheet
       visible={state.appearanceSheetVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={dismiss}
-      statusBarTranslucent
+      title={t('appearance')}
+      dismissAccessibilityLabel={t('closeAppearance')}
+      onDismiss={dismiss}
     >
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <Pressable
-          onPress={dismiss}
-          accessibilityRole="button"
-          accessibilityLabel={t('closeAppearance')}
-          style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.shadow, opacity: 0.45 }]}
-        />
-        <SafeAreaView
-          edges={['bottom', 'left', 'right']}
-          accessibilityViewIsModal
-          onAccessibilityEscape={dismiss}
+      <View accessibilityRole="radiogroup">
+        {APPEARANCE_OPTIONS.map((option, index) => (
+          <AppearanceOption
+            key={option}
+            value={option}
+            selected={state.appearance === option}
+            showDivider={index > 0}
+            onAction={onAction}
+          />
+        ))}
+      </View>
+      {state.error ? (
+        <View
+          accessibilityLiveRegion="polite"
           style={{
-            width: '100%',
-            maxHeight: '90%',
-            backgroundColor: theme.colors.card,
-            borderTopLeftRadius: theme.radius.xl,
-            borderTopRightRadius: theme.radius.xl,
-            overflow: 'hidden',
+            paddingHorizontal: theme.space.md,
+            paddingVertical: theme.space.sm,
           }}
         >
-          <View
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            style={{
-              width: theme.space.xxxl,
-              height: theme.space.xxs,
-              borderRadius: theme.radius.pill,
-              backgroundColor: theme.colors.border,
-              alignSelf: 'center',
-              marginTop: theme.space.xs,
-              marginBottom: theme.navigation.origin,
-            }}
-          />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              minHeight: theme.buttons.minimumHeight,
-              paddingHorizontal: theme.space.lg,
-              borderBottomWidth: theme.navigation.borderWidth,
-              borderBottomColor: theme.colors.border,
-            }}
-          >
-            <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
-              {t('appearance')}
-            </AppText>
-          </View>
-          <View accessibilityRole="radiogroup">
-            {APPEARANCE_OPTIONS.map((option, index) => (
-              <AppearanceOption
-                key={option}
-                value={option}
-                selected={state.appearance === option}
-                showDivider={index > 0}
-                onAction={onAction}
-              />
-            ))}
-          </View>
-          {state.error ? (
-            <View
-              accessibilityLiveRegion="polite"
-              style={{
-                paddingHorizontal: theme.space.md,
-                paddingVertical: theme.space.sm,
-              }}
-            >
-              <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
-            </View>
-          ) : null}
-        </SafeAreaView>
-      </View>
-    </Modal>
+          <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
+        </View>
+      ) : null}
+    </AppBottomSheet>
   );
 }

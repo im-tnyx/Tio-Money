@@ -1,4 +1,5 @@
 import { opacity, size } from './primitives';
+import { radius, space } from './tokens';
 
 /**
  * One canonical default icon dimension for current navigation and shared UI.
@@ -57,4 +58,19 @@ export const shadowTokens = {
 
 export const recoveryTokens = {
   messageLineHeight: size.dp24,
+} as const;
+
+/** Shared native bottom-sheet geometry. No individual feature may override the shell. */
+export const bottomSheetTokens = {
+  topCornerRadius: radius.xl,
+  maxHeight: '90%' as const,
+  backdropOpacity: opacity.bottomSheetBackdrop,
+  handleWidth: space.xxxl,
+  handleHeight: space.xxs,
+  handleRadius: radius.pill,
+  handleTopMargin: space.xs,
+  handleBottomMargin: navigationTokens.origin,
+  headerMinHeight: buttonTokens.minimumHeight,
+  headerHorizontalPadding: space.lg,
+  headerDividerWidth: navigationTokens.borderWidth,
 } as const;

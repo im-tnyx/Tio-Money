@@ -9,6 +9,7 @@ import {
   type AppearancePreferenceStore,
 } from './appearance-preference';
 import {
+  bottomSheetTokens,
   buttonTokens,
   iconRoleSizes,
   iconTokens,
@@ -37,6 +38,7 @@ export interface AppTheme {
   iconRoles: typeof iconRoleSizes;
   navigation: typeof navigationTokens;
   buttons: typeof buttonTokens;
+  bottomSheet: typeof bottomSheetTokens;
   shadows: typeof shadowTokens;
   recovery: typeof recoveryTokens;
 }
@@ -99,6 +101,7 @@ export function AppThemeProvider({
       iconRoles: iconRoleSizes,
       navigation: navigationTokens,
       buttons: buttonTokens,
+      bottomSheet: bottomSheetTokens,
       shadows: shadowTokens,
       recovery: recoveryTokens,
     }),

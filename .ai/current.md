@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Issue #42 reusable AppBottomSheet implementation started
+
+- **Task:** [TM-UI-BOTTOM-SHEET-20261121-042](tasks/ui/shared-bottom-sheet-20261121.md); [Issue #42](https://github.com/im-tnyx/Tio-Money/issues/42) technical [PROCEED checkpoint](https://github.com/im-tnyx/Tio-Money/issues/42#issuecomment-7059311342) based on direct user instruction to start.
+- **Base/branch:** merged `main` `001d5338836faeffdaf7450e66351d3d5b3f7868` → `feat/shared-app-bottom-sheet-42`. Extract common visual-only Modal chrome to `src/shared/ui/app-bottom-sheet.tsx`, centralize sheet geometry in shared tokens and retain Appearance radio content/state untouched. Add fixture, regression tests and guide.
+- **Safety:** Never change `main` directly; no privileged Codespaces/EAS, new native capability, finance change, additional product flow or auto-merge. New Draft PR and exact-head CI required. Review disposition DEFERRED (optional UI); new merge permission **NOT_GRANTED**.
+
+---
+
 ## 2026-11-21 — PR #18 remove outer top border and 24dp rounded corners
 
 - **Owner change:** Delete bottom sheet **outer top border**, keep independent header divider. Use 24dp rounded top corners via new shared `radius.xl: size.dp24` token, not a hardcoded value. Retain centered Appearance title without X, compact handle, three radio rows and existing dismiss/persistence behavior.
