@@ -179,7 +179,7 @@ export function addSubCurrency(
     throw new Error('Sub Currency limit reached');
   }
   const subCodes = [...current.subCodes, code];
-  return { ...current, subCode: subCodes[0], subCodes };
+  return { ...current, subCode: subCodes[0] ?? null, subCodes };
 }
 
 /** Delete only the selected Sub, never any other saved currencies. */
