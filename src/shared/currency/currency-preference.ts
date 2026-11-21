@@ -203,6 +203,9 @@ export function withSubCurrency(
   current: CurrencyPreferences,
   subCode: CurrencyCode | null,
 ): CurrencyPreferences {
+  if (subCode !== null && !isCurrencyCode(current.mainCode)) {
+    throw new Error('Select a valid Main Currency before adding Sub Currency');
+  }
   if (subCode !== null && !isCurrencyCode(subCode)) {
     throw new Error('Invalid Sub Currency');
   }
@@ -229,6 +232,9 @@ export function addSubCurrency(
   current: CurrencyPreferences,
   code: CurrencyCode,
 ): CurrencyPreferences {
+  if (!isCurrencyCode(current.mainCode)) {
+    throw new Error('Select a valid Main Currency before adding Sub Currency');
+  }
   if (!isCurrencyCode(code)) throw new Error('Invalid Sub Currency');
   if (code === current.mainCode) throw new Error('Sub Currency must differ from Main Currency');
   if (current.subCodes.includes(code)) return current;
