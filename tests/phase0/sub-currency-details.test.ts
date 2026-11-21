@@ -15,6 +15,7 @@ import {
 import {
   formatSubCurrencyDetailCaption,
   formatSubCurrencyDetailPreview,
+  formatSubCurrencyNumberExample,
 } from '../../src/shared/currency/sub-currency-detail-preview';
 import {
   formatSubCurrencyDecimalExample,
@@ -151,7 +152,7 @@ test('TM-CUR-039: aligned captions and compact, right-aligned Sub settings', () 
   assert.equal((preview.match(/flex: 1\.25/g) ?? []).length, 2);
   assert.equal((preview.match(/width: theme.space.xxl/g) ?? []).length, 2);
   assert.match(preview, /adjustsFontSizeToFit/);
-  assert.equal((sheet.match(/width: '34%'/g) ?? []).length, 3);
+  assert.equal((sheet.match(/width: '34%'/g) ?? []).length, 4);
   assert.match(sheet, /alignItems: 'flex-end'/);
   assert.match(sheet, /style=\{\{ flex: 1, textAlign: 'right' \}\}/);
   assert.doesNotMatch(sheet, /paddingVertical: theme.space.md/);
@@ -257,4 +258,76 @@ test('TM-CUR-049: successful FX check feedback disappears after three seconds', 
   assert.match(controller, /setRefreshError\(t\('currencyFxRefreshFailed'\)\)/);
   assert.match(detail, /\{detail.refreshStatus \? \(/);
   assert.match(detail, /accessibilityLiveRegion="polite"/);
+});
+
+test('TM-CUR-053: per-Sub number grouping matches Main policy without Main mutations', () => {
+  const base = addSubCurrency(
+    addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'),
+    'EUR',
+  );
+  assert.equal(formatSubCurrencyNumberExample(base, 'USD', 1234567.89), 'US$ 1,234,567.89');
+  const lakhs = withSubCurrencyDisplay(base, 'USD', { grouping: 'indian' });
+  assert.equal(formatSubCurrencyNumberExample(lakhs, 'USD', 1234567.89), 'US$ 12,34,567.89');
+  const millions = withSubCurrencyDisplay(lakhs, 'USD', { grouping: 'international' });
+  assert.equal(formatSubCurrencyNumberExample(millions, 'USD', 1234567.89), 'US$ 1,234,567.89');
+  const plain = withSubCurrencyDisplay(millions, 'USD', { grouping: 'none' });
+  assert.equal(formatSubCurrencyNumberExample(plain, 'USD', 1234567.89), 'US$ 1234567.89');
+  assert.equal(formatSubCurrencyNumberExample(plain, 'EUR', 1234567.89), '€ 1,234,567.89');
+  assert.deepEqual(plain.display, base.display);
+  const inrSub = addSubCurrency(withMainCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'), 'INR');
+  assert.equal(formatSubCurrencyNumberExample(inrSub, 'INR', 1234567.89), '₹ 12,34,567.89');
+  assert.equal(isCurrencyPreferences(plain), true);
+  assert.deepEqual(parseCurrencyPreferences(plain), plain);
+  assert.equal(removeSubCurrency(plain, 'USD').subDisplay?.USD, undefined);
+});
+
+test('TM-CUR-054: Sub Number Format keeps legacy saved records and rejects invalid grouping', () => {
+  const saved = addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
+  const legacy = {
+    ...saved,
+    subDisplay: { USD: { unitPosition: 'end', decimalDigits: 2 } },
+  } as const;
+  assert.equal(isCurrencyPreferences(legacy), true);
+  assert.deepEqual(parseCurrencyPreferences(legacy), legacy);
+  assert.equal(formatSubCurrencyNumberExample(legacy, 'USD', 1234567.89), '1,234,567.89 US$');
+  const edited = withSubCurrencyDisplay(legacy, 'USD', { grouping: 'indian' });
+  assert.equal(edited.subDisplay?.USD?.grouping, 'indian');
+  assert.equal(edited.subDisplay?.USD?.unitPosition, 'end');
+  assert.equal(edited.subDisplay?.USD?.decimalDigits, 2);
+  const invalid = { ...legacy, subDisplay: { USD: { ...legacy.subDisplay.USD, grouping: 'bogus' } } };
+  assert.equal(isCurrencyPreferences(invalid), false);
+  assert.deepEqual(parseCurrencyPreferences(invalid), DEFAULT_CURRENCY_PREFERENCES);
+  assert.throws(
+    () => withSubCurrencyDisplay(saved, 'USD', { grouping: 'bogus' as 'indian' }),
+    /Invalid Sub Currency display/,
+  );
+});
+
+test('TM-CUR-055: Sub detail expands Format inline and collapses on every other setting', () => {
+  const sheet = readFileSync('src/features/settings/sub-currency-detail-sheet.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
+  const domain = readFileSync('src/shared/currency/currency-preference.ts', 'utf8');
+
+  assert.equal((sheet.match(/<AppBottomSheet/g) ?? []).length, 1);
+  assert.match(sheet, /detail\.formatExpanded \? \(/);
+  assert.match(sheet, /numberFormatChoices\.map/);
+  assert.match(sheet, /currencyMillionsExample/);
+  assert.match(sheet, /currencyLakhsExample/);
+  assert.match(sheet, /currencyNoFormatExample/);
+  assert.match(sheet, /type: 'detail\.format\.toggle'/);
+  assert.match(sheet, /type: 'detail\.format\.select'/);
+  assert.match(sheet, /accessibilityRole="radiogroup"/);
+  assert.match(sheet, /accessibilityRole="radio"/);
+  assert.match(sheet, /accessibilityState=\{\{ checked \}\}/);
+  assert.match(sheet, /accessibilityState=\{\{ expanded: detail\.formatExpanded \}\}/);
+  assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
+  assert.match(vm, /const \[formatExpanded, setFormatExpanded\] = useState\(false\)/);
+  assert.match(vm, /case 'detail\.format\.toggle'/);
+  assert.match(vm, /case 'detail\.format\.select'/);
+  assert.match(vm, /updateSubDisplay\(detailCode, \{ grouping: action\.value \}\)/);
+  assert.ok((vm.match(/setFormatExpanded\(false\)/g) ?? []).length >= 5);
+  assert.match(vm, /resolveNumberGrouping\(detailCode, subDisplay\?\.grouping \?\? 'auto'\)/);
+  assert.match(contract, /readonly formatExpanded: boolean/);
+  assert.match(domain, /readonly grouping\?: NumberGrouping/);
 });
