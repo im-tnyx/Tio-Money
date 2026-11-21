@@ -253,11 +253,16 @@ async function main() {
     throw new Error('This managed starter supports Linux Codespaces only.');
   }
   const flags = process.argv.slice(2);
-  if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart'].includes(x))) {
-    throw new Error('Usage: node scripts/start-codespace-expo.mjs [--start|--status|--restart|--stop]');
+  if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart', '--check-account'].includes(x))) {
+    throw new Error('Usage: node scripts/start-codespace-expo.mjs [--start|--status|--restart|--stop|--check-account]');
   }
   await withLock(async () => {
     const current = managedRecord();
+    if (flags.includes('--check-account')) {
+      requireExpoAccount();
+      console.log('Expo account verified for the configured Tio Money owner.');
+      return;
+    }
     if (flags.includes('--status')) {
       if (!current || !(await metroReady()) || !(await tunnelReady())) {
         throw new Error('No healthy project-owned Metro and tunnel are running.');
