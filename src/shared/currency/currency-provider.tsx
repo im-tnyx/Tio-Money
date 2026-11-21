@@ -14,6 +14,7 @@ import {
   DEFAULT_CURRENCY_PREFERENCES,
   MAX_SUB_CURRENCIES,
   addSubCurrency,
+  isCurrencyCode,
   removeSubCurrency,
   withSubCurrencyDisplay,
   withCurrencyDisplay,
@@ -85,12 +86,22 @@ export function CurrencyPreferencesProvider({
     [commit],
   );
   const selectSubCurrency = useCallback(
-    (code: CurrencyCode | null) => commit(withSubCurrency(current.current, code)),
+    (code: CurrencyCode | null) => {
+      if (code !== null && !isCurrencyCode(current.current.mainCode)) {
+        setState((previous) => ({ ...previous, error: t('currencyChooseMainFirst') }));
+        return false;
+      }
+      return commit(withSubCurrency(current.current, code));
+    },
     [commit],
   );
 
   const addSubCurrencyChoice = useCallback(
     (code: CurrencyCode) => {
+      if (!isCurrencyCode(current.current.mainCode)) {
+        setState((previous) => ({ ...previous, error: t('currencyChooseMainFirst') }));
+        return false;
+      }
       if (current.current.subCodes.includes(code)) return false;
       if (current.current.subCodes.length >= MAX_SUB_CURRENCIES) {
         setState((previous) => ({
