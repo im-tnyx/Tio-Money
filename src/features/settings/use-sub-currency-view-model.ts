@@ -43,7 +43,6 @@ export function useSubCurrencyViewModel(): {
   const { preferences, error, addSubCurrency, removeSubCurrency, updateSubDisplay } =
     useCurrencySettings();
   const [sheetVisible, setSheetVisible] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [rates, setRates] = useState<Record<string, ReferenceRate | null>>({});
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
   const [detailMode, setDetailMode] = useState<'overview' | 'decimal'>('overview');
@@ -87,35 +86,25 @@ export function useSubCurrencyViewModel(): {
     (action: SubCurrencyAction) => {
       switch (action.type) {
         case 'back':
-          if (editing) setEditing(false);
-          else router.back();
-          break;
-        case 'edit.cancel':
-          setEditing(false);
+          router.back();
           break;
         case 'add.open':
           dismissDetail();
-          setEditing(false);
           setSheetVisible(true);
           break;
         case 'add.dismiss':
           setSheetVisible(false);
           break;
-        case 'edit.toggle':
-          dismissDetail();
-          if (preferences.subCodes.length > 0) setEditing((current) => !current);
-          break;
         case 'remove':
           if (removeSubCurrency(action.code)) {
             if (action.code === detailCode) dismissDetail();
-            if (preferences.subCodes.length === 1) setEditing(false);
           }
           break;
         case 'select':
           if (addSubCurrency(action.code)) setSheetVisible(false);
           break;
         case 'detail.open':
-          if (!editing && preferences.subCodes.includes(action.code)) {
+          if (preferences.subCodes.includes(action.code)) {
             dismissDetail();
             setDetailCode(action.code);
           }
@@ -163,7 +152,6 @@ export function useSubCurrencyViewModel(): {
     },
     [
       router,
-      editing,
       detailCode,
       refreshingPair,
       dismissDetail,
@@ -228,7 +216,6 @@ export function useSubCurrencyViewModel(): {
             }
           : null,
       detailMode,
-      editing: editing && selected.length > 0,
       limit: MAX_SUB_CURRENCIES,
       error,
     };
@@ -238,7 +225,6 @@ export function useSubCurrencyViewModel(): {
     detailCode,
     detailMode,
     sheetVisible,
-    editing,
     error,
     refreshingPair,
     refreshError,
