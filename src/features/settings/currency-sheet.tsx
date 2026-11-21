@@ -113,6 +113,10 @@ export function CurrencySheet({
   const selecting = state.currencyStep !== 'overview';
   const selectedCode =
     state.currencyStep === 'main' ? state.currency.mainCode : state.currency.subCode;
+  const options =
+    state.currencyStep === 'sub'
+      ? CURRENCY_OPTIONS.filter((option) => option.code !== state.currency.mainCode)
+      : CURRENCY_OPTIONS;
   return (
     <AppBottomSheet
       visible={state.currencySheetVisible}
@@ -150,9 +154,7 @@ export function CurrencySheet({
                   onAction={onAction}
                 />
               ) : null}
-              {CURRENCY_OPTIONS.filter(
-                (option) => state.currencyStep === 'main' || option.code !== state.currency.mainCode,
-              ).map((option) => (
+              {options.map((option) => (
                 <CurrencyChoice
                   key={option.code}
                   code={option.code}
