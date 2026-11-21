@@ -73,12 +73,7 @@ test('TM-FX-016: only correctly signed pair metadata can hydrate local cache', (
     null,
   );
   assert.equal(
-    parseCachedReferenceRate(
-      'USD',
-      'INR',
-      { ...good, quote: { ...good.quote, rate: -1 } },
-      now,
-    ),
+    parseCachedReferenceRate('USD', 'INR', { ...good, quote: { ...good.quote, rate: -1 } }, now),
     null,
   );
 });
