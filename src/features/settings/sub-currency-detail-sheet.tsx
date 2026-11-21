@@ -27,16 +27,15 @@ export function SubCurrencyDetailSheet({
   const theme = useAppTheme();
   const detail = state.detail;
   const decimalMode = state.detailMode === 'decimal';
+  const sheetTitle = detail
+    ? decimalMode
+      ? t('currencyDecimals')
+      : detail.code + ' ' + t('currencySubDetails')
+    : t('currencySubDetails');
   return (
     <AppBottomSheet
       visible={detail !== null}
-      title={
-        decimalMode
-          ? t('currencyDecimals')
-          : detail
-            ? detail.code + ' ' + t('currencySubDetails')
-            : t('currencySubDetails')
-      }
+      title={sheetTitle}
       dismissAccessibilityLabel={t('currencyCloseOptions')}
       onDismiss={() => onAction({ type: 'detail.dismiss' })}
     >
@@ -169,9 +168,7 @@ export function SubCurrencyDetailSheet({
                   minWidth: theme.buttons.minimumHeight,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  opacity: detail.refreshing
-                    ? theme.buttons.disabledOpacity
-                    : theme.buttons.enabledOpacity,
+                  opacity: detail.refreshing ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
                 }}
               >
                 <Svg
