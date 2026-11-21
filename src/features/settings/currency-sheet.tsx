@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { CURRENCY_OPTIONS, type CurrencyCode } from '@/shared/currency/currency-preference';
 import { t } from '@/shared/i18n/strings';
@@ -144,27 +144,25 @@ export function CurrencySheet({
           >
             <AppText>{t('currencyBack')}</AppText>
           </Pressable>
-          <ScrollView style={{ maxHeight: '70%' }}>
-            <View accessibilityRole="radiogroup">
-              {state.currencyStep === 'sub' ? (
-                <CurrencyChoice
-                  code={null}
-                  label={t('currencyNone')}
-                  selected={selectedCode === null}
-                  onAction={onAction}
-                />
-              ) : null}
-              {options.map((option) => (
-                <CurrencyChoice
-                  key={option.code}
-                  code={option.code}
-                  label={option.name + ' (' + option.code + ')'}
-                  selected={selectedCode === option.code}
-                  onAction={onAction}
-                />
-              ))}
-            </View>
-          </ScrollView>
+          <View accessibilityRole="radiogroup">
+            {state.currencyStep === 'sub' ? (
+              <CurrencyChoice
+                code={null}
+                label={t('currencyNone')}
+                selected={selectedCode === null}
+                onAction={onAction}
+              />
+            ) : null}
+            {options.map((option) => (
+              <CurrencyChoice
+                key={option.code}
+                code={option.code}
+                label={option.name + ' (' + option.code + ')'}
+                selected={selectedCode === option.code}
+                onAction={onAction}
+              />
+            ))}
+          </View>
         </>
       ) : (
         <>

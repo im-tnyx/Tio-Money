@@ -105,13 +105,14 @@ Historical Phase 0 decision [TM-DEC-005](../../../docs/DECISIONS.md#tm-dec-005--
 `src/shared/ui/app-bottom-sheet.tsx` centralizes modal chrome and dismissal, while the
 feature layer supplies only its own body. `bottomSheetTokens` in `component-tokens.ts`
 sets **one global** default for top corner radius (24dp via `radius.xl`), handle size,
-handle margins, header minimum height/divider, horizontal inset, maximum height and backdrop
+handle margins, header minimum height/divider, horizontal inset, safe height limits and backdrop
 opacity. The reusable shell reads the active semantic light/dark colors through `useAppTheme()`.
 There is **no sheet outer top border**. The centered header's divider is a distinct element.
 
 Callers pass `visible`, `title`, `dismissAccessibilityLabel`, `onDismiss`, and arbitrary
 `children`. Visibility and selection stay in feature ViewModels and are never stored in the
-shared shell. The handle is **visual only**, not an unimplemented drag-to-dismiss gesture.
+shared shell. The handle supports vertical drag to expand/collapse and an accessible tap toggle;
+drag-down collapses but does not dismiss the sheet.
 The component retains Android Back, backdrop tap, and iOS VoiceOver escape support. No global
 modal manager, navigation side effects or remote data access is included.
 
@@ -211,3 +212,26 @@ card: **Main Currency | Change**, followed by **Unit Position | Front/End**,
 shared currency-selection bottom sheet through the controller's existing
 `open/currency` action. No separate top-right button, new sheet, preference
 schema, ledger behavior, network calls, or global navigation changes.
+
+## Shared bottom-sheet scrolling, clipping and handle drag — PR #53 (2026-11-21)
+
+The shared `AppBottomSheet` now owns the **single native ScrollView**
+for Appearance, Currency, Main/Sub selection, Decimal and Format. Feature sheets
+no longer contain nested `maxHeight: '70%'` scroll panes; long currency
+lists and error rows remain reachable on short screens and with larger text.
+A tokenized bottom inset supplements the actual bottom OS safe-area inset.
+
+A 48dp accessible handle lets users drag the sheet upward while touching it
+and release to snap expanded. Dragging down collapses it, and tapping
+the same handle also toggles. Gestures activate only from the handle area,
+leaving swipes inside list options to the native ScrollView. Expanded height
+is limited by the **measured modal viewport**, dynamic top safe-area inset
+and a theme gap, so the panel should not obscure battery/network indicators.
+Presentation-only expansion resets when the sheet closes; feature ViewModels
+still own visibility, selection, and dismissal. No additional dependency,
+financial data, migration or routing changes.
+
+Android/iPhone device validation is still required for drag smoothness,
+short screens, large text, scroll-to-last item, back/backdrop dismiss and
+screen-reader handle actions. Source regression tests and Metro CI cannot
+certify actual on-device gesture behavior.
