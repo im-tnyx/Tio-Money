@@ -7,7 +7,6 @@ import { CURRENCY_OPTIONS, type CurrencyPreferences } from './currency-preferenc
 export function formatCurrencyExample(
   preferences: CurrencyPreferences,
   illustrativeAmount: number,
-  useCompact: boolean = false,
 ): string {
   if (!Number.isFinite(illustrativeAmount)) {
     throw new Error('Invalid example amount');
@@ -18,40 +17,14 @@ export function formatCurrencyExample(
     preferences.display.decimalDigits === 'currency'
       ? option.minorDigits
       : preferences.display.decimalDigits;
-  const absAmount = Math.abs(illustrativeAmount);
-  let scaled = absAmount;
-  let suffix = '';
-  const compact = useCompact ? preferences.display.largeAmounts : 'full';
-  if (compact === 'indian') {
-    if (absAmount >= 10000000) {
-      scaled = absAmount / 10000000;
-      suffix = 'Cr';
-    } else if (absAmount >= 100000) {
-      scaled = absAmount / 100000;
-      suffix = 'L';
-    } else if (absAmount >= 1000) {
-      scaled = absAmount / 1000;
-      suffix = 'K';
-    }
-  } else if (compact === 'international') {
-    if (absAmount >= 1000000000) {
-      scaled = absAmount / 1000000000;
-      suffix = 'B';
-    } else if (absAmount >= 1000000) {
-      scaled = absAmount / 1000000;
-      suffix = 'M';
-    } else if (absAmount >= 1000) {
-      scaled = absAmount / 1000;
-      suffix = 'K';
-    }
-  }
   const locale = preferences.display.grouping === 'indian' ? 'en-IN' : 'en-US';
   const number = new Intl.NumberFormat(locale, {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
-  }).format(scaled);
+    useGrouping: preferences.display.grouping !== 'none',
+  }).format(Math.abs(illustrativeAmount));
   const signed = illustrativeAmount < 0 ? '-' : '';
-  const formatted = number + suffix;
+  const formatted = number;
   return preferences.display.unitPosition === 'front'
     ? signed + option.symbol + ' ' + formatted
     : signed + formatted + ' ' + option.symbol;

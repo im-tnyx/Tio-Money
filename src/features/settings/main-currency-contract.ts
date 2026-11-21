@@ -1,18 +1,16 @@
 import type {
   CurrencyCode,
   DecimalDigits,
-  LargeAmountStyle,
   NumberGrouping,
   UnitPosition,
 } from '@/shared/currency/currency-preference';
 
-export type MainCurrencySheetKind = 'currency' | 'decimal' | 'grouping' | 'compact';
+export type MainCurrencySheetKind = 'currency' | 'decimal' | 'grouping';
 
 export type MainCurrencyChoice =
   | { readonly kind: 'currency'; readonly code: CurrencyCode }
   | { readonly kind: 'decimal'; readonly value: DecimalDigits }
-  | { readonly kind: 'grouping'; readonly value: NumberGrouping }
-  | { readonly kind: 'compact'; readonly value: LargeAmountStyle };
+  | { readonly kind: 'grouping'; readonly value: NumberGrouping };
 
 export interface MainCurrencyRow {
   readonly key: MainCurrencySheetKind;
@@ -31,7 +29,6 @@ export interface MainCurrencyUiState {
   readonly label: string;
   readonly unitPosition: UnitPosition;
   readonly preview: string;
-  readonly largePreview: string;
   readonly rows: readonly MainCurrencyRow[];
   readonly sheetKind: MainCurrencySheetKind | null;
   readonly sheetTitle: string;

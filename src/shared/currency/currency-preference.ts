@@ -25,22 +25,19 @@ export const CURRENCY_OPTIONS = [
 export type CurrencyCode = (typeof CURRENCY_OPTIONS)[number]['code'];
 
 export type UnitPosition = 'front' | 'end';
-export type NumberGrouping = 'indian' | 'international';
-export type LargeAmountStyle = 'full' | 'indian' | 'international';
+export type NumberGrouping = 'indian' | 'international' | 'none';
 export type DecimalDigits = 'currency' | 0 | 1 | 2 | 3;
 
 export interface CurrencyDisplayPreferences {
   readonly unitPosition: UnitPosition;
   readonly decimalDigits: DecimalDigits;
   readonly grouping: NumberGrouping;
-  readonly largeAmounts: LargeAmountStyle;
 }
 
 export const DEFAULT_CURRENCY_DISPLAY: CurrencyDisplayPreferences = {
   unitPosition: 'front',
   decimalDigits: 'currency',
   grouping: 'indian',
-  largeAmounts: 'full',
 };
 
 export function isCurrencyDisplayPreferences(value: unknown): value is CurrencyDisplayPreferences {
@@ -53,10 +50,9 @@ export function isCurrencyDisplayPreferences(value: unknown): value is CurrencyD
       candidate.decimalDigits === 1 ||
       candidate.decimalDigits === 2 ||
       candidate.decimalDigits === 3) &&
-    (candidate.grouping === 'indian' || candidate.grouping === 'international') &&
-    (candidate.largeAmounts === 'full' ||
-      candidate.largeAmounts === 'indian' ||
-      candidate.largeAmounts === 'international')
+    (candidate.grouping === 'indian' ||
+      candidate.grouping === 'international' ||
+      candidate.grouping === 'none')
   );
 }
 
@@ -93,7 +89,13 @@ export function parseCurrencyPreferences(value: unknown): CurrencyPreferences {
     return {
       mainCode: value.mainCode,
       subCode: value.subCode,
-      display: value.display ?? DEFAULT_CURRENCY_DISPLAY,
+      display: value.display
+        ? {
+            unitPosition: value.display.unitPosition,
+            decimalDigits: value.display.decimalDigits,
+            grouping: value.display.grouping,
+          }
+        : DEFAULT_CURRENCY_DISPLAY,
     };
   }
   return DEFAULT_CURRENCY_PREFERENCES;
