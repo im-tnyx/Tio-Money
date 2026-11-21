@@ -302,3 +302,30 @@ screen opening, polling or foregrounding. Keep minimum 48dp
 accessible touch height, safe area and swipe/Delete gestures; network
 scope, FX quote precision, cache and finance ledger remain unchanged.
 Tests: `TM-CUR-051`, `TM-CUR-052`, plus previous daily/pair tests.
+
+### 2026-11-22 — Per-Sub Number Format inline accordion (unmerged PR #53)
+
+[Owner-requested technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068636655).
+The **Sub Currency Detail** sheet offers the same display-only Number
+Format choices as Main: `Millions Format (1,000,000)`, `Lakhs Format
+(10,00,000)` and `No Format (1000000)`. Unlike Main's separately
+opened format-choice sheet, tapping the Sub **Format** row expands its
+choices **in place inside the already open AppBottomSheet**; selecting a
+radio option saves the per-Sub preference and closes the accordion.
+Tapping Position, Decimal +/- or Refresh closes the expanded choices
+and keeps the same sheet. Opening a different Sub or dismissing the
+detail also resets expansion.
+
+The selected Sub uses a **per-currency grouping override**
+`subDisplay[ISO].grouping`, independently of Main and all other
+saved Subs. Missing/legacy values mean `auto`: INR -> Indian Lakhs,
+all other supported currencies -> International Millions. Existing
+versioned local v1/v2 records with no grouping are accepted, with no
+migration or loss of prior Unit Position/Decimal Point. Unknown
+grouping values fail validation. UI-only large-number previews honor
+the selected grouping, unit position and decimal digits. The provider's
+published FX rate, six-decimal raw rate display and all financial
+postings remain untouched; no new sheet, API, polling or provider
+permissions. Minimum radio touch target 48dp, screen-reader selected
+state, contrast and overflowing-sheet Safe Area remain required.
+Regression tests: `TM-CUR-053`, `TM-CUR-054`, `TM-CUR-055`.
