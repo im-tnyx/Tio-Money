@@ -76,3 +76,23 @@ Before merge: validate root plus isolated `npm ci`, `expo install --check`, prev
 **Reviewer disposition:** `DEFERRED` (no independent reviewer has inspected this new HEAD yet). Existing security vulnerabilities remain blocking for claiming remediation and require review.
 
 **Next safe action:** Verify exact PR HEAD and CI for this read-only tooling PR; in a network-enabled isolated **non-secret** resolver, generate and authenticate a full, unmodified npm lockfile update that satisfies EAS 27.4.1 constraints; if impossible without CLI identity change, return to RFC #59 for new decision. Revalidate Android/iOS no-QR experience before any merge.
+
+## Follow-up — temp-only remediation candidate (2026-11-22)
+
+Owner's latest **Next go** authorized the next bounded preparation step. Current Draft PR #60 adds an isolated non-default helper [`.github/preview-eas-cli/prepare-candidate.mjs`](../../../.github/preview-eas-cli/prepare-candidate.mjs) and [deterministic tests](../../../tests/preview/eas-cli-remediation-candidate.test.mjs).
+
+**Default action is read-only:**
+```bash
+node .github/preview-eas-cli/prepare-candidate.mjs --plan
+```
+
+**Explicit `--candidate` in a network-enabled, unprivileged, clean environment only:**
+```bash
+node .github/preview-eas-cli/prepare-candidate.mjs --candidate
+```
+
+The command *only* creates a fresh OS temporary directory, copies the isolated manifest (never root `package.json`), proposes **version-qualified** overrides for five older resolved package versions, runs `npm install --package-lock-only --ignore-scripts`, `npm ci --ignore-scripts`, `npm audit signatures`, checks registry SHA-512 identifiers, exact `eas-cli@27.4.1` binary version and remaining `npm audit` High/Critical totals. It refuses unreviewed Babel pin drift and fails closed on mismatches. A successful output is **only an unmerged proposal**; it must be reviewed before copying either generated file onto an authorized change branch. The script never overwrites tracked source files, changes GitHub rules, starts Expo or deploys. It deletes failed temp candidates. No credentials are used.
+
+**Known limitations:** This agent's runtime still cannot resolve the npm registry; the candidate has **NOT** been executed, generated, installed, attested, or device-tested. Specific advisories may require more than these five overrides; `--candidate` must reject remaining High/Critical findings. A successful candidate is **not** evidence of no risk and cannot replace independent supply-chain review, root exact-HEAD CI and **owner-observed Android plus iOS no-QR Expo Go reopen**. A repaired package-lock is not yet in the PR. No existing trusted EAS/Codespaces workflows changed. The new code adds no invocation to root npm scripts/CI beyond its deterministic tests.
+
+**Current review/merge:** Security independent review remains `DEFERRED`; new exact-HEAD CI needs verification; the PR stays Draft. Owner PR-specific merge authorization `NOT_GRANTED`.
