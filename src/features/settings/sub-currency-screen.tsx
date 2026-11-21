@@ -11,7 +11,12 @@ import { AppText } from '@/shared/ui/app-text';
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
 import { SubCurrencyDetailSheet } from './sub-currency-detail-sheet';
 import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
-import { getSwipeOffset, isHorizontalSwipe, snapSwipeOffset } from './sub-currency-swipe';
+import {
+  getSwipeOffset,
+  isHorizontalSwipe,
+  shouldCloseRevealedSwipe,
+  snapSwipeOffset,
+} from './sub-currency-swipe';
 
 function HeaderAction({ label, onPress }: { label: string; onPress: () => void }) {
   const theme = useAppTheme();
@@ -88,16 +93,36 @@ function SwipeableCurrencyRow({
           theme.bottomSheet.dragActivationDistance,
         )
       }
+      onMoveShouldSetResponder={(event) =>
+        isHorizontalSwipe(
+          event.nativeEvent.pageX - start.current.x,
+          event.nativeEvent.pageY - start.current.y,
+          theme.bottomSheet.dragActivationDistance,
+        )
+      }
       onResponderMove={(event) => {
         const dx = event.nativeEvent.pageX - start.current.x;
         setDragOffset(getSwipeOffset(start.current.offset, dx, revealWidth));
       }}
       onResponderRelease={(event) => {
         const dx = event.nativeEvent.pageX - start.current.x;
+        const dy = event.nativeEvent.pageY - start.current.y;
         const current = getSwipeOffset(start.current.offset, dx, revealWidth);
         setDragOffset(null);
-        if (snapSwipeOffset(current, revealWidth) > 0) onReveal();
-        else onClose();
+        if (
+          shouldCloseRevealedSwipe(
+            start.current.offset,
+            dx,
+            dy,
+            theme.bottomSheet.dragActivationDistance,
+          )
+        ) {
+          onClose();
+        } else if (snapSwipeOffset(current, revealWidth) > 0) {
+          onReveal();
+        } else {
+          onClose();
+        }
       }}
       onResponderTerminate={() => setDragOffset(null)}
       style={{
