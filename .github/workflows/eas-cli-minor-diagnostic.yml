@@ -1,6 +1,6 @@
 # Experimental security validation ONLY, do NOT merge or dispatch privileged EAS/Codespaces.
 # This workflow exists solely on a separately stacked Draft PR. No write permissions/secrets.
-name: EAS CLI minor upgrade experiment (unprivileged)
+name: EAS CLI dependency compatibility experiment (unprivileged)
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -47,21 +47,40 @@ jobs:
             name: source.name,
             version: source.version,
             private: true,
-            dependencies: {'eas-cli':'27.11.0'},
+            dependencies: {'eas-cli':'27.4.1'},
             devDependencies: {typescript:'5.9.3'},
             overrides: {
               '@babel/helper-module-transforms':'7.29.13',
               '@babel/plugin-transform-modules-commonjs':'7.29.7',
-              'node-forge':'1.4.3',
+              'node-forge@1.4.0':'1.4.3',
+              'ajv@8.11.0':'8.18.0',
+              'yaml@2.6.0':'2.8.3',
+              'glob@10.5.0':'14.0.2',
+              'glob@13.0.7':'14.0.2',
+              'minimatch@5.1.2':'5.1.8',
+              'minimatch@9.0.9':'11.0.1',
+              'minimatch@10.2.6':'11.0.1',
+              'uuid@7.0.3':'11.1.1',
+              'uuid@8.3.2':'11.1.1',
+              'ts-deepmerge@6.2.0':'8.0.0',
+              'diff@7.0.0':'8.0.3',
+              'nanoid@3.3.8':'3.3.18',
+              'tar@7.5.19':'7.5.21',
+              'eas-cli@27.4.1': {joi:'17.13.9'},
+              '@expo/eas-json@27.4.1': {joi:'17.13.9'},
+              '@expo/build-tools@27.4.1': {joi:'17.13.9'},
             },
           };
           writeFileSync(join(process.env.EAS_CANDIDATE_DIR,'package.json'), JSON.stringify(candidate,null,2)+'\n');
-          console.log('CANDIDATE_PIN=eas-cli@27.11.0; node-forge@1.4.3');
+          console.log('CANDIDATE_PIN=eas-cli@27.4.1; targeted transitive overrides incl major vulnerability fixes');
           NODE
           npm --prefix "$temp" install --package-lock-only --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
           npm --prefix "$temp" ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
           ( cd "$temp" && npm audit signatures --registry=https://registry.npmjs.org )
           "$temp/node_modules/.bin/eas" --version
+          # Offline CLI command-load smoke. No EAS token or project access.
+          "$temp/node_modules/.bin/eas" build --help > /dev/null
+          "$temp/node_modules/.bin/eas" update --help > /dev/null
           set +e
           ( cd "$temp" && npm audit --json --registry=https://registry.npmjs.org ) > "$RUNNER_TEMP/candidate-audit.json"
           audit_rc=$?
@@ -79,8 +98,8 @@ jobs:
           const manifestText = readFileSync(join(process.env.EAS_CANDIDATE_DIR,'package.json'),'utf8');
           const lock = JSON.parse(lockText), counts = report.metadata?.vulnerabilities;
           if(!counts || !report.vulnerabilities || !Number.isInteger(counts.moderate) ||
-             lock.packages?.['']?.dependencies?.['eas-cli']!=='27.11.0' ||
-             lock.packages?.['node_modules/eas-cli']?.version!=='27.11.0') {
+             lock.packages?.['']?.dependencies?.['eas-cli']!=='27.4.1' ||
+             lock.packages?.['node_modules/eas-cli']?.version!=='27.4.1') {
             throw new Error('Incomplete audit or mismatched CLI candidate');
           }
           for(const [path,pkg] of Object.entries(lock.packages)){
