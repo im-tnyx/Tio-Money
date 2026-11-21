@@ -232,5 +232,25 @@ Frankfurter blended v2 only for this Sub Currency reference display.
 See [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy)
 for its conditional privacy/security/accuracy constraints. Never label the
 blended daily reference as a guaranteed live bank/trade rate. The adapter
-rejects future/invalid dates and times out after 8 seconds. UI shows both
-the provider publication date and the cached/online last-checked UTC time.
+rejects future/invalid dates and times out after 8 seconds. The compact Sub
+detail UI shows a **single line** with source, provider publication date,
+and **Cached** state where applicable. The independent last-fetched timestamp
+remains in the local cache, but is not repeated as a second visible date line
+under the owner's 2026-11-22 UI refinement.
+
+### 2026-11-22 — Sub Currency UI refinement (unmerged PR #53)
+
+The selected **Main Currency** code/label is visible in a compact row
+above the Sub list. Add Sub is disabled when Main is invalid or absent;
+the app's persisted default Main **INR is a valid selection** and does
+not require a second onboarding confirmation. Pure domain preference
+operations also refuse to create a Sub for an invalid Main, and changing
+Main to an existing Sub removes that conflicting Sub per the prior rule.
+The Add picker omits redundant `1/5` text while retaining the five-item
+limit and limit-reached notice. Sub detail exposes one source/published-date
+line (and Cached status), a fine 1.5dp refresh glyph with an unchanged
+48dp tap target, and reduced exchange-value/refresh visual gap.
+Shared `AppBottomSheet` uses 24dp overflow-only trailing padding
+with native safe-area protection intact. No finance posting, provider
+protocol, API fields, permissions or data retention policy changes.
+[Owner-directed technical discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067789782).
