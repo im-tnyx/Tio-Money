@@ -199,9 +199,7 @@ export function SubCurrencyDetailSheet({
                 <AppText
                   variant="caption"
                   style={{
-                    color: detail.refreshError
-                      ? theme.colors.expense
-                      : theme.colors.secondaryText,
+                    color: detail.refreshError ? theme.colors.expense : theme.colors.secondaryText,
                   }}
                 >
                   {detail.refreshStatus}
