@@ -128,9 +128,7 @@ function SwipeableCurrencyRow({
             justifyContent: 'center',
           }}
         >
-          <AppText style={{ color: theme.colors.card }}>
-            {t('currencyRemoveSub')}
-          </AppText>
+          <AppText style={{ color: theme.colors.card }}>{t('currencyRemoveSub')}</AppText>
         </Pressable>
       ) : null}
       <View
@@ -283,11 +281,9 @@ export function SubCurrencyScreen({
                   <View style={{ flex: 1, gap: theme.space.xxs }}>
                     <AppText>{item.label}</AppText>
                     {item.rateStatus === 'available' && item.rate ? (
-                      <>
-                        <AppText variant="caption" muted>
-                          {formatReferenceRate(item.rate)}
-                        </AppText>
-                      </>
+                      <AppText variant="caption" muted>
+                        {formatReferenceRate(item.rate)}
+                      </AppText>
                     ) : (
                       <AppText variant="caption" muted>
                         {t(
