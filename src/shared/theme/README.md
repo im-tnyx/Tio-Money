@@ -507,3 +507,20 @@ dark red background in both light and dark modes. The dark background
 must not reuse the lighter expense/pink value because white-text
 contrast would be inadequate. Persistence, FX, ledger and shared sheet
 behavior are unchanged. On-device gesture and screen-reader QA is pending.
+
+## Sub Currency inline decimal stepper and unified detail layout — 2026-11-21
+
+Latest owner direction supersedes the nested Decimal Point option sheet only
+for Sub Currency details. Existing AppBottomSheet still provides the single
+modal shell. The Sub detail row offers minus, sample, and plus: 1, 1.0,
+1.00, 1.000; bounds disable the corresponding 48dp accessible controls.
+Changes persist per selected Sub without dismissing the sheet. Main Currency
+continues to use its existing Decimal Point option bottom sheet.
+
+A read-only Main Currency label appears above the comparison. Sub/Main
+captions share the same aligned columns as their values, source/effective
+date is disclosed when a rate is available, Exchange Rate is a compact
+48dp-minimum row with an independent refresh touch target, and Unit Position
+aligns right. Preview and setting rows use the same theme card color with a
+semantic divider. Tests cover the isolated decimal bounds and Main unaffected.
+FX provider approval and device visual/accessibility QA remain outstanding.
