@@ -23,6 +23,7 @@ export interface SubCurrencyDetail {
   readonly rateStatus: SubCurrencySelectedRow['rateStatus'];
   readonly rateDate: string | null;
   readonly rateFetchedAt: number | null;
+  readonly rateFetchedLabel: string | null;
   readonly unitPosition: UnitPosition;
   readonly decimalDigits: 0 | 1 | 2 | 3;
   readonly decimalLabel: string;
