@@ -41,7 +41,8 @@ export function validateCandidateLockfile(lock) {
   const summary = inventoryLockfile(lock);
   if (summary.belowFloor || summary.unknown) {
     throw new Error('Candidate below researched advisory floors or unknown: ' +
-      summary.belowFloor + '/' + summary.unknown);
+      summary.belowFloor + '/' + summary.unknown + '; offending copies: ' +
+      JSON.stringify(summary.copies.filter((entry) => entry.result !== 'MEETS_FLOOR')));
   }
   for (const [path, pkg] of Object.entries(lock.packages)) {
     if (!path) continue;
