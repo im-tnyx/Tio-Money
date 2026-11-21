@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { formatReferenceRate } from '@/data/market/fx-reference-rates';
@@ -13,23 +13,12 @@ import { SubCurrencyDetailSheet } from './sub-currency-detail-sheet';
 import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
 import { getSwipeOffset, isHorizontalSwipe, snapSwipeOffset } from './sub-currency-swipe';
 
-function HeaderAction({
-  icon,
-  label,
-  onPress,
-  active = false,
-}: {
-  icon: 'plus' | 'pencil';
-  label: string;
-  onPress: () => void;
-  active?: boolean;
-}) {
+function HeaderAction({ label, onPress }: { label: string; onPress: () => void }) {
   const theme = useAppTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ selected: active }}
       onPress={onPress}
       style={{
         width: theme.buttons.minimumHeight,
@@ -46,8 +35,8 @@ function HeaderAction({
         importantForAccessibility="no-hide-descendants"
       >
         <Path
-          d={icon === 'plus' ? 'M12 5v14M5 12h14' : 'M12 20h9M16 4l4 4L9 19H5v-4L16 4Z'}
-          stroke={active ? theme.colors.brand : theme.colors.primaryText}
+          d="M12 5v14M5 12h14"
+          stroke={theme.colors.primaryText}
           strokeWidth={theme.icons.stroke}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -61,7 +50,6 @@ function HeaderAction({
 /** Horizontal-only swipe; vertical scrolling remains owned by ScrollView. */
 function SwipeableCurrencyRow({
   code,
-  editing,
   last,
   isOpen,
   onReveal,
@@ -70,7 +58,6 @@ function SwipeableCurrencyRow({
   children,
 }: {
   code: string;
-  editing: boolean;
   last: boolean;
   isOpen: boolean;
   onReveal: () => void;
@@ -83,7 +70,7 @@ function SwipeableCurrencyRow({
   const [dragOffset, setDragOffset] = useState<number | null>(null);
   const start = useRef({ x: 0, y: 0, offset: 0 });
   // Parent owns reveal state: an outside tap closes the row immediately.
-  const displayedOffset = editing ? 0 : (dragOffset ?? (isOpen ? revealWidth : 0));
+  const displayedOffset = dragOffset ?? (isOpen ? revealWidth : 0);
 
   return (
     <View
@@ -95,7 +82,6 @@ function SwipeableCurrencyRow({
         };
       }}
       onMoveShouldSetResponderCapture={(event) =>
-        !editing &&
         isHorizontalSwipe(
           event.nativeEvent.pageX - start.current.x,
           event.nativeEvent.pageY - start.current.y,
@@ -133,12 +119,12 @@ function SwipeableCurrencyRow({
             right: theme.navigation.origin,
             width: revealWidth,
             minHeight: theme.buttons.minimumHeight,
-            backgroundColor: theme.colors.expense,
+            backgroundColor: theme.colors.deleteActionBackground,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <AppText style={{ color: theme.colors.card }}>{t('currencyDelete')}</AppText>
+          <AppText style={{ color: theme.colors.deleteActionText }}>{t('currencyDelete')}</AppText>
         </Pressable>
       ) : null}
       <View
@@ -182,10 +168,10 @@ export function SubCurrencyScreen({
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t(state.editing ? 'currencyCancelEdit' : 'currencyPageBack')}
+          accessibilityLabel={t('currencyPageBack')}
           onPress={() => {
             setOpenSwipeCode(null);
-            onAction({ type: state.editing ? 'edit.cancel' : 'back' });
+            onAction({ type: 'back' });
           }}
           style={{
             width: sideWidth,
@@ -203,7 +189,7 @@ export function SubCurrencyScreen({
             importantForAccessibility="no-hide-descendants"
           >
             <Path
-              d={state.editing ? 'M18 6 6 18M6 6l12 12' : 'm15 18-6-6 6-6'}
+              d="m15 18-6-6 6-6"
               stroke={theme.colors.primaryText}
               strokeWidth={theme.icons.stroke}
               strokeLinecap="round"
@@ -216,19 +202,7 @@ export function SubCurrencyScreen({
           {t('currencySub')}
         </AppText>
         <View style={{ width: sideWidth, flexDirection: 'row', justifyContent: 'flex-end' }}>
-          {state.selected.length > 0 ? (
-            <HeaderAction
-              icon="pencil"
-              label={t('currencyEditSub')}
-              active={state.editing}
-              onPress={() => {
-                setOpenSwipeCode(null);
-                onAction({ type: 'edit.toggle' });
-              }}
-            />
-          ) : null}
           <HeaderAction
-            icon="plus"
             label={t('currencyAddSub')}
             onPress={() => {
               setOpenSwipeCode(null);
@@ -258,7 +232,6 @@ export function SubCurrencyScreen({
               <SwipeableCurrencyRow
                 key={item.code}
                 code={item.code}
-                editing={state.editing}
                 last={index === state.selected.length - 1}
                 isOpen={openSwipeCode === item.code}
                 onReveal={() => setOpenSwipeCode(item.code)}
@@ -278,41 +251,19 @@ export function SubCurrencyScreen({
                     gap: theme.space.md,
                   }}
                 >
-                  {state.editing ? (
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={t('currencyRemoveSub') + ': ' + item.code}
-                      onPress={() => onAction({ type: 'remove', code: item.code })}
-                      style={{
-                        minHeight: theme.buttons.minimumHeight,
-                        minWidth: theme.buttons.minimumHeight,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Svg
-                        width={theme.space.xxl}
-                        height={theme.space.xxl}
-                        viewBox="0 0 24 24"
-                        accessibilityElementsHidden
-                        importantForAccessibility="no-hide-descendants"
-                      >
-                        <Circle cx="12" cy="12" r="11" fill={theme.colors.expense} />
-                        <Path
-                          d="M7 12h10"
-                          stroke={theme.scheme === 'dark' ? theme.colors.canvas : theme.colors.card}
-                          strokeWidth={theme.icons.stroke}
-                          strokeLinecap="round"
-                          fill="none"
-                        />
-                      </Svg>
-                    </Pressable>
-                  ) : null}
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={item.code + ' ' + t('currencySubDetails')}
                     accessibilityHint={item.label}
-                    disabled={state.editing}
+                    accessibilityActions={[
+                      { name: 'delete', label: t('currencyRemoveSub') + ': ' + item.code },
+                    ]}
+                    onAccessibilityAction={(event) => {
+                      if (event.nativeEvent.actionName === 'delete') {
+                        setOpenSwipeCode(null);
+                        onAction({ type: 'remove', code: item.code });
+                      }
+                    }}
                     onPress={() => {
                       if (openSwipeCode !== null) setOpenSwipeCode(null);
                       else onAction({ type: 'detail.open', code: item.code });
