@@ -177,37 +177,37 @@ function SheetSurface({
               const dy = event.nativeEvent.pageY - touchStartY.current;
               return Math.abs(dy) > sheet.dragActivationDistance;
             }}
-          onResponderGrant={() => {
-            dragStartHeight.current = currentHeight.current || collapsedMax;
-            setDragHeight(dragStartHeight.current);
-          }}
-          onResponderMove={(event) => {
-            const dy = event.nativeEvent.pageY - touchStartY.current;
-            setDragHeight(
-              getDraggedBottomSheetHeight(dragStartHeight.current, dy, collapsedMax, expandedMax),
-            );
-          }}
-          onResponderRelease={(event) => {
-            const dy = event.nativeEvent.pageY - touchStartY.current;
-            setExpanded(shouldExpandBottomSheet(expanded, dy, sheet.dragSnapDistance));
-            setDragHeight(null);
-          }}
-          onResponderTerminate={() => setDragHeight(null)}
-          style={{
-            position: 'absolute',
-            top: theme.navigation.origin,
-            width: sheet.handleTouchWidth,
-            height: sheet.handleTouchHeight,
-            alignSelf: 'center',
-          }}
-        >
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t(expandedForContent ? 'sheetCollapse' : 'sheetExpand')}
-            accessibilityHint={t('sheetHandleHint')}
-            onPress={() => setExpanded((current) => !current)}
-            style={{ flex: 1 }}
-          />
+            onResponderGrant={() => {
+              dragStartHeight.current = currentHeight.current || collapsedMax;
+              setDragHeight(dragStartHeight.current);
+            }}
+            onResponderMove={(event) => {
+              const dy = event.nativeEvent.pageY - touchStartY.current;
+              setDragHeight(
+                getDraggedBottomSheetHeight(dragStartHeight.current, dy, collapsedMax, expandedMax),
+              );
+            }}
+            onResponderRelease={(event) => {
+              const dy = event.nativeEvent.pageY - touchStartY.current;
+              setExpanded(shouldExpandBottomSheet(expanded, dy, sheet.dragSnapDistance));
+              setDragHeight(null);
+            }}
+            onResponderTerminate={() => setDragHeight(null)}
+            style={{
+              position: 'absolute',
+              top: theme.navigation.origin,
+              width: sheet.handleTouchWidth,
+              height: sheet.handleTouchHeight,
+              alignSelf: 'center',
+            }}
+          >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t(expandedForContent ? 'sheetCollapse' : 'sheetExpand')}
+              accessibilityHint={t('sheetHandleHint')}
+              onPress={() => setExpanded((current) => !current)}
+              style={{ flex: 1 }}
+            />
           </View>
         ) : null}
       </SafeAreaView>

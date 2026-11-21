@@ -69,7 +69,14 @@ test('short Decimal and Format sheets reserve bottom safe inset without clipping
 
 test('only overflowing sheets can expand; short sheets remain at the bottom', () => {
   const limits = getBottomSheetHeightLimits(800, 48, bottomSheetTokens);
-  const chrome = 4 + 8 + 48 + 1 + 24;
+  const bottomInset = 24;
+  const chrome =
+    bottomSheetTokens.handleHeight +
+    bottomSheetTokens.handleTopMargin +
+    bottomSheetTokens.handleBottomMargin +
+    bottomSheetTokens.headerMinHeight +
+    bottomSheetTokens.headerDividerWidth +
+    bottomInset;
   const fitHeight = limits.collapsedMax - chrome;
   assert.equal(hasOverflowingSheetContent(250, fitHeight), false);
   assert.equal(hasOverflowingSheetContent(fitHeight, fitHeight), false);
@@ -79,7 +86,10 @@ test('only overflowing sheets can expand; short sheets remain at the bottom', ()
   assert.match(shell, /const canExpand = hasOverflowingSheetContent/);
   assert.match(shell, /const expandedForContent = canExpand && expanded/);
   assert.match(shell, /const draggedForContent = canExpand \? dragHeight : null/);
-  assert.match(shell, /scrollEnabled=\{hasOverflowingSheetContent\(contentHeight, contentMaxHeight\)\}/);
+  assert.match(
+    shell,
+    /scrollEnabled=\{hasOverflowingSheetContent\(contentHeight, contentMaxHeight\)\}/,
+  );
   assert.match(shell, /\{canExpand \? \(/);
   assert.match(shell, /key=\{title\}/);
 });
