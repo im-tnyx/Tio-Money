@@ -90,19 +90,13 @@ export function SubCurrencyDetailSheet({
             }}
           >
             <View style={{ flex: 1, gap: theme.space.xs }}>
-              <AppText variant="caption" muted>
-                {detail.label}
-              </AppText>
+              <AppText variant="caption" muted>{detail.label}</AppText>
               <AppText variant="title">{detail.subPreview}</AppText>
             </View>
             <AppText variant="title">=</AppText>
             <View style={{ flex: 1, gap: theme.space.xs, alignItems: 'flex-end' }}>
-              <AppText variant="caption" muted>
-                {state.mainCode}
-              </AppText>
-              <AppText variant="title" style={{ textAlign: 'right' }}>
-                {detail.mainPreview}
-              </AppText>
+              <AppText variant="caption" muted>{state.mainCode}</AppText>
+              <AppText variant="title" style={{ textAlign: 'right' }}>{detail.mainPreview}</AppText>
             </View>
           </View>
           <View
@@ -124,9 +118,7 @@ export function SubCurrencyDetailSheet({
                 borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText muted style={{ flex: 1 }}>
-                {t('currencyFxExchangeRate')}
-              </AppText>
+              <AppText muted style={{ flex: 1 }}>{t('currencyFxExchangeRate')}</AppText>
               <AppText style={{ flex: 1, textAlign: 'right' }}>{detail.rateValue}</AppText>
               <Pressable
                 accessibilityRole="button"
@@ -175,9 +167,7 @@ export function SubCurrencyDetailSheet({
                 borderBottomColor: theme.colors.border,
               }}
             >
-              <AppText muted style={{ flex: 1 }}>
-                {t('currencyPosition')}
-              </AppText>
+              <AppText muted style={{ flex: 1 }}>{t('currencyPosition')}</AppText>
               <CurrencyUnitPositionControl
                 value={detail.unitPosition}
                 onChange={(value) => onAction({ type: 'detail.position.select', value })}
@@ -197,9 +187,7 @@ export function SubCurrencyDetailSheet({
                 gap: theme.space.md,
               }}
             >
-              <AppText muted style={{ flex: 1 }}>
-                {t('currencyDecimals')}
-              </AppText>
+              <AppText muted style={{ flex: 1 }}>{t('currencyDecimals')}</AppText>
               <AppText style={{ flex: 1, textAlign: 'right' }}>
                 {detail.decimalLabel}
               </AppText>

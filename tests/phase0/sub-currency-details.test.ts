@@ -34,10 +34,7 @@ test('TM-CUR-034: individual Sub display changes persist without touching Main d
     isCurrencyPreferences({ ...edited, subDisplay: { USD: { decimalDigits: 9 } } }),
     false,
   );
-  assert.throws(
-    () => withSubCurrencyDisplay(base, 'GBP', { unitPosition: 'front' }),
-    /not saved/,
-  );
+  assert.throws(() => withSubCurrencyDisplay(base, 'GBP', { unitPosition: 'front' }), /not saved/);
   const remaining = removeSubCurrency(edited, 'USD');
   assert.equal(remaining.subDisplay?.USD, undefined);
   const collision = withMainCurrency(edited, 'USD');
