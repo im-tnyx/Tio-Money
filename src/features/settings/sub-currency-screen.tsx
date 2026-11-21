@@ -1,3 +1,4 @@
+import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +10,7 @@ import { AppText } from '@/shared/ui/app-text';
 
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
 import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
+import { getSwipeOffset, isHorizontalSwipe, snapSwipeOffset } from './sub-currency-swipe';
 
 function HeaderAction({
   icon,
@@ -52,6 +54,94 @@ function HeaderAction({
         />
       </Svg>
     </Pressable>
+  );
+}
+
+/** Horizontal-only swipe; vertical scrolling remains owned by ScrollView. */
+function SwipeableCurrencyRow({
+  code,
+  editing,
+  last,
+  onDelete,
+  children,
+}: {
+  code: string;
+  editing: boolean;
+  last: boolean;
+  onDelete: () => void;
+  children: ReactNode;
+}) {
+  const theme = useAppTheme();
+  const revealWidth = theme.buttons.minimumHeight + theme.space.xxxl;
+  const [offset, setOffset] = useState(0);
+  const start = useRef({ x: 0, y: 0, offset: 0 });
+  const displayedOffset = editing ? 0 : offset;
+
+  return (
+    <View
+      onTouchStart={(event) => {
+        start.current = {
+          x: event.nativeEvent.pageX,
+          y: event.nativeEvent.pageY,
+          offset: displayedOffset,
+        };
+      }}
+      onMoveShouldSetResponderCapture={(event) =>
+        !editing &&
+        isHorizontalSwipe(
+          event.nativeEvent.pageX - start.current.x,
+          event.nativeEvent.pageY - start.current.y,
+          theme.bottomSheet.dragActivationDistance,
+        )
+      }
+      onResponderMove={(event) => {
+        const dx = event.nativeEvent.pageX - start.current.x;
+        setOffset(getSwipeOffset(start.current.offset, dx, revealWidth));
+      }}
+      onResponderRelease={(event) => {
+        const dx = event.nativeEvent.pageX - start.current.x;
+        const current = getSwipeOffset(start.current.offset, dx, revealWidth);
+        setOffset(snapSwipeOffset(current, revealWidth));
+      }}
+      onResponderTerminate={() => setOffset(start.current.offset)}
+      style={{
+        overflow: 'hidden',
+        backgroundColor: theme.colors.card,
+        borderBottomWidth: last ? theme.navigation.origin : theme.navigation.borderWidth,
+        borderBottomColor: theme.colors.border,
+      }}
+    >
+      {displayedOffset > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('currencyRemoveSub') + ': ' + code}
+          onPress={onDelete}
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: revealWidth,
+            minHeight: theme.buttons.minimumHeight,
+            backgroundColor: theme.colors.expense,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <AppText style={{ color: theme.colors.card }}>
+            {t('currencyRemoveSub')}
+          </AppText>
+        </Pressable>
+      ) : null}
+      <View
+        style={{
+          backgroundColor: theme.colors.card,
+          transform: [{ translateX: -displayedOffset }],
+        }}
+      >
+        {children}
+      </View>
+    </View>
   );
 }
 
@@ -143,75 +233,73 @@ export function SubCurrencyScreen({
             }}
           >
             {state.selected.map((item, index) => (
-              <View
-                key={item.code}
-                style={{
-                  minHeight: theme.buttons.minimumHeight,
-                  paddingHorizontal: theme.space.lg,
-                  paddingVertical: theme.space.md,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: theme.space.md,
-                  borderBottomWidth:
-                    index === state.selected.length - 1
-                      ? theme.navigation.origin
-                      : theme.navigation.borderWidth,
-                  borderBottomColor: theme.colors.border,
-                }}
+              <SwipeableCurrencyRow
+                key={item.code + (state.editing ? ':edit' : ':normal')}
+                code={item.code}
+                editing={state.editing}
+                last={index === state.selected.length - 1}
+                onDelete={() => onAction({ type: 'remove', code: item.code })}
               >
-                {state.editing ? (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={t('currencyRemoveSub') + ': ' + item.code}
-                    onPress={() => onAction({ type: 'remove', code: item.code })}
-                    style={{
-                      minHeight: theme.buttons.minimumHeight,
-                      minWidth: theme.buttons.minimumHeight,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Svg
-                      width={theme.space.xxl}
-                      height={theme.space.xxl}
-                      viewBox="0 0 24 24"
-                      accessibilityElementsHidden
-                      importantForAccessibility="no-hide-descendants"
+                <View
+                  style={{
+                    minHeight: theme.buttons.minimumHeight,
+                    paddingHorizontal: theme.space.lg,
+                    paddingVertical: theme.space.md,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: theme.space.md,
+                  }}
+                >
+                  {state.editing ? (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t('currencyRemoveSub') + ': ' + item.code}
+                      onPress={() => onAction({ type: 'remove', code: item.code })}
+                      style={{
+                        minHeight: theme.buttons.minimumHeight,
+                        minWidth: theme.buttons.minimumHeight,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
                     >
-                      <Circle cx="12" cy="12" r="11" fill={theme.colors.expense} />
-                      <Path
-                        d="M7 12h10"
-                        stroke={theme.scheme === 'dark' ? theme.colors.canvas : theme.colors.card}
-                        strokeWidth={theme.icons.stroke}
-                        strokeLinecap="round"
-                        fill="none"
-                      />
-                    </Svg>
-                  </Pressable>
-                ) : null}
-                <View style={{ flex: 1, gap: theme.space.xxs }}>
-                  <AppText>{item.label}</AppText>
-                  {item.rateStatus === 'available' && item.rate ? (
-                    <>
+                      <Svg
+                        width={theme.space.xxl}
+                        height={theme.space.xxl}
+                        viewBox="0 0 24 24"
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
+                      >
+                        <Circle cx="12" cy="12" r="11" fill={theme.colors.expense} />
+                        <Path
+                          d="M7 12h10"
+                          stroke={theme.scheme === 'dark' ? theme.colors.canvas : theme.colors.card}
+                          strokeWidth={theme.icons.stroke}
+                          strokeLinecap="round"
+                          fill="none"
+                        />
+                      </Svg>
+                    </Pressable>
+                  ) : null}
+                  <View style={{ flex: 1, gap: theme.space.xxs }}>
+                    <AppText>{item.label}</AppText>
+                    {item.rateStatus === 'available' && item.rate ? (
+                      <>
+                        <AppText variant="caption" muted>
+                          {formatReferenceRate(item.rate)}
+                        </AppText>
+                      </>
+                    ) : (
                       <AppText variant="caption" muted>
-                        {formatReferenceRate(item.rate)}
+                        {t(
+                          item.rateStatus === 'loading'
+                            ? 'currencyFxLoading'
+                            : 'currencyFxUnavailable',
+                        )}
                       </AppText>
-                      <AppText variant="caption" muted>
-                        {t('currencyFxSource')} · {item.rate.date}
-                      </AppText>
-                    </>
-                  ) : (
-                    <AppText variant="caption" muted>
-                      {t(
-                        item.rateStatus === 'loading'
-                          ? 'currencyFxLoading'
-                          : 'currencyFxUnavailable',
-                      )}
-                    </AppText>
-                  )}
+                    )}
+                  </View>
                 </View>
-
-              </View>
+              </SwipeableCurrencyRow>
             ))}
           </View>
         ) : (

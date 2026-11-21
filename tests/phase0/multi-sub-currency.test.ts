@@ -11,6 +11,11 @@ import {
   type CurrencyCode,
 } from '../../src/shared/currency/currency-preference';
 import { formatReferenceRate, parseReferenceRate } from '../../src/data/market/fx-reference-rates';
+import {
+  getSwipeOffset,
+  isHorizontalSwipe,
+  snapSwipeOffset,
+} from '../../src/features/settings/sub-currency-swipe';
 
 test('TM-CUR-028: five distinct Subs, one-tap addition and per-code removal', () => {
   const first = addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
@@ -52,7 +57,7 @@ test('TM-FX-013: pair-checked FX, six decimals, and screen-only display', () => 
   const sheet = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
   assert.match(fx, /api\.frankfurter\.dev\/v2\/rate\//);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
-  assert.match(screen, /currencyFxSource/);
+  assert.doesNotMatch(screen, /currencyFxSource|item\.rate\.date/);
   assert.match(screen, /currencyFxUnavailable/);
   assert.doesNotMatch(sheet, /rate\.date|formatReferenceRate|currencyFxSource/);
   assert.doesNotMatch(fx, /accountId|transactionId|ledger|balance/);
@@ -65,7 +70,7 @@ test('TM-CUR-031: no extra labels above or below the Sub Currency card', () => {
   assert.doesNotMatch(screen, /t\('currencyFxDisclosure'\)/);
   assert.match(screen, /state.selected.map/);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
-  assert.match(screen, /currencyFxSource/);
+  assert.doesNotMatch(screen, /currencyFxSource|item\.rate\.date/);
   assert.match(screen, /state.error/);
   assert.match(sheet, /currencySubCount/);
 });
@@ -86,4 +91,29 @@ test('TM-CUR-032: Pencil edit shows left destructive minus icon, not right Remov
   assert.match(row, /d="M7 12h10"/);
   assert.doesNotMatch(row, /\{t\('currencyRemoveSub'\)\}/);
   assert.match(screen, /type: state.editing \? 'edit.cancel' : 'back'/);
+});
+
+test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => {
+  assert.equal(isHorizontalSwipe(-40, 5, 8), true);
+  assert.equal(isHorizontalSwipe(40, 5, 8), true);
+  assert.equal(isHorizontalSwipe(5, 40, 8), false);
+  assert.equal(isHorizontalSwipe(-4, 0, 8), false);
+  assert.equal(getSwipeOffset(0, -100, 88), 88);
+  assert.equal(getSwipeOffset(0, -30, 88), 30);
+  assert.equal(getSwipeOffset(88, 120, 88), 0);
+  assert.equal(snapSwipeOffset(30, 88), 0);
+  assert.equal(snapSwipeOffset(60, 88), 88);
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  assert.match(screen, /function SwipeableCurrencyRow/);
+  assert.match(screen, /onMoveShouldSetResponderCapture/);
+  assert.match(screen, /isHorizontalSwipe/);
+  assert.match(screen, /onResponderRelease/);
+  assert.match(screen, /snapSwipeOffset/);
+  assert.match(screen, /!editing &&/);
+  assert.match(screen, /backgroundColor: theme.colors.expense/);
+  assert.match(screen, /translateX: -displayedOffset/);
+  assert.match(screen, /onDelete=\{\(\) => onAction\(\{ type: 'remove', code: item.code \}\)\}/);
+  assert.match(screen, /key=\{item.code \+ \(state.editing \? ':edit' : ':normal'\)\}/);
+  assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
+  assert.match(screen, /formatReferenceRate\(item.rate\)/);
 });

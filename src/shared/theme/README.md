@@ -395,3 +395,21 @@ the icon entirely outside Edit; remove the previous trailing text
 "Remove" action. Header, FX quote/date display, current five-currency
 limit and single-tap add sheet are unchanged. No reordering drag handle
 is introduced until reorder behavior is separately specified.
+
+## Sub Currency swipe-left Delete, and compact FX card — 2026-11-21
+
+Outside Pencil mode, each saved currency row supports a horizontal
+**left swipe** to reveal a semantic red Delete action on the right.
+Tapping Delete invokes the existing per-currency remove operation;
+swiping alone never deletes. Swipe right closes the action; vertical
+gestures still scroll the saved list. Movement is direction-gated,
+clamped to the token-derived reveal width, and snapped open or closed.
+Pencil mode keeps the existing left-side red minus control and resets
+the swipe reveal. No new packages, accounting changes, or storage
+behavior are introduced.
+
+The saved currency row still shows its validated Main/Sub direct
+exchange-rate line or unavailable status; the extra visual
+FX source/date line has been removed to keep rows compact. The
+FX adapter continues validating effective dates internally.
+The Plus selection sheet remains currency-only.
