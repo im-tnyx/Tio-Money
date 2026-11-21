@@ -126,6 +126,19 @@ export function AppearanceSheet({
           }}
         >
           <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={{
+              width: theme.space.xxxl,
+              height: theme.space.xxs,
+              borderRadius: theme.radius.pill,
+              backgroundColor: theme.colors.border,
+              alignSelf: 'center',
+              marginTop: theme.space.xs,
+              marginBottom: theme.space.xxs,
+            }}
+          />
+          <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',

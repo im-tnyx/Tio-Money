@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 restore small top handle after compact sheet revision
+
+- **Owner request:** The sheet is now sufficiently compact, restore its decorative top drag indicator. Preserve left-aligned Appearance header, right X, divider, flat top corners and existing radio rows.
+- **Implementation scope:** Reinsert a centered token-driven handle (40×4dp; 8dp top and 4dp bottom margin), avoiding the former oversized header spacing. Update structural tests, guide and task record. Indicator remains non-interactive; no invented drag gesture. No theme/persistence/finance/CI workflow edit.
+- **Safety/acceptance:** PR #18 branch-only non-force expected-head update; keep `tio-preview` absent during push to avoid unauthorized Codespaces activity. Exact-head CI and device visual QA remain required; independent UI review deferred. **No permission to merge PR #18 into main.**
+
+---
+
 ## 2026-11-21 — PR #18 compact Appearance sheet owner screenshot refinement
 
 - **Owner screenshot/request:** iPhone Appearance bottom sheet wastes vertical area before heading; move title left and minimize whitespace. UI-only technical `PROCEED` within [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17) and [task](tasks/ui/more-appearance-20261120.md), replacing the earlier centered-title choice.

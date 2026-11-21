@@ -82,7 +82,17 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /borderTopRightRadius: theme\.navigation\.origin/);
   assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1 \}\}>/);
   assert.doesNotMatch(sheet, /textAlign: 'center'/);
-  assert.doesNotMatch(sheet, /width: theme\.space\.xxxl/);
+  assert.match(sheet, /width: theme\.space\.xxxl/);
+  assert.match(sheet, /height: theme\.space\.xxs/);
+  assert.match(sheet, /borderRadius: theme\.radius\.pill/);
+  assert.match(sheet, /alignSelf: 'center'/);
+  assert.match(sheet, /marginTop: theme\.space\.xs/);
+  assert.match(sheet, /marginBottom: theme\.space\.xxs/);
+  assert.ok(
+    sheet.indexOf('width: theme.space.xxxl') <
+      sheet.indexOf('<AppText variant="section" style={{ flex: 1 }}>'),
+    'compact drag handle must precede the left-aligned header',
+  );
   assert.doesNotMatch(sheet, /marginTop: theme\.space\.sm/);
   assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
   assert.match(sheet, /paddingVertical: theme\.space\.md/);
