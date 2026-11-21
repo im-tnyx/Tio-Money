@@ -123,16 +123,12 @@ export function AppSegmentedActionControl({
             minHeight: theme.segmentedControl.compactOptionHeight,
             borderRadius: theme.segmentedControl.radius,
             backgroundColor: theme.colors.segmentedSelected,
-            opacity: action.disabled
-              ? theme.buttons.disabledOpacity
-              : theme.buttons.enabledOpacity,
+            opacity: action.disabled ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          <AppText style={{ color: theme.colors.segmentedSelectedText }}>
-            {action.text}
-          </AppText>
+          <AppText style={{ color: theme.colors.segmentedSelectedText }}>{action.text}</AppText>
         </Pressable>
       ))}
     </View>
