@@ -38,9 +38,7 @@ function CurrencyFormatRow({
         gap: theme.space.md,
       }}
     >
-      <AppText muted style={{ flex: 1 }}>
-        {label}
-      </AppText>
+      <AppText muted style={{ flex: 1 }}>{label}</AppText>
       <AppText style={{ flex: 2 }}>{value}</AppText>
       <Svg
         width={theme.iconRoles.card}
@@ -185,13 +183,9 @@ export function MainCurrencyScreen({
           ))}
         </View>
         <View style={{ paddingHorizontal: theme.space.lg, gap: theme.space.xs }}>
-          <AppText variant="caption" muted>
-            {t('currencyLargePreview')}
-          </AppText>
+          <AppText variant="caption" muted>{t('currencyLargePreview')}</AppText>
           <AppText variant="section">{state.largePreview}</AppText>
-          <AppText variant="caption" muted>
-            {t('currencyDisplayOnly')}
-          </AppText>
+          <AppText variant="caption" muted>{t('currencyDisplayOnly')}</AppText>
         </View>
         {state.error ? (
           <View
