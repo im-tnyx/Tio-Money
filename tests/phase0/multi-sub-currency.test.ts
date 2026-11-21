@@ -8,6 +8,7 @@ import {
   addSubCurrency,
   removeSubCurrency,
   withMainCurrency,
+  withSubCurrency,
   type CurrencyCode,
 } from '../../src/shared/currency/currency-preference';
 import { formatReferenceRate, parseReferenceRate } from '../../src/data/market/fx-reference-rates';
@@ -64,16 +65,23 @@ test('TM-FX-013: pair-checked FX, six decimals, and screen-only display', () => 
   assert.doesNotMatch(fx, /accountId|transactionId|ledger|balance/);
 });
 
-test('TM-CUR-031: no extra labels above or below the Sub Currency card', () => {
+test('TM-CUR-031: show selected Main above Sub cards, without picker count clutter', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const sheet = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
-  assert.doesNotMatch(screen, /t\('currencyMain'\)|t\('currencySubCount'\)/);
-  assert.doesNotMatch(screen, /t\('currencyFxDisclosure'\)/);
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  assert.match(screen, /\{t\('currencyMain'\)\}/);
+  assert.match(screen, /\{state.mainLabel\}/);
+  assert.ok(screen.indexOf("{t('currencyMain')}") < screen.indexOf('state.selected.map'));
+  assert.match(screen, /disabled=\{!state.canAddSub\}/);
+  assert.match(screen, /accessibilityState=\{\{ disabled \}\}/);
+  assert.match(vm, /canAddSub: mainConfigured/);
+  assert.doesNotMatch(screen, /t\('currencySubCount'\)|t\('currencyFxDisclosure'\)/);
   assert.match(screen, /state.selected.map/);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
   assert.doesNotMatch(screen, /currencyFxSource|item\.rate\.date/);
   assert.match(screen, /state.error/);
-  assert.match(sheet, /currencySubCount/);
+  assert.doesNotMatch(sheet, /currencySubCount/);
+  assert.match(sheet, /currencySubLimitReached/);
 });
 
 test('TM-CUR-032: no Pencil/X/minus edit mode; swipe is the visible delete action', () => {
@@ -182,4 +190,20 @@ test('TM-CUR-038: both currency headers use shared fixed 50dp token', () => {
   }
   assert.match(sub, /minHeight: theme\.buttons\.minimumHeight \+ theme\.space\.xxl/);
   assert.match(sub, /minHeight: theme\.buttons\.minimumHeight/);
+});
+
+test('TM-CUR-045: Sub creation requires a valid Main while default INR remains valid', () => {
+  const invalid = {
+    ...DEFAULT_CURRENCY_PREFERENCES,
+    mainCode: null as unknown as CurrencyCode,
+  };
+  assert.equal(DEFAULT_CURRENCY_PREFERENCES.mainCode, 'INR');
+  assert.throws(() => addSubCurrency(invalid, 'USD'), /valid Main Currency/);
+  assert.throws(() => withSubCurrency(invalid, 'USD'), /valid Main Currency/);
+  assert.deepEqual(withSubCurrency(invalid, null).subCodes, []);
+  const controller = readFileSync('src/shared/currency/currency-provider.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  assert.match(controller, /if \(!isCurrencyCode\(current.current.mainCode\)\)/);
+  assert.match(controller, /currencyChooseMainFirst/);
+  assert.match(vm, /if \(!isCurrencyCode\(preferences.mainCode\)\) break/);
 });
