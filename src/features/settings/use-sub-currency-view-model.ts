@@ -29,6 +29,7 @@ import {
 import {
   formatSubCurrencyLastChecked,
   shouldOfferSubCurrencyRefresh,
+  summarizeSubCurrencyChecks,
 } from './sub-currency-rate-freshness';
 import type {
   SubCurrencyAction,
@@ -53,6 +54,7 @@ export function useSubCurrencyViewModel(): {
   const { entries, refreshRate } = useFxRates();
   const [sheetVisible, setSheetVisible] = useState(false);
   const [freshnessNow, setFreshnessNow] = useState(() => Date.now());
+  const [refreshingList, setRefreshingList] = useState(false);
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
   const [refreshingPair, setRefreshingPair] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
@@ -61,6 +63,15 @@ export function useSubCurrencyViewModel(): {
     result: SubCurrencyRefreshResult;
   } | null>(null);
   const refreshRequest = useRef(0);
+  const listRefreshInFlight = useRef(false);
+  const listRefreshGeneration = useRef(0);
+
+  useEffect(
+    () => () => {
+      listRefreshGeneration.current += 1;
+    },
+    [],
+  );
 
   // Foregrounding updates *only* the freshness hint, never starts FX polling.
   useEffect(() => {
@@ -133,17 +144,26 @@ export function useSubCurrencyViewModel(): {
             if (next !== effective) updateSubDisplay(detailCode, { decimalDigits: next });
           }
           break;
-        case 'card.refresh': {
-          if (!preferences.subCodes.includes(action.code)) break;
+        case 'list.refresh': {
+          if (listRefreshInFlight.current) break;
           const main = preferences.mainCode;
-          const pair = fxPairKey(action.code, main);
-          if (refreshingPair === pair) break;
-          setRefreshingPair(pair);
-          void refreshRate(action.code, main)
-            .catch(() => undefined)
-            .finally(() => {
-              setRefreshingPair((current) => (current === pair ? null : current));
-            });
+          const stale = preferences.subCodes.filter((code) => {
+            const current = entries[fxPairKey(code, main)];
+            return shouldOfferSubCurrencyRefresh(
+              current?.status ?? 'loading',
+              current?.fetchedAt ?? null,
+              freshnessNow,
+            );
+          });
+          if (stale.length === 0) break;
+          listRefreshInFlight.current = true;
+          setRefreshingList(true);
+          const generation = ++listRefreshGeneration.current;
+          void Promise.allSettled(stale.map((code) => refreshRate(code, main))).then(() => {
+            if (generation !== listRefreshGeneration.current) return;
+            listRefreshInFlight.current = false;
+            setRefreshingList(false);
+          });
           break;
         }
         case 'detail.refresh': {
@@ -182,6 +202,7 @@ export function useSubCurrencyViewModel(): {
       dismissDetail,
       entries,
       refreshRate,
+      freshnessNow,
       preferences,
       addSubCurrency,
       removeSubCurrency,
@@ -197,20 +218,25 @@ export function useSubCurrencyViewModel(): {
       const current = entries[pair];
       const rate = current?.rate ?? null;
       const rateStatus: SubCurrencySelectedRow['rateStatus'] = current?.status ?? 'loading';
-      const checkedAt = current?.fetchedAt ?? null;
-      const lastDate = formatSubCurrencyLastChecked(checkedAt, freshnessNow);
-      selected.push({
-        code,
-        label: currencyLabel(code),
-        rate,
-        rateStatus,
-        showRefresh: shouldOfferSubCurrencyRefresh(rateStatus, checkedAt, freshnessNow),
-        refreshing: refreshingPair === pair,
-        lastCheckedLabel: lastDate
-          ? t('currencyFxCheckedShort') + ' ' + lastDate
-          : t('currencyFxNeverChecked'),
-      });
+      selected.push({ code, label: currencyLabel(code), rate, rateStatus });
     }
+    const checks = summarizeSubCurrencyChecks(
+      preferences.subCodes.map((code) => {
+        const current = entries[fxPairKey(code, preferences.mainCode)];
+        return { status: current?.status ?? 'loading', fetchedAt: current?.fetchedAt ?? null };
+      }),
+      freshnessNow,
+    );
+    const lastCheckedLabel =
+      checks.uncheckedCount === selected.length
+        ? t('currencyFxNeverChecked')
+        : checks.uncheckedCount > 0
+          ? t('currencyFxSomeNotChecked')
+          : checks.oldestCheckedAt !== null
+            ? t('currencyFxCheckedShort') +
+              ' ' +
+              formatSubCurrencyLastChecked(checks.oldestCheckedAt, freshnessNow)
+            : t('currencyFxNeverChecked');
     const choices: SubCurrencyChoiceRow[] = [];
     for (const item of CURRENCY_OPTIONS) {
       if (item.code === preferences.mainCode) continue;
@@ -236,6 +262,8 @@ export function useSubCurrencyViewModel(): {
       mainLabel: mainConfigured ? currencyLabel(preferences.mainCode) : t('currencyChooseMain'),
       canAddSub: mainConfigured,
       selected,
+      refreshSummary:
+        checks.staleCount > 0 ? { lastCheckedLabel, refreshing: refreshingList } : null,
       choices,
       sheetVisible,
       detail:
@@ -286,6 +314,7 @@ export function useSubCurrencyViewModel(): {
     refreshError,
     refreshResult,
     freshnessNow,
+    refreshingList,
   ]);
 
   return { state, onAction };
