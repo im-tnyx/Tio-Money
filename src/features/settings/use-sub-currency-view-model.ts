@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   CURRENCY_OPTIONS,
   MAX_SUB_CURRENCIES,
+  isCurrencyCode,
   resolveSubCurrencyDisplay,
   type CurrencyCode,
 } from '@/shared/currency/currency-preference';
@@ -68,6 +69,7 @@ export function useSubCurrencyViewModel(): {
           router.back();
           break;
         case 'add.open':
+          if (!isCurrencyCode(preferences.mainCode)) break;
           dismissDetail();
           setSheetVisible(true);
           break;
@@ -80,6 +82,7 @@ export function useSubCurrencyViewModel(): {
           }
           break;
         case 'select':
+          if (!isCurrencyCode(preferences.mainCode)) break;
           if (addSubCurrency(action.code)) setSheetVisible(false);
           break;
         case 'detail.open':
@@ -147,6 +150,7 @@ export function useSubCurrencyViewModel(): {
   );
 
   const state = useMemo<SubCurrencyUiState>(() => {
+    const mainConfigured = isCurrencyCode(preferences.mainCode);
     const selected: SubCurrencySelectedRow[] = [];
     for (const code of preferences.subCodes) {
       const current = entries[fxPairKey(code, preferences.mainCode)];
@@ -176,7 +180,8 @@ export function useSubCurrencyViewModel(): {
       : null;
     return {
       mainCode: preferences.mainCode,
-      mainLabel: currencyLabel(preferences.mainCode),
+      mainLabel: mainConfigured ? currencyLabel(preferences.mainCode) : t('currencyChooseMain'),
+      canAddSub: mainConfigured,
       selected,
       choices,
       sheetVisible,
@@ -196,12 +201,6 @@ export function useSubCurrencyViewModel(): {
               rateStatus: selectedDetail.rateStatus,
               rateDate: selectedDetail.rate?.date ?? null,
               rateFetchedAt: fetchedAt,
-              rateFetchedLabel: fetchedAt
-                ? t('currencyFxCheckedAt') +
-                  ': ' +
-                  new Date(fetchedAt).toISOString().slice(0, 16).replace('T', ' ') +
-                  ' UTC'
-                : null,
               unitPosition: subDisplay.unitPosition,
               decimalDigits: displayedDigits,
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
