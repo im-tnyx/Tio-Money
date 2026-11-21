@@ -183,3 +183,21 @@ available on each currency row without showing another destructive icon.
 The existing per-currency remove operation, maximum of five Sub
 Currencies, Main/Sub uniqueness, stored preferences and finance
 boundaries are unchanged. Physical Android/iOS QA remains pending.
+
+### Sub Currency detail inline Decimal Point control — 2026-11-21
+
+This newer owner UI requirement replaces the nested decimal-choice modal only
+within the Sub Currency **detail** bottom sheet. The row has accessible
+minus and plus buttons with a center sample **1 / 1.0 / 1.00 / 1.000**;
+the lower and upper bounds are disabled. The chosen 0–3 decimal digit
+precision persists only for the individual Sub, and its detail comparison
+preview updates without dismissing the sheet. Main Currency retains the
+original choice bottom sheet unchanged.
+
+The detail sheet still composes the existing shared AppBottomSheet and
+Front/End selector. It names the Main Currency above its conversion
+preview; caption/value columns align, source/effective date is visible
+when a quote exists, the Exchange Rate refresh row stays compact, the
+Unit Position control sits at the right edge, and both panels share
+the semantic card surface/dividers. No new network endpoint, account
+or ledger data operation or FX-provider approval is implied.
