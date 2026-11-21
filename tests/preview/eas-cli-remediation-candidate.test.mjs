@@ -16,9 +16,11 @@ test('candidate preserves exact EAS CLI, TypeScript and signed Babel pins withou
   assert.equal(JSON.stringify(source), serialized);
   const proposed = readPlan().proposed;
   assert.deepEqual(Object.keys(proposed).sort(), [
-    'joi@17.11.0', 'minimatch@5.1.2', 'nanoid@3.3.8', 'node-forge@1.4.0', 'tar@7.5.19',
+    '@expo/eas-json@27.4.1', 'minimatch@5.1.2', 'nanoid@3.3.8', 'node-forge@1.4.0', 'tar@7.5.19',
   ].sort());
   assert.equal(candidate.overrides['minimatch@5.1.2'], '5.1.8');
+  assert.deepEqual(candidate.overrides['@expo/eas-json@27.4.1'], { joi: '17.13.9' });
+  assert.equal(candidate.overrides.joi, undefined);
   assert.equal(candidate.overrides['minimatch'], undefined);
 });
 
