@@ -235,3 +235,21 @@ Android/iPhone device validation is still required for drag smoothness,
 short screens, large text, scroll-to-last item, back/backdrop dismiss and
 screen-reader handle actions. Source regression tests and Metro CI cannot
 certify actual on-device gesture behavior.
+
+## Bottom-sheet refinement: preserve original top chrome (2026-11-21)
+
+The owner explicitly retained the **original thin handle and centered title
+geometry**. The visible handle again occupies only its original 4dp height
+with 8dp top margin and no added header gap; the existing 48dp header is
+unchanged. A separate transparent **absolute-positioned** accessible
+handle hit area (48dp tall) supports drag and tap without shifting the
+visible handle/title or consuming sheet layout height.
+
+The initial sheet cap returns to its prior **90% viewport** maximum rather
+than the experimental 72%; short sheets remain content-sized. Currency
+choices use the one shared scroll region, and content retains 40dp extra
+bottom breathing room **inside the scrollable content**, in addition to
+system bottom safe-area padding. The final row must be fully reachable
+without being covered or cut at the screen edge. Expansion may grow toward
+96% while preserving the top safe inset and theme gap. Verify on Android
+and iPhone before treating the visual/gesture behavior as accepted.

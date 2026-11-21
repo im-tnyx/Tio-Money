@@ -77,13 +77,14 @@ export const recoveryTokens = {
 /** Shared native bottom-sheet geometry. No individual feature may override the shell. */
 export const bottomSheetTokens = {
   topCornerRadius: radius.xl,
-  collapsedViewportFraction: 0.72,
+  collapsedViewportFraction: 0.9,
   expandedViewportFraction: 0.96,
   topSafeGap: space.sm,
   handleTouchHeight: buttonTokens.minimumHeight,
+  handleTouchWidth: size.dp100 + space.lg,
   dragActivationDistance: size.dp8,
   dragSnapDistance: size.dp32,
-  contentBottomPadding: space.lg,
+  contentBottomPadding: space.xxxl,
   backdropOpacity: opacity.bottomSheetBackdrop,
   handleWidth: space.xxxl,
   handleHeight: space.xxs,

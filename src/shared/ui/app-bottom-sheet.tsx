@@ -118,6 +118,41 @@ function SheetSurface({
         }}
       >
         <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={{
+            width: sheet.handleWidth,
+            height: sheet.handleHeight,
+            borderRadius: sheet.handleRadius,
+            backgroundColor: theme.colors.border,
+            alignSelf: 'center',
+            marginTop: sheet.handleTopMargin,
+            marginBottom: sheet.handleBottomMargin,
+          }}
+        />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            minHeight: sheet.headerMinHeight,
+            paddingHorizontal: sheet.headerHorizontalPadding,
+            borderBottomWidth: sheet.headerDividerWidth,
+            borderBottomColor: theme.colors.border,
+          }}
+        >
+          <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
+            {title}
+          </AppText>
+        </View>
+        <ScrollView
+          nestedScrollEnabled
+          keyboardShouldPersistTaps="handled"
+          style={{ flexShrink: 1, flexGrow: expanded || dragHeight !== null ? 1 : undefined }}
+          contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding }}
+        >
+          {children}
+        </ScrollView>
+        <View
           onTouchStart={(event) => {
             touchStartY.current = event.nativeEvent.pageY;
           }}
@@ -141,54 +176,22 @@ function SheetSurface({
             setDragHeight(null);
           }}
           onResponderTerminate={() => setDragHeight(null)}
+          style={{
+            position: 'absolute',
+            top: theme.navigation.origin,
+            width: sheet.handleTouchWidth,
+            height: sheet.handleTouchHeight,
+            alignSelf: 'center',
+          }}
         >
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t(expanded ? 'sheetCollapse' : 'sheetExpand')}
             accessibilityHint={t('sheetHandleHint')}
             onPress={() => setExpanded((current) => !current)}
-            style={{
-              minHeight: sheet.handleTouchHeight,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <View
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-              style={{
-                width: sheet.handleWidth,
-                height: sheet.handleHeight,
-                borderRadius: sheet.handleRadius,
-                backgroundColor: theme.colors.border,
-                marginTop: sheet.handleTopMargin,
-                marginBottom: sheet.handleBottomMargin,
-              }}
-            />
-          </Pressable>
+            style={{ flex: 1 }}
+          />
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            minHeight: sheet.headerMinHeight,
-            paddingHorizontal: sheet.headerHorizontalPadding,
-            borderBottomWidth: sheet.headerDividerWidth,
-            borderBottomColor: theme.colors.border,
-          }}
-        >
-          <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
-            {title}
-          </AppText>
-        </View>
-        <ScrollView
-          nestedScrollEnabled
-          keyboardShouldPersistTaps="handled"
-          style={{ flexShrink: 1, flexGrow: expanded || dragHeight !== null ? 1 : undefined }}
-          contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding }}
-        >
-          {children}
-        </ScrollView>
       </SafeAreaView>
     </View>
   );

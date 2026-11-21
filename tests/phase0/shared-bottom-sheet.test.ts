@@ -14,13 +14,14 @@ import { radius, space } from '../../src/shared/theme/tokens';
 test('shared bottom-sheet geometry aliases central primitives and semantic tokens', () => {
   assert.equal(bottomSheetTokens.topCornerRadius, radius.xl);
   assert.equal(bottomSheetTokens.topCornerRadius, size.dp24);
-  assert.equal(bottomSheetTokens.collapsedViewportFraction, 0.72);
+  assert.equal(bottomSheetTokens.collapsedViewportFraction, 0.9);
   assert.equal(bottomSheetTokens.expandedViewportFraction, 0.96);
   assert.equal(bottomSheetTokens.topSafeGap, space.sm);
   assert.equal(bottomSheetTokens.handleTouchHeight, buttonTokens.minimumHeight);
+  assert.equal(bottomSheetTokens.handleTouchWidth, size.dp100 + space.lg);
   assert.equal(bottomSheetTokens.dragActivationDistance, size.dp8);
   assert.equal(bottomSheetTokens.dragSnapDistance, size.dp32);
-  assert.equal(bottomSheetTokens.contentBottomPadding, space.lg);
+  assert.equal(bottomSheetTokens.contentBottomPadding, space.xxxl);
   assert.equal(bottomSheetTokens.backdropOpacity, opacity.bottomSheetBackdrop);
   assert.equal(opacity.bottomSheetBackdrop, 0.45);
   assert.equal(bottomSheetTokens.handleWidth, space.xxxl);
@@ -89,12 +90,18 @@ test('one shared shell owns modal presentation and both feature and fixture comp
 
 test('height limits respect the top safe area and handle drag direction', () => {
   const bounds = getBottomSheetHeightLimits(800, 48, bottomSheetTokens);
-  assert.equal(bounds.collapsedMax, 576);
+  assert.equal(bounds.collapsedMax, 720);
   assert.equal(bounds.expandedMax, 740);
-  assert.equal(getDraggedBottomSheetHeight(400, -160, bounds.collapsedMax, bounds.expandedMax), 560);
-  assert.equal(getDraggedBottomSheetHeight(400, -700, bounds.collapsedMax, bounds.expandedMax), 740);
+  assert.equal(
+    getDraggedBottomSheetHeight(400, -160, bounds.collapsedMax, bounds.expandedMax),
+    560,
+  );
+  assert.equal(
+    getDraggedBottomSheetHeight(400, -700, bounds.collapsedMax, bounds.expandedMax),
+    740,
+  );
   assert.equal(getDraggedBottomSheetHeight(400, 160, bounds.collapsedMax, bounds.expandedMax), 400);
-  assert.equal(getDraggedBottomSheetHeight(740, 200, bounds.collapsedMax, bounds.expandedMax), 576);
+  assert.equal(getDraggedBottomSheetHeight(740, 200, bounds.collapsedMax, bounds.expandedMax), 720);
   assert.equal(shouldExpandBottomSheet(false, -32, bottomSheetTokens.dragSnapDistance), true);
   assert.equal(shouldExpandBottomSheet(true, 32, bottomSheetTokens.dragSnapDistance), false);
   assert.equal(shouldExpandBottomSheet(true, -10, bottomSheetTokens.dragSnapDistance), true);
@@ -114,4 +121,25 @@ test('one shared scrolling region shows all currency choices and bottom safe pad
   assert.match(main, /<AppBottomSheet/);
   assert.match(sub, /<AppBottomSheet/);
   assert.match(appearance, /<AppBottomSheet/);
+});
+
+test('existing thin handle/title geometry remains unchanged while bottom content scrolls', () => {
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.match(shared, /height: sheet\.handleHeight/);
+  assert.match(shared, /marginTop: sheet\.handleTopMargin/);
+  assert.match(shared, /marginBottom: sheet\.handleBottomMargin/);
+  assert.match(shared, /minHeight: sheet\.headerMinHeight/);
+  assert.match(shared, /position: 'absolute'/);
+  assert.match(shared, /width: sheet\.handleTouchWidth/);
+  assert.match(shared, /height: sheet\.handleTouchHeight/);
+  assert.match(shared, /top: theme\.navigation\.origin/);
+  assert.match(
+    shared,
+    /contentContainerStyle=\{\{ paddingBottom: sheet\.contentBottomPadding \}\}/,
+  );
+  assert.ok(
+    shared.indexOf('height: sheet.handleHeight') <
+      shared.indexOf('minHeight: sheet.headerMinHeight'),
+  );
+  assert.ok(shared.indexOf('<ScrollView') < shared.indexOf("position: 'absolute'"));
 });
