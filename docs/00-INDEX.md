@@ -27,8 +27,8 @@
 | [10 · Currency & Exchange Rates](10-CURRENCY-SPEC.md) | Main + optional distinct Sub Currency, refresh-on-use, stale offline fallback, unresolved ledger ADRs |
 | [09 · Future Backup, Restore & Sync](09-BACKUP-SYNC-SPEC.md) | Stage 2 encrypted user-directed backup, Stage 3 optional Supabase/Auth; **design only, not implemented** |
 | [11 · Stage 1 Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) | Canonical TM-ADR-011–023 decisions, accepted invariants versus blocked accounting/policy prerequisites and test vectors |
-| [13 · Documentation Readiness & Gaps](13-DOCUMENTATION-READINESS.md) | Current code versus future requirements, pending owner/ADR gates, evidence and docs PR checklist |
 | [12 · Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) | Owner-mandated strictly presentation-only screens, typed controller/domain/repository separation and future CI negative tests |
+| [13 · Documentation Readiness & Gaps](13-DOCUMENTATION-READINESS.md) | Current code versus future requirements, pending owner/ADR gates, evidence and docs PR checklist |
 
 **GitHub state reverified 2026-11-21:** [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) (merge `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`), [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) (merge `6187b7a7e4c59949547c21655accf50dec8d0dfd`) and [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) (merge `f4332eb338ca75e27a5b35ff57511f522a4bb96a`) are **MERGED into main**. Earlier Draft/unmerged task checkpoints are historical. Current Phase 0 has **four blank finance tabs (Home/Trans./Stats./Account), implemented More → Appearance**, and a disabled floating Add; financial features, future backups and Supabase Auth **are not implemented**. The five-blank shell described for PR #1 is historical. Owner-reported Android smoke is not iPhone/SQLite end-to-end QA.
 
