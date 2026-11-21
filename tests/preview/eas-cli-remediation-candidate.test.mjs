@@ -16,15 +16,19 @@ test('candidate preserves exact EAS CLI, TypeScript and signed Babel pins withou
   assert.equal(JSON.stringify(source), serialized);
   const proposed = readPlan().proposed;
   assert.deepEqual(Object.keys(proposed).sort(), [
-    '@expo/eas-json@27.4.1', 'eas-cli@27.4.1', 'minimatch@5.1.2', 'nanoid@3.3.8', 'node-forge@1.4.0', 'tar@7.5.19',
+    '@expo/build-tools@27.4.1', '@expo/eas-json@27.4.1', 'eas-cli@27.4.1', 'minimatch@5.1.2', 'nanoid@3.3.8', 'node-forge@1.4.0', 'tar@7.5.19',
   ].sort());
   assert.equal(candidate.overrides['minimatch@5.1.2'], '5.1.8');
   assert.deepEqual(candidate.overrides['@expo/eas-json@27.4.1'], { joi: '17.13.9' });
-  assert.deepEqual(candidate.overrides['eas-cli@27.4.1'], { joi: '17.13.9' });
+  assert.deepEqual(candidate.overrides['eas-cli@27.4.1'], { joi: '17.13.9', ajv: '8.18.0', yaml: '2.8.3' });
+  assert.deepEqual(candidate.overrides['@expo/build-tools@27.4.1'], { joi: '17.13.9' });
+  assert.equal(candidate.overrides['node-forge@1.4.0'], '1.4.3');
   assert.equal(candidate.overrides.joi, undefined);
   const alreadyApproved = { ...source, overrides: { ...candidate.overrides } };
   assert.deepEqual(createCandidateManifest(alreadyApproved).overrides, candidate.overrides);
   assert.equal(candidate.overrides['minimatch'], undefined);
+  assert.equal(candidate.overrides.ajv, undefined);
+  assert.equal(candidate.overrides.yaml, undefined);
 });
 
 test('candidate rejects EAS identity, Babel pin drift and unreviewed override changes', () => {
@@ -61,4 +65,16 @@ test('QR-free Android/iOS Expo Go script remains independent of EAS remediation'
   assert.equal(root.scripts.mobile, 'expo start --tunnel --go');
   assert.ok(tasks.tasks.some(({ label }) => label === 'Expo Go Tunnel (Interactive)'));
   assert.ok(tasks.tasks.some(({ label }) => label === 'Start Expo Project (Tunnel)'));
+});
+
+
+test('official-registry lockfile retains patched AJV/YAML/Forge copies and exact EAS CLI pin', () => {
+  const lock = JSON.parse(readFileSync(new URL('../../.github/preview-eas-cli/package-lock.json', import.meta.url), 'utf8'));
+  assert.equal(lock.packages['node_modules/eas-cli'].version, '27.4.1');
+  assert.equal(lock.packages['node_modules/ajv'].version, '8.18.0');
+  assert.equal(lock.packages['node_modules/node-forge'].version, '1.4.3');
+  assert.equal(lock.packages['node_modules/yaml'].version, '2.8.3');
+  assert.equal(lock.packages['node_modules/fast-uri'].version, '3.1.0');
+  assert.equal(lock.packages['node_modules/uri-js'], undefined);
+  assert.equal(lock.packages['node_modules/punycode'], undefined);
 });
