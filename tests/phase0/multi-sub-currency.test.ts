@@ -210,7 +210,10 @@ test('TM-CUR-045: Sub creation requires a valid Main while default INR remains v
 
 test('TM-CUR-048: Main row and Sub list touch without an inter-card gap', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
-  const scrollArea = screen.slice(screen.indexOf('<ScrollView'), screen.indexOf('{state.error ? ('));
+  const scrollArea = screen.slice(
+    screen.indexOf('<ScrollView'),
+    screen.indexOf('{state.error ? ('),
+  );
   assert.match(scrollArea, /gap: theme\.space\.md/);
   assert.match(
     scrollArea,
