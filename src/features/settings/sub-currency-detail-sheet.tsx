@@ -113,6 +113,7 @@ export function SubCurrencyDetailSheet({
             </View>
             {detail.rateDate ? (
               <AppText variant="caption" muted>
+                {detail.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
                 {t('currencyFxSource')} · {detail.rateDate}
               </AppText>
             ) : null}
