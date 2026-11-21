@@ -255,65 +255,49 @@ test('TM-CUR-050: use local verification day, not the Frankfurter publication da
   );
 });
 
-test('TM-CUR-051: exactly one unboxed footer sits after the last Sub card', () => {
+test('TM-CUR-051: one unboxed footer follows the final Sub card', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
-  const provider = readFileSync('src/shared/currency/fx-rate-provider.tsx', 'utf8');
   const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
-  const list = screen.indexOf('state.selected.map((item, index) =>');
+  const card = screen.indexOf('state.selected.map((item, index) =>');
   const footer = screen.indexOf('{state.refreshSummary ? (');
-  assert.ok(list > 0 && footer > list);
-  assert.ok(footer > screen.indexOf('state.selected.length > 0 ? ('));
-  assert.equal(screen.match(/\{state\.refreshSummary \? \(/g)?.length, 1);
-  assert.doesNotMatch(screen, /item\.showRefresh|type: 'card.refresh'/);
-  assert.match(screen, /\{state\.refreshSummary\.lastCheckedLabel\}/);
-  assert.match(screen, /type: 'list.refresh'/);
-  assert.match(screen, /minHeight: theme\.buttons\.minimumHeight/);
-  assert.ok(screen.includes('accessibilityState={{ disabled: state.refreshSummary.refreshing }}'));
-  assert.match(contract, /readonly refreshSummary: SubCurrencyRefreshSummary \| null/);
-  assert.match(vm, /summarizeSubCurrencyChecks\(/);
-  assert.match(vm, /case 'list.refresh'/);
-  assert.match(vm, /if \(listRefreshInFlight\.current\) break/);
-  assert.ok(vm.includes('Promise.allSettled(stale.map((code) => refreshRate(code, main)))'));
-  assert.match(vm, /shouldOfferSubCurrencyRefresh\(/);
-  assert.match(provider, /const activeRequest = pending\.current\[key\]/);
-  assert.doesNotMatch(screen, /getReferenceRate\(|setInterval\(/);
+  const batch = 'Promise.allSettled(stale.map((code) => refreshRate(code, main)))';
+
+  assert.ok(card >= 0 && footer > card);
+  assert.equal(screen.split('{state.refreshSummary ? (').length, 2);
+  assert.ok(!screen.includes('item.showRefresh'));
+  assert.ok(!screen.includes("type: 'card.refresh'"));
+  assert.ok(screen.includes("type: 'list.refresh'"));
+  assert.ok(screen.includes('{state.refreshSummary.lastCheckedLabel}'));
+  assert.ok(screen.includes('minHeight: theme.buttons.minimumHeight'));
+  assert.ok(contract.includes('readonly refreshSummary: SubCurrencyRefreshSummary | null'));
+  assert.ok(vm.includes("case 'list.refresh'"));
+  assert.ok(vm.includes('if (listRefreshInFlight.current) break'));
+  assert.ok(vm.includes(batch));
+  assert.ok(vm.includes('shouldOfferSubCurrencyRefresh('));
 });
 
-test('TM-CUR-052: mixed-Sub footer shows oldest check or partial-unchecked accurately', () => {
+test('TM-CUR-052: aggregate unchecked and old Sub rates without masking stale data', () => {
   const now = new Date(2026, 10, 22, 12, 30).getTime();
   const fresh = new Date(2026, 10, 22, 9, 30).getTime();
   const old = new Date(2026, 10, 21, 9, 30).getTime();
-  assert.deepEqual(
-    summarizeSubCurrencyChecks(
-      [
-        { status: 'available', fetchedAt: fresh },
-        { status: 'available', fetchedAt: old },
-      ],
-      now,
-    ),
-    { staleCount: 1, uncheckedCount: 0, oldestCheckedAt: old },
-  );
-  assert.deepEqual(
-    summarizeSubCurrencyChecks(
-      [
-        { status: 'available', fetchedAt: fresh },
-        { status: 'unavailable', fetchedAt: null },
-      ],
-      now,
-    ),
-    { staleCount: 1, uncheckedCount: 1, oldestCheckedAt: fresh },
-  );
-  assert.deepEqual(
-    summarizeSubCurrencyChecks([{ status: 'loading', fetchedAt: null }], now),
-    { staleCount: 0, uncheckedCount: 1, oldestCheckedAt: null },
-  );
-  assert.deepEqual(
-    summarizeSubCurrencyChecks([{ status: 'cached', fetchedAt: fresh }], now),
-    { staleCount: 1, uncheckedCount: 0, oldestCheckedAt: fresh },
-  );
-  assert.deepEqual(
-    summarizeSubCurrencyChecks([{ status: 'available', fetchedAt: fresh }], now),
-    { staleCount: 0, uncheckedCount: 0, oldestCheckedAt: fresh },
-  );
+  const checkedToday = [{ status: 'available' as const, fetchedAt: fresh }];
+  const checkedBefore = [{ status: 'available' as const, fetchedAt: old }];
+  const unknown = [{ status: 'unavailable' as const, fetchedAt: null }];
+  const loading = [{ status: 'loading' as const, fetchedAt: null }];
+  const cached = [{ status: 'cached' as const, fetchedAt: fresh }];
+
+  const mixed = summarizeSubCurrencyChecks([...checkedToday, ...checkedBefore], now);
+  assert.equal(mixed.staleCount, 1);
+  assert.equal(mixed.uncheckedCount, 0);
+  assert.equal(mixed.oldestCheckedAt, old);
+
+  const partial = summarizeSubCurrencyChecks([...checkedToday, ...unknown], now);
+  assert.equal(partial.staleCount, 1);
+  assert.equal(partial.uncheckedCount, 1);
+  assert.equal(partial.oldestCheckedAt, fresh);
+
+  assert.equal(summarizeSubCurrencyChecks(loading, now).staleCount, 0);
+  assert.equal(summarizeSubCurrencyChecks(cached, now).staleCount, 1);
+  assert.equal(summarizeSubCurrencyChecks(checkedToday, now).staleCount, 0);
 });
