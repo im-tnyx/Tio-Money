@@ -121,7 +121,7 @@ test('TM-CUR-007: FX only on Sub screen; Plus picker and Pencil X Cancel', () =>
   assert.match(screen, /state\.editing \? 'edit.cancel' : 'back'/);
   assert.match(screen, /currencyCancelEdit/);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
-  assert.match(screen, /item.rate.date/);
+  assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
   assert.match(picker, /<AppBottomSheet/);
   assert.match(picker, /accessibilityRole="button"/);
   assert.match(picker, /type: 'select', code: option\.code/);

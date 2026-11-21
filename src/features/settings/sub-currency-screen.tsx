@@ -118,9 +118,9 @@ function SwipeableCurrencyRow({
           onPress={onDelete}
           style={{
             position: 'absolute',
-            top: 0,
-            bottom: 0,
-            right: 0,
+            top: theme.navigation.origin,
+            bottom: theme.navigation.origin,
+            right: theme.navigation.origin,
             width: revealWidth,
             minHeight: theme.buttons.minimumHeight,
             backgroundColor: theme.colors.expense,
