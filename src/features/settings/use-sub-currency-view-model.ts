@@ -203,7 +203,6 @@ export function useSubCurrencyViewModel(): {
       dismissDetail,
       entries,
       refreshRate,
-      freshnessNow,
       preferences,
       addSubCurrency,
       removeSubCurrency,
@@ -213,14 +212,18 @@ export function useSubCurrencyViewModel(): {
 
   const state = useMemo<SubCurrencyUiState>(() => {
     const mainConfigured = isCurrencyCode(preferences.mainCode);
-    // Include new successful fetchedAt timestamps even after a long-open screen.
-    const currentCheckTime = Math.max(freshnessNow, Date.now());
+    // Successful provider timestamps update the check-day view without impure
+    // render-time clock calls or a polling timer.
+    let currentCheckTime = freshnessNow;
     const selected: SubCurrencySelectedRow[] = [];
     for (const code of preferences.subCodes) {
       const pair = fxPairKey(code, preferences.mainCode);
       const current = entries[pair];
       const rate = current?.rate ?? null;
       const rateStatus: SubCurrencySelectedRow['rateStatus'] = current?.status ?? 'loading';
+      if (rateStatus === 'available' && current?.fetchedAt !== null && current?.fetchedAt) {
+        currentCheckTime = Math.max(currentCheckTime, current.fetchedAt);
+      }
       selected.push({ code, label: currencyLabel(code), rate, rateStatus });
     }
     const checks = summarizeSubCurrencyChecks(
