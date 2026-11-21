@@ -58,7 +58,7 @@ export const en = {
   currencyFxLoading: 'Loading reference rate…',
   currencyFxUnavailable: 'Reference rate unavailable',
   currencyFxCached: 'Cached rate',
-  currencyFxSource: 'Frankfurter blended reference rate',
+  currencyFxSource: 'Frankfurter (blended)',
   currencyFxCheckedAt: 'Last checked',
   currencySubDetails: 'Sub Currency Details',
   currencyFxExchangeRate: 'Exchange rate',
