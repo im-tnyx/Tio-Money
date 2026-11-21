@@ -1,4 +1,13 @@
 # 🧭 Current task index
+## 2026-11-22 — PR #60 merge-gate readiness and one-off workflow cleanup
+
+- Owner: **“Merge gate tak go”** for [PR #60](https://github.com/im-tnyx/Tio-Money/pull/60) only; **NOT approval to merge**. RFC [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59), task [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md). This is a newer checkpoint; prior dated snapshots below remain historical.
+- Verified initial PR HEAD `2f0e01b0c92f996d090f06e002c110f8806b188a` against protected `main` `d765c97d71ba600b1838f34d180159855ac67dc1`, four successful checks, mergeable, zero unresolved review threads. Active `protect-main` ruleset requires PR and resolved threads, with zero required approvals and no named required CI contexts. Backend alerts/legacy protection visibility remains limited.
+- **Merge hygiene:** One-off `.github/workflows/eas-cli-security-candidate.yml` was created solely to validate PR #60 and has a hardcoded `#60` gate, so **remove it before final review/merge**. Successful candidate audit evidence remains archived as [run #44952518985](https://github.com/im-tnyx/Tio-Money/actions/runs/44952518985), but its status is historical, not a new check after workflow deletion. The real patched isolated npm manifest/lockfile, audit helper and tests stay in PR. Root Expo Go dependencies, QR-free Codespaces process, EAS privileged workflow and credentials untouched.
+- **Final gates outstanding:** check new exact HEAD static/governance/signal CI, check formal external review after Ready-for-Review, assess 17 Moderate+1 Low npm findings; owner-observed Android and iOS **without QR** reopen/reconnect/refresh and independent supply-chain review remain pending. Hold merge; don't weaken preview allowlist, security checks, protected rules or enable privileged preview. Owner permission for PR #53 doesn't apply to PR #60.
+
+---
+
 ### 2026-11-22 — Verified EAS dependency candidate staged in Draft PR #60
 
 - Owner **“Go next”** enabled bounded isolated EAS transitive dependency remediation, **not** merge/deployment. [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59); task [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md); [Draft PR #60](https://github.com/im-tnyx/Tio-Money/pull/60).
