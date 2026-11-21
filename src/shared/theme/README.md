@@ -183,3 +183,7 @@ Android/iOS Metro checks are not substitutes for device evidence.
 The JavaScript tab navigator also sets its `sceneStyle.backgroundColor` from
 `theme.colors.canvas` to prevent the transition host from showing an unrelated
 light/dark background when the user overrides the device appearance.
+
+## Segmented control visual reference — 2026-11-21 (PR #53)
+
+A user-supplied dark segmented `Write | Preview` control is a **visual reference**, not literal labels. The shared `AppSegmentedControl` uses equal-width rounded options, a dark/light semantic track and contrasting selected pill, with a canonical 48dp minimum option touch height and existing 4dp inset/100dp pill-radius primitives. `CurrencyUnitPositionControl` maps this reusable component to `Front | End`; it does not own persisted state. Theme palette keys `segmentedTrack`, `segmentedSelected`, `segmentedText` and `segmentedSelectedText` are maintained centrally in `tokens.ts`. Neither currency bottom-sheet chrome nor global 24dp icon roles are changed by the selector. Real Android/iOS dark/light contrast and accessibility QA remain required; see [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54).

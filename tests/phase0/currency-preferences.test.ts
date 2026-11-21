@@ -189,8 +189,10 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   assert.match(screen, /type: 'position.select'/);
   const position = readFileSync('src/features/settings/currency-unit-position-control.tsx', 'utf8');
   assert.match(screen, /<CurrencyUnitPositionControl/);
-  assert.match(position, /accessibilityRole="radiogroup"/);
-  assert.match(position, /accessibilityState=\{\{ checked: selected \}\}/);
+  const segmented = readFileSync('src/shared/ui/app-segmented-control.tsx', 'utf8');
+  assert.match(position, /<AppSegmentedControl/);
+  assert.match(segmented, /accessibilityRole="radiogroup"/);
+  assert.match(segmented, /accessibilityState=\{\{ checked: selected \}\}/);
   assert.match(screen, /<MainCurrencyOptionSheet/);
   assert.match(sheet, /<AppBottomSheet/);
   assert.match(sheet, /accessibilityRole="radio"/);
@@ -216,4 +218,28 @@ test('TM-CUR-013: icon-only Back, shared icon sizes and reusable sheet shell', (
   assert.match(subSheet, /<AppBottomSheet/);
   assert.match(options, /theme\.iconRoles\.bottomSheet/);
   assert.match(subSheet, /theme\.iconRoles\.bottomSheet/);
+});
+
+test('TM-CUR-014: image-style Front/End pill selector shares themed semantic tokens', () => {
+  const control = readFileSync('src/shared/ui/app-segmented-control.tsx', 'utf8');
+  const unit = readFileSync('src/features/settings/currency-unit-position-control.tsx', 'utf8');
+  const theme = readFileSync('src/shared/theme/theme-provider.tsx', 'utf8');
+  const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
+  const colors = readFileSync('src/shared/theme/tokens.ts', 'utf8');
+
+  assert.match(unit, /<AppSegmentedControl/);
+  assert.match(control, /accessibilityRole="radiogroup"/);
+  assert.match(control, /accessibilityRole="radio"/);
+  assert.match(control, /accessibilityState=\{\{ checked: selected \}\}/);
+  assert.match(control, /flex: 1/);
+  assert.match(control, /theme\.segmentedControl\.radius/);
+  assert.match(control, /theme\.colors\.segmentedTrack/);
+  assert.match(control, /theme\.colors\.segmentedSelected/);
+  assert.match(control, /theme\.colors\.segmentedSelectedText/);
+  assert.match(tokens, /minimumOptionHeight: buttonTokens\.minimumHeight/);
+  assert.match(tokens, /radius: radius\.pill/);
+  assert.match(theme, /segmentedControl: segmentedControlTokens/);
+  assert.match(colors, /segmentedTrack: '#272A31'/);
+  assert.match(colors, /segmentedSelected: '#62666F'/);
+  assert.doesNotMatch(control + unit, /#[0-9a-fA-F]{3,8}|useState|useEffect|fetch\(|Storage\./);
 });

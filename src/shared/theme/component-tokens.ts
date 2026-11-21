@@ -49,6 +49,13 @@ export const buttonTokens = {
   pressedOpacity: opacity.pressed,
 } as const;
 
+/** Rounded segmented selectors use the shared button touch size and existing spacing scale. */
+export const segmentedControlTokens = {
+  minimumOptionHeight: buttonTokens.minimumHeight,
+  inset: space.xxs,
+  radius: radius.pill,
+} as const;
+
 export const shadowTokens = {
   fab: {
     elevation: size.dp6,
