@@ -74,7 +74,7 @@ jobs:
           writeFileSync(join(process.env.EAS_CANDIDATE_DIR,'package.json'), JSON.stringify(candidate,null,2)+'\n');
           console.log('CANDIDATE_PIN=eas-cli@27.4.1; targeted transitive overrides incl major vulnerability fixes');
           NODE
-          npm --prefix "$temp" install --package-lock-only --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          npm --prefix "$temp" install --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
           npm --prefix "$temp" ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
           ( cd "$temp" && npm audit signatures --registry=https://registry.npmjs.org )
           "$temp/node_modules/.bin/eas" --version
