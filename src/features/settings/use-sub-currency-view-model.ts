@@ -2,11 +2,25 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getReferenceRate, type ReferenceRate } from '@/data/market/fx-reference-rates';
-import { CURRENCY_OPTIONS, MAX_SUB_CURRENCIES } from '@/shared/currency/currency-preference';
+import {
+  CURRENCY_OPTIONS,
+  MAX_SUB_CURRENCIES,
+  type CurrencyCode,
+} from '@/shared/currency/currency-preference';
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
-import { t } from '@/shared/i18n/strings';
 
-import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
+import type {
+  SubCurrencyAction,
+  SubCurrencyChoiceRow,
+  SubCurrencySelectedRow,
+  SubCurrencyUiState,
+} from './sub-currency-contract';
+
+function currencyLabel(code: CurrencyCode): string {
+  const item = CURRENCY_OPTIONS.find((option) => option.code === code);
+  if (!item) return code;
+  return item.code + ' – ' + item.country + ' (' + item.symbol + ')';
+}
 
 export function useSubCurrencyViewModel(): {
   state: SubCurrencyUiState;
@@ -33,10 +47,9 @@ export function useSubCurrencyViewModel(): {
       }),
     ).then((results) => {
       if (!active) return;
-      setRates((previous) => ({
-        ...previous,
-        ...Object.fromEntries(results.map(({ pair, quote }) => [pair, quote])),
-      }));
+      const updated: Record<string, ReferenceRate | null> = {};
+      for (const result of results) updated[result.pair] = result.quote;
+      setRates((previous) => ({ ...previous, ...updated }));
     });
     return () => {
       active = false;
@@ -69,52 +82,38 @@ export function useSubCurrencyViewModel(): {
           }
           break;
         case 'select':
-          // One tap saves directly. Keep the sheet open if persistence fails.
-          if (addSubCurrency(action.code)) {
-            setSheetVisible(false);
-          }
+          if (addSubCurrency(action.code)) setSheetVisible(false);
           break;
       }
     },
     [router, editing, preferences.subCodes, addSubCurrency, removeSubCurrency],
   );
 
-  const state = useMemo<SubCurrencyUiState>(
-    () => ({
+  const state = useMemo<SubCurrencyUiState>(() => {
+    const selected: SubCurrencySelectedRow[] = [];
+    for (const code of preferences.subCodes) {
+      const rate = rates[code + '/' + preferences.mainCode];
+      let rateStatus: SubCurrencySelectedRow['rateStatus'] = 'loading';
+      if (rate === null) rateStatus = 'unavailable';
+      if (rate !== null && rate !== undefined) rateStatus = 'available';
+      selected.push({ code, label: currencyLabel(code), rate: rate ?? null, rateStatus });
+    }
+    const choices: SubCurrencyChoiceRow[] = [];
+    for (const item of CURRENCY_OPTIONS) {
+      if (item.code === preferences.mainCode) continue;
+      if (preferences.subCodes.includes(item.code)) continue;
+      choices.push({ key: item.code, code: item.code, label: currencyLabel(item.code) });
+    }
+    return {
       mainCode: preferences.mainCode,
-      selected: preferences.subCodes.map((code) => {
-        const item = CURRENCY_OPTIONS.find((option) => option.code === code);
-        const pair = code + '/' + preferences.mainCode;
-        const rate = rates[pair];
-        return {
-          code,
-          label: item
-            ? item.code + ' – ' + item.country + ' (' + item.symbol + ')'
-            : code,
-          rate: rate ?? null,
-          rateStatus:
-            rate === undefined
-              ? 'loading'
-              : rate === null
-                ? 'unavailable'
-                : 'available',
-        } as const;
-      }),
-      choices: CURRENCY_OPTIONS.filter(
-        (item) =>
-          item.code !== preferences.mainCode && !preferences.subCodes.includes(item.code),
-      ).map((item) => ({
-        key: item.code,
-        code: item.code,
-        label: item.code + ' – ' + item.country + ' (' + item.symbol + ')',
-      })),
+      selected,
+      choices,
       sheetVisible,
-      editing: editing && preferences.subCodes.length > 0,
+      editing: editing && selected.length > 0,
       limit: MAX_SUB_CURRENCIES,
       error,
-    }),
-    [preferences.mainCode, preferences.subCodes, sheetVisible, editing, error, rates],
-  );
+    };
+  }, [preferences.mainCode, preferences.subCodes, sheetVisible, editing, error, rates]);
 
   return { state, onAction };
 }
