@@ -31,7 +31,7 @@
 | Area | Impact (`NONE`, `YES`, `NOT_APPLICABLE`) and evidence |
 |---|---|
 | Privacy, sensitive data, logging and permissions | |
-| Canonical ledger, integer paise, asset/liability, transfers and fees | |
+| Canonical ledger, native ISO-currency-specific safe-integer minor units (INR paise only for INR), exponent, asset/liability, transfers and fees | |
 | Database migration / persistence / offline behavior | |
 | Android, iOS, Expo Go, SMS/store-policy compatibility | |
 | Shared domain interfaces / circular imports | |

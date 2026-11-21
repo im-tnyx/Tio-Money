@@ -15,13 +15,16 @@
 ---
 
 > [!IMPORTANT]
-> **Current-versus-future contract (verified on PR #1, 2026-11-19):** The **Phase 0 navigation shell is implemented as source**, not as a completed finance app: native splash → five blank selectable screens (**Home · Trans. · Stats. · Account · More**) with **one disabled floating `+` over More** and **no app top bar, Add editor, Settings, onboarding, History or other feature route**. The older four-destination/active-Add flow, ten feature-screen designs and the mockups below are **future product proposals only**, superseded for current Phase 0 by [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). No ledger posting or SMS access is shipped. Final color contrast, full installed-device accessibility matrix, real SQLite PRAGMA/migration/restart QA and merge approval remain unverified; owner reports the current device UI renders with no recurring `ExpoSQLite` error. The owner-supplied mockups are functional references, **not assets or styling to copy**. [Current core theme ownership](../src/shared/theme/README.md) is authoritative for implemented dimensions and system dark/light behavior.
+> **Current-versus-future contract (live main 2026-11-21):** Five root destinations and disabled Add remain unchanged; four finance routes export `BlankScreen`, while **More** composes [`MoreRoute`](../src/features/settings/more-route.tsx), `useMoreViewModel` and presentational [`MoreScreen`](../src/features/settings/more-screen.tsx) for persisted System/Light/Dark Appearance. Original 2026-11-19 five-blank copy below is **historical**, not current installed-app verification. No finance editor, onboarding, login or actual ledger UI.
 
 
 ## 00 · Future Stage 1 screen contract — 2026-11-20
 
+> **Mandatory newer owner rule (2026-11-21): every future screen is dumb/presentation-only.** Screens render immutable typed view-model props and forward injected callbacks; **no local workflow hooks, navigation commands, business calculations, SQL, I/O, permissions or side effects inside any screen**. Controllers/hooks own state/routing/async; application use cases own workflows; one pure domain ledger owns all financial math; repositories own SQL. See [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule), [12 — Dumb-Screen Contract](12-DUMB-SCREEN-BOUNDARIES.md) and future tests `TM-PRES-001–006`. This docs amendment does not enable a feature screen or change the already-correct five-tab shell.
+
+
 > [!IMPORTANT]
-> **UI specification only.** The current verified Phase 0 screen shell stays **five blank tabs** (Home · Trans. · Stats. · Account · More) with a **disabled floating + above More**, no additional feature screens, no active Settings or onboarding. The screen designs below are **future**; no change to current Phase 0. Stage order: [TM-DEC-006](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) / [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Keep existing system-selected light/dark Phase 0 theme tokens; do not imply a manually selectable theme works now. Initial language is **English only**.
+> **UI spec and current-status separation:** Current source has **four blank finance tabs + More → Appearance**, all five destinations and a disabled floating Add. The following detailed finance screens remain **future proposals**, not an authorisation to implement financial logic or UI redesign. See [More](MORE-APPEARANCE.md) and [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
 
 ### SCREEN 11 · Accounts → Add Account · `TM-S11` · future local Stage 1
 
@@ -103,10 +106,10 @@
 
 **Only the following behavior is implemented in the Phase 0 shell on `main`** (merged through PR #1 on 2026-11-19; full cross-platform installed-device/SQLite QA remains unverified):
 
-- Five blank navigable screens with labels **Home · Trans. · Stats. · Account · More**; no body text, cards, placeholders, transaction form or app-level top bar.
+- **Five** root destinations **Home · Trans. · Stats. · Account · More**: first four bodies blank, More implements Appearance UI with controller-owned state, not a finance dashboard/editor.
 - Exactly one **disabled** circular floating `+` placed right-above the **More** tab's center, outside the bottom bar, with no `onPress` or editor route.
 - Native splash is held during settings-only SQLite initialization; on success it reveals Home and the five-tab shell directly. Only a genuine startup failure may expose safe retry UI.
-- **System dark/light** follows the device. Reusable sizes are **centralized** (current shared SVG icon **24dp**, bottom-tab hit row **48dp**, navigation baseline/FAB circle **50dp**, tab label **11sp**, icon/label gap **1dp**, FAB/bar vertical gap **16dp**; OS bottom inset is additional). The same icon-size role is reserved for future top bars, buttons, bottom sheets, cards and text fields; no future component is actually rendered for this rule.
+- **Current Appearance and geometry:** More System/Light/Dark selection persists through its controller; 24dp SVG icons, 48dp tab hit area, 50dp bar/FAB baseline, 11sp labels, **0dp icon-label gap**, **selected 300/inactive 200**, separate disabled Add with **16dp** clearance, OS inset extra; **160ms theme-safe Reduced Motion-aware crossfade** in root tabs. Screen rendering never owns finance/SQL/navigation logic.
 - Route screens are **dumb/presentation-only**; navigation commands, safe-area/FAB positioning and splash lifecycle run in shared hooks/controllers; SQLite and accounting logic are not screen concerns. [Theme implementation](../src/shared/theme/README.md) specifies component-token ownership.
 - Owner reports a **physical-device current-UI smoke PASS** without the formerly observed `ExpoSQLite` error (platform and OS details not yet recorded). Full Android **and** iPhone matrix, system-appearance contrast, large fonts/screen reader, on-device SQLite PRAGMA/migration/restart and separate merge authorization remain **NOT_VERIFIED**. See [Phase 0 QA register](07-PHASE-0-FOUNDATION-NOTES.md).
 
@@ -114,8 +117,8 @@
 
 | Phase | Screens / interactions | Status |
 | :--- | :--- | :--- |
-| **Current Phase 0 navigation shell** | Five blank tabs + disabled More-aligned floating Add; system light/dark and centralized visual tokens | **Source implemented and PR #1 merged 2026-11-19; full cross-platform installed-device/SQLite QA remains unverified** |
-| **Future MVP feature screens (original P0 proposal)** | Setup, Home dashboard, active Add, History, account management, Reports, Settings | **Design only — not implemented in current Phase 0** |
+| **Current source shell + More Appearance** | Four blank finance tabs; More → Appearance with System/Light/Dark; disabled Add; selected 300/inactive 200 icons, 0dp gap, 160ms reduced-motion-aware crossfade | **Source merged on main; installed-device Android/iPhone and SQLite/visual matrix not independently verified here** |
+| **Future finance feature screens (historical P0 proposal)** | Setup, Home dashboard, active Add, History, account management, Reports, other Settings outside existing Appearance | **Finance design only; More Appearance is implemented**, but account/ledger features are not |
 | **P1 · Cross-platform import** | Import source, candidate review, deduplication states | **Specified at flow level** |
 | **Conditional Android native** | SMS permission rationale, review inbox, opt-out | **Requires policy eligibility + custom development build** |
 | **P2 / later** | Budgets, recurring/instalments, secure backup/sync, advanced receipt management | **Future design only** |
@@ -126,13 +129,13 @@
 
 | Home | Trans. | Stats. | Account | More |
 | :---: | :---: | :---: | :---: | :---: |
-| Blank tab | Blank tab | Blank tab | Blank tab | Blank tab |
+| Blank Home | Blank Trans. | Blank Stats. | Blank Account | More → Appearance |
 
 A **separate disabled floating `+`** sits **above More on the right**; it is **not** a tab and does not open anything. No root header, profile menu or Settings route exists.
 
 ```mermaid
 flowchart TD
-  SPLASH["Native splash + settings-only SQLite init"] --> ROOT["Five-tab blank shell"]
+  SPLASH["Native splash + settings-only SQLite init"] --> ROOT["Five destinations: four blank finance tabs + More Appearance"]
   ROOT --> H["Home"]
   ROOT --> T["Trans."]
   ROOT --> S["Stats."]
@@ -176,7 +179,7 @@ flowchart TD
 
 ### 2.2 Header / route rules
 
-> **Future feature-screen proposals only.** Current Phase 0 has **no app header or secondary routes**; the five blank tab screens are the only visible routes. The table below is not a description of shipped behavior.
+> **Future finance feature-screen proposals only.** Current UI has four blank finance bodies plus existing More → Appearance, with five root destinations, disabled Add and no active ledger/editor. The table below does not describe shipped finance behavior.
 
 | Level | Header | Back | Bottom bar |
 | :--- | :--- | :--- | :--- |
@@ -264,7 +267,7 @@ The future design uses a **warm neutral canvas, deep ink, subtle violet brand si
 
 ## 05 · Screen inventory and specifications
 
-> **Future product design inventory — no listed feature screens are currently built.** The current Phase 0 app presents only the five **blank** tab bodies and disabled floating Add described above. These detailed specs remain for later owner-scoped feature implementation, not a license to add routes or put business logic into screen files.
+> **Future finance design inventory:** Home/Trans./Stats./Account finance content and Add editor are future; **More Appearance is already built**, with dumb screen and controller separation. Future specs are not authority to put business logic into screen files.
 
 ### SCREEN 01 · First-run setup `TM-S01` · P0
 
@@ -492,7 +495,7 @@ flowchart TD
 
 ### SCREEN 09 · Settings, privacy, export `TM-S09` · P0 basic / P1 advanced
 
-- Appearance: System / Light / Dark (proposed; subject to device QA).
+- Appearance: **System / Light / Dark is already implemented in More**, with preference selection/persistence owned outside the presentation screen; other financial settings remain proposals.
 - **No MVP language selector**. Initial UI text and accessibility/validation copy are English, centralized in semantic resources; layouts remain future-translation-ready ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
 - Import settings: show platform-supported import methods; no misleading toggle to enable unavailable SMS reading.
 - Export: user-initiated CSV with clear file destination/share intent.

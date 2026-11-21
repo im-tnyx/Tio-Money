@@ -16,7 +16,7 @@
 ---
 
 > [!IMPORTANT]
-> **Planning artifact · original 2026-11-18 v0.1; updated status context 2026-11-20.** At the original planning date, Tio Money was documented but **not yet implemented or tested**. The narrow five-blank-tab Phase 0 shell is now implemented in [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), with exact-head CI passes and an owner-reported device UI smoke pass; this does **not** implement the financial MVP, ledger journal, SMS or the future screens below. Every task, file path, test and release gate below is a **proposed delivery contract**, not evidence of existing code, installed dependencies, passing tests, SMS access or store approval. The [PRD](01-PRD.md), [flows](02-USER-FLOWS.md), [screen specification](03-SCREEN-SPEC.md), [ledger](04-DATABASE-DESIGN.md) and [architecture](05-TECH-ARCHITECTURE.md) are drafts requiring owner review. Unresolved items are recorded in [`9](#9-owner-decisions-and-specification-gaps); this plan does not silently approve them.
+> **Planning artifact · original 2026-11-18 v0.1; updated status context 2026-11-20.** At the original planning date, Tio Money was documented but **not yet implemented or tested**. The original five-blank-tab Phase 0 shell was implemented in [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), with historical exact-head CI passes and an owner-reported device UI smoke pass; later separately merged UI work implemented More → Appearance, leaving only four finance tabs blank, and updated the approved navigation icon/motion values (see §0.1); this does **not** implement the financial MVP, ledger journal, SMS or the future screens below. Every task, file path, test and release gate below is a **proposed delivery contract**, not evidence of existing code, installed dependencies, passing tests, SMS access or store approval. The [PRD](01-PRD.md), [flows](02-USER-FLOWS.md), [screen specification](03-SCREEN-SPEC.md), [ledger](04-DATABASE-DESIGN.md) and [architecture](05-TECH-ARCHITECTURE.md) are drafts requiring owner review. Unresolved items are recorded in [`9](#9-owner-decisions-and-specification-gaps); this plan does not silently approve them.
 
 **Release invariant:** **Internal transfer principal is neither income nor expense.** A real transfer fee is **an expense**, recorded once. Home, Accounts, History and Reports must reconcile to the **same balanced SQLite journal**, including credit-card liabilities.
 
@@ -27,9 +27,25 @@
 
 ### 0.1 Protected UI baseline — owner says bottom tabs must NOT change
 
-**The current working Phase 0 bottom navigation is frozen, not a proposal.** All later code tasks must preserve its **five destinations, exact labels and order**: **Home · Trans. · Stats. · Account · More**. Preserve the existing Material Symbols Outlined icon choices (`home` / `book_2` / `bar_chart_4_bars` / `account_balance` / `more_horiz`), icon weight 200 and shared 24dp size, existing visual tokens/colors, 50dp bottom-navigation baseline **plus actual OS bottom safe area** (1dp border + 1dp top padding + 48dp tab row), **1dp** icon–label spacing, and responsive placement of **one 50dp circular FAB** centered above **More** with **16dp vertical clearance**. The FAB's `add` icon stays weight 400 / 24dp. System-controlled light/dark behavior and presentation-only screens remain intact. For **current Phase 0** the FAB is **disabled**, without handler or editor; nothing in this plan turns it on. This is [TM-DEC-010](DECISIONS.md#tm-dec-010--bottom-navigation-ui-freeze) reinforcing [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab).
+**Current owner-approved UI baseline (2026-11-21):** Five root destinations **Home · Trans. · Stats. · Account · More**, 24dp Material Symbols SVGs, **selected 300/inactive 200**, **0dp icon-label gap**, 50dp baseline + OS inset, separate **disabled 50dp Add over More** with 16dp clearance, **160ms Reduced Motion-aware content crossfade**. Four finance screens remain blank, while More → Appearance works. Later owner refinements supersede historic all-200/1dp numeric notes, but do **not** authorise this docs PR to alter UI.
 
 **Feature delivery rule:** New settings/accounts/reports/transaction capabilities belong **inside existing destinations or separately approved flow screens**, never via an extra/reordered/replaced bottom tab. UI-specific tasks must include token regression tests, route/label/icon count/order tests, a11y and device snapshots for Android/iOS to prove no change. Existing four-root + central bar Add or other old proposals **are superseded historical design**, not pending owner choices. Activation of the single floating Add for future transaction entry would require a **separately scoped task**; do not infer it from approving this document.
+
+### 0.2 Mandatory strict dumb-screen and Stage 1 finance ADR gate (2026-11-21)
+
+The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Screen files render immutable typed ViewModels and forward callbacks; **no hooks for workflow state, navigation, SQL, asynchronous I/O, FX, domain math, account balance computation or permissions**. Controllers/hooks and application services own interactions; one domain ledger owns finance rules; SQLite adapters own persistence. See [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md). Current Phase 0 code is unchanged; guard implementation requires a separate scoped code/test PR.
+
+| Future gate | Required test / evidence |
+| :--- | :--- |
+| `TM-PRES-001–002` | AST/ESLint import and effect restrictions for every feature screen and route adapter; deliberate invalid SQL, router and balance-math fixtures **fail** |
+| `TM-PRES-003–004` | Presentational screen renders with fake immutable VM **without DB/router/network**; controller separately tested for state, navigation, validation, cancellations and errors |
+| `TM-PRES-005–006` | Frozen five-tab/FAB regression, bypass via shared UI helper rejected, root provider composition remains allowed |
+| `TM-ADR-T01–T04` | Persisted idempotency, crash rollback, exact currency minor units and native-currency balancing; deterministic journal tests |
+| `TM-ADR-T05–T07` | Reject unapproved mixed-currency posting; funded/linked Wallet, card, Investment and Given/Borrowed Loan opening without duplication |
+| `TM-ADR-T08–T12` | Repayments vs expenses, refunds, revaluation estimate not affecting Net Worth, offline FX, backdated correction gate |
+| `TM-ADR-T13–T14` | Forward-safe settings SQLite migration and real-device reconciliation; all UI projections consume one canonical journal |
+
+**Stage 1 FINANCE IMPLEMENTATION HOLD:** an ADR marked PARTIAL/BLOCKED does not authorize its missing accounting policy, schema, FX provider, interest or realized gains behavior. No migration, payment/loan/investment workflow or Stage 2/3 cloud work is approved by a documentation PR.
 
 ### 0.2 Three product stages with strict exit gates
 
@@ -43,7 +59,7 @@
 
 ### 0.3 Local Stage 1 ordering and blockers
 
-1. **M0 / UI baseline gate:** retain the already-built five blank tabs and disabled FAB; confirm Android owner-reported smoke separately from unverified iPhone, accessibility, system themes and real SQLite cold-restart checks. **No visual restyle**.
+1. **M0 / current UI baseline gate:** preserve four blank finance routes + implemented More → Appearance, five destinations, disabled Add, current 300/200 icon weights, 0dp gap and 160ms Reduced Motion-aware crossfade. Prior owner-reported Android smoke is separate from unverified installed iPhone/accessibility/on-device SQLite checks. **No UI restyle**.
 2. **Domain/ADR gate:** settle `TM-ADR-011–023`, especially journal idempotency, refund/correction effective dates, `TM-ADR-018` mixed-currency exact journal, `TM-ADR-019` account groups, `TM-ADR-020` card statement/repayment, `TM-ADR-021` loan amortization, `TM-ADR-022` investment cost/value, `TM-ADR-023` currency rate provider. **The old four-subtype, INR-only sample DDL is not an approved six-group multi-currency implementation**.
 3. **Local database gate:** versioned, tested migration from settings-only `user_version=1`; strict foreign keys, asset/liability posting classes, transaction serialization, atomic event+opening posting, idempotent Save, crash/retry safety, no destructive reset. No balance cache as authority.
 4. **Accounts and transactions gate:** six typed dynamic forms, linked bank mode flags (no duplicate bank balance), credit card liability + tracked payment (no bank autopay), loan principal/interest vs income, investment funding/valuation vs spending, refunds/fees, archive/edit/reversal. Tests compare all screen projections to one ledger.
@@ -54,7 +70,7 @@
 
 | Test ID | Stage / component | Deterministic assertion |
 | :--- | :--- | :--- |
-| `TM-ST1-NAV-001` | Stage 1 baseline | Exactly 5 unchanged tabs and order, icons, 24dp, 50dp+inset, 1dp gap, 50dp FAB + 16dp spacing; theme and disabled Phase 0 behavior unchanged |
+| `TM-ST1-NAV-001` | Stage 1 source UI baseline | Five unchanged destinations, four blank finance screens + More Appearance, 24dp icon, selected 300/inactive 200, 50dp+inset bar, **0dp gap**, disabled 50dp Add with 16dp clearance, 160ms Reduced Motion-aware crossfade |
 | `TM-ST1-NAV-002` | Future feature tasks | Adding Settings/Accounts/transaction forms never adds a bottom destination or relocates/reskins floating Add without distinct owner scope |
 | `TM-ST1-LED-001` | SQLite/journal | Balanced postings; opening amounts never Income; source/destination transfer principal excluded from expense; fee recognized once |
 | `TM-ST1-LED-002` | Durability | Mid-write failure, double-tap, restart and migration failure never produce duplicate/unbalanced/orphan journals |
@@ -95,7 +111,7 @@
 | **Existing More-aligned floating `+` placement is frozen**; future single Income / Expense / Transfer editor only after separate approval; no three Home shortcut tiles | **Owner-decided UI freeze (TM-DEC-010); future action is not yet implemented** | Keep exact bottom-nav geometry, icon spacing, current disabled Phase 0 FAB; authorize editor activation separately, **never relocate the FAB** |
 | Cash, bank and funded wallet are assets; credit card is a liability | **Proposed ledger contract** | Class-aware postings; no fabricated card “cash balance” |
 | Transfer principal excluded from income/expenses; linked fees count once as expenses | **Product rule in draft PRD** | Every release gate asserts it numerically |
-| Balanced, append-only journal; integer paise; reversal-based correction | **Architecture / database proposal** | Finalize ADR and validate real-device SQLite behavior before Phase 3 |
+| Balanced append-only journal; **currency-specific integer minor units** (INR paise); reversal-based corrections | **DESIGN ACCEPTED invariants; runnable schema not yet accepted** | Resolve remaining TM-ADR-011–023 policy/schema gates; test real-device SQLite before Stage 1 finance posting |
 | **Five fixed bottom tabs + separate floating Add above More** | **Owner-decided and implemented Phase 0 baseline; no visual change allowed** | Keep tab labels/icons/size/spacing/safe areas exactly; future Add activation requires separate scope |
 | Cross-platform pasted/selected text and CSV statement import | **P1 planned** | Never post a parser suggestion without user confirmation |
 | Native Android SMS inbox integration | **Conditional, policy-gated** | Separate custom Expo build; **not available in Expo Go** |
@@ -136,8 +152,8 @@ flowchart TD
 | Area | Mandatory acceptance contract |
 | :--- | :--- |
 | Type safety | `tsconfig` `strict: true`; discriminated event/account types; no unchecked `any` for amounts, ports or parsing |
-| Amounts | Parse decimal **strings** into positive safe-integer **paise**; reject negatives, zero principal, >2 decimal places, unsafe integer overflow and unsupported currency; never use floating-point sums |
-| Journal | Every posted event has ≥2 positive postings, one currency, matched account/category types and `Σ debit = Σ credit`, including reversals |
+| Amounts | Parse decimal **strings** to safe-integer native **ISO currency-specific minor units** (INR paise; zero- and three-decimal currencies tested); reject wrong precision, negatives/zero where prohibited, scientific notation, overflow and unsupported codes. Never sum booked money using floating point |
+| Journal | Every posted event has ≥2 strictly positive postings, matched account/category types and **debit = credit within each native currency**; single-currency posting is the initially safe contract. Mixed-currency events require separately approved balanced FX clearing/gain/rounding ADR before acceptance |
 | Event lifecycle | Preview and Save invoke the **same journal builder**. Submission tokens are persisted uniquely after the schema decision; correction uses reversal + replacement atomically |
 | SQLite | Migrations versioned and crash-tested; `PRAGMA foreign_keys = ON` verified on the actual write connection; prepared/bound statements for user data |
 | Concurrency | **Proposed:** one serialized write coordinator on a controlled connection. Prove that writes cannot interleave; do not assume `withTransactionAsync()` isolates unrelated async queries. If using `withExclusiveTransactionAsync()`, independently enable/check FKs on its connection before the transaction |
@@ -586,7 +602,7 @@ flowchart LR
 **Pull request review checklist**
 - [ ] Product rule, acceptance IDs and owning document linked; proposed choices not presented as approved.
 - [ ] Scope isolated; no unrelated files, code secrets, personal bank data, unsupported permissions or dependency drift.
-- [ ] Domain math outside screens; account class, category type, currency, safe paise and balanced postings reviewed.
+- [ ] Domain math outside screens; account class, category type, **currency-specific native safe-integer minor units (INR paise; zero- and three-decimal currency fixtures)** and per-currency balanced postings reviewed. Legacy INR-only samples must not be misread as universal amounts.
 - [ ] Migration, idempotency, rollback and reversal implications documented; real SQLite tests provided where relevant.
 - [ ] UI states, centralized English copy, future localization readiness, keyboard, safe area, screen reader and Android/iPhone differences tested where relevant.
 - [ ] Tests cover success, negative path, repeat submission, interruption and offline mode; failures linked to issues.
@@ -644,7 +660,7 @@ flowchart LR
 
 ## 9. Owner decisions and specification gaps
 
-**These are review tasks, not silent implementation choices.** A blocking decision must be written as a dated ADR or approved change to its owning document, with a test consequence. Existing `TM-ADR-001…010` are listed in [Architecture `13](05-TECH-ARCHITECTURE.md#13--open-decisions--architecture-review); IDs below extend that register **as proposals**, not approved records.
+**These are review tasks, not silent implementation choices.** A blocking decision must be written as a dated ADR or approved change to its owning document, with a test consequence. Existing `TM-ADR-001…010` are listed in [Architecture `13](05-TECH-ARCHITECTURE.md#13--open-decisions--architecture-review). **The original subjects of `TM-ADR-011–017` below are preserved by the [canonical Stage 1 ADR register](11-STAGE-1-FINANCE-ADRS.md#1-decision-authority-and-interpretation), which assigns design statuses without reusing those IDs for different questions.** These remain proposals/blocked implementation items unless explicitly settled, not owner approvals.
 
 | ID / priority | Unresolved question or source mismatch | Required owner/technical disposition |
 | :--- | :--- | :--- |

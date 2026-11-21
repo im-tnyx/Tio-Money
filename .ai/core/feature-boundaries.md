@@ -1,6 +1,6 @@
 # 🧩 Feature isolation and dependency contracts
 
-**Status:** Proposed logical boundaries for a separately authorized implementation task. [Technical architecture](../../docs/05-TECH-ARCHITECTURE.md) is canonical. [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) contains a **parallel, unmerged scaffold**; reconcile its real folders and public interfaces before applying these names as physical paths.
+**Status (2026-11-21):** Proposed logical boundaries for separately authorized Stage 1 implementation. [Technical architecture](../../docs/05-TECH-ARCHITECTURE.md) is canonical; [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is **MERGED**, not a parallel draft. Source inspection at current main confirms four routes (`index`, `transactions`, `reports`, `accounts`) export `BlankScreen` while `more.tsx` exports `MoreRoute` (`useMoreViewModel` controller + dumb `MoreScreen` presentation); layout/providers own boot/navigation wiring outside feature screens. The owner now mandates [strict dumb-screen boundaries](../../docs/12-DUMB-SCREEN-BOUNDARIES.md) (TM-DEC-011); paths in the example below are still a future proposal, not new files.
 
 ## Logical shape (not files to create in this PR)
 
@@ -17,7 +17,7 @@ src/
 │   ├── imports/
 │   └── settings/
 ├── domain/
-│   ├── money/          # Validated safe-integer paise
+│   ├── money/          # Validated currency-specific integer minor units (INR paise)
 │   ├── ledger/         # Single canonical journal / projections contract
 │   └── contracts/
 ├── data/
@@ -35,7 +35,11 @@ src/
     └── utils/
 ```
 
-The observed Phase 0 PR currently has `src/features/common/`, `src/shared/bootstrap/`, `src/platform/sms/`, `src/domain/ledger/` and `src/data/sqlite/`. No new modules are authorized here; avoid speculative empty directories.
+Verified merged Phase 0 source includes `src/features/common/`, `src/shared/bootstrap/`, `src/platform/sms/`, `src/domain/ledger/` and `src/data/sqlite/`. This docs task does **not** create new modules; avoid speculative empty directories.
+
+## Mandatory screen/container/controller split (owner TM-DEC-011)
+
+Every screen is **props-to-JSX only**. Do not allow workflow hooks, navigation functions, SQL/repository, network/FX, domain services, balance/fee calculation, platform permission or side effects in screens, even through an imported shared UI helper. `app/` routes perform static composition, `features/<name>/controllers` / hooks own navigation+view state, use cases execute approved workflows, pure `domain/ledger` owns financial rules, and data adapters own SQL. An immutable typed ViewModel and callback interface is the **only runtime interaction boundary** across feature screens. See [12 — Dumb-Screen Contract](../../docs/12-DUMB-SCREEN-BOUNDARIES.md) with negative-fixture acceptance `TM-PRES-001–006`; rules need a distinct code task to become **enforced CI**, not merely docs.
 
 ## Direction of dependency
 

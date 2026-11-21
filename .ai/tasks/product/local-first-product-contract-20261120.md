@@ -15,9 +15,9 @@
 | Starting base Git tree | `929fb77503124f53e68e46ef56a30626829b9769` |
 | Lifecycle at draft | **IN_REVIEW** — [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) open; no merge authorization |
 | Independent review | DEFERRED — no independent reviewer claimed; finance/security review recommended before schema implementation |
-| Owner merge authorization | **NOT_GRANTED**. No explicit named PR merge action. |
+| Owner merge authorization — VERIFIED POST-MERGE | **GRANTED for PR #14 only** in separate owner connected-chat instruction; GitHub verifies PR #14 MERGED. The original NOT_GRANTED state is preserved in earlier dated checkpoint prose. |
 | Merge executor | None; separate owner authorization and current-HEAD/protection preflight required |
-| Current PR | [Draft PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), branch initially at `7265f8a3a4d232a07426f932c1c7b42fc20673a8`; verify latest head live |
+| Current PR — VERIFIED POST-MERGE (2026-11-21) | [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) **MERGED / CLOSED**; squash `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`. The 'Lifecycle at draft' row is a historical snapshot, not current status. |
 
 ## Scope and boundaries
 

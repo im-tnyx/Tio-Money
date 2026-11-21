@@ -11,7 +11,7 @@
 | Live progress | [Current task index](.ai/current.md) — **snapshot only, never proof of live GitHub state** |
 | Detailed rules | [.ai/core/README.md](.ai/core/README.md) · [task protocol](.ai/tasks/README.md) |
 | GitHub governance | [Issue Forms, PR template and CI](.github/README.md) · [independent review guide](.github/REVIEW_GUIDE.md) · [manual post-merge sync](.github/POST-MERGE-SYNC.md) |
-| Reference stage, 2026-11-18 | `main` was documentation-only at governance kickoff; [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) is parallel draft work; recheck both before acting |
+| Reference stage, updated 2026-11-21 | Phase 0 [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), and product docs [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14), [#16](https://github.com/im-tnyx/Tio-Money/pull/16), [#22](https://github.com/im-tnyx/Tio-Money/pull/22) have **MERGED**. Stage 1 finance implementation remains separate; verify live refs before acting |
 
 ## 1. Mandatory startup and execution sequence
 
@@ -77,7 +77,7 @@ Context budget: **`AGENTS.md → .ai/current.md → one assigned task → discus
 
 Resolve contradictions by recording both references in [DECISIONS](docs/DECISIONS.md) or the task and requesting an owner decision where necessary. Never silently choose a feature-changing interpretation. A new explicit owner decision controls over superseded text; amend affected docs in a scoped PR. Tool/platform security requirements still apply.
 
-**Current owner decisions:** Initial app UI, accessibility copy and validation text are **English only**; no MVP language selector. Retain localization-ready typed resources and separate number/date formatting. Hindi and other languages are future scope. See [TM-DEC-001](docs/DECISIONS.md#tm-dec-001--english-only-initial-app). Current Phase 0 UI is the blank five-tab shell with disabled More-aligned FAB and direct splash transition, not the future transaction editor; see [TM-DEC-005](docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab).
+**Current owner decisions (2026-11-21):** Initial UI, accessibility and validation copy are **English only**, no MVP language selector. Mandatory [TM-DEC-011](docs/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule): screens render ViewModels/callbacks only, **no business/finance/SQL/network/workflow/navigation effects**. Current source has **four blank finance routes + More → Appearance**, five unchanged destinations and disabled Add. Later owner-approved selected 300/inactive 200 icon weights, 0dp gap and 160ms Reduced Motion-aware content crossfade supersede older all-200/1dp/five-blank historical snapshot; see [source tokens](src/shared/theme/component-tokens.ts).
 
 ## 5. Permission and branch safety
 
@@ -96,6 +96,7 @@ Resolve contradictions by recording both references in [DECISIONS](docs/DECISION
 Tio Money is an **offline-first finance tracker**, not a live bank integration. Design authority: [architecture](docs/05-TECH-ARCHITECTURE.md), [ledger](docs/04-DATABASE-DESIGN.md), [feature boundaries](.ai/core/feature-boundaries.md).
 
 - Use strict TypeScript; feature-oriented React Native / Expo Router architecture. `src/app/` owns route composition, not business logic.
+- **Mandatory owner TM-DEC-011:** **ALL screens are strictly dumb/presentation-only**, receiving immutable typed ViewModel props and forwarding injected callbacks. NO screen-owned workflow state/hooks, routing commands, SQL, network/FX, platform permissions, business calculations or side effects. Controllers/hooks own state/navigation; use cases orchestrate; pure ledger domain owns financial math; adapters own SQL. Root route/provider composition is allowed only as composition. See [12 — Dumb-Screen Boundaries](docs/12-DUMB-SCREEN-BOUNDARIES.md), [finance ADRs](docs/11-STAGE-1-FINANCE-ADRS.md) and future negative-fixture tests `TM-PRES-001–006`. No automatic guard is claimed to be implemented yet.
 - Feature modules own their UI, commands/use cases, tests and public contracts. No deep cross-feature imports, circular dependencies or unrelated refactors.
 - UI must not execute SQL or calculate financial balances/fees. Domain must not import Expo, React Native, navigation or SQLite. Repository adapters own bound SQL, migrations and atomic persistence.
 - One canonical shared **ledger domain** serves Accounts, Transactions and Reports; do not invent feature-local ledgers or editable balance caches.
@@ -105,10 +106,10 @@ Tio Money is an **offline-first finance tracker**, not a live bank integration. 
 
 ## 7. Financial and privacy invariants
 
-- **Current Phase 0 override (TM-DEC-005):** On successful startup, native splash transitions directly to a **blank Home screen with five selectable bottom tabs** — **Home · Trans. · Stats. · Account · More** — and **exactly one disabled floating `+` icon above More on the right**. No app top bar, visible cards, loading text/spinner, Settings, Welcome, History or Add/editor screens; the FAB has no press handler or route. A genuine SQLite bootstrap failure can show minimal safe retry feedback. **Future product contract only:** a separately scoped later phase may enable one unified **Income | Expense | Transfer** editor; never three Home shortcut cards. [TM-DEC-004](docs/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add) governs FAB position, while the newer [TM-DEC-005](docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) governs current disabled behavior. No merge permission is implied.
+- **Current source (TM-DEC-005 original blank-shell baseline later refined):** Native splash reveals Home within five root destinations **Home · Trans. · Stats. · Account · More**. **Home/Trans./Stats./Account remain BlankScreen; More now implements Appearance System/Light/Dark** with controller-owned preference/sheet state and presentation-only screen, without finance or cloud logic. The single floating `+` over More stays disabled; root scene motion is 160ms with Reduced Motion. Old prohibition on all Settings referred to original 2026-11-19 Phase 0 only; it does not revert owner-approved More Appearance. No account dashboard, onboarding, transaction editor, real payment, SQL ledger or auto-upload.
 - Internal transfer principal is **neither income nor expense**; actual optional transfer fees are expenses. A fee and its transfer post atomically.
 - Cash, bank and funded wallet are **assets**; credit cards are **liabilities**. Net worth, balances, reports and history derive from **one balanced journal**.
-- Amounts use safe-integer **paise**; no floating-point accumulation. Corrections and import confirmation follow the canonical ledger contract.
+- Legacy **INR-only** examples use safe-integer paise. **Future Stage 1 multi-currency** amounts must use validated safe-integer **ISO-currency-specific native minor units plus immutable currency/exponent** per [TM-ADR-018](docs/11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx); never accumulate booked totals in binary floating point. **Mixed-currency journal posting remains blocked** pending accepted clearing/rate/gain/rounding policy and tested migration. Corrections and import confirmation follow the canonical ledger contract.
 - Import candidates are unposted until user review and deduplication. No bank credentials, OTP storage or unrelated message retention.
 - No automatic Android SMS inbox access in Expo Go; no automatic third-party iOS SMS inbox access. Android native SMS is conditional and separately policy-gated.
 - Least privilege, redaction, secure input validation and explicit approval of future sync/encryption are mandatory. Never claim local SQLite is encrypted or data backed up without proof.

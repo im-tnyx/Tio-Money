@@ -1,5 +1,35 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #24 reconciled onto current main (UI ownership preserved)
+
+**P2 normative money follow-up:** [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23#issuecomment-7060826772) expands PR #24 by **five Markdown-only agent/review-guide/template files** to remove universal-INR-paisee instructions; Stage 1 uses ISO-native safe-integer minor units with currency/exponent, while INR paise remains an explicitly INR-only case. Copilot current UI snapshot corrected. Codex at prior HEAD `f9de5b2...` **failed to complete** rather than passed; exact-new-HEAD CI and review must be repeated. PR #24 **not merged** and has **no owner merge authorization**.
+
+**Current docs follow-up:** Corrected owner UI changes from the previous stale five-BlankScreen/1dp statements to the verified **four BlankScreen finance routes + MoreRoute/Appearance**, active SVG weight 300/inactive 200, 0dp icon-label gap, 160ms Reduced Motion-aware scene fade. Presentation-only theme/i18n hooks are allowed; domain/workflow/data logic remains controller/use-case/domain/repository-owned. The initial reconciliation SHA `150b98cd3adf69e5462c628d07a9afccfc337320` is historical after docs corrections; verify the final HEAD and CI/review. **No merge authorization.**
+
+- **Owner Go:** safely reconcile PR #24, verify CI and review; this is **NOT merge authorization**. Current `main` `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` includes independently merged Appearance, bottom-tab 300/200 SVG and 0dp gap, 160ms reduced-motion-aware crossfade, preview workflow and Codespaces task changes. Previous PR24 `a13ab70f8b90e9ecb7bcb77a61cf4e4bb652c3a2` is a historical pre-reconciliation HEAD.
+- **Integration method:** non-force two-parent merge with first parent prior PR24 and second parent latest main, built from **new main's tree**; overlay only PR24's fifteen Markdown-owned blobs. This index retains **all original latest main handoff text** and prepends PR24 current checkpoint. No app source, theme, navigation, assets, tests, preview files or other agents' work touched.
+- **New Codex P2:** previous docs described five blank routes and 1dp gap. Actual current main has **four blank finance tabs + MoreRoute/useMoreViewModel/MoreScreen**, selected 300/inactive 200 and 0dp; reconcile these historical assertions in next scoped docs-only commit. New HEAD CI/review and links must be verified. **PR #24 NOT MERGED.**
+
+---
+
+## 2026-11-21 — Verified post-merge source of truth + Stage 1 finance ADR planning
+
+**2026-11-21 follow-up:** On prior HEAD `e8c53ba35391527e54b9c28a4905b778cd2b4efd`, Phase 0 static job initially failed an **isolated EAS CLI registry npm-ci test**; controlled failed-job rerun **PASS**. New minor-unit consistency patch updated AGENTS, feature boundary, Architecture and Test Plan only; CI/review must be reconfirmed on the next HEAD. PR #24 remains **NOT MERGED**.
+
+**Latest PR checkpoint:** [PR #24 — Ready for Review](https://github.com/im-tnyx/Tio-Money/pull/24) opened to `main` from `docs/postmerge-stage1-finance-adrs-20261121`. First reviewed head `0929c4099feb34910e5099b677ed02e9654faad7` passed 3/3 GitHub checks and 16-file Markdown diff/link checks; a later task/handoff checkpoint commit advances branch head, therefore **new SHA checks/review are still required**. Owner merge authority **NOT GRANTED** for PR #24.
+
+
+- **Verified live GitHub baseline:** `im-tnyx/Tio-Money` `main` = `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) merged at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`, [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) at `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. Their three task **top lifecycle rows** were reconciled; all dated older Draft/unmerged sections are historical only. No claim of a local Codespace `git pull`, device QA, file archival or new executable ledger.
+- **Current scoped task:** [TM-FIN-ADR-20261121-001](tasks/product/post-merge-stage1-finance-adr-20261121.md) / [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23). Agent ChatGPT GPT-6 technical PROCEED **docs-only**. Branch `docs/postmerge-stage1-finance-adrs-20261121` created from verified main. Owner requested Stage 1 ADR clarification and confirmed **all screens must be dumb / no screen logic**.
+- **New canonical contracts:** [11 — Stage 1 Finance ADRs](../docs/11-STAGE-1-FINANCE-ADRS.md) maps TM-ADR-011–023 with settled technical invariants versus **explicit pending business/provider/security choices**. [12 — Dumb-Screen Boundaries](../docs/12-DUMB-SCREEN-BOUNDARIES.md) and owner [TM-DEC-011](../docs/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) forbid any logic, routing, SQL, finance math or side effects inside screens. Current five blank tab routes were **read-only inspected** on main and only export BlankScreen; route layouts compose separate controllers/providers.
+- **Scope:** Markdown only; do not alter Phase 0 source, bottom-navigation visual tokens/More-aligned disabled FAB, finance SQLite, cloud, auth or permissions. Finance ADR owner/provider/accounting choices remain **BLOCKED pending separate decisions**; source and negative CI enforcement are **NOT IMPLEMENTED** by these docs.
+- **Handoff:** validate exact PR branch HEAD, all Markdown paths/anchors, zero co-author trailers, current GitHub checks/review. Independent finance/security review strongly recommended. **Owner merge authorization for this new PR NOT GRANTED**; no direct `main` write or merge.
+
+
+
+---
+
+
 ## 2026-11-21 — PR #49 third interactive Expo Go task (Issue #48)
 
 - **Owner follow-up:** Add a third selectable Codespaces task, **Expo Go Tunnel (Interactive)** (Expo Go `--tunnel --go`), alongside managed **Start Expo Project (Tunnel)** and branch-aware **Git Pull (FF-only)**. [Issue #48 technical addendum](https://github.com/im-tnyx/Tio-Money/issues/48#issuecomment-7060391801).

@@ -92,7 +92,11 @@ If multi-currency ledger design is not approved before Stage 1 finance implement
 | `TM-DB-SAFE-001` | Opening write FK failure leaves no account or postings; double-tap is idempotent |
 | `TM-DB-SAFE-002` | Upgrade from settings-only schema does not silently reset data or break history |
 
-**ADR backlog (all unresolved, not approved):** `TM-ADR-018` currency-aware journal/cross-currency FX and report basis; `TM-ADR-019` typed group + bank-linked wallet model; `TM-ADR-020` card billing statements/available/repayment tracking; `TM-ADR-021` loan schedule/accrual and interest recognition; `TM-ADR-022` investment cost basis/valuation/realized gains; `TM-ADR-023` provider FX precision/privacy/rate-limit policy. Existing `TM-ADR-011–017` remain independent. Each needs reviewed choices, migration semantics and deterministic tests **before coding**.
+**Canonical Stage 1 ADR resolution (2026-11-21):** see [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) for **TM-ADR-011–023** with a verified split of **DESIGN ACCEPTED / PARTIAL / BLOCKED PENDING DECISION**. This resolves earlier *undifferentiated* backlog wording for design only: atomic append-only ledger, native integer money, linked refunds, reference-only Wallet and booked-cost vs unposted valuation are specified, while cross-currency clearing/gain/rounding, overdraft, card billing, loan schedules, investment disposals and concrete FX provider **remain blocked for implementation**. Legacy INR-only four-subtype SQL below is **not an accepted migration**; no finance runtime or schema was changed.
+
+### 00.6 · Stage 1 finance ADR and presentation safety handoff
+
+The authoritative [TM-ADR-011–023 matrix](11-STAGE-1-FINANCE-ADRS.md) requires per-ISO-currency balancing and exact integer minor units with explicit unapproved FX-clearing policy; it does **not** authorize mixed-currency postings. Product accounts/cards/investments/loans are projections of **one** immutable journal, never screen-owned ledgers or editable caches. Every account, transaction and report screen is strictly dumb and may only display a controller-provided ViewModel. Review [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and release gates [06 — Test Plan](06-IMPLEMENTATION-TEST-PLAN.md).
 
 ## 01 · Executive decision: use a balanced journal
 
