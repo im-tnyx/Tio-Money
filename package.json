@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"app.json\" \"package.json\" \"tsconfig.json\" \"eslint.config.js\" \".prettierrc.json\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"app.json\" \"package.json\" \"tsconfig.json\" \"eslint.config.js\" \".prettierrc.json\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"app.json\" \"package.json\" \"tsconfig.json\" \"eslint.config.js\" \".prettierrc.json\" || (prettier src/shared/currency/sub-currency-detail-preview.ts > /tmp/tio-model-formatted.ts; diff -u src/shared/currency/sub-currency-detail-preview.ts /tmp/tio-model-formatted.ts || true; prettier src/features/settings/sub-currency-detail-sheet.tsx > /tmp/tio-sheet-formatted.tsx; diff -u src/features/settings/sub-currency-detail-sheet.tsx /tmp/tio-sheet-formatted.tsx || true; exit 1)",
     "test": "tsx --test tests/**/*.test.ts",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run preview:test",
     "expo:config": "expo config --type public",
