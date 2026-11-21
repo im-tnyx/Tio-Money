@@ -339,10 +339,10 @@ test('TM-CUR-021: decimal sheet contains only None and 1.0 through 1.000', () =>
   assert.equal(en.currencyDecimalThree, '1.000');
 });
 
-test('TM-CUR-022: Main Currency top bar extends behind status icons with safe 56dp actions', () => {
+test('TM-CUR-022: Main Currency top bar extends behind status icons with safe 50dp actions', () => {
   const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
   const tokens = readFileSync('src/shared/theme/component-tokens.ts', 'utf8');
-  assert.match(tokens, /topBarHeight: size\.dp56/);
+  assert.match(tokens, /topBarHeight: size\.dp50/);
   assert.match(screen, /edges=\{\['top', 'left', 'right'\]\}/);
   assert.match(screen, /style=\{\{ flex: 1, backgroundColor: theme\.colors\.card \}\}/);
   assert.match(screen, /minHeight: theme\.navigation\.topBarHeight/);

@@ -194,7 +194,7 @@ The dedicated Main Currency screen paints its top safe-area inset with the same
 `theme.colors.card` surface as the header. This makes the bar visually extend
 behind the system battery/network/status icons without putting Back, title or
 Change underneath them. `navigationTokens.topBarHeight` aliases the existing
-`size.dp56` primitive for a **56dp header below the dynamic OS top inset**;
+`size.dp50` primitive for a **50dp header below the dynamic OS top inset**;
 header action hit areas retain the shared 48dp minimum and icon sizes remain
 24dp. The scrollable body explicitly uses `theme.colors.canvas`, preventing the
 header surface from bleeding into the content. This is local to Main Currency;

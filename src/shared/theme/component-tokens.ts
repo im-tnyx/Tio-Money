@@ -25,7 +25,7 @@ export const iconRoleSizes = {
 /** Safe-area padding remains dynamic; these values own fixed UI geometry. */
 export const navigationTokens = {
   origin: size.dp0,
-  topBarHeight: size.dp56,
+  topBarHeight: size.dp50,
   itemHeight: size.dp48,
   borderWidth: size.dp1,
   iconLabelGap: size.dp0,
