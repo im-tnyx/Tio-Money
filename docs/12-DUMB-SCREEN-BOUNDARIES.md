@@ -18,6 +18,8 @@ A **screen** is a pure, deterministic render boundary: **given an immutable type
 | `data/sqlite` adapters | Parameterised SQL, migrations, transaction boundaries, version/FK checks, canonical read-model persistence | Screen imports, UI components, new business formulas duplicating ledger |
 | `platform` / `services/fx` adapters | Optional FX pair network, file/native permissions when separately approved, correct retries | Auto-upload of finance data, direct UI mutation, cloud access outside owner stage gate |
 
+**Allowed visual hooks:** the existing `MoreScreen`/`AppearanceSheet` may read centralized theme/i18n tokens purely for styling/accessible copy. **Not allowed:** screen-owned persistence, stateful workflows, routing or financial decisions; those remain in controller/application/domain adapters.
+
 **A screen must not:** fetch, write storage, call `router.push` / navigation directly, open permission dialogs, invoke an app service/use case, branch on "asset vs liability" to calculate amounts, aggregate records or initialize DB. Pure *visual* conditional rendering such as `loading ? <Spinner /> : <Content />` is permitted **only** when a controller provided the already-decided state. A screen may pass a user intent via `onSubmit(rawForm)`; the callback is injected by its controller, not instantiated via a service import.
 
 **A route module may do minimal static routing composition** (e.g. export a feature container). Root `_layout.tsx` legitimately composes theme, database bootstrap gate and navigation hooks (as **separate providers/controllers**); this is **not** permission to copy their effects into a feature screen.
@@ -62,19 +64,20 @@ export function AccountScreen({ vm, onAddAccount }: AccountScreenProps) {
 
 **Invalid (must fail architecture review):** a screen imports `expo-sqlite`, `@/data/sqlite`, `@/domain/ledger`, `expo-router` and calls `router.push`, computes `balance += amount`, calls FX network, applies fees or creates a ledger posting. Type-only imported display contracts from a feature's public interface are permitted; business data computations remain in the mapper/controller/domain.
 
-## 3. Actual Phase 0 verified on main
+## 3. Actual source UI verified against current main
 
-At verified `main` SHA `f4332eb338ca75e27a5b35ff57511f522a4bb96a`, the five files:
+**Exact inspected main SHA:** `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` on 2026-11-21. Five root route modules remain, but **only four** are BlankScreen:
+- `src/app/(tabs)/index.tsx` → `BlankScreen` (Home)
+- `src/app/(tabs)/transactions.tsx` → `BlankScreen` (Trans.)
+- `src/app/(tabs)/reports.tsx` → `BlankScreen` (Stats.)
+- `src/app/(tabs)/accounts.tsx` → `BlankScreen` (Account)
+- `src/app/(tabs)/more.tsx` → `MoreRoute`, which composes [`useMoreViewModel`](../src/features/settings/use-more-view-model.ts) and [dumb `MoreScreen`](../src/features/settings/more-screen.tsx) plus a presentational Appearance sheet.
 
-- `src/app/(tabs)/index.tsx`
-- `src/app/(tabs)/transactions.tsx`
-- `src/app/(tabs)/reports.tsx`
-- `src/app/(tabs)/accounts.tsx`
-- `src/app/(tabs)/more.tsx`
+The appearance controller owns **visibility, preference selection and persistence**, and the screen emits typed `MoreAction` callbacks. **Theme/translation hooks that only resolve rendering tokens/text**, like existing `useAppTheme()`, are presentation concerns and do not authorize workflow-state hooks, FX, domain calculations, routing decisions, network or database work inside screens. Root `_layout.tsx` composes existing tabs, shared motion hooks and independent disabled FAB.
 
-each contain **only an import of `BlankScreen` and `export default BlankScreen;`**. They contain no hook, component-local finance logic, SQL, navigation or interaction handler. `src/app/(tabs)/_layout.tsx`, `src/app/_layout.tsx` are **route/provider composition** with navigation/theme/bootstrap hooks delegated to modules outside feature screens. This is a **read-only source inspection**, not an Android/iOS installed-device assertion or a static enforcement test already running.
+**Current owner-approved UI:** five destinations and separate More-aligned **disabled** Add; selected icon 300/inactive 200, **0dp** icon-label gap, 24dp symbols, 50dp bar baseline + OS inset, 50dp FAB + 16dp clearance and **160ms Reduced Motion-aware content crossfade**. Older five-blank/all-200/1dp descriptions in TM-DEC-005/010 were historical pre-refinement snapshots.
 
-**Frozen owner UI (TM-DEC-010):** Home · Trans. · Stats. · Account · More; exact existing labels/icons/weights/colors, 50dp bar baseline + OS inset, 1dp icon/label gap, one 50dp disabled FAB centered over More with 16dp clearance. No + activation, new tab, mock balance, top app bar or screen content is authorised by this document.
+Read-only repository source verification is **not** proof of installed-device QA or that the future AST/negative-fixture gates `TM-PRES-001–006` already exist.
 
 ## 4. CI architecture-gate specification for future code PRs
 

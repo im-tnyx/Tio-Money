@@ -16,7 +16,7 @@
 ---
 
 > [!IMPORTANT]
-> **Phase 0 source status (historical 2026-11-19 snapshot, updated post-merge):** A **limited Phase 0 foundation and blank five-tab UI shell are implemented in source** and **merged to `main` via PR #1 on 2026-11-19**, but **not production-released or fully device-QA-accepted**. Native splash → only Home · Trans. · Stats. · Account · More (blank bodies), disabled floating `+` over More, no app top bar/editor/Settings/onboarding. Expo Router, system dark/light theme, centralized TypeScript visual tokens and settings-only Expo SQLite initialization exist; financial posting, account balances, future screen workflows and Android SMS are **not implemented**. The broad architecture and routes described below are **future proposals**, not present behavior. Current contracts: [owner TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), [Phase 0 foundation notes](07-PHASE-0-FOUNDATION-NOTES.md), [Core Theme README](../src/shared/theme/README.md). Owner-reported current-device UI smoke shows no repeat of the previous `ExpoSQLite` startup failure; full both-platform device/SQLite PRAGMA-migration-restart QA and separate owner merge permission remain required; reference screenshots are not code or styles to reproduce.
+> **Current source status (main 2026-11-21):** PR #1 created the five-tab shell, while later merged UI PRs implemented **More → Appearance** (controller + presentation), selected weight 300/inactive 200 icons with 0dp icon-label gap, and 160ms theme-safe Reduced Motion-aware content crossfade. Home/Trans./Stats./Account remain blank and Add disabled. This is read-only source verification, not full device/SQLite QA or finance feature implementation.
 
 
 ## 00 · Technical architecture alignment — 2026-11-20
@@ -194,7 +194,7 @@ src/
 ├─ app/
 │  ├─ _layout.tsx                # Providers + SQLite gate + headerless stack
 │  └─ (tabs)/
-│     ├─ _layout.tsx             # Layout only; five blank tabs + disabled FAB
+│     ├─ _layout.tsx             # Four blank finance tabs + More Appearance; separate disabled FAB
 │     ├─ index.tsx
 │     ├─ transactions.tsx
 │     ├─ reports.tsx
@@ -214,7 +214,7 @@ src/
 └─ platform/sms/                # Disabled adapter; no default SMS permission
 ```
 
-The five route files only export a blank view; [`use-root-tab-navigation.ts`](../src/shared/navigation/use-root-tab-navigation.ts) owns tab navigation, [`use-floating-add-position.ts`](../src/shared/navigation/use-floating-add-position.ts) owns responsive geometry, and [`use-reveal-tabs-on-layout.ts`](../src/shared/navigation/use-reveal-tabs-on-layout.ts) owns splash dismissal. [`database-gate.tsx`](../src/shared/bootstrap/database-gate.tsx) initializes settings-only SQLite outside those screens. Controllers coordinate behavior; UI components consume props/theme.
+**Current route ownership:** `index`, `transactions`, `reports` and `accounts` export `BlankScreen`; `more.tsx` exports [`MoreRoute`](../src/features/settings/more-route.tsx), composing a **controller** (`useMoreViewModel`) and dumb **presenter** (`MoreScreen`). [`use-root-tab-navigation.ts`](../src/shared/navigation/use-root-tab-navigation.ts) owns navigation, root layout delegates crossfade/Reduced Motion to shared hooks and the floating Add remains independent. No SQL or finance logic is in these screens.
 
 **Central token ownership:** [`primitives.ts`](../src/shared/theme/primitives.ts) holds fixed physical sizes; [`tokens.ts`](../src/shared/theme/tokens.ts) defines semantic spacing, radii, type and light/dark palettes; [`component-tokens.ts`](../src/shared/theme/component-tokens.ts) defines one **24dp icon-size** token with aliases for navigation, future top bars, buttons, sheets, cards and text fields, plus current 50dp navigation baseline / 50dp FAB, 1dp icon-label spacing, 16dp FAB-to-bar clearance and shadow contracts. `useColorScheme()` selects **system** appearance in the root provider. No theme chooser, unapproved new features or per-screen hardcoded dimensions. See the [implementation ownership guide](../src/shared/theme/README.md) and [enforcement tests](../tests/phase0/design-tokens.test.ts). The future folder tree and proposed APIs below must follow these contracts.
 
@@ -327,7 +327,7 @@ flowchart LR
 - Existing filled fields survive temporary account/category selection overlays; back with dirty fields shows an explicit discard prompt.
 - `Save` returns to origin; `Save & Add Another` saves once, then resets for a new entry with a visible success acknowledgement.
 - Do not create second `+` controls or three shortcuts on Home.
-- These older route placements and active editor flows are **future proposals** only; [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) controls the current five blank tabs and disabled FAB.
+- Older four-root/center-Add plans are **historical**; the current five destinations, More Appearance, 300/200 icons, 0dp gap and theme-safe 160ms content crossfade reflect separate owner-approved work. The Add editor and all finance screens remain separately gated.
 
 **Route state is not money state.** Avoid passing entire transaction objects through route parameters; pass stable IDs and re-read local repository data.
 

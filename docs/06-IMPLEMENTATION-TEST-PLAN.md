@@ -27,7 +27,7 @@
 
 ### 0.1 Protected UI baseline — owner says bottom tabs must NOT change
 
-**The current working Phase 0 bottom navigation is frozen, not a proposal.** All later code tasks must preserve its **five destinations, exact labels and order**: **Home · Trans. · Stats. · Account · More**. Preserve the existing Material Symbols Outlined icon choices (`home` / `book_2` / `bar_chart_4_bars` / `account_balance` / `more_horiz`), icon weight 200 and shared 24dp size, existing visual tokens/colors, 50dp bottom-navigation baseline **plus actual OS bottom safe area** (1dp border + 1dp top padding + 48dp tab row), **1dp** icon–label spacing, and responsive placement of **one 50dp circular FAB** centered above **More** with **16dp vertical clearance**. The FAB's `add` icon stays weight 400 / 24dp. System-controlled light/dark behavior and presentation-only screens remain intact. For **current Phase 0** the FAB is **disabled**, without handler or editor; nothing in this plan turns it on. This is [TM-DEC-010](DECISIONS.md#tm-dec-010--bottom-navigation-ui-freeze) reinforcing [TM-DEC-004/005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab).
+**Current owner-approved UI baseline (2026-11-21):** Five root destinations **Home · Trans. · Stats. · Account · More**, 24dp Material Symbols SVGs, **selected 300/inactive 200**, **0dp icon-label gap**, 50dp baseline + OS inset, separate **disabled 50dp Add over More** with 16dp clearance, **160ms Reduced Motion-aware content crossfade**. Four finance screens remain blank, while More → Appearance works. Later owner refinements supersede historic all-200/1dp numeric notes, but do **not** authorise this docs PR to alter UI.
 
 **Feature delivery rule:** New settings/accounts/reports/transaction capabilities belong **inside existing destinations or separately approved flow screens**, never via an extra/reordered/replaced bottom tab. UI-specific tasks must include token regression tests, route/label/icon count/order tests, a11y and device snapshots for Android/iOS to prove no change. Existing four-root + central bar Add or other old proposals **are superseded historical design**, not pending owner choices. Activation of the single floating Add for future transaction entry would require a **separately scoped task**; do not infer it from approving this document.
 
@@ -59,7 +59,7 @@ The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Scr
 
 ### 0.3 Local Stage 1 ordering and blockers
 
-1. **M0 / UI baseline gate:** retain the already-built five blank tabs and disabled FAB; confirm Android owner-reported smoke separately from unverified iPhone, accessibility, system themes and real SQLite cold-restart checks. **No visual restyle**.
+1. **M0 / current UI baseline gate:** preserve four blank finance routes + implemented More → Appearance, five destinations, disabled Add, current 300/200 icon weights, 0dp gap and 160ms Reduced Motion-aware crossfade. Prior owner-reported Android smoke is separate from unverified installed iPhone/accessibility/on-device SQLite checks. **No UI restyle**.
 2. **Domain/ADR gate:** settle `TM-ADR-011–023`, especially journal idempotency, refund/correction effective dates, `TM-ADR-018` mixed-currency exact journal, `TM-ADR-019` account groups, `TM-ADR-020` card statement/repayment, `TM-ADR-021` loan amortization, `TM-ADR-022` investment cost/value, `TM-ADR-023` currency rate provider. **The old four-subtype, INR-only sample DDL is not an approved six-group multi-currency implementation**.
 3. **Local database gate:** versioned, tested migration from settings-only `user_version=1`; strict foreign keys, asset/liability posting classes, transaction serialization, atomic event+opening posting, idempotent Save, crash/retry safety, no destructive reset. No balance cache as authority.
 4. **Accounts and transactions gate:** six typed dynamic forms, linked bank mode flags (no duplicate bank balance), credit card liability + tracked payment (no bank autopay), loan principal/interest vs income, investment funding/valuation vs spending, refunds/fees, archive/edit/reversal. Tests compare all screen projections to one ledger.
@@ -70,7 +70,7 @@ The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Scr
 
 | Test ID | Stage / component | Deterministic assertion |
 | :--- | :--- | :--- |
-| `TM-ST1-NAV-001` | Stage 1 baseline | Exactly 5 unchanged tabs and order, icons, 24dp, 50dp+inset, 1dp gap, 50dp FAB + 16dp spacing; theme and disabled Phase 0 behavior unchanged |
+| `TM-ST1-NAV-001` | Stage 1 source UI baseline | Five unchanged destinations, four blank finance screens + More Appearance, 24dp icon, selected 300/inactive 200, 50dp+inset bar, **0dp gap**, disabled 50dp Add with 16dp clearance, 160ms Reduced Motion-aware crossfade |
 | `TM-ST1-NAV-002` | Future feature tasks | Adding Settings/Accounts/transaction forms never adds a bottom destination or relocates/reskins floating Add without distinct owner scope |
 | `TM-ST1-LED-001` | SQLite/journal | Balanced postings; opening amounts never Income; source/destination transfer principal excluded from expense; fee recognized once |
 | `TM-ST1-LED-002` | Durability | Mid-write failure, double-tap, restart and migration failure never produce duplicate/unbalanced/orphan journals |

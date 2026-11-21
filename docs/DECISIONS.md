@@ -14,12 +14,12 @@
 | [TM-DEC-002](#tm-dec-002--independent-review-optional-by-default) | 2026-11-19 | Independent review optional by default, known blockers and configured protections binding | **Owner decided; agent-transcribed** | All PRs; sensitive-scope guidance |
 | [TM-DEC-003](#tm-dec-003--owner-authorized-agent-merge) | 2026-11-19 | Specific owner authorization mandatory; agent may merge only after safety preflight | **Owner decided; agent-transcribed** | Every PR; PR #1 and #2 later merged under separate owner authorizations; PR #7 later received separate merge authorization; this policy alone never authorized it |
 | [TM-DEC-004](#tm-dec-004--five-destinations-and-floating-add) | 2026-11-19 | Five destinations and a standalone floating Add FAB | **Owner decided; agent-transcribed** | Phase 0 navigation shell only |
-| [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Only five blank tab screens; disabled visual FAB, no other screens | **Owner decided; agent-transcribed** | Current Phase 0 UI |
+| [TM-DEC-005](#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) | 2026-11-19 | Historical five-blank state; More Appearance later implemented; disabled Add and five destinations persist | **Owner decided; agent-transcribed**, later refinements supersede blank More | Original Phase 0 state |
 | [TM-DEC-006](#tm-dec-006--local-first-delivery-order-and-backup-boundary) | 2026-11-20 | Complete local app → backup/restore → optional Supabase | **Owner directed; agent-transcribed** | Future delivery order, no change to Phase 0 |
 | [TM-DEC-007](#tm-dec-007--account-group-driven-setup) | 2026-11-20 | Group-specific accounts: Cash, Bank, Wallet, Card, Investment, Loan | **Owner directed; agent-transcribed** | Future Accounts and Settings |
 | [TM-DEC-008](#tm-dec-008--main-and-optional-sub-currency-with-refresh-on-use) | 2026-11-20 | Main Currency + distinct optional Sub Currency, refresh on currency use | **Owner directed; agent-transcribed** | Future currency experience; accounting ADR pending |
 | [TM-DEC-009](#tm-dec-009--conditional-identity-only-for-opt-in-supabase) | 2026-11-20 | No app login until user opts in to future Supabase sync | **Owner directed; agent-transcribed** | Future identity and synchronization |
-| [TM-DEC-010](#tm-dec-010--bottom-navigation-ui-freeze) | 2026-11-20 | Keep existing five bottom tabs, icons, spacing and More-aligned FAB unchanged | **Owner directed; agent-transcribed** | Existing Phase 0 visual baseline and all future UI work |
+| [TM-DEC-010](#tm-dec-010--bottom-navigation-ui-freeze) | 2026-11-20 | Five root destinations and More-aligned Add protected; later owner-approved selected 300/inactive 200, 0dp gap and crossfade take precedence | **Owner directed; agent-transcribed** | Current UI baseline and future UI work |
 | [TM-DEC-011](#tm-dec-011--strict-dumb-screen-presentation-only-rule) | 2026-11-21 | All screens strictly dumb/presentation-only: no business, navigation, SQL or workflow logic | **Owner directed in connected chat; agent-transcribed** | Every future app screen, feature architecture and tests |
 
 ## TM-DEC-001 — English-only initial app
@@ -80,6 +80,8 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 ## TM-DEC-005 — Phase 0 empty navigation shell and disabled FAB
 
+> **Historical Phase 0 baseline.** Later separately owner-authorized [More → Appearance](MORE-APPEARANCE.md) enabled a settings screen within existing More. Four finance tabs remain blank and Add stays disabled; original five-blank statement below describes 2026-11-19, not current main.
+
 **Decision date:** 2026-11-19. **Authority:** Direct owner instructions in the connected ChatGPT project conversation (agent-transcribed; [PR #1 scope discussion](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7006286494)). This is not GitHub-authenticated permission to merge.
 
 **Decision:** For the **current Phase 0 user interface only**, display five bottom navigation destinations **Home · Trans. · Stats. · Account · More**, with **completely empty screen bodies and no top app bar**. Preserve the single `+` floating icon at the **right above More**, but it is **disabled and has no press handler, action or modal route**. No Add Transaction editor, no Settings page, no Welcome page, no old History route, no cards, placeholder text, mock balances or other feature screens. Bottom navigation itself remains selectable to switch among the five blank screens.
@@ -134,6 +136,8 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 ## TM-DEC-010 — Bottom navigation UI freeze
 
+> **Current 2026-11-21 precedence:** Five destinations and disabled More-aligned FAB remain frozen. Later explicit owner refinements supersede the numeric historical 1dp/all-200 details: **selected 300, inactive 200, icon-label gap 0dp**, plus **160ms Reduced Motion-aware scene crossfade**. [Verified source tokens](../src/shared/theme/component-tokens.ts) govern current values. Never use this docs PR to revert the separately merged source.
+
 **Decision date:** 2026-11-20. **Authority/source:** owner's direct instruction in connected ChatGPT conversation, **agent-transcribed** in [RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20); not a GitHub-authenticated owner comment. **Status:** confirmed design constraint on the implemented Phase 0 shell and all downstream feature work; **does not authorize app changes or PR merges**.
 
 **Decision:** The existing bottom tabs are **already correct and must not change**. Preserve exactly five selectable bottom destinations **Home · Trans. · Stats. · Account · More**, with unchanged order, labels, Google Material Symbols icon choice/weight/24dp sizing, tokenized nav visuals, **50dp baseline plus OS safe-area inset**, **1dp icon/label gap** and **single 50dp circular floating +** centered **above More** with **16dp vertical clearance** (24dp Add glyph, weight 400). Current system light/dark behavior, safe-area layout, shared visual token ownership and disabled Phase 0 FAB remain unchanged. Do not move the + into a bar tab or introduce a center Add slot, extra tab, different size or spacing.
@@ -150,7 +154,7 @@ Older PRD `3 / `4.1 / `4.8`, screen setup/settings/microcopy, architecture `10` 
 
 **Decision:** **Every app screen is dumb/presentation-only.** It only renders immutable typed ViewModel props, accessible controls and forwards injected callbacks. Screen files must not own business logic, financial math, balances/fees, local SQL, network/FX requests, permissions, router decisions, lifecycle/async side effects, or workflow-state hooks. Feature **controllers/hooks** own state/navigation/async; **use cases** own validation/orchestration; one pure **domain ledger** owns financial rules; **repository adapters** own SQLite; platform services own OS/network behavior. Static Expo Router **route/layout composition** may wire providers/controllers but may not become business-logic screens. Read the exact [12 — Dumb-Screen Contract](12-DUMB-SCREEN-BOUNDARIES.md) and [finance ADR release gates](11-STAGE-1-FINANCE-ADRS.md).
 
-**Enforcement:** Future code PRs must add static boundary/negative-fixture tests `TM-PRES-001–006`; passing visual smoke tests is insufficient. **These tests are a future code task, not implemented by this documentation decision.** Current blank five-tab shell, disabled More-aligned Add and visual token geometry stay untouched under TM-DEC-005/TM-DEC-010. No added feature routes or financial logic is authorized by this entry.
+**Enforcement:** Future code PRs must install static architecture rules with negative fixtures `TM-PRES-001–006`; that enforcement is **not yet installed** by this docs PR. Existing **MoreRoute → useMoreViewModel → MoreScreen** uses controller-owned Appearance state and presentation-only rendering; four finance routes remain blank. Preserve later owner-approved 300/200 icons, 0dp gap, 160ms Reduced Motion-aware crossfade and disabled Add. No screen-local finance/SQL/workflow/navigation logic.
 
 **Supersedes:** older permissive wording that allowed screen-owned form workflow/business actions; it does not change route composition, existing Phase 0 provider bootstrap, or independent finance ADR/merge gates.
 
