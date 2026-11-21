@@ -63,8 +63,6 @@ export function FxRateProvider({
     [preferences.mainCode, preferences.subCodes],
   );
   const activeKeys = useRef<ReadonlySet<string>>(new Set());
-  activeKeys.current = new Set(pairs.map((pair) => pair.key));
-
   const [entries, setEntries] = useState<Record<string, FxDisplayRate>>(() => {
     const initial: Record<string, FxDisplayRate> = {};
     for (const pair of pairs) initial[pair.key] = fromCache(pair.base, pair.quote, cache);
@@ -129,17 +127,12 @@ export function FxRateProvider({
   );
 
   useEffect(() => {
-    setEntries((previous) => {
-      const visible: Record<string, FxDisplayRate> = {};
-      for (const pair of pairs) {
-        visible[pair.key] = previous[pair.key] ?? fromCache(pair.base, pair.quote, cache);
-      }
-      return visible;
-    });
+    // After each committed pair selection, only these pairs may update the shared cache.
+    activeKeys.current = new Set(pairs.map((pair) => pair.key));
     for (const pair of pairs) {
       void refreshRate(pair.base, pair.quote).catch(() => undefined);
     }
-  }, [pairs, cache, refreshRate]);
+  }, [pairs, refreshRate]);
 
   const value = useMemo(() => ({ entries, refreshRate }), [entries, refreshRate]);
   return <FxRateContext.Provider value={value}>{children}</FxRateContext.Provider>;
