@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Codespaces SCP quoted-path regression after PR #35 (RFC #36)
+
+- **Incident:** New owner-dispatched [Codespaces run #44828410270](https://github.com/im-tnyx/Tio-Money/actions/runs/44828410270) used `main` at `2f62f01b5869df4807452689f06ef561a2a9ae14` and failed `gh codespace cp`: remote SCP treated single quotes as filename characters. Authenticated bundle, immutable PR allowlist and Codespace identity passed. Not a new Expo UI compile failure.
+- **Task/RFC:** [TM-OPS-CODESPACES-SCP-20261121-001](tasks/preview/codespaces-scp-quoted-path-20261121.md), [RFC #36](https://github.com/im-tnyx/Tio-Money/issues/36). Implementation `PROCEED` on `fix/codespaces-scp-literal-quote-preview`, fresh from verified `main`, but not authority to merge/deploy.
+- **Fix:** For exact generated destination path from validated 40-hex SHA and positive decimal run ID, opt in to documented GitHub CLI `gh codespace cp --expand`; add regression and leave all owner/label, immutable snapshot, dedicated Codespace, hash, mode, cleanup and credential boundaries in place. No PR #18 application/source edit.
+- **Status:** Draft implementation candidate; current-head CI and independent security review pending. **Owner PR merge authorization NOT_GRANTED; no trusted workflow dispatch authorized.**
+
+---
+
 ## 2026-11-21 — Codespaces bundle integrity failure after PR #33 (RFC #34)
 
 - **Task:** [TM-OPS-CODESPACES-BUNDLE-20261121-001](tasks/preview/codespaces-bundle-integrity-20261121.md), [RFC #34](https://github.com/im-tnyx/Tio-Money/issues/34); scoped `PROCEED` to fix trusted Codespaces preview in new branch `fix/codespaces-preview-bundle-transfer-integrity`, based on `main` `3f8b888342c947244bbec811c198be7b18ae81c2`.

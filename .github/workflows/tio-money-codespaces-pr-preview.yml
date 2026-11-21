@@ -328,7 +328,11 @@ jobs:
           trap cleanup_remote_bundle EXIT
           # Official Codespaces file-copy transport, rather than piping bundle
           # bytes through a remote-shell command's stdin.
-          gh codespace cp -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"
+          # GitHub CLI's default SCP literal path quoting can become part of
+          # the destination filename with SFTP (observed run #92). --expand
+          # avoids literal quote wrapping. This is safe ONLY for the fixed
+          # path built from the validated hex TARGET_SHA and numeric RUN_ID.
+          gh codespace cp --expand -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"
           rm -f -- "$bundle"
           # SCP can preserve the source mode; enforce the exact remote mode
           # only after verifying a regular, non-symlink user-owned file.

@@ -210,7 +210,10 @@ test('trusted worker copies a private immutable bundle, never sends Git credenti
   assert.ok(transfer.includes('GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}'));
   assert.ok(!transfer.includes('git fetch'));
   assert.ok(!transfer.includes('base64 < "$bundle" | gh codespace ssh'));
-  assert.ok(transfer.includes('gh codespace cp -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"'));
+  assert.ok(transfer.includes('gh codespace cp --expand -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"'));
+  assert.ok(!transfer.includes('gh codespace cp -c "$CODESPACE_NAME"'));
+  assert.ok(transfer.includes('! "$TARGET_SHA" =~ ^[0-9a-f]{40}$'));
+  assert.ok(transfer.includes('! "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$'));
   assert.ok(transfer.includes('remote_dir="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}"'));
   assert.ok(transfer.includes('remote_bundle="${remote_dir}/source.bundle"'));
   assert.ok(transfer.includes('mkdir -m 700 -- %q'));
@@ -222,6 +225,31 @@ test('trusted worker copies a private immutable bundle, never sends Git credenti
   assert.ok(transfer.includes('source-only') || worker.includes('source-only'));
 });
 
+test('SCP absolute destination uses safe CLI expansion without literal quotes', () => {
+  const transfer = worker.slice(worker.indexOf('      - name: Sync exact PR source'));
+  const copy = transfer.match(/^\s*(gh codespace cp[^\n]*)$/m)?.[1];
+  assert.equal(copy, 'gh codespace cp --expand -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"');
+  const sha = 'a'.repeat(40);
+  const runId = '44828410270';
+  const remoteDir = '/tmp/tio-money-preview-' + sha + '-' + runId;
+  const command = [
+    'set -euo pipefail',
+    'gh() { printf "%s\\n" "$@"; }',
+    'CODESPACE_NAME=preview-only',
+    'bundle=/tmp/trusted-runner.bundle',
+    'remote_bundle="' + remoteDir + '/source.bundle"',
+    copy,
+  ].join('\n');
+  const captured = spawnSync('bash', ['-c', command], { encoding: 'utf8' });
+  assert.equal(captured.status, 0, captured.stderr);
+  assert.deepEqual(captured.stdout.trim().split('\n'), [
+    'codespace', 'cp', '--expand', '-c', 'preview-only',
+    '/tmp/trusted-runner.bundle', 'remote:' + remoteDir + '/source.bundle',
+  ]);
+  assert.equal((worker.match(/gh codespace cp --expand /g) || []).length, 1);
+  assert.ok(transfer.includes('remote_dir="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}"'));
+  assert.ok(transfer.includes('remote_bundle="${remote_dir}/source.bundle"'));
+});
 test('remote trusted script verifies private path, mode, UID, SHA-256 and exact bundle commit', () => {
   assert.match(sync, /expected_remote="https:\/\/github\.com\/im-tnyx\/Tio-Money"/);
   assert.match(sync, /git status --porcelain=v1 --untracked-files=normal/);
