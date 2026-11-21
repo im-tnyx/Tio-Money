@@ -547,3 +547,18 @@ inset, radius, hit slop, track and semantic pill colors. Unlike selectable
 Front/End radio choices, minus/plus remain accessible *buttons* and never
 claim a selected value. Each disables correctly at zero/three digits.
 No Main Currency control or shared AppBottomSheet behavior is modified.
+
+## Sub Currency Refresh visual feedback — 2026-11-21
+
+The rate refresh icon now becomes a native ActivityIndicator while the
+user-triggered request is in flight. The existing 48dp refresh target,
+disabled-during-refresh semantics and rate-source boundary remain unchanged.
+An accessible status line immediately below Exchange Rate says "Checking
+latest published rate..." during the request, then "Reference rate updated."
+only if its validated base/quote/date/rate differs, or "Checked — published
+rate unchanged." when the provider returns the same data. Failure keeps
+the previous valid displayed rate and shows its existing recoverable error
+next to the refresh control. The feedback resets when the detail sheet closes
+or switches currency. These messages describe the network check outcome,
+not a live-market tick or any change to booked amounts. No new dependencies
+or background requests were introduced; on-device QA remains pending.
