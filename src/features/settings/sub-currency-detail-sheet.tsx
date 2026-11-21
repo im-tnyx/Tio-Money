@@ -96,7 +96,9 @@ export function SubCurrencyDetailSheet({
             <AppText variant="title">=</AppText>
             <View style={{ flex: 1, gap: theme.space.xs, alignItems: 'flex-end' }}>
               <AppText variant="caption" muted>{state.mainCode}</AppText>
-              <AppText variant="title" style={{ textAlign: 'right' }}>{detail.mainPreview}</AppText>
+              <AppText variant="title" style={{ textAlign: 'right' }}>
+                {detail.mainPreview}
+              </AppText>
             </View>
           </View>
           <View
