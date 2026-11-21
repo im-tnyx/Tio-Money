@@ -18,14 +18,25 @@ import {
   snapSwipeOffset,
 } from './sub-currency-swipe';
 
-function HeaderAction({ label, onPress }: { label: string; onPress: () => void }) {
+function HeaderAction({
+  label,
+  onPress,
+  disabled,
+}: {
+  label: string;
+  onPress: () => void;
+  disabled: boolean;
+}) {
   const theme = useAppTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={{
+        opacity: disabled ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
         width: theme.buttons.minimumHeight,
         minHeight: theme.buttons.minimumHeight,
         justifyContent: 'center',
@@ -244,6 +255,7 @@ export function SubCurrencyScreen({
         <View style={{ width: sideWidth, flexDirection: 'row', justifyContent: 'flex-end' }}>
           <HeaderAction
             label={t('currencyAddSub')}
+            disabled={!state.canAddSub}
             onPress={() => {
               setOpenSwipeCode(null);
               onAction({ type: 'add.open' });
@@ -259,6 +271,31 @@ export function SubCurrencyScreen({
           gap: theme.space.md,
         }}
       >
+        <View
+          style={{
+            backgroundColor: theme.colors.card,
+            minHeight: theme.buttons.minimumHeight,
+            paddingHorizontal: theme.space.lg,
+            paddingVertical: theme.space.sm,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.space.sm,
+            borderBottomWidth: theme.navigation.borderWidth,
+            borderBottomColor: theme.colors.border,
+          }}
+        >
+          <AppText muted style={{ flex: 1 }}>
+            {t('currencyMain')}
+          </AppText>
+          <AppText
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+            style={{ flex: 1, textAlign: 'right' }}
+          >
+            {state.mainLabel}
+          </AppText>
+        </View>
         {state.selected.length > 0 ? (
           <View
             style={{
