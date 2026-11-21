@@ -77,11 +77,14 @@ export const MAX_SUB_CURRENCIES = 5;
 export interface SubCurrencyDisplayPreferences {
   readonly unitPosition: UnitPosition;
   readonly decimalDigits: DecimalDigits;
+  /** Optional for persisted legacy Sub preferences; missing means Auto. */
+  readonly grouping?: NumberGrouping;
 }
 
 export const DEFAULT_SUB_CURRENCY_DISPLAY: SubCurrencyDisplayPreferences = {
   unitPosition: 'front',
   decimalDigits: 'currency',
+  grouping: 'auto',
 };
 
 export function isSubCurrencyDisplayPreferences(
@@ -95,7 +98,12 @@ export function isSubCurrencyDisplayPreferences(
       candidate.decimalDigits === 0 ||
       candidate.decimalDigits === 1 ||
       candidate.decimalDigits === 2 ||
-      candidate.decimalDigits === 3)
+      candidate.decimalDigits === 3) &&
+    (candidate.grouping === undefined ||
+      candidate.grouping === 'auto' ||
+      candidate.grouping === 'indian' ||
+      candidate.grouping === 'international' ||
+      candidate.grouping === 'none')
   );
 }
 
