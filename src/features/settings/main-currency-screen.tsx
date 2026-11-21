@@ -72,10 +72,10 @@ function CurrencySettingsCard({
   return (
     <View
       style={{
-        marginHorizontal: theme.space.lg,
         backgroundColor: theme.colors.card,
-        borderRadius: theme.radius.lg,
-        overflow: 'hidden',
+        borderTopWidth: theme.navigation.borderWidth,
+        borderBottomWidth: theme.navigation.borderWidth,
+        borderColor: theme.colors.border,
       }}
     >
       <View

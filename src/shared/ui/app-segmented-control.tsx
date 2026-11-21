@@ -47,7 +47,15 @@ export function AppSegmentedControl<T extends string>({
             onPress={() => onChange(option.value)}
             style={{
               flex: 1,
-              minHeight: theme.segmentedControl.minimumOptionHeight,
+              minHeight: compact
+                ? theme.segmentedControl.compactOptionHeight
+                : theme.segmentedControl.minimumOptionHeight,
+              hitSlop: compact
+                ? {
+                    top: theme.segmentedControl.compactHitSlop,
+                    bottom: theme.segmentedControl.compactHitSlop,
+                  }
+                : undefined,
               borderRadius: theme.segmentedControl.radius,
               backgroundColor: selected
                 ? theme.colors.segmentedSelected

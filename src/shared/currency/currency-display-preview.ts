@@ -2,7 +2,7 @@ import { CURRENCY_OPTIONS, type CurrencyPreferences } from './currency-preferenc
 
 /**
  * Illustrative UI preview only. Never pass booked ledger money through JS number,
- * Intl formatting, this sample scaling, or compact rounding.
+ * Intl formatting or display-only rounding.
  */
 export function formatCurrencyExample(
   preferences: CurrencyPreferences,
