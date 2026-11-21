@@ -271,3 +271,22 @@ for content-sized sheets (Decimal and Format), and adds bottom inset to its
 existing scrollable end padding. The last option should remain reachable and
 fully readable above the bottom edge on Android and iOS. Physical-device
 safe-area and scroll-to-last-item QA is still required.
+
+## Adaptive bottom sheets: expand only when options overflow — PR #53 (2026-11-21)
+
+The owner specifically requires **short option sheets to stay bottom-aligned,
+content-sized**. Decimal, Format and similarly small lists must never become
+tall merely because the handle is touched. The shell measures `ScrollView`
+content after layout and compares it to the **collapsed** scroll viewport,
+including the real bottom safe-area inset, visible handle, 48dp title and
+divider. Only overflowing content (e.g. the long Currency/Country list) can
+activate the invisible handle's drag/tap affordance or expand toward the safe
+height ceiling. Short sheets show the original thin decorative handle with
+the original title spacing and stay in place. When the title changes, local
+drag/expansion measurements reset. Normal list scrolling remains available
+only when actual content exceeds the visible scroll region. This does not
+change selection persistence, currency semantics, or global navigation.
+
+On-device acceptance: verify 3-option Format, 4-option Decimal, 3-option
+Appearance, long Main/Sub Currency lists, dynamic type and both Android/iOS
+bottom safe areas. CI cannot prove gesture physics or visual alignment.

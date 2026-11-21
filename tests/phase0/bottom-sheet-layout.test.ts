@@ -6,6 +6,7 @@ import { bottomSheetTokens } from '../../src/shared/theme/component-tokens';
 import {
   getBottomSheetHeightLimits,
   getDraggedBottomSheetHeight,
+  hasOverflowingSheetContent,
   shouldExpandBottomSheet,
 } from '../../src/shared/ui/bottom-sheet-geometry';
 
@@ -58,10 +59,27 @@ test('short Decimal and Format sheets reserve bottom safe inset without clipping
   assert.match(shell, /top: topInset, bottom: bottomInset/);
   assert.match(shell, /const contentMaxHeight = Math\.max\(/);
   assert.match(shell, /maxHeight: contentMaxHeight/);
-  assert.match(shell, /flexGrow: expanded \|\| dragHeight !== null \? 1 : 0/);
+  assert.match(shell, /flexGrow: expandedForContent \|\| draggedForContent !== null \? 1 : 0/);
   assert.match(shell, /paddingBottom: sheet\.contentBottomPadding \+ bottomInset/);
   assert.match(shell, /height: sheet\.handleHeight/);
   assert.match(shell, /minHeight: sheet\.headerMinHeight/);
   assert.match(main, /state\.choices\.map/);
   assert.doesNotMatch(main, /maxHeight: '70%'|<ScrollView/);
+});
+
+test('only overflowing sheets can expand; short sheets remain at the bottom', () => {
+  const limits = getBottomSheetHeightLimits(800, 48, bottomSheetTokens);
+  const chrome = 4 + 8 + 48 + 1 + 24;
+  const fitHeight = limits.collapsedMax - chrome;
+  assert.equal(hasOverflowingSheetContent(250, fitHeight), false);
+  assert.equal(hasOverflowingSheetContent(fitHeight, fitHeight), false);
+  assert.equal(hasOverflowingSheetContent(900, fitHeight), true);
+  const shell = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.match(shell, /onContentSizeChange/);
+  assert.match(shell, /const canExpand = hasOverflowingSheetContent/);
+  assert.match(shell, /const expandedForContent = canExpand && expanded/);
+  assert.match(shell, /const draggedForContent = canExpand \? dragHeight : null/);
+  assert.match(shell, /scrollEnabled=\{hasOverflowingSheetContent\(contentHeight, contentMaxHeight\)\}/);
+  assert.match(shell, /\{canExpand \? \(/);
+  assert.match(shell, /key=\{title\}/);
 });

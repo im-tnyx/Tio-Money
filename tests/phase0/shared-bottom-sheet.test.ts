@@ -42,7 +42,7 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.equal(shared.match(/onPress=\{onDismiss\}/g)?.length, 1);
   assert.match(shared, /StyleSheet\.absoluteFill/);
   assert.match(shared, /opacity: sheet\.backdropOpacity/);
-  assert.match(shared, /maxHeight: dragHeight/);
+  assert.match(shared, /maxHeight: draggedForContent/);
   assert.match(shared, /borderTopLeftRadius: sheet\.topCornerRadius/);
   assert.match(shared, /borderTopRightRadius: sheet\.topCornerRadius/);
   assert.match(shared, /overflow: 'hidden'/);

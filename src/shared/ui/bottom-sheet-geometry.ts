@@ -38,3 +38,14 @@ export function shouldExpandBottomSheet(
   if (dy >= snapDistance) return false;
   return currentlyExpanded;
 }
+
+/**
+ * Only a sheet whose measured content exceeds its collapsed scroll viewport
+ * may expand. Short sheets stay pinned to their intrinsic content height.
+ */
+export function hasOverflowingSheetContent(
+  contentHeight: number,
+  collapsedContentMaxHeight: number,
+): boolean {
+  return contentHeight > collapsedContentMaxHeight;
+}

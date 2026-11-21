@@ -9,6 +9,7 @@ import { AppText } from './app-text';
 import {
   getBottomSheetHeightLimits,
   getDraggedBottomSheetHeight,
+  hasOverflowingSheetContent,
   shouldExpandBottomSheet,
 } from './bottom-sheet-geometry';
 
@@ -36,6 +37,7 @@ export function AppBottomSheet({
     >
       {visible ? (
         <SheetSurface
+          key={title}
           title={title}
           dismissAccessibilityLabel={dismissAccessibilityLabel}
           onDismiss={onDismiss}
@@ -66,23 +68,27 @@ function SheetSurface({
   const [viewportHeight, setViewportHeight] = useState(windowHeight);
   const [expanded, setExpanded] = useState(false);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
+  const [contentHeight, setContentHeight] = useState(0);
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
 
   const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet);
   const { collapsedMax, expandedMax } = limits;
-  const visibleMaxHeight = dragHeight ?? (expanded ? expandedMax : collapsedMax);
-  // Reserve the original handle/header geometry and the OS bottom inset.
-  const contentMaxHeight = Math.max(
-    0,
-    visibleMaxHeight -
-      sheet.handleHeight -
-      sheet.handleTopMargin -
-      sheet.handleBottomMargin -
-      sheet.headerMinHeight -
-      sheet.headerDividerWidth -
-      bottomInset,
-  );
+  // The handle/title never move. Measure only the choices: short sheets stay
+  // content-sized at the bottom; overflowing lists may expand when dragged.
+  const chromeHeight =
+    sheet.handleHeight +
+    sheet.handleTopMargin +
+    sheet.handleBottomMargin +
+    sheet.headerMinHeight +
+    sheet.headerDividerWidth +
+    bottomInset;
+  const collapsedContentMaxHeight = Math.max(0, collapsedMax - chromeHeight);
+  const canExpand = hasOverflowingSheetContent(contentHeight, collapsedContentMaxHeight);
+  const expandedForContent = canExpand && expanded;
+  const draggedForContent = canExpand ? dragHeight : null;
+  const visibleMaxHeight = draggedForContent ?? (expandedForContent ? expandedMax : collapsedMax);
+  const contentMaxHeight = Math.max(0, visibleMaxHeight - chromeHeight);
   const touchStartY = useRef(0);
 
   return (
@@ -111,8 +117,8 @@ function SheetSurface({
         }}
         style={{
           width: '100%',
-          maxHeight: dragHeight === null && !expanded ? collapsedMax : expandedMax,
-          height: dragHeight ?? (expanded ? expandedMax : undefined),
+          maxHeight: draggedForContent === null && !expandedForContent ? collapsedMax : expandedMax,
+          height: draggedForContent ?? (expandedForContent ? expandedMax : undefined),
           backgroundColor: theme.colors.card,
           borderTopLeftRadius: sheet.topCornerRadius,
           borderTopRightRadius: sheet.topCornerRadius,
@@ -149,23 +155,28 @@ function SheetSurface({
         <ScrollView
           nestedScrollEnabled
           keyboardShouldPersistTaps="handled"
+          scrollEnabled={hasOverflowingSheetContent(contentHeight, contentMaxHeight)}
+          onContentSizeChange={(_width, height) => {
+            setContentHeight((previous) => (previous === height ? previous : height));
+          }}
           style={{
             flexShrink: 1,
-            flexGrow: expanded || dragHeight !== null ? 1 : 0,
+            flexGrow: expandedForContent || draggedForContent !== null ? 1 : 0,
             maxHeight: contentMaxHeight,
           }}
           contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding + bottomInset }}
         >
           {children}
         </ScrollView>
-        <View
-          onTouchStart={(event) => {
-            touchStartY.current = event.nativeEvent.pageY;
-          }}
-          onMoveShouldSetResponderCapture={(event) => {
-            const dy = event.nativeEvent.pageY - touchStartY.current;
-            return Math.abs(dy) > sheet.dragActivationDistance;
-          }}
+        {canExpand ? (
+          <View
+            onTouchStart={(event) => {
+              touchStartY.current = event.nativeEvent.pageY;
+            }}
+            onMoveShouldSetResponderCapture={(event) => {
+              const dy = event.nativeEvent.pageY - touchStartY.current;
+              return Math.abs(dy) > sheet.dragActivationDistance;
+            }}
           onResponderGrant={() => {
             dragStartHeight.current = currentHeight.current || collapsedMax;
             setDragHeight(dragStartHeight.current);
@@ -192,12 +203,13 @@ function SheetSurface({
         >
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t(expanded ? 'sheetCollapse' : 'sheetExpand')}
+            accessibilityLabel={t(expandedForContent ? 'sheetCollapse' : 'sheetExpand')}
             accessibilityHint={t('sheetHandleHint')}
             onPress={() => setExpanded((current) => !current)}
             style={{ flex: 1 }}
           />
-        </View>
+          </View>
+        ) : null}
       </SafeAreaView>
     </View>
   );
