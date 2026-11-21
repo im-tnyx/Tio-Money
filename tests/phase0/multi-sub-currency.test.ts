@@ -75,22 +75,20 @@ test('TM-CUR-031: no extra labels above or below the Sub Currency card', () => {
   assert.match(sheet, /currencySubCount/);
 });
 
-test('TM-CUR-032: Pencil edit shows left destructive minus icon, not right Remove text', () => {
+test('TM-CUR-032: no Pencil/X/minus edit mode; swipe is the visible delete action', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
   const row = screen.slice(screen.indexOf('state.selected.map('));
-  const removeAction = row.indexOf("onPress={() => onAction({ type: 'remove', code: item.code })}");
-  const details = row.indexOf('style={{ flex: 1, gap: theme.space.xxs }}');
-  assert.ok(removeAction >= 0 && details >= 0);
-  assert.ok(removeAction < details, 'remove icon must be left of the currency details');
-  assert.match(row, /\{state.editing \? \(/);
-  assert.match(row, /accessibilityRole="button"/);
-  assert.match(row, /accessibilityLabel=\{t\('currencyRemoveSub'\) \+ ': ' \+ item.code\}/);
-  assert.match(row, /minHeight: theme.buttons.minimumHeight/);
-  assert.match(row, /minWidth: theme.buttons.minimumHeight/);
-  assert.match(row, /<Circle cx="12" cy="12" r="11" fill=\{theme.colors.expense\} \/>/);
-  assert.match(row, /d="M7 12h10"/);
-  assert.doesNotMatch(row, /\{t\('currencyRemoveSub'\)\}/);
-  assert.match(screen, /type: state.editing \? 'edit.cancel' : 'back'/);
+  assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
+  assert.match(screen, /label=\{t\('currencyAddSub'\)\}/);
+  assert.doesNotMatch(screen, /pencil|currencyCancelEdit|currencyEditSub|state\.editing|<Circle/);
+  assert.doesNotMatch(vm + contract, /setEditing|edit\.cancel|edit\.toggle|readonly editing/);
+  assert.match(row, /minHeight: theme\.buttons\.minimumHeight \+ theme\.space\.xxl/);
+  assert.match(row, /accessibilityActions=/);
+  assert.match(row, /onAccessibilityAction=/);
+  assert.match(row, /actionName === 'delete'/);
+  assert.doesNotMatch(row, /d="M7 12h10"|disabled=\{state\.editing\}/);
 });
 
 test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => {
@@ -109,8 +107,9 @@ test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => 
   assert.match(screen, /isHorizontalSwipe/);
   assert.match(screen, /onResponderRelease/);
   assert.match(screen, /snapSwipeOffset/);
-  assert.match(screen, /!editing &&/);
-  assert.match(screen, /backgroundColor: theme.colors.expense/);
+  assert.doesNotMatch(screen, /!editing &&/);
+  assert.match(screen, /backgroundColor: theme.colors.deleteActionBackground/);
+  assert.match(screen, /color: theme.colors.deleteActionText/);
   assert.match(screen, /translateX: -displayedOffset/);
   assert.ok(screen.includes('onDelete={() => {'));
   assert.ok(screen.includes("onAction({ type: 'remove', code: item.code });"));
