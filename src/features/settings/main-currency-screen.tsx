@@ -80,6 +80,12 @@ function CurrencySettingsCard({
         borderColor: theme.colors.border,
       }}
     >
+      <CurrencyFormatRow
+        label={t('currencyMain')}
+        value={t('currencyChange')}
+        last={false}
+        onPress={() => onAction({ type: 'open', sheet: 'currency' })}
+      />
       <View
         style={{
           minHeight: theme.buttons.minimumHeight,
@@ -172,20 +178,7 @@ export function MainCurrencyScreen({
         <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
           {t('currencyMain')}
         </AppText>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('currencyChange')}
-          onPress={() => onAction({ type: 'open', sheet: 'currency' })}
-          style={{
-            width: sideWidth,
-            minHeight: theme.buttons.minimumHeight,
-            justifyContent: 'center',
-            alignItems: 'flex-end',
-            paddingRight: theme.space.sm,
-          }}
-        >
-          <AppText style={{ color: theme.colors.brand }}>{t('currencyChange')}</AppText>
-        </Pressable>
+        <View style={{ width: sideWidth }} />
       </View>
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}

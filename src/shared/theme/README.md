@@ -192,11 +192,22 @@ A user-supplied dark segmented `Write | Preview` control is a **visual reference
 
 The dedicated Main Currency screen paints its top safe-area inset with the same
 `theme.colors.card` surface as the header. This makes the bar visually extend
-behind the system battery/network/status icons without putting Back, title or
-Change underneath them. `navigationTokens.topBarHeight` aliases the existing
+behind the system battery/network/status icons without putting Back or
+the centered title underneath them. `navigationTokens.topBarHeight` aliases the existing
 `size.dp50` primitive for a **50dp header below the dynamic OS top inset**;
 header action hit areas retain the shared 48dp minimum and icon sizes remain
 24dp. The scrollable body explicitly uses `theme.colors.canvas`, preventing the
 header surface from bleeding into the content. This is local to Main Currency;
 root tab and global StatusBar behavior are unchanged. Device verification of
 Android edge-to-edge and iOS notches remains required.
+
+## Main Currency four-option card — PR #53 (2026-11-21)
+
+The 50dp header contains only the accessible Back icon and centered Main Currency
+title; an equal-width decorative right spacer preserves the true center. The old
+top-right Change action is the first option inside the existing single settings
+card: **Main Currency | Change**, followed by **Unit Position | Front/End**,
+**Decimal Point**, and **Format**. Selecting the first row opens the same
+shared currency-selection bottom sheet through the controller's existing
+`open/currency` action. No separate top-right button, new sheet, preference
+schema, ledger behavior, network calls, or global navigation changes.

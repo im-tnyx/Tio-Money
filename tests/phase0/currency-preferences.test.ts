@@ -184,7 +184,7 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   assert.match(more, /onAction\(\{ type: 'currency.main.open' \}\)/);
   assert.match(more, /onAction\(\{ type: 'currency.open' \}\)/);
   assert.match(screen, /\{t\('currencyMain'\)\}/);
-  assert.match(screen, /\{t\('currencyChange'\)\}/);
+  assert.match(screen, /value=\{t\('currencyChange'\)\}/);
   assert.match(screen, /type: 'position.select'/);
   const position = readFileSync('src/features/settings/currency-unit-position-control.tsx', 'utf8');
   assert.match(screen, /<CurrencyUnitPositionControl/);
@@ -274,7 +274,7 @@ test('TM-CUR-017: top bar removes double padding and preserves true center', () 
   const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
   assert.match(screen, /sideWidth = theme\.buttons\.minimumHeight \+ theme\.space\.md/);
   assert.match(screen, /paddingLeft: theme\.space\.sm/);
-  assert.match(screen, /paddingRight: theme\.space\.sm/);
+  assert.match(screen, /<View style=\{\{ width: sideWidth \}\} \/>/);
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
   assert.match(screen, /width=\{theme\.iconRoles\.topBar\}/);
   assert.doesNotMatch(screen, /sideWidth = theme\.buttons\.minimumHeight \* 2/);
@@ -351,5 +351,24 @@ test('TM-CUR-022: Main Currency top bar extends behind status icons with safe 50
     /<ScrollView\s+style=\{\{ flex: 1, backgroundColor: theme\.colors\.canvas \}\}/,
   );
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
-  assert.match(screen, /accessibilityLabel=\{t\('currencyChange'\)\}/);
+  assert.match(screen, /value=\{t\('currencyChange'\)\}/);
+});
+
+test('TM-CUR-023: Change moves from top bar to the four-option settings card', () => {
+  const screen = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  const card = screen.slice(
+    screen.indexOf('function CurrencySettingsCard('),
+    screen.indexOf('/** Presentation only:'),
+  );
+  const header = screen.slice(screen.indexOf('/** Presentation only:'));
+  assert.match(
+    card,
+    /label=\{t\('currencyMain'\)\}[\s\S]*?value=\{t\('currencyChange'\)\}[\s\S]*?onPress=\{\(\) => onAction\(\{ type: 'open', sheet: 'currency' \}\)\}/,
+  );
+  assert.ok(card.indexOf("label={t('currencyMain')}") < card.indexOf("{t('currencyPosition')}"));
+  assert.match(card, /<CurrencyUnitPositionControl/);
+  assert.match(card, /state\.rows\.map/);
+  assert.match(header, /<View style=\{\{ width: sideWidth \}\} \/>/);
+  assert.doesNotMatch(header, /accessibilityLabel=\{t\('currencyChange'\)\}/);
+  assert.match(header, /minHeight: theme\.navigation\.topBarHeight/);
 });
