@@ -524,3 +524,14 @@ date is disclosed when a rate is available, Exchange Rate is a compact
 aligns right. Preview and setting rows use the same theme card color with a
 semantic divider. Tests cover the isolated decimal bounds and Main unaffected.
 FX provider approval and device visual/accessibility QA remain outstanding.
+
+## Sub Currency decimal row right-end alignment — 2026-11-21
+
+The owner's latest layout clarification places the decimal sample value
+(left of the controls) in the right-aligned value column, matching the
+Exchange Rate value immediately before its refresh button. The two
+accessible minus and plus buttons sit together at the far-right end
+of the Decimal Point row, in that order. The preview stays outside
+the button group instead of being sandwiched between minus and plus.
+This affects only the Sub Currency detail bottom sheet. Main Currency,
+other shared selectors, persistence, FX source and the ledger are unchanged.
