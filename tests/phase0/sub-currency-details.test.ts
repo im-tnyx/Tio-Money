@@ -119,7 +119,8 @@ test('TM-CUR-036: Sub detail uses inline +/- precision without another sheet', (
   assert.match(action, /accessibilityRole="button"/);
   assert.doesNotMatch(action, /accessibilityRole="radio"/);
 
-  assert.doesNotMatch(sheet, /detail\.decimal\.open|detail\.decimal\.back|decimalMode|radiogroup/);
+  // The decimal stepper stays inline; the separate Format accordion correctly uses radio choices.
+  assert.doesNotMatch(sheet, /detail\.decimal\.open|detail\.decimal\.back|decimalMode/);
   assert.doesNotMatch(
     contract + controller,
     /detailMode|detail\.decimal\.open|detail\.decimal\.back/,
