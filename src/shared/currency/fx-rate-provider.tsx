@@ -59,7 +59,7 @@ export function FxRateProvider({
 }) {
   const { preferences } = useCurrencySettings();
   const pairs = useMemo(
-    () => activeFxPairs(preferences),
+    () => activeFxPairs(preferences.mainCode, preferences.subCodes),
     [preferences.mainCode, preferences.subCodes],
   );
   const activeKeys = useRef<ReadonlySet<string>>(new Set());
