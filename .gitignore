@@ -22,7 +22,9 @@ ios/
 *.sqlite3
 .DS_Store
 .idea/
-.vscode/
+# Share only repository Run Task shortcuts; keep local editor settings ignored
+.vscode/*
+!.vscode/tasks.json
 coverage/
 npm-debug.log*
 yarn-error.log*

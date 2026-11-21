@@ -1,0 +1,60 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Expo Project (Tunnel)",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "scripts/start-codespace-expo.mjs",
+        "--start"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Git Pull (FF-only)",
+      "type": "process",
+      "command": "git",
+      "args": [
+        "pull",
+        "--ff-only"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Expo Go Tunnel (Interactive)",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "node scripts/start-codespace-expo.mjs --check-account && node scripts/start-codespace-expo.mjs --stop && CI=false npm run mobile"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
