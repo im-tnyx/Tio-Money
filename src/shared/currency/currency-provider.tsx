@@ -12,6 +12,9 @@ import { t } from '@/shared/i18n/strings';
 
 import {
   DEFAULT_CURRENCY_PREFERENCES,
+  MAX_SUB_CURRENCIES,
+  addSubCurrency,
+  removeSubCurrency,
   withCurrencyDisplay,
   withMainCurrency,
   withSubCurrency,
@@ -26,6 +29,8 @@ export interface CurrencySettings {
   readonly error: string | null;
   selectMainCurrency(code: CurrencyCode): void;
   selectSubCurrency(code: CurrencyCode | null): boolean;
+  addSubCurrency(code: CurrencyCode): boolean;
+  removeSubCurrency(code: CurrencyCode): boolean;
   updateDisplay(patch: Partial<CurrencyDisplayPreferences>): void;
 }
 
@@ -81,6 +86,30 @@ export function CurrencyPreferencesProvider({
     [commit],
   );
 
+  const addSubCurrencyChoice = useCallback(
+    (code: CurrencyCode) => {
+      if (current.current.subCodes.includes(code)) return false;
+      if (current.current.subCodes.length >= MAX_SUB_CURRENCIES) {
+        setState((previous) => ({
+          ...previous,
+          error: t('currencySubLimitReached'),
+        }));
+        return false;
+      }
+      try {
+        return commit(addSubCurrency(current.current, code));
+      } catch {
+        setState((previous) => ({ ...previous, error: t('currencySaveError') }));
+        return false;
+      }
+    },
+    [commit],
+  );
+  const removeSubCurrencyChoice = useCallback(
+    (code: CurrencyCode) => commit(removeSubCurrency(current.current, code)),
+    [commit],
+  );
+
   const updateDisplay = useCallback(
     (patch: Partial<CurrencyDisplayPreferences>) => {
       commit(withCurrencyDisplay(current.current, patch));
@@ -94,9 +123,19 @@ export function CurrencyPreferencesProvider({
       error: state.error,
       selectMainCurrency,
       selectSubCurrency,
+      addSubCurrency: addSubCurrencyChoice,
+      removeSubCurrency: removeSubCurrencyChoice,
       updateDisplay,
     }),
-    [state.preferences, state.error, selectMainCurrency, selectSubCurrency, updateDisplay],
+    [
+      state.preferences,
+      state.error,
+      selectMainCurrency,
+      selectSubCurrency,
+      addSubCurrencyChoice,
+      removeSubCurrencyChoice,
+      updateDisplay,
+    ],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

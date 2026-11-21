@@ -24,6 +24,7 @@ test('TM-CUR-001: default Main INR, Sub None and valid curated ISO display codes
   assert.deepEqual(DEFAULT_CURRENCY_PREFERENCES, {
     mainCode: 'INR',
     subCode: null,
+    subCodes: [],
     display: DEFAULT_CURRENCY_DISPLAY,
   });
   assert.deepEqual(parseCurrencyPreferences(null), DEFAULT_CURRENCY_PREFERENCES);
@@ -38,28 +39,18 @@ test('TM-CUR-001: default Main INR, Sub None and valid curated ISO display codes
   assert.equal(isCurrencyCode('ZZZ'), false);
 });
 
-test('TM-CUR-002/003: optional different Sub, collision auto-clears', () => {
+test('TM-CUR-002/003: Sub collision, v1 alias and safe Main change', () => {
   const selected = withSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
-  assert.deepEqual(selected, {
-    mainCode: 'INR',
-    subCode: 'USD',
-    display: DEFAULT_CURRENCY_DISPLAY,
-  });
-  assert.deepEqual(withMainCurrency(selected, 'USD'), {
-    mainCode: 'USD',
-    subCode: null,
-    display: DEFAULT_CURRENCY_DISPLAY,
-  });
-  assert.deepEqual(withMainCurrency(selected, 'EUR'), {
-    mainCode: 'EUR',
-    subCode: 'USD',
-    display: DEFAULT_CURRENCY_DISPLAY,
-  });
+  assert.deepEqual(selected.subCodes, ['USD']);
+  assert.equal(selected.subCode, 'USD');
+  assert.deepEqual(withMainCurrency(selected, 'USD').subCodes, []);
+  assert.equal(withMainCurrency(selected, 'USD').subCode, null);
+  assert.deepEqual(withMainCurrency(selected, 'EUR').subCodes, ['USD']);
   assert.deepEqual(withSubCurrency(selected, null), DEFAULT_CURRENCY_PREFERENCES);
   assert.throws(() => withSubCurrency(selected, 'INR'), /differ/);
 });
 
-test('TM-CUR-004: unknown and malformed persisted preferences do not become active', () => {
+test('TM-CUR-004: invalid persisted preference data is not activated', () => {
   for (const bad of [
     undefined,
     { mainCode: 'USD' },
@@ -67,6 +58,10 @@ test('TM-CUR-004: unknown and malformed persisted preferences do not become acti
     { mainCode: 'ABC', subCode: null },
     { mainCode: 'USD', subCode: 'ABC' },
     { mainCode: {}, subCode: null },
+    { mainCode: 'INR', subCode: 'USD', subCodes: ['USD', 'USD'] },
+    { mainCode: 'INR', subCode: 'USD', subCodes: ['USD', 'INR'] },
+    { mainCode: 'INR', subCode: 'USD', subCodes: ['USD', 'EUR', 'GBP', 'JPY', 'AED', 'CAD'] },
+    { mainCode: 'INR', subCode: null, subCodes: ['USD'] },
   ]) {
     assert.equal(isCurrencyPreferences(bad), false);
     assert.deepEqual(parseCurrencyPreferences(bad), DEFAULT_CURRENCY_PREFERENCES);
@@ -82,6 +77,7 @@ test('TM-CUR-004: unknown and malformed persisted preferences do not become acti
   assert.deepEqual(parseCurrencyPreferences({ mainCode: 'JPY', subCode: 'KWD' }), {
     mainCode: 'JPY',
     subCode: 'KWD',
+    subCodes: ['KWD'],
     display: DEFAULT_CURRENCY_DISPLAY,
   });
 });
@@ -111,7 +107,7 @@ test('TM-CUR-006: one global context reaches future Accounts/Transactions/Stats'
   assert.doesNotMatch(root, /useState|useEffect|fetch\(/);
 });
 
-test('TM-CUR-007: Sub Currency uses Plus picker and conditional Pencil in a dedicated screen', () => {
+test('TM-CUR-007: FX only on Sub screen; Plus picker and Pencil X Cancel', () => {
   const more = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const picker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
@@ -119,26 +115,23 @@ test('TM-CUR-007: Sub Currency uses Plus picker and conditional Pencil in a dedi
   const route = readFileSync('src/app/currency/sub.tsx', 'utf8');
   assert.match(more, /onAction\(\{ type: 'currency.sub.open' \}\)/);
   assert.match(route, /<SubCurrencyRoute \/>/);
-  assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
-  assert.match(screen, /minHeight: theme\.navigation\.topBarHeight/);
   assert.match(screen, /icon="plus"/);
   assert.match(screen, /icon="pencil"/);
-  assert.match(screen, /state.selectedLabel \?/);
-  assert.match(screen, /type: 'add.open'/);
-  assert.match(screen, /type: 'edit.toggle'/);
+  assert.match(screen, /state\.selected\.length > 0/);
+  assert.match(screen, /state\.editing \? 'edit.cancel' : 'back'/);
+  assert.match(screen, /currencyCancelEdit/);
+  assert.match(screen, /formatReferenceRate\(item.rate\)/);
+  assert.match(screen, /item.rate.date/);
   assert.match(picker, /<AppBottomSheet/);
-  assert.match(picker, /accessibilityRole="radiogroup"/);
-  assert.match(picker, /accessibilityRole="radio"/);
-  assert.match(picker, /accessibilityState=\{\{ checked: option.selected \}\}/);
-  assert.match(vm, /CURRENCY_OPTIONS\.filter/);
-  assert.match(vm, /option\.code !== preferences\.mainCode/);
-  assert.match(vm, /if \(selectSubCurrency\(action.code\)\)/);
-  assert.doesNotMatch(screen + picker, /Storage\.|fetch\(|useRouter\(/);
+  assert.match(picker, /accessibilityRole="button"/);
+  assert.match(picker, /type: 'select', code: option\.code/);
+  assert.doesNotMatch(picker, /formatReferenceRate|currencyFxSource/);
+  assert.match(vm, /if \(addSubCurrency\(action.code\)\)/);
+  assert.match(vm, /case 'edit.cancel'/);
+  assert.doesNotMatch(screen + picker, /useRouter\(|Storage\.|fetch\(/);
   assert.equal(en.currencyMain, 'Main Currency');
   assert.equal(en.currencySub, 'Sub Currency');
-  assert.equal(en.currencyNone, 'None');
 });
-
 test('TM-CUR-008: currency preference is not FX, migration or a second ledger', () => {
   const migration = readFileSync('src/data/sqlite/migrations.ts', 'utf8');
   const currency = readFileSync('src/shared/currency/currency-preference.ts', 'utf8');
@@ -424,16 +417,17 @@ test('TM-CUR-024: Format sheet has three choices and resolves the currency defau
   assert.match(vm, /value:\s*effectiveGrouping === 'indian'/);
 });
 
-test('TM-CUR-026: Sub picker only closes after storage write succeeds', () => {
+test('TM-CUR-026: add saves on one tap and closes only on success', () => {
   const provider = readFileSync('src/shared/currency/currency-provider.tsx', 'utf8');
   const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const picker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
-  assert.match(provider, /selectSubCurrency\(code: CurrencyCode \| null\): boolean/);
+  assert.match(provider, /addSubCurrency\(code: CurrencyCode\): boolean/);
+  assert.match(provider, /removeSubCurrency\(code: CurrencyCode\): boolean/);
   assert.ok(provider.indexOf('store.write(next)') < provider.indexOf('return true'));
   assert.match(provider, /return false/);
-  assert.match(vm, /if \(selectSubCurrency\(action.code\)\)/);
-  assert.match(vm, /if \(preferences.subCode !== null && selectSubCurrency\(null\)\)/);
-  assert.match(screen, /accessibilityLabel=\{t\('currencyRemoveSub'\)\}/);
+  assert.match(vm, /if \(addSubCurrency\(action.code\)\)/);
+  assert.match(vm, /removeSubCurrency\(action.code\)/);
+  assert.match(screen, /currencyRemoveSub/);
   assert.match(picker, /state.error/);
 });

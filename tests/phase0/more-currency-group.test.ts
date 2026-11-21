@@ -19,6 +19,6 @@ test('TM-CUR-025: More Main/Sub Currency share one card with one inset divider',
   assert.match(section, /accessibilityLabel=\{t\('currencyMain'\)\}/);
   assert.match(section, /accessibilityLabel=\{t\('currencySub'\)\}/);
   assert.match(section, /\{state.currency.mainCode\}/);
-  assert.match(section, /\{state.currency.subCode \?\? t\('currencyNone'\)\}/);
+  assert.match(section, /state.currency.subCodes.length === 0/);
   assert.doesNotMatch(section, /backgroundColor: '#|#[0-9a-fA-F]{6}/);
 });

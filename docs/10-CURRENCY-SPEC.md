@@ -145,3 +145,27 @@ single optional Sub preference is preserved; choosing another code
 replaces the current Sub until multi-Sub persistence/accounting is
 specified and reviewed. Synchronous storage failure leaves the picker
 open with an error. No new storage key, ledger mutation or FX call.
+
+### Multi Sub Currency + indicative FX on Sub screen only — PR #53 (2026-11-21)
+
+Up to **five different Sub Currencies** may be added by selecting a currency
+once in the Plus bottom sheet. Main code and previously selected codes do
+not appear in the sheet. No exchange rate or Save button appears in the
+picker. The selected Sub Currency list **on the dedicated Sub Currency
+screen** shows a separate `USD 1.00 = INR 92.680507`-style reference
+quote below each row; the number here is strictly a synthetic example,
+not a live quote. The quote is fetched against the CURRENT Main code,
+including after Main changes. Source and published date are displayed;
+when unavailable the UI does not invent a value.
+
+Pencil enters editing, replacing Back with a top-left **X Cancel**.
+Cancel stops editing without deleting or leaving the screen; individual
+Remove actions delete only their target Sub. The 5-code limit and
+uniqueness are enforced in the preference data layer.
+
+The v2 preference reads v1 and preserves a saved Sub at position 1;
+new preference writes use the separate v2 key, leaving legacy v1
+unchanged. FX is a display-only reference quote; neither ledger, balance
+nor journal amounts are converted. Provider licensing, privacy review,
+reference-rate cache/offline/stale policy and coverage remain pending
+under the rate-provider ADR. This prototype is not release-approved.

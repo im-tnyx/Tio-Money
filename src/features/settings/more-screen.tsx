@@ -171,7 +171,12 @@ export function MoreScreen({
               <View style={{ flex: 1 }}>
                 <AppText>{t('currencySub')}</AppText>
                 <AppText variant="caption" muted>
-                  {state.currency.subCode ?? t('currencyNone')}
+                  {state.currency.subCodes.length === 0
+                    ? t('currencyNone')
+                    : state.currency.subCodes[0] +
+                      (state.currency.subCodes.length > 1
+                        ? ' +' + (state.currency.subCodes.length - 1)
+                        : '')}
                 </AppText>
               </View>
               <Svg

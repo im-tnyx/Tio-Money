@@ -2,6 +2,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { formatReferenceRate } from '@/data/market/fx-reference-rates';
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
@@ -54,7 +55,7 @@ function HeaderAction({
   );
 }
 
-/** Saved Sub Currency screen, with a separately controlled add-picker sheet. */
+/** The list lives on the screen; adding a currency is a one-tap sheet action. */
 export function SubCurrencyScreen({
   state,
   onAction,
@@ -82,8 +83,8 @@ export function SubCurrencyScreen({
       >
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('currencyPageBack')}
-          onPress={() => onAction({ type: 'back' })}
+          accessibilityLabel={t(state.editing ? 'currencyCancelEdit' : 'currencyPageBack')}
+          onPress={() => onAction({ type: state.editing ? 'edit.cancel' : 'back' })}
           style={{
             width: sideWidth,
             minHeight: theme.buttons.minimumHeight,
@@ -100,7 +101,7 @@ export function SubCurrencyScreen({
             importantForAccessibility="no-hide-descendants"
           >
             <Path
-              d="m15 18-6-6 6-6"
+              d={state.editing ? 'M18 6 6 18M6 6l12 12' : 'm15 18-6-6 6-6'}
               stroke={theme.colors.primaryText}
               strokeWidth={theme.icons.stroke}
               strokeLinecap="round"
@@ -113,7 +114,7 @@ export function SubCurrencyScreen({
           {t('currencySub')}
         </AppText>
         <View style={{ width: sideWidth, flexDirection: 'row', justifyContent: 'flex-end' }}>
-          {state.selectedLabel ? (
+          {state.selected.length > 0 ? (
             <HeaderAction
               icon="pencil"
               label={t('currencyEditSub')}
@@ -137,7 +138,7 @@ export function SubCurrencyScreen({
             {t('currencyMain')}: {state.mainCode}
           </AppText>
         </View>
-        {state.selectedLabel ? (
+        {state.selected.length > 0 ? (
           <View
             style={{
               backgroundColor: theme.colors.card,
@@ -146,35 +147,61 @@ export function SubCurrencyScreen({
               borderColor: theme.colors.border,
             }}
           >
-            <View
-              style={{
-                minHeight: theme.buttons.minimumHeight,
-                paddingHorizontal: theme.space.lg,
-                paddingVertical: theme.space.md,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: theme.space.md,
-              }}
-            >
-              <AppText style={{ flex: 1 }}>{state.selectedLabel}</AppText>
-              {state.editing ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('currencyRemoveSub')}
-                  onPress={() => onAction({ type: 'remove' })}
-                  style={{
-                    minHeight: theme.buttons.minimumHeight,
-                    minWidth: theme.buttons.minimumHeight,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <AppText style={{ color: theme.colors.expense }}>
-                    {t('currencyRemoveSub')}
-                  </AppText>
-                </Pressable>
-              ) : null}
-            </View>
+            {state.selected.map((item, index) => (
+              <View
+                key={item.code}
+                style={{
+                  minHeight: theme.buttons.minimumHeight,
+                  paddingHorizontal: theme.space.lg,
+                  paddingVertical: theme.space.md,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: theme.space.md,
+                  borderBottomWidth:
+                    index === state.selected.length - 1
+                      ? theme.navigation.origin
+                      : theme.navigation.borderWidth,
+                  borderBottomColor: theme.colors.border,
+                }}
+              >
+                <View style={{ flex: 1, gap: theme.space.xxs }}>
+                  <AppText>{item.label}</AppText>
+                  {item.rateStatus === 'available' && item.rate ? (
+                    <>
+                      <AppText variant="caption" muted>
+                        {formatReferenceRate(item.rate)}
+                      </AppText>
+                      <AppText variant="caption" muted>
+                        {t('currencyFxSource')} · {item.rate.date}
+                      </AppText>
+                    </>
+                  ) : (
+                    <AppText variant="caption" muted>
+                      {t(
+                        item.rateStatus === 'loading' ? 'currencyFxLoading' : 'currencyFxUnavailable',
+                      )}
+                    </AppText>
+                  )}
+                </View>
+                {state.editing ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t('currencyRemoveSub') + ': ' + item.code}
+                    onPress={() => onAction({ type: 'remove', code: item.code })}
+                    style={{
+                      minHeight: theme.buttons.minimumHeight,
+                      minWidth: theme.buttons.minimumHeight,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <AppText style={{ color: theme.colors.expense }}>
+                      {t('currencyRemoveSub')}
+                    </AppText>
+                  </Pressable>
+                ) : null}
+              </View>
+            ))}
           </View>
         ) : (
           <View style={{ alignItems: 'center', padding: theme.space.xxl, gap: theme.space.sm }}>
@@ -182,6 +209,11 @@ export function SubCurrencyScreen({
             <AppText muted>{t('currencyTapAddSub')}</AppText>
           </View>
         )}
+        <View style={{ paddingHorizontal: theme.space.lg }}>
+          <AppText variant="caption" muted>
+            {t('currencySubCount')}: {state.selected.length}/{state.limit}
+          </AppText>
+        </View>
         {state.error ? (
           <View accessibilityLiveRegion="polite" style={{ paddingHorizontal: theme.space.lg }}>
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
@@ -189,7 +221,7 @@ export function SubCurrencyScreen({
         ) : null}
         <View style={{ paddingHorizontal: theme.space.lg }}>
           <AppText variant="caption" muted>
-            {t('currencyNoRates')}
+            {t('currencyFxDisclosure')}
           </AppText>
         </View>
       </ScrollView>

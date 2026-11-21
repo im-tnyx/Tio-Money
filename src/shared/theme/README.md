@@ -357,3 +357,18 @@ The current single-Sub data contract is preserved: selecting another
 currency replaces the existing code. The sheet closes only when the
 local write succeeds, and remains open with an error on failure.
 No FX quotes, ledger changes, migration or additional packages.
+
+## Multi Sub Currency, Pencil/X and FX screen layout — PR #53 (2026-11-21)
+
+Sub Currency supports at most 5 distinct saved currencies. The Plus
+picker presents names/codes only, with a one-tap add and no FX values.
+The main screen lists each selected Sub with the directional rate
+`Sub 1.00 = Main X.XXXXXX` and a source/date; a network failure
+displays "Reference rate unavailable". Pencil switches to edit mode,
+top-left Back switches to X Cancel, and Remove is per currency. X never
+removes data or navigates. Legacy v1 selection is migrated in-memory to
+the v2 multi-Sub preference without deleting the prior key.
+
+The isolated Frankfurter reference data adapter needs provider/legal,
+privacy, offline-cache and stale-age review before merging/release.
+Quotes are informational, not ledger conversion or FX transaction data.
