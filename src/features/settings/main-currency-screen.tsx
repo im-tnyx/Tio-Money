@@ -39,7 +39,9 @@ function CurrencyFormatRow({
         gap: theme.space.md,
       }}
     >
-      <AppText muted style={{ flex: 1 }}>{label}</AppText>
+      <AppText muted style={{ flex: 1 }}>
+        {label}
+      </AppText>
       <AppText style={{ flex: 1, textAlign: 'right' }}>{value}</AppText>
       <Svg
         width={theme.iconRoles.card}
@@ -91,7 +93,9 @@ function CurrencySettingsCard({
           gap: theme.space.md,
         }}
       >
-        <AppText muted style={{ flex: 1 }}>{t('currencyPosition')}</AppText>
+        <AppText muted style={{ flex: 1 }}>
+          {t('currencyPosition')}
+        </AppText>
         <CurrencyUnitPositionControl
           value={state.unitPosition}
           onChange={(value) => onAction({ type: 'position.select', value })}
@@ -201,10 +205,7 @@ export function MainCurrencyScreen({
         </View>
         <CurrencySettingsCard state={state} onAction={onAction} />
         {state.error ? (
-          <View
-            accessibilityLiveRegion="polite"
-            style={{ paddingHorizontal: theme.space.lg }}
-          >
+          <View accessibilityLiveRegion="polite" style={{ paddingHorizontal: theme.space.lg }}>
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
           </View>
         ) : null}
