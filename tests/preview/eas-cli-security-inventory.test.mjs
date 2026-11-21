@@ -26,6 +26,9 @@ test('security audit compares numeric versions and never treats prereleases as f
   assert.equal(compareNumericVersions('3.3.18-rc.1', '3.3.18'), null);
   assert.equal(researchFloorFor('minimatch', '3.1.5'), '3.1.4');
   assert.equal(researchFloorFor('minimatch', '10.2.6'), '10.2.3');
+  assert.equal(researchFloorFor('node-forge', '1.4.1'), '1.4.3');
+  assert.equal(researchFloorFor('ajv', '8.11.0'), '8.18.0');
+  assert.equal(researchFloorFor('yaml', '2.6.0'), '2.8.3');
   assert.equal(researchFloorFor('nanoid', '6.0.0'), null);
 });
 
