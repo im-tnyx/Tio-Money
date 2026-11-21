@@ -147,12 +147,13 @@ export function useSubCurrencyViewModel(): {
         case 'list.refresh': {
           if (listRefreshInFlight.current) break;
           const main = preferences.mainCode;
+          const refreshMoment = Date.now();
           const stale = preferences.subCodes.filter((code) => {
             const current = entries[fxPairKey(code, main)];
             return shouldOfferSubCurrencyRefresh(
               current?.status ?? 'loading',
               current?.fetchedAt ?? null,
-              freshnessNow,
+              refreshMoment,
             );
           });
           if (stale.length === 0) break;
@@ -212,6 +213,8 @@ export function useSubCurrencyViewModel(): {
 
   const state = useMemo<SubCurrencyUiState>(() => {
     const mainConfigured = isCurrencyCode(preferences.mainCode);
+    // Include new successful fetchedAt timestamps even after a long-open screen.
+    const currentCheckTime = Math.max(freshnessNow, Date.now());
     const selected: SubCurrencySelectedRow[] = [];
     for (const code of preferences.subCodes) {
       const pair = fxPairKey(code, preferences.mainCode);
@@ -225,7 +228,7 @@ export function useSubCurrencyViewModel(): {
         const current = entries[fxPairKey(code, preferences.mainCode)];
         return { status: current?.status ?? 'loading', fetchedAt: current?.fetchedAt ?? null };
       }),
-      freshnessNow,
+      currentCheckTime,
     );
     const lastCheckedLabel =
       checks.uncheckedCount === selected.length
@@ -235,7 +238,7 @@ export function useSubCurrencyViewModel(): {
           : checks.oldestCheckedAt !== null
             ? t('currencyFxCheckedShort') +
               ' ' +
-              formatSubCurrencyLastChecked(checks.oldestCheckedAt, freshnessNow)
+              formatSubCurrencyLastChecked(checks.oldestCheckedAt, currentCheckTime)
             : t('currencyFxNeverChecked');
     const choices: SubCurrencyChoiceRow[] = [];
     for (const item of CURRENCY_OPTIONS) {
