@@ -27,6 +27,7 @@ export interface SubCurrencyDetail {
   readonly decimalLabel: string;
   readonly refreshing: boolean;
   readonly refreshError: string | null;
+  readonly refreshStatus: string | null;
 }
 
 export interface SubCurrencyUiState {
