@@ -95,9 +95,7 @@ export function SubCurrencyDetailSheet({
               }}
             >
               <View style={{ flex: 0.9, minWidth: theme.navigation.origin }}>
-                <AppText variant="caption" muted numberOfLines={1}>
-                  {detail.label}
-                </AppText>
+                <AppText variant="caption" muted numberOfLines={1}>{detail.label}</AppText>
               </View>
               <View style={{ width: theme.space.xxl }} />
               <View style={{ flex: 1.25, minWidth: theme.navigation.origin }}>
