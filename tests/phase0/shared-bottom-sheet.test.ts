@@ -67,3 +67,11 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(fixture, /<AppText>Independent test-only content<\/AppText>/);
   assert.doesNotMatch(fixture, /MoreUiState|AppearancePreference/);
 });
+
+test('TM-CUR-047: shared overflowing bottom sheets have reduced spacing without double safe-area', () => {
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.equal(bottomSheetTokens.contentBottomPadding, space.xl);
+  assert.match(shared, /scrollBottomPadding = canExpand \? sheet.contentBottomPadding/);
+  assert.match(shared, /edges=\{\['bottom', 'left', 'right'\]\}/);
+  assert.match(shared, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
+});
