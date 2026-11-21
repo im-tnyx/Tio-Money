@@ -9,10 +9,10 @@
 | RFC | [Issue #50](https://github.com/im-tnyx/Tio-Money/issues/50) |
 | Technical proceed | [Agent decision](https://github.com/im-tnyx/Tio-Money/issues/50#issuecomment-7061302891), `PROCEED` for bounded docs-only reconciliation (not owner approval) |
 | Agent | ChatGPT GPT-6; actual Git commit author separately verified by GitHub |
-| Lifecycle | `IN_REVIEW` once PR exists; otherwise `VALIDATING` |
+| Lifecycle | `IN_REVIEW` (PR #51 opened; exact-head CI/reviews need verification) |
 | Baseline | `main` `57e564af8f526f9de69eaaf61f2fbc0c72731188` |
 | Branch | `docs/documentation-readiness-gate-20261121` |
-| PR | Pending creation; verify live PR URL at merge gate |
+| PR | [#51 — docs readiness](https://github.com/im-tnyx/Tio-Money/pull/51), OPEN, base `main` |
 | Independent review | `DEFERRED` until exact PR HEAD; optional unless GitHub requires |
 | Owner merge authorization | **NOT_GRANTED** for this new PR; must identify repo, PR number and explicit merge action |
 
@@ -31,3 +31,5 @@ Fix false current-state claims in `README.md` (PR #1 already merged; four blank 
 - **Do not merge, auto-merge, force-push, modify repository protections, delete branches or deploy** without separately verified owner authorization.
 
 **Checkpoint (2026-11-21, agent ChatGPT GPT-6):** Created RFC #50, documented bounded technical PROCEED, verified no open PRs and based new branch on `57e564af8f526f9de69eaaf61f2fbc0c72731188`. This task/PR remain subject to fresh live checks after the commit. Future lifecycle evidence belongs in PR review and issue #50; no claim that absent future accounting ADRs are resolved.
+
+**PR checkpoint (2026-11-21):** [#51](https://github.com/im-tnyx/Tio-Money/pull/51) opened as a non-draft PR from this branch at initial HEAD `0cee75263ada4acc1c38bdef366b9ee46f8a8820`. At first exact-head gate, governance and preview signal passed; Phase 0 static was **IN_PROGRESS**, GitHub reported `mergeable_state=unstable`; no reviews or inline threads then; protection/ruleset API reads could not be fully verified. This is a **historical first-head snapshot**; new checkpoint commit requires fresh exact-head CI/review. Merge authorization **NOT_GRANTED**.

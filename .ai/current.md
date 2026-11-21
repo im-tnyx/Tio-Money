@@ -5,6 +5,7 @@
 - **Current live GitHub finding at source inspection:** PR #1 and PR #24 already **MERGED**, no open PRs at task creation; older "PR #24 NOT MERGED" entries below are *historical snapshots*, not live merge status. Baseline `main` `57e564af8f526f9de69eaaf61f2fbc0c72731188`.
 - **RFC / proceed:** [Issue #50](https://github.com/im-tnyx/Tio-Money/issues/50) and [agent technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/50#issuecomment-7061302891) authorize narrow factual docs reconciliation only. Owner requested progress to **merge gate**, **not merge authorization for an as-yet-unnumbered PR**.
 - **Scoped task:** [TM-DOC-GATE-20261121-001](tasks/product/documentation-readiness-gate-20261121.md); new branch `docs/documentation-readiness-gate-20261121`; README current/historical labels and [readiness gap register](../docs/13-DOCUMENTATION-READINESS.md), docs hub/index. Finance ADRs and Stage 2/3 security requirements remain BLOCKED and unimplemented.
+- **PR:** [#51 — docs readiness](https://github.com/im-tnyx/Tio-Money/pull/51) opened non-draft at initial HEAD `0cee75263ada4acc1c38bdef366b9ee46f8a8820`; subsequent task/index checkpoint advances HEAD. Exact-new-HEAD CI/review checks required; do not reuse earlier green runs.
 - **Safety:** Markdown-only; no `src`, ledger/migrations, CI, secrets, cloud/Auth or UI changes. Fresh PR exact-head checks, review threads, commit attribution and branch requirements must be verified; no merge, auto-merge or owner approval inferred.
 
 ---
