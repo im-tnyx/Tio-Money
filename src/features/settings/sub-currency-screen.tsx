@@ -298,132 +298,144 @@ export function SubCurrencyScreen({
             </AppText>
           </View>
           {state.selected.length > 0 ? (
-            <View
-              style={{
-                backgroundColor: theme.colors.card,
-                borderBottomWidth: theme.navigation.borderWidth,
-                borderColor: theme.colors.border,
-              }}
-            >
-              {state.selected.map((item, index) => (
-                <SwipeableCurrencyRow
-                  key={item.code}
-                  code={item.code}
-                  last={index === state.selected.length - 1}
-                  isOpen={openSwipeCode === item.code}
-                  onReveal={() => setOpenSwipeCode(item.code)}
-                  onClose={() => setOpenSwipeCode(null)}
-                  onCardTouchStart={onCardTouchStart}
-                  onCardTouchEnd={onCardTouchEnd}
-                  onDelete={() => {
-                    setOpenSwipeCode(null);
-                    onAction({ type: 'remove', code: item.code });
-                  }}
-                >
-                  <View
-                    style={{
-                      minHeight: theme.buttons.minimumHeight + theme.space.xxl,
-                      paddingHorizontal: theme.space.lg,
-                      paddingVertical: theme.space.md,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: theme.space.xs,
+            <>
+              <View
+                style={{
+                  backgroundColor: theme.colors.card,
+                  borderBottomWidth: theme.navigation.borderWidth,
+                  borderColor: theme.colors.border,
+                }}
+              >
+                {state.selected.map((item, index) => (
+                  <SwipeableCurrencyRow
+                    key={item.code}
+                    code={item.code}
+                    last={index === state.selected.length - 1}
+                    isOpen={openSwipeCode === item.code}
+                    onReveal={() => setOpenSwipeCode(item.code)}
+                    onClose={() => setOpenSwipeCode(null)}
+                    onCardTouchStart={onCardTouchStart}
+                    onCardTouchEnd={onCardTouchEnd}
+                    onDelete={() => {
+                      setOpenSwipeCode(null);
+                      onAction({ type: 'remove', code: item.code });
                     }}
                   >
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={item.code + ' ' + t('currencySubDetails')}
-                      accessibilityHint={item.label}
-                      accessibilityActions={[
-                        { name: 'delete', label: t('currencyRemoveSub') + ': ' + item.code },
-                      ]}
-                      onAccessibilityAction={(event) => {
-                        if (event.nativeEvent.actionName === 'delete') {
-                          setOpenSwipeCode(null);
-                          onAction({ type: 'remove', code: item.code });
-                        }
+                    <View
+                      style={{
+                        minHeight: theme.buttons.minimumHeight + theme.space.xxl,
+                        paddingHorizontal: theme.space.lg,
+                        paddingVertical: theme.space.md,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: theme.space.xs,
                       }}
-                      onPress={() => {
-                        if (openSwipeCode !== null) setOpenSwipeCode(null);
-                        else onAction({ type: 'detail.open', code: item.code });
-                      }}
-                      style={{ flex: 1, gap: theme.space.xxs }}
                     >
-                      <AppText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
-                        {item.label}
-                      </AppText>
-                      {(item.rateStatus === 'available' || item.rateStatus === 'cached') &&
-                      item.rate ? (
-                        <AppText
-                          variant="caption"
-                          muted
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          minimumFontScale={0.7}
-                        >
-                          {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
-                          {formatReferenceRate(item.rate)}
-                        </AppText>
-                      ) : (
-                        <AppText variant="caption" muted numberOfLines={1}>
-                          {t(
-                            item.rateStatus === 'loading'
-                              ? 'currencyFxLoading'
-                              : 'currencyFxUnavailable',
-                          )}
-                        </AppText>
-                      )}
-                    </Pressable>
-                    {item.showRefresh ? (
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={
-                          item.code +
-                          ' · ' +
-                          item.lastCheckedLabel +
-                          ' · ' +
-                          t(item.refreshing ? 'currencyFxCheckingShort' : 'currencyFxRefreshNow')
-                        }
-                        accessibilityState={{ disabled: item.refreshing }}
-                        disabled={item.refreshing}
+                        accessibilityLabel={item.code + ' ' + t('currencySubDetails')}
+                        accessibilityHint={item.label}
+                        accessibilityActions={[
+                          { name: 'delete', label: t('currencyRemoveSub') + ': ' + item.code },
+                        ]}
+                        onAccessibilityAction={(event) => {
+                          if (event.nativeEvent.actionName === 'delete') {
+                            setOpenSwipeCode(null);
+                            onAction({ type: 'remove', code: item.code });
+                          }
+                        }}
                         onPress={() => {
                           if (openSwipeCode !== null) setOpenSwipeCode(null);
-                          else onAction({ type: 'card.refresh', code: item.code });
+                          else onAction({ type: 'detail.open', code: item.code });
                         }}
-                        style={{
-                          width: theme.space.xxxl * 3,
-                          minHeight: theme.buttons.minimumHeight,
-                          alignItems: 'flex-end',
-                          justifyContent: 'center',
-                          gap: theme.space.xxs,
-                          opacity: item.refreshing
-                            ? theme.buttons.disabledOpacity
-                            : theme.buttons.enabledOpacity,
-                        }}
+                        style={{ flex: 1, gap: theme.space.xxs }}
                       >
-                        <AppText
-                          variant="caption"
-                          muted
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          minimumFontScale={0.7}
-                          style={{ textAlign: 'right' }}
-                        >
-                          {item.lastCheckedLabel}
+                        <AppText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                          {item.label}
                         </AppText>
-                        <AppText
-                          variant="caption"
-                          numberOfLines={1}
-                          style={{ color: theme.colors.brand, textAlign: 'right' }}
-                        >
-                          {t(item.refreshing ? 'currencyFxCheckingShort' : 'currencyFxRefreshNow')}
-                        </AppText>
+                        {(item.rateStatus === 'available' || item.rateStatus === 'cached') &&
+                        item.rate ? (
+                          <AppText
+                            variant="caption"
+                            muted
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.7}
+                          >
+                            {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
+                            {formatReferenceRate(item.rate)}
+                          </AppText>
+                        ) : (
+                          <AppText variant="caption" muted numberOfLines={1}>
+                            {t(
+                              item.rateStatus === 'loading'
+                                ? 'currencyFxLoading'
+                                : 'currencyFxUnavailable',
+                            )}
+                          </AppText>
+                        )}
                       </Pressable>
-                    ) : null}
-                  </View>
-                </SwipeableCurrencyRow>
-              ))}
-            </View>
+                    </View>
+                  </SwipeableCurrencyRow>
+                ))}
+              </View>
+              {state.refreshSummary ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: theme.space.sm,
+                    paddingHorizontal: theme.space.lg,
+                  }}
+                >
+                  <AppText
+                    variant="caption"
+                    muted
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.7}
+                    style={{ flex: 1 }}
+                  >
+                    {state.refreshSummary.lastCheckedLabel}
+                  </AppText>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      t('currencyFxRefreshPending') +
+                      ' · ' +
+                      state.refreshSummary.lastCheckedLabel
+                    }
+                    accessibilityState={{ disabled: state.refreshSummary.refreshing }}
+                    disabled={state.refreshSummary.refreshing}
+                    onPress={() => {
+                      if (openSwipeCode !== null) setOpenSwipeCode(null);
+                      else onAction({ type: 'list.refresh' });
+                    }}
+                    style={{
+                      minHeight: theme.buttons.minimumHeight,
+                      minWidth: theme.buttons.minimumHeight,
+                      alignItems: 'flex-end',
+                      justifyContent: 'center',
+                      opacity: state.refreshSummary.refreshing
+                        ? theme.buttons.disabledOpacity
+                        : theme.buttons.enabledOpacity,
+                    }}
+                  >
+                    <AppText
+                      variant="caption"
+                      numberOfLines={1}
+                      style={{ color: theme.colors.brand, textAlign: 'right' }}
+                    >
+                      {t(
+                        state.refreshSummary.refreshing
+                          ? 'currencyFxCheckingShort'
+                          : 'currencyFxRefreshNow',
+                      )}
+                    </AppText>
+                  </Pressable>
+                </View>
+              ) : null}
+            </>
           ) : (
             <View style={{ alignItems: 'center', padding: theme.space.xxl, gap: theme.space.sm }}>
               <AppText>{t('currencyNoSubAdded')}</AppText>
