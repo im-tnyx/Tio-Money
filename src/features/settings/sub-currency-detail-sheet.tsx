@@ -117,6 +117,11 @@ export function SubCurrencyDetailSheet({
                 {t('currencyFxSource')} · {detail.rateDate}
               </AppText>
             ) : null}
+            {detail.rateFetchedLabel ? (
+              <AppText variant="caption" muted>
+                {detail.rateFetchedLabel}
+              </AppText>
+            ) : null}
           </View>
           <View
             style={{
