@@ -168,7 +168,9 @@ export function SubCurrencyDetailSheet({
                   minWidth: theme.buttons.minimumHeight,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  opacity: detail.refreshing ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
+                  opacity: detail.refreshing
+                    ? theme.buttons.disabledOpacity
+                    : theme.buttons.enabledOpacity,
                 }}
               >
                 <Svg
