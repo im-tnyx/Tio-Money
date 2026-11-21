@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — Issue #48 Codespaces one-click Run Tasks
+
+- **Scope/PROCEED:** [Issue #48](https://github.com/im-tnyx/Tio-Money/issues/48) records the user-requested VS Code **Start Expo Project (Tunnel)** (managed idempotent starter) and **Git Pull (FF-only)** (current checked-out tracking branch). Task: [TM-DEV-CODESPACES-TASKS-20261121](tasks/preview/codespaces-run-tasks-20261121.md).
+- **Branch/base:** `chore/codespaces-run-tasks-20261121` from `main` `9d2f0c793442b76131834a9ffc0c1962734ab00d`. Only tracked VS Code task configuration, narrow gitignore exception, task tests, Codespaces guide and additive task checkpoint; no Expo/auth/preview workflow changes.
+- **Gate:** Physical Codespaces Expo Go behavior and current-head CI `NOT_VERIFIED` at initial checkpoint. Review `DEFERRED`; explicit PR-specific merge permission `NOT_GRANTED`. Do not merge or enable automation.
+
+---
+
 ## 2026-11-21 — PR #45 bottom tab icon-label gap removed
 
 - **Latest owner refinement:** Bottom tab selected SVG **300**, unselected SVG **200**, and **icon-label gap 0dp** (formerly 1dp). The central `navigationTokens.iconLabelGap=size.dp0` drives all five tabs through existing `RootTabBar`. Older 1dp notes below are historical and superseded.

@@ -127,3 +127,18 @@ The owner provided Expo Dashboard **Slug `tio-money`, Owner `tnyx-23`, Project I
 After this draft PR commit, the owner may use their **existing** Codespace only: first `git status --short`; if clean and the branch is `chore/codespaces-expo-go-stage-a`, run `git pull --ff-only origin chore/codespaces-expo-go-stage-a`, then `npx expo config --type public` and check `extra.eas.projectId` against the UUID above. If Expo is already serving the app, do not run a second server. Restart the owner-managed process with `node scripts/start-codespace-expo.mjs --restart` only when appropriate; if an interactive `npm run mobile` process is running, stop it **in its own terminal** with Ctrl+C before using the managed starter. No worktree reset/force push. Phone confirms the Development Servers entry separately from Projects.
 
 **Remaining separate requirement for Projects parity:** Owner checks **Expo Dashboard → `@tnyx-23/tio-money` → Updates / Branches** to see whether a compatible update actually exists. An unlinked or grey Projects tile can have causes beyond a missing local UUID. Do **not** imply project linking alone publishes an update, fixes app visibility or activates offline access. An EAS Update publication needs its own scoped decision and review; Stage B remains blocked. The actual owner-reported phone launch (from Development Servers) is PASS, while the grey Projects card and iPhone/Android cross-device reliability remain **NOT_VERIFIED**.
+
+## One-click Codespaces Run Tasks (VS Code)
+
+Open the **Tio-Money** repository in its GitHub Codespace and use **Terminal → Run Task** (or **Command Palette → Tasks: Run Task**). Select one of the shared `.vscode/tasks.json` entries:
+
+| Task label | What it does |
+|---|---|
+| **Start Expo Project (Tunnel)** | Runs `node scripts/start-codespace-expo.mjs --start`; if the account-checked managed Expo Go tunnel is already healthy, it reuses it rather than competing for Metro port 8081. |
+| **Git Pull (FF-only)** | Runs `git pull --ff-only` against the **currently checked-out branch** and its configured upstream; it never switches branches or force-updates history. |
+
+**Why not run `npx expo start --tunnel` as another task?** Codespace startup already attempts the project's managed Metro/tunnel. A second direct Expo CLI instance can collide on port 8081. The safe starter uses the existing `npm run mobile` (Expo Go tunnel) behind the scenes. If Expo CLI login is missing, sign in privately as the configured Tio Money Expo owner and retry. The task only starts or verifies the tunnel; open Tio-Money from Expo Go's Development Servers / available project entry on the phone. For QR/interactive fallback, follow the **Session controls** section above (stop managed Metro first).
+
+**Git safety:** the pull task uses whatever branch is selected at execution time. It requires that branch to have an upstream. If the upstream is missing, local changes conflict, or histories diverge, Git stops with an error; resolve manually after inspecting `git status` / upstream configuration. No automatic merge, rebase, stash, checkout or reset is performed.
+
+The two task definitions appear in branches that **contain the committed configuration**; other pre-existing local branches need a normal safe update before those tasks become available there. No Codespace is created or remotely started by these tasks, and neither task runs automatically when selected in a different repository.
