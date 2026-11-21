@@ -36,6 +36,25 @@
         "focus": true
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Expo Go Tunnel (Interactive)",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "node scripts/start-codespace-expo.mjs --check-account && node scripts/start-codespace-expo.mjs --stop && CI=false npm run mobile"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true,
+        "clear": false
+      },
+      "problemMatcher": []
     }
   ]
 }

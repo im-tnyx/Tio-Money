@@ -39,3 +39,11 @@ Share only `.vscode/tasks.json` via the narrowly scoped gitignore exception; kee
 - **Verified base:** `9d2f0c793442b76131834a9ffc0c1962734ab00d`; direct commits to main prohibited, new branch created.
 - **Review:** `DEFERRED` pending PR/current-head checks; no independent review result asserted.
 - **Next action:** verify committed files, open scoped draft PR, run/review actual CI and report untested real Codespace behavior. Merge only with separate explicit owner PR authorization.
+
+## Follow-up checkpoint — 2026-11-21, ChatGPT GPT-6 (third task)
+
+- **Source/PROCEED:** Owner follow-up in ChatGPT requested the third Expo Go command shortcut. Bounded RFC addendum: [Issue #48 comment](https://github.com/im-tnyx/Tio-Money/issues/48#issuecomment-7060391801). This is not merge authorization.
+- **Additional task:** `Expo Go Tunnel (Interactive)` in `.vscode/tasks.json`. Its foreground process runs a Codespaces Linux `bash -lc` chain: managed launcher `--check-account` → verified-owner-only `--stop` → `CI=false npm run mobile` (locked `expo start --tunnel --go`), stopping with Ctrl+C. No duplicate Metro, unrelated process termination, or Expo credentials in source.
+- **Minimal launcher extension:** `scripts/start-codespace-expo.mjs --check-account` reuses existing `requireExpoAccount()` without starting/stopping Metro. No existing startup, restart, stop, PID ownership or tunnel verification behavior changed. The interactive task fails closed on mismatched account, missing Expo CLI, unowned Metro or managed stop failure.
+- **Focused regression:** test three labels, correct execution order/account gate and original pull `--ff-only` command. Documentation and additive task index updated. File set expands narrowly to existing managed starter and its consumers.
+- **State:** In review preparation. Exact-head CI, on-Codespace terminal execution and real Expo Go launch must be rechecked on this follow-up commit. No false assertion of CI/device success; independent review remains `DEFERRED`; owner merge authorization **NOT_GRANTED**.

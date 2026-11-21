@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #49 third interactive Expo Go task (Issue #48)
+
+- **Owner follow-up:** Add a third selectable Codespaces task, **Expo Go Tunnel (Interactive)** (Expo Go `--tunnel --go`), alongside managed **Start Expo Project (Tunnel)** and branch-aware **Git Pull (FF-only)**. [Issue #48 technical addendum](https://github.com/im-tnyx/Tio-Money/issues/48#issuecomment-7060391801).
+- **Safety:** Reuse managed launcher account verification via its new check-only mode; verified managed Metro stops before interactive CLI begins, never kill unowned port 8081. `CI=false npm run mobile` displays console; Ctrl+C stops it. No automatic Codespace wake, EAS, new token or mobile app change.
+- **Gate:** [Draft PR #49](https://github.com/im-tnyx/Tio-Money/pull/49), fresh exact-head CI/review and live Codespaces/phone check pending. Merge authorization `NOT_GRANTED`; prior two-task evidence is superseded by this new scope.
+
+---
+
 ## 2026-11-21 — Issue #48 Codespaces one-click Run Tasks
 
 - **Scope/PROCEED:** [Issue #48](https://github.com/im-tnyx/Tio-Money/issues/48) records the user-requested VS Code **Start Expo Project (Tunnel)** (managed idempotent starter) and **Git Pull (FF-only)** (current checked-out tracking branch). Task: [TM-DEV-CODESPACES-TASKS-20261121](tasks/preview/codespaces-run-tasks-20261121.md).
