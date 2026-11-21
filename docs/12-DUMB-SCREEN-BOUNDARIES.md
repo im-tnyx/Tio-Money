@@ -1,6 +1,6 @@
 # 12 · Mandatory Dumb-Screen and Layer Separation Contract
 
-> **Owner decision TM-DEC-011 (2026-11-21): ALL screens are dumb/presentation-only; NO logic in screens.** Documented from the connected-chat instruction ("all screen dump screen rahega koi bhi logic screen m nahi rahega"). This is an **architecture contract** for all *future* Stage 1 code and not authorization to alter the current five blank tabs. [Decision register](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) · [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23) · [Finance ADRs](11-STAGE-1-FINANCE-ADRS.md).
+> **Owner decision TM-DEC-011 (2026-11-21): ALL screens are dumb/presentation-only; NO logic in screens.** Documented from the connected-chat instruction ("all screen dump screen rahega koi bhi logic screen m nahi rahega"). This is an **architecture contract** for existing More Appearance and all *future* Stage 1 code, **not authorization to alter the current four blank finance tabs, implemented More presentation/controller, disabled Add or latest owner-approved navigation**. [Decision register](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) · [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23) · [Finance ADRs](11-STAGE-1-FINANCE-ADRS.md).
 
 [Architecture](05-TECH-ARCHITECTURE.md) · [Features/layer map](../.ai/core/feature-boundaries.md) · [Tests](06-IMPLEMENTATION-TEST-PLAN.md) · [Screen UX](03-SCREEN-SPEC.md)
 
