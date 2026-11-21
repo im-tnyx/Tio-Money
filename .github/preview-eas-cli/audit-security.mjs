@@ -7,7 +7,9 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 export const RESEARCHED_FLOORS = Object.freeze({
-  'node-forge': Object.freeze({ 1: '1.4.1' }),
+  'node-forge': Object.freeze({ 1: '1.4.3' }),
+  ajv: Object.freeze({ 8: '8.18.0' }),
+  yaml: Object.freeze({ 2: '2.8.3' }),
   minimatch: Object.freeze({
     3: '3.1.4', 4: '4.2.5', 5: '5.1.8', 6: '6.2.2',
     7: '7.4.8', 8: '8.0.6', 9: '9.0.7', 10: '10.2.3',
