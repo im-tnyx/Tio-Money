@@ -84,3 +84,24 @@ after PR #56; the two `.github` tooling paths remain absent from
 PR #53. Final exact-HEAD CI, privacy scope, iOS/Android physical
 regression and review dispositions still required. PR #53 stays OPEN;
 MERGE_AUTHORIZATION=NOT_GRANTED.
+
+## 2026-11-22 — Sub detail transient refresh confirmation (unmerged PR #53)
+
+Owner's [agent-transcribed UI decision](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067991690)
+requires successful refresh status (`updated` or `checked/unchanged`)
+to disappear **3 seconds after a successful network response** in the
+existing Sub Currency Detail Bottom Sheet. Controller-owned `useEffect`
+starts a 3000ms timer on success feedback, cancels it when state changes
+or the sheet unmounts, and identity-checks state before clearing.
+The prior refresh generation guard prevents late responses from
+showing after a dismissed/switched Sub; dismiss/new Refresh clear the
+status immediately. Loading status remains while fetching, and errors
+persist until retry/dismiss so they are not missed.
+
+No repeated provider request, poll, quote deletion, cache TTL change,
+FX/ledger/account alteration, screen-side timer or new dependency.
+New regression case `TM-CUR-049` covers timer lifecycle and success
+status; preceding Main/Sub zero-gap test `TM-CUR-048` Prettier formatting
+was corrected following CI failure. Exact-HEAD Phase 0/governance checks
+and physical iOS/Android refreshed-state QA remain evidence gates.
+PR #53 MERGE_AUTHORIZATION=NOT_GRANTED.
