@@ -489,3 +489,21 @@ safe area and other sheets remain unchanged; no screenshot color
 values are hardcoded. USD's short display-only caption is
 `USD - USA (US$)` and its displayed amount uses `US$`.
 The shared ISO metadata, stored settings and FX pair/rate are intact.
+
+## Sub Currency swipe-only Delete supersedes edit mode — PR #53 (2026-11-21)
+
+Latest owner direction supersedes the historical Pencil, X Cancel and
+left-side minus edit controls described above. The 50dp top bar shows
+only the icon-only Back action and Plus add action. Saved Sub Currency
+rows keep the same height and remain tappable for details; left swipe
+reveals a right-side red Delete action, and only tapping Delete removes
+that currency. Swiping right, tapping blank screen space, choosing
+another row, Back or Plus hides the exposed action without deleting.
+For assistive technology, the row exposes a named accessibility Delete
+action without restoring a visible minus or Pencil.
+
+Delete uses dedicated semantic theme colors: white label on a sufficiently
+dark red background in both light and dark modes. The dark background
+must not reuse the lighter expense/pink value because white-text
+contrast would be inadequate. Persistence, FX, ledger and shared sheet
+behavior are unchanged. On-device gesture and screen-reader QA is pending.
