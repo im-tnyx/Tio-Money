@@ -1,6 +1,5 @@
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 
 import { t } from '@/shared/i18n/strings';
 import {
@@ -116,6 +115,7 @@ export function AppearanceSheet({
         <SafeAreaView
           edges={['bottom', 'left', 'right']}
           accessibilityViewIsModal
+          onAccessibilityEscape={dismiss}
           style={{
             width: '100%',
             maxHeight: '90%',
@@ -148,36 +148,9 @@ export function AppearanceSheet({
               borderBottomColor: theme.colors.border,
             }}
           >
-            <AppText variant="section" style={{ flex: 1 }}>
+            <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
               {t('appearance')}
             </AppText>
-            <Pressable
-              onPress={dismiss}
-              accessibilityRole="button"
-              accessibilityLabel={t('closeAppearance')}
-              style={{
-                minHeight: theme.buttons.minimumHeight,
-                minWidth: theme.buttons.minimumHeight,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Svg
-                width={theme.iconRoles.card}
-                height={theme.iconRoles.card}
-                viewBox="0 0 24 24"
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-              >
-                <Path
-                  d="M18 6 6 18 M6 6l12 12"
-                  fill="none"
-                  stroke={theme.colors.primaryText}
-                  strokeWidth={theme.icons.stroke}
-                  strokeLinecap="round"
-                />
-              </Svg>
-            </Pressable>
           </View>
           <View accessibilityRole="radiogroup">
             {APPEARANCE_OPTIONS.map((option, index) => (

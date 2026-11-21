@@ -87,3 +87,10 @@
 - **Technical decision PROCEED:** Minimal 4dp upward adjustment by removing the handle's `space.xxs` bottom margin, preserving its 8dp top margin and decorative size; apply existing 16dp `radius.md` only to sheet top corners. Keep left title/X, 48dp minimum accessible hit target, header divider, mode rows and theme persistence unchanged.
 - **Scope:** Sheet presentation, matching regression assertions, feature guide and additive AI task/index checkpoint on PR #18 feature branch. No screen-owned state, finance, native, CI/workflow, dependency or privileged Codespaces changes.
 - **Safeguards:** Guard exact PR/head/main, ensure `tio-preview` absent before non-force branch push. Exact-new-head CI/device visual validation required. Formal independent UI review deferred; PR #18 stays Draft and **NOT MERGE AUTHORIZED**.
+
+## 2026-11-21 — Owner revision: center title, remove X at same height
+
+- **Owner direction:** Remove visible X from Appearance bottom sheet and center the title at the current header height. This supersedes prior left-title/X choices, but not the handle, rounded top corners or compact row geometry.
+- **Technical PROCEED:** Keep `minHeight: theme.buttons.minimumHeight` (48dp), horizontal inset, bottom divider; center single title full width and delete unused X SVG. Preserve backdrop and Android Back dismissal; support iOS VoiceOver escape with `onAccessibilityEscape` for accessibility after removing visible X.
+- **Scope:** Sheet, Phase 0 structural tests, appearance guide and additive task/index checkpoint only. No theme state/store, other tabs, finance, native config, new dependency or privileged workflow edits.
+- **Safety:** Only guarded, non-force feature-branch commit on draft PR #18. Keep `tio-preview` absent; no Codespaces dispatch, EAS release or `main` merge. Exact-head CI and owner device test remain acceptance gates. Independent UI review deferred and no merge permission granted.

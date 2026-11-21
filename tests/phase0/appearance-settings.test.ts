@@ -81,8 +81,9 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /borderTopLeftRadius: theme\.radius\.md/);
   assert.match(sheet, /borderTopRightRadius: theme\.radius\.md/);
   assert.doesNotMatch(sheet, /borderTopLeftRadius: theme\.navigation\.origin/);
-  assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1 \}\}>/);
-  assert.doesNotMatch(sheet, /textAlign: 'center'/);
+  assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1, textAlign: 'center' \}\}>/);
+  assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
+  assert.match(sheet, /onAccessibilityEscape=\{dismiss\}/);
   assert.match(sheet, /width: theme\.space\.xxxl/);
   assert.match(sheet, /height: theme\.space\.xxs/);
   assert.match(sheet, /borderRadius: theme\.radius\.pill/);
@@ -92,8 +93,8 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.doesNotMatch(sheet, /marginBottom: theme\.space\.xxs/);
   assert.ok(
     sheet.indexOf('width: theme.space.xxxl') <
-      sheet.indexOf('<AppText variant="section" style={{ flex: 1 }}>'),
-    'compact drag handle must precede the left-aligned header',
+      sheet.indexOf("<AppText variant=\"section\" style={{ flex: 1, textAlign: 'center' }}>"),
+    'compact drag handle must precede the centered header',
   );
   assert.doesNotMatch(sheet, /marginTop: theme\.space\.sm/);
   assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
@@ -102,8 +103,9 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /paddingHorizontal: theme\.space\.lg/);
   assert.match(sheet, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(sheet, /borderBottomColor: theme\.colors\.border/);
-  assert.match(sheet, /d="M18 6 6 18 M6 6l12 12"/);
-  assert.match(sheet, /fill="none"/);
+  assert.doesNotMatch(sheet, /d="M18 6 6 18 M6 6l12 12"/);
+  assert.doesNotMatch(sheet, /<Svg/);
+  assert.doesNotMatch(sheet, /minWidth: theme\.buttons\.minimumHeight/);
   assert.match(sheet, /accessibilityLabel=\{t\('closeAppearance'\)\}/);
   assert.doesNotMatch(sheet, /t\('appearanceHint'\)/);
   assert.doesNotMatch(sheet, /<AppText>\{t\('close'\)\}<\/AppText>/);

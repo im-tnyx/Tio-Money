@@ -4,7 +4,7 @@
 
 ## Product flow
 
-1. Open the **More** bottom tab. **General Settings** is plain unboxed section text. A single full-available-width card below it shows **Appearance** with a right-side chevron. Tap this row to open a softly rounded-top native bottom sheet with a **left-aligned Appearance title**, an **X dismiss icon** on the right, a **divider directly below the title** and the existing **System / Light / Dark** radio choices. The extra visible description under Appearance is removed; individual option descriptions remain accessible as hints. Tap **X**, the backdrop, or Android Back to dismiss the sheet. No separate Settings route.
+1. Open the **More** bottom tab. **General Settings** is plain unboxed section text. A single full-available-width card below it shows **Appearance** with a right-side chevron. Tap this row to open a softly rounded-top native bottom sheet with a **centered Appearance title** with **no visible X button**, a **divider directly below the title** and the existing **System / Light / Dark** radio choices. The extra visible description under Appearance is removed; individual option descriptions remain accessible as hints. Tap the backdrop or Android Back to dismiss the sheet; iOS VoiceOver also supports the accessibility escape gesture. No separate Settings route.
 2. **System** is the default; existing app palettes follow the Android/iOS device's effective light/dark mode, including later device changes.
 3. **Light** and **Dark** immediately re-theme all app tabs and the status-bar foreground, regardless of the device mode.
 4. On restart, the selected choice is loaded locally before the UI is rendered. Missing/unrecognized values fall back to **System**. A storage read failure falls back to System with safe error feedback; a failed write keeps the last persisted selection and tells the user to retry.
@@ -16,7 +16,7 @@
 - `src/features/settings/more-route.tsx`: wires ViewModel to Screen and its modal child.
 - `src/features/settings/use-more-view-model.ts` + `more-contract.ts`: typed `MoreUiState` and `MoreAction`; no storage in UI.
 - `src/features/settings/more-screen.tsx`: theme-token-only, stateless General Settings heading and full-width Appearance card/chevron.
-- `src/features/settings/appearance-sheet.tsx`: stateless accessible React Native Modal bottom sheet with System/Light/Dark circular radios, a header divider, row dividers, backdrop dismissal and an accessible X close icon; flat (square) top corners.
+- `src/features/settings/appearance-sheet.tsx`: stateless accessible React Native Modal bottom sheet with System/Light/Dark circular radios, a header divider, row dividers, backdrop/Android Back dismissal and iOS VoiceOver accessibility escape; no visible X button and softly rounded top corners.
 - `src/shared/theme/appearance-preference.ts`: pure parsing/scheme-resolution and injected store port.
 - `src/data/preferences/appearance-preference-store.ts`: `expo-sqlite/kv-store` local adapter, separate from financial ledger `tio-money.db`.
 - `src/shared/theme/theme-provider.tsx`: one global stored selection plus live OS appearance subscription; persistence attempted before updating state.
@@ -57,3 +57,7 @@ The owner confirmed the compact left-aligned Appearance header has reduced waste
 ## 2026-11-21 — Owner follow-up: header slightly higher and rounded corners
 
 Move the left-aligned Appearance title/X header upward by 4dp by removing only the decorative handle's 4dp bottom gap (`marginBottom: theme.navigation.origin`). Keep the 40×4dp handle and its 8dp top margin intact. Restore **subtle 16dp rounded top-left and top-right corners** using `theme.radius.md`. Preserve the 48dp accessible header/X touch target, bottom divider, compact System/Light/Dark rows, and all accessibility, persistence, backdrop and Android Back behavior. No new gesture, dependency or native/financial change. Real-device layout acceptance and exact-head CI remain required; no PR merge/preview activation authorization.
+
+## 2026-11-21 — Owner follow-up: centered title without X, same header height
+
+The owner requests removing the X button and horizontally centering `Appearance` at the same height, superseding only the previous left-aligned title/X visual decision. Keep the existing 48dp minimum header height (`theme.buttons.minimumHeight`), divider, 40×4dp centered decorative handle, 8dp handle top margin, 16dp rounded sheet top corners and compact radio rows. Center the title across the full header width using the existing `AppText` style, not a fake balancing spacer; remove the now-unused close SVG import. Dismissal still works via backdrop tap, Android hardware Back (`onRequestClose`), and iOS VoiceOver escape gesture (`onAccessibilityEscape`). No drag gesture is implemented by the decorative handle. Preserve selection, persistence and safe error behavior. CI and device accessibility checks are required before merge.

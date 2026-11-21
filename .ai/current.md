@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 title centered without X (same header height)
+
+- **Owner revision:** Remove the visible X button and center `Appearance` in the existing 48dp minimum-height sheet header. This supersedes prior left-title/X arrangement without disturbing the restored handle, rounded top corners, header divider or mode radio rows.
+- **UI-only change:** Remove close SVG and center title across available header width; preserve backdrop and Android Back dismiss plus add iOS VoiceOver accessibility escape. No changes to ViewModel, persistence, finance, navigation or CI workflows. Update Phase 0 structure regressions and linked [task](tasks/ui/more-appearance-20261120.md).
+- **Safety/next gate:** Push only to PR #18 feature branch with exact-head non-force protection; keep `tio-preview` absent to prevent privileged Codespaces activation. New-head CI and device accessibility/visual testing required. Independent UI review deferred. No owner authorization to merge PR into main.
+
+---
+
 ## 2026-11-21 — PR #18 slight title lift + rounded bottom-sheet top corners
 
 - **Owner direction:** With compact handle restored, shift Appearance header row slightly up for visual alignment and restore rounded top corners. Preserve left title/X, divider, 40×4dp handle, choice radio rows, and persistence.
