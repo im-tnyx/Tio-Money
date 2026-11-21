@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 remove outer top border and 24dp rounded corners
+
+- **Owner change:** Delete bottom sheet **outer top border**, keep independent header divider. Use 24dp rounded top corners via new shared `radius.xl: size.dp24` token, not a hardcoded value. Retain centered Appearance title without X, compact handle, three radio rows and existing dismiss/persistence behavior.
+- **Scope:** Appearance sheet, theme radius token, appearance/design-token regression tests, guide and assigned task checkpoint. Prior `8d301e13` Phase 0 failed Prettier on appearance test, so simplify its index assertion in the same scoped change. Require exact-head checks and iPhone/Android visual QA; no CI success presumed.
+- **Security:** `tio-preview` is absent; preserve that through non-force guarded PR #18 branch update. No privileged preview, EAS, direct main merge or force push; no separate merge authorization.
+
+---
+
 ## 2026-11-21 — PR #18 top border and 20dp rounded sheet corners
 
 - **Owner revision:** A subtle 1dp outer top-only border plus more prominent 20dp top corner radii, using semantic tokens and current clipping. Keep the compact handle, 48dp centered Appearance title without X, divider, modes and dismissal unchanged.

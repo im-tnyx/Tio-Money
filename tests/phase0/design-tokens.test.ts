@@ -24,6 +24,7 @@ test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(space.sm, size.dp12);
   assert.equal(space.xl, size.dp24);
   assert.equal(radius.sm, size.dp12);
+  assert.equal(radius.xl, size.dp24);
   assert.equal(typeScale.body, size.dp16);
   assert.equal(typeScale.title, size.dp26);
   assert.equal(typographyTokens.navLabelSize, size.dp11);

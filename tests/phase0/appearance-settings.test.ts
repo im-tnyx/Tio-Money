@@ -78,12 +78,13 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /onRequestClose=\{dismiss\}/);
   assert.match(sheet, /accessibilityViewIsModal/);
   assert.match(sheet, /onPress=\{dismiss\}/);
-  assert.match(sheet, /borderTopLeftRadius: theme\.radius\.lg/);
-  assert.match(sheet, /borderTopRightRadius: theme\.radius\.lg/);
-  assert.match(sheet, /borderTopWidth: theme\.navigation\.borderWidth/);
-  assert.match(sheet, /borderTopColor: theme\.colors\.border/);
-  assert.doesNotMatch(sheet, /borderLeftWidth: theme\.navigation\.borderWidth/);
-  assert.doesNotMatch(sheet, /borderRightWidth: theme\.navigation\.borderWidth/);
+  assert.match(sheet, /borderTopLeftRadius: theme\.radius\.xl/);
+  assert.match(sheet, /borderTopRightRadius: theme\.radius\.xl/);
+  const sheetSurface = sheet.split('<SafeAreaView')[1]?.split('>')[0] ?? '';
+  assert.doesNotMatch(
+    sheetSurface,
+    /borderTopWidth|borderTopColor|borderLeftWidth|borderRightWidth/,
+  );
   assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1, textAlign: 'center' \}\}>/);
   assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
   assert.match(sheet, /onAccessibilityEscape=\{dismiss\}/);
@@ -94,11 +95,9 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /marginTop: theme\.space\.xs/);
   assert.match(sheet, /marginBottom: theme\.navigation\.origin/);
   assert.doesNotMatch(sheet, /marginBottom: theme\.space\.xxs/);
-  assert.ok(
-    sheet.indexOf('width: theme.space.xxxl') <
-      sheet.indexOf("textAlign: 'center'"),
-    'compact drag handle must precede the centered header',
-  );
+  const handleIndex = sheet.indexOf('width: theme.space.xxxl');
+  const titleIndex = sheet.indexOf("textAlign: 'center'");
+  assert.ok(handleIndex >= 0 && titleIndex > handleIndex);
   assert.doesNotMatch(sheet, /marginTop: theme\.space\.sm/);
   assert.match(sheet, /minHeight: theme\.buttons\.minimumHeight/);
   assert.match(sheet, /paddingVertical: theme\.space\.md/);

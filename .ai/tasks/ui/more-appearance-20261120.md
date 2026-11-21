@@ -101,3 +101,10 @@
 - **Technical PROCEED:** Set both sheet top radii to `theme.radius.lg` and only the top outer border to 1dp `theme.navigation.borderWidth` and semantic `theme.colors.border`. Keep existing clipping, centered 48dp header without X, drag indicator, divider and three accessible radio options. No side/bottom outer border or extra shadow.
 - **Quality fix:** Prior commit `76319588` failed Phase 0 Prettier on the appearance regression test. Simplify the escaped-quote assertion and assert the border/corner theme tokens. Require exact-head CI and device acceptance.
 - **Scope/security:** Feature UI, tests, docs and task/index records only. No ViewModel/store/finance changes, dependencies, native setup, CI workflow or EAS. Keep `tio-preview` absent before non-force PR branch push; no Codespaces dispatch, force push or PR #18 merge. Independent UI review deferred.
+
+## 2026-11-21 — Owner: remove outer top border and use 24dp token corners
+
+- **Decision:** Supersede the prior 1dp outer top stroke; remove it. Increase rounded upper corners from 20dp to 24dp using an explicit shared `radius.xl: size.dp24` token and `theme.radius.xl` in the stateless Appearance sheet. Preserve the unrelated Appearance header bottom divider, handle, centered 48dp title, no X, radio rows, and all state/persistence and accessibility behavior.
+- **Owned files:** Appearance sheet, shared theme radius tokens, Phase 0 appearance/design token regressions, appearance guide, and additive task/index record. No finance or other feature code, new dependencies, workflow or native change.
+- **Known prior CI blocker:** At `8d301e13`, Phase 0 failed Prettier in `tests/phase0/appearance-settings.test.ts`; use simple handle/title index variables so the test is formatting-safe, and verify fresh exact-head workflow results rather than assuming pass.
+- **Safety:** Expected-head non-force branch update on Draft PR #18, current main preserved. `tio-preview` remains absent to avoid triggering Codespaces; do not run EAS or merge. Device screenshot QA and optional independent review remain pending, merge authorization NOT_GRANTED.
