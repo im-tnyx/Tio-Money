@@ -346,7 +346,10 @@ test('TM-CUR-022: Main Currency top bar extends behind status icons with safe 56
   assert.match(screen, /edges=\{\['top', 'left', 'right'\]\}/);
   assert.match(screen, /style=\{\{ flex: 1, backgroundColor: theme\.colors\.card \}\}/);
   assert.match(screen, /minHeight: theme\.navigation\.topBarHeight/);
-  assert.match(screen, /<ScrollView\s+style=\{\{ flex: 1, backgroundColor: theme\.colors\.canvas \}\}/);
+  assert.match(
+    screen,
+    /<ScrollView\s+style=\{\{ flex: 1, backgroundColor: theme\.colors\.canvas \}\}/,
+  );
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
   assert.match(screen, /accessibilityLabel=\{t\('currencyChange'\)\}/);
 });
