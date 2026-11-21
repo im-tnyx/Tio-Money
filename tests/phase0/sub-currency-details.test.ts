@@ -70,7 +70,8 @@ test('TM-CUR-036: tap opens detail sheet with refresh and decimal choices', () =
   const controller = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   const provider = readFileSync('src/shared/currency/currency-provider.tsx', 'utf8');
   assert.match(screen, /type: 'detail.open', code: item.code/);
-  assert.match(screen, /disabled=\{state.editing\}/);
+  assert.doesNotMatch(screen, /state\.editing|disabled=\{state\.editing\}/);
+  assert.match(screen, /accessibilityActions=/);
   assert.match(screen, /<SubCurrencyDetailSheet state=\{state\} onAction=\{onAction\} \/>/);
   assert.match(sheet, /<AppBottomSheet/);
   assert.match(sheet, /<CurrencyUnitPositionControl/);
