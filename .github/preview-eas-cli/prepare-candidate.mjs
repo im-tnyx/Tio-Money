@@ -2,7 +2,7 @@
 // Default is OFFLINE/READ-ONLY. --candidate resolves ONLY in a fresh OS tmpdir.
 // No Expo tokens, deployments, Codespace restarts, source or lockfile writes.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,9 +28,16 @@ export function createCandidateManifest(input) {
       input.overrides?.['@babel/plugin-transform-modules-commonjs'] !== '7.29.7') {
     throw new Error('Refusing changed trusted EAS CLI identity or signed Babel pins');
   }
-  if (Object.keys(input.overrides).some((key) =>
-    !['@babel/helper-module-transforms', '@babel/plugin-transform-modules-commonjs'].includes(key))) {
+  const allowed = new Set(['@babel/helper-module-transforms',
+    '@babel/plugin-transform-modules-commonjs', ...Object.keys(PATCHES)]);
+  if (Object.keys(input.overrides).some((key) => !allowed.has(key))) {
     throw new Error('Unexpected prior EAS CLI overrides; re-review required');
+  }
+  for (const [key, expected] of Object.entries(PATCHES)) {
+    const prior = input.overrides[key];
+    if (prior !== undefined && JSON.stringify(prior) !== JSON.stringify(expected)) {
+      throw new Error('Unreviewed existing dependency override for ' + key);
+    }
   }
   return {
     ...input,
@@ -78,6 +85,8 @@ export function makeCandidate() {
   let verified = false;
   try {
     writeFileSync(join(output, 'package.json'), JSON.stringify(plan.candidate, null, 2) + '\n', { mode: 0o600 });
+    // Reuse the committed lockfile as a baseline to avoid unrelated churn.
+    copyFileSync(join(ROOT, 'package-lock.json'), join(output, 'package-lock.json'));
     const npmOptions = ['--ignore-scripts', '--no-fund', '--registry=' + REGISTRY];
     command(output, 'npm', ['install', '--package-lock-only', '--no-audit', ...npmOptions]);
     const lock = JSON.parse(readFileSync(join(output, 'package-lock.json'), 'utf8'));
