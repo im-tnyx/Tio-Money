@@ -187,8 +187,10 @@ test('bottom tabs use weight 400 when selected and original 200 otherwise', () =
     assert.match(svg, /viewBox="0 -960 960 960"/);
     assert.match(selectedSvg, /viewBox="0 -960 960 960"/);
     assert.notEqual(svg, selectedSvg, name + ' weights must have distinct official paths');
-    assert.equal(navSvg[name]['200'], svg, name + ' keeps its exact 200 SVG');
-    assert.equal(navSvg[name]['400'], selectedSvg, name + ' uses exact 400 SVG');
+    const variant = navSvg[name];
+    assert.ok(variant, name + ' must have both weight variants');
+    assert.equal(variant['200'], svg, name + ' keeps its exact 200 SVG');
+    assert.equal(variant['400'], selectedSvg, name + ' uses exact 400 SVG');
     assert.equal(existsSync(directory + '/' + name + '.png'), false);
     assert.equal(existsSync(directory + '/' + name + '@2x.png'), false);
   }
