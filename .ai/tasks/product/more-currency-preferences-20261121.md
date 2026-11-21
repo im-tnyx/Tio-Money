@@ -65,3 +65,22 @@ physical device swipe, accessibility, offline/stale QA; EAS trusted preview
 workflow's `.github/` source-scope issue; and separate owner merge permission.
 Owner `MERGE_AUTHORIZATION=NOT_GRANTED`; no deployment, auto-merge, force push
 or ruleset modification.
+
+## 2026-11-22 — Owner Sub UI refinement (PR #53, no merge authority)
+
+[Agent-transcribed owner discussion and technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067789782).
+Selected Main Currency is shown above the Sub list, and valid Main is a
+prerequisite to Sub creation in domain, provider and Add UI. Existing default
+INR counts as valid: no new persisted unset state, schema migration or
+forced confirmation. The Add picker loses `1/5`, Sub details consolidate
+provider/source/published date into one readable line while the full
+fetched timestamp stays in local cache, refresh glyph uses existing
+fineStroke (1.5dp) without shrinking its 48dp hit area, exchange row
+has tighter visual gap, and shared overflow-only sheet bottom padding
+is reduced from 40dp to 24dp while OS safe-area padding remains.
+Regression tests: TM-CUR-031, -040, -045, -046, -047.
+This builds on non-force `main` reconciliation commit `4ad6a78d`
+after PR #56; the two `.github` tooling paths remain absent from
+PR #53. Final exact-HEAD CI, privacy scope, iOS/Android physical
+regression and review dispositions still required. PR #53 stays OPEN;
+MERGE_AUTHORIZATION=NOT_GRANTED.
