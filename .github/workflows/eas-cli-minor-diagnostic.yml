@@ -1,0 +1,107 @@
+# Experimental security validation ONLY, do NOT merge or dispatch privileged EAS/Codespaces.
+# This workflow exists solely on a separately stacked Draft PR. No write permissions/secrets.
+name: EAS CLI minor upgrade experiment (unprivileged)
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [security/eas-cli-advisory-gate-59-20261122]
+permissions:
+  contents: read
+jobs:
+  experiment:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'audit/eas-cli-minor-remediation-20261122' && github.event.pull_request.base.ref == 'security/eas-cli-advisory-gate-59-20261122' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    env:
+      CI: 'true'
+      EXPO_TOKEN: ''
+      GITHUB_TOKEN: ''
+      NODE_AUTH_TOKEN: ''
+      NPM_CONFIG_IGNORE_SCRIPTS: 'true'
+    steps:
+      - name: Checkout exact test merge tree, without credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - name: Resolve candidate only in new temporary directory and run supply-chain gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp="$(mktemp -d "${RUNNER_TEMP}/tio-eas-cli-minor-XXXXXX")"
+          export EAS_CANDIDATE_DIR="$temp"
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          const source = JSON.parse(readFileSync('.github/preview-eas-cli/package.json','utf8'));
+          if(source.dependencies?.['eas-cli']!=='27.4.1'||
+             source.devDependencies?.typescript!=='5.9.3'||
+             source.overrides?.['@babel/helper-module-transforms']!=='7.29.13'||
+             source.overrides?.['@babel/plugin-transform-modules-commonjs']!=='7.29.7') {
+            throw new Error('Unexpected source EAS identity/pins: fail closed');
+          }
+          const candidate = {
+            name: source.name,
+            version: source.version,
+            private: true,
+            dependencies: {'eas-cli':'27.11.0'},
+            devDependencies: {typescript:'5.9.3'},
+            overrides: {
+              '@babel/helper-module-transforms':'7.29.13',
+              '@babel/plugin-transform-modules-commonjs':'7.29.7',
+              'node-forge':'1.4.3',
+            },
+          };
+          writeFileSync(join(process.env.EAS_CANDIDATE_DIR,'package.json'), JSON.stringify(candidate,null,2)+'\n');
+          console.log('CANDIDATE_PIN=eas-cli@27.11.0; node-forge@1.4.3');
+          NODE
+          npm --prefix "$temp" install --package-lock-only --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          npm --prefix "$temp" ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+          ( cd "$temp" && npm audit signatures --registry=https://registry.npmjs.org )
+          "$temp/node_modules/.bin/eas" --version
+          set +e
+          ( cd "$temp" && npm audit --json --registry=https://registry.npmjs.org ) > "$RUNNER_TEMP/candidate-audit.json"
+          audit_rc=$?
+          set -e
+          if (( audit_rc > 1 )); then
+            echo "::error::npm audit failed unexpectedly"
+            exit "$audit_rc"
+          fi
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { join } from 'node:path';
+          const report = JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/candidate-audit.json','utf8'));
+          const lockText = readFileSync(join(process.env.EAS_CANDIDATE_DIR,'package-lock.json'),'utf8');
+          const manifestText = readFileSync(join(process.env.EAS_CANDIDATE_DIR,'package.json'),'utf8');
+          const lock = JSON.parse(lockText), counts = report.metadata?.vulnerabilities;
+          if(!counts || !report.vulnerabilities || !Number.isInteger(counts.moderate) ||
+             lock.packages?.['']?.dependencies?.['eas-cli']!=='27.11.0' ||
+             lock.packages?.['node_modules/eas-cli']?.version!=='27.11.0') {
+            throw new Error('Incomplete audit or mismatched CLI candidate');
+          }
+          for(const [path,pkg] of Object.entries(lock.packages)){
+            if(!path || !pkg?.resolved) continue;
+            if(!pkg.resolved.startsWith('https://registry.npmjs.org/') ||
+                !pkg.integrity?.startsWith('sha512-')) throw new Error('Unverified registry/integrity: '+path);
+          }
+          console.log('AUDIT_SUMMARY='+JSON.stringify(counts));
+          console.log('RESOLVED_PACKAGES='+Object.keys(lock.packages).length);
+          for(const [name,v] of Object.entries(report.vulnerabilities)) {
+            console.log('AUDIT_FINDING='+JSON.stringify({
+              name,severity:v.severity,nodes:(v.nodes||[]).map(x=>({path:x,version:lock.packages?.[x]?.version||'UNKNOWN'})),
+              ghsa:(v.via||[]).filter(x=>typeof x==='object').map(x=>({title:x.title,url:x.url,range:x.range})),
+              via:(v.via||[]).filter(x=>typeof x==='string'),
+              fixAvailable:v.fixAvailable,
+            }));
+          }
+          for(const [name,content] of [['package.json',manifestText],['package-lock.json',lockText]]) {
+            const digest = createHash('sha256').update(content).digest('hex');
+            console.log('CANDIDATE_SHA256='+name+':'+Buffer.byteLength(content)+':'+digest);
+            // Retain non-secret files only on the ephemeral runner. No automatic commit.
+          }
+          if(counts.high||counts.critical)throw new Error('HIGH/CRITICAL advisory regression');
+          NODE
