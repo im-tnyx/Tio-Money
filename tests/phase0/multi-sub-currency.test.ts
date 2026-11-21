@@ -15,6 +15,7 @@ import {
   getSwipeOffset,
   isHorizontalSwipe,
   snapSwipeOffset,
+  shouldCloseRevealedSwipe,
 } from '../../src/features/settings/sub-currency-swipe';
 
 test('TM-CUR-028: five distinct Subs, one-tap addition and per-code removal', () => {
@@ -101,12 +102,24 @@ test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => 
   assert.equal(getSwipeOffset(88, 120, 88), 0);
   assert.equal(snapSwipeOffset(30, 88), 0);
   assert.equal(snapSwipeOffset(60, 88), 88);
+  // A short right swipe should dismiss the opened row, even though the
+  // midpoint-only snap previously left its Delete action visible.
+  assert.equal(snapSwipeOffset(getSwipeOffset(88, 20, 88), 88), 88);
+  assert.equal(shouldCloseRevealedSwipe(88, 20, 1, 8), true);
+  assert.equal(shouldCloseRevealedSwipe(88, 120, 0, 8), true);
+  assert.equal(shouldCloseRevealedSwipe(88, -40, 1, 8), false);
+  assert.equal(shouldCloseRevealedSwipe(88, 4, 1, 8), false);
+  assert.equal(shouldCloseRevealedSwipe(88, 12, 50, 8), false);
+  assert.equal(shouldCloseRevealedSwipe(0, 40, 0, 8), false);
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   assert.match(screen, /function SwipeableCurrencyRow/);
   assert.match(screen, /onMoveShouldSetResponderCapture/);
+  assert.match(screen, /onMoveShouldSetResponder=/);
   assert.match(screen, /isHorizontalSwipe/);
+  assert.match(screen, /shouldCloseRevealedSwipe/);
   assert.match(screen, /onResponderRelease/);
   assert.match(screen, /snapSwipeOffset/);
+  assert.match(screen, /shouldCloseRevealedSwipe[\s\S]*?\{\s*onClose\(\);/);
   assert.doesNotMatch(screen, /!editing &&/);
   assert.match(screen, /backgroundColor: theme.colors.deleteActionBackground/);
   assert.match(screen, /color: theme.colors.deleteActionText/);
