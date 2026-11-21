@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 
 import {
   CURRENCY_OPTIONS,
@@ -25,6 +26,10 @@ import {
   classifySubCurrencyRefresh,
   type SubCurrencyRefreshResult,
 } from './sub-currency-refresh-feedback';
+import {
+  formatSubCurrencyLastChecked,
+  shouldOfferSubCurrencyRefresh,
+} from './sub-currency-rate-freshness';
 import type {
   SubCurrencyAction,
   SubCurrencyChoiceRow,
@@ -47,6 +52,7 @@ export function useSubCurrencyViewModel(): {
     useCurrencySettings();
   const { entries, refreshRate } = useFxRates();
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [freshnessNow, setFreshnessNow] = useState(() => Date.now());
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
   const [refreshingPair, setRefreshingPair] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
@@ -55,6 +61,14 @@ export function useSubCurrencyViewModel(): {
     result: SubCurrencyRefreshResult;
   } | null>(null);
   const refreshRequest = useRef(0);
+
+  // Foregrounding updates *only* the freshness hint, never starts FX polling.
+  useEffect(() => {
+    const listener = AppState.addEventListener('change', (next) => {
+      if (next === 'active') setFreshnessNow(Date.now());
+    });
+    return () => listener.remove();
+  }, []);
 
   // Successful FX checks are brief confirmation, not persistent content.
   // Changing the active result, starting another refresh, or unmounting
@@ -119,6 +133,19 @@ export function useSubCurrencyViewModel(): {
             if (next !== effective) updateSubDisplay(detailCode, { decimalDigits: next });
           }
           break;
+        case 'card.refresh': {
+          if (!preferences.subCodes.includes(action.code)) break;
+          const main = preferences.mainCode;
+          const pair = fxPairKey(action.code, main);
+          if (refreshingPair === pair) break;
+          setRefreshingPair(pair);
+          void refreshRate(action.code, main)
+            .catch(() => undefined)
+            .finally(() => {
+              setRefreshingPair((current) => (current === pair ? null : current));
+            });
+          break;
+        }
         case 'detail.refresh': {
           if (!detailCode || !preferences.subCodes.includes(detailCode)) break;
           const main = preferences.mainCode;
@@ -166,10 +193,23 @@ export function useSubCurrencyViewModel(): {
     const mainConfigured = isCurrencyCode(preferences.mainCode);
     const selected: SubCurrencySelectedRow[] = [];
     for (const code of preferences.subCodes) {
-      const current = entries[fxPairKey(code, preferences.mainCode)];
+      const pair = fxPairKey(code, preferences.mainCode);
+      const current = entries[pair];
       const rate = current?.rate ?? null;
       const rateStatus: SubCurrencySelectedRow['rateStatus'] = current?.status ?? 'loading';
-      selected.push({ code, label: currencyLabel(code), rate, rateStatus });
+      const checkedAt = current?.fetchedAt ?? null;
+      const lastDate = formatSubCurrencyLastChecked(checkedAt, freshnessNow);
+      selected.push({
+        code,
+        label: currencyLabel(code),
+        rate,
+        rateStatus,
+        showRefresh: shouldOfferSubCurrencyRefresh(rateStatus, checkedAt, freshnessNow),
+        refreshing: refreshingPair === pair,
+        lastCheckedLabel: lastDate
+          ? t('currencyFxCheckedShort') + ' ' + lastDate
+          : t('currencyFxNeverChecked'),
+      });
     }
     const choices: SubCurrencyChoiceRow[] = [];
     for (const item of CURRENCY_OPTIONS) {
@@ -245,6 +285,7 @@ export function useSubCurrencyViewModel(): {
     refreshingPair,
     refreshError,
     refreshResult,
+    freshnessNow,
   ]);
 
   return { state, onAction };
