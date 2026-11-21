@@ -83,7 +83,7 @@ export function makeCandidate() {
     command(output, 'npm', ['ci', '--no-audit', ...npmOptions]);
     command(output, 'npm', ['audit', 'signatures', '--registry=' + REGISTRY]);
     const version = command(output, join(output, 'node_modules', '.bin', 'eas'), ['--version']);
-    if (!/^27\.4\.1\s*$/.test(version.stdout.trim())) {
+    if (!/^(?:eas-cli\/)?27\.4\.1(?:\s|$)/.test(version.stdout.trim())) {
       throw new Error('Unexpected EAS CLI binary version: ' + version.stdout.trim().slice(0, 80));
     }
     const audit = command(output, 'npm', ['audit', '--json', '--registry=' + REGISTRY], { acceptAuditExit: true });
