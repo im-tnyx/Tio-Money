@@ -271,8 +271,9 @@ export function SubCurrencyScreen({
                     style={{ flex: 1, gap: theme.space.xxs }}
                   >
                     <AppText>{item.label}</AppText>
-                    {item.rateStatus === 'available' && item.rate ? (
+                    {(item.rateStatus === 'available' || item.rateStatus === 'cached') && item.rate ? (
                       <AppText variant="caption" muted>
+                        {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
                         {formatReferenceRate(item.rate)}
                       </AppText>
                     ) : (
