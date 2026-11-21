@@ -46,6 +46,51 @@
  
 ---
 
+## 2026-11-22 — Verified PR #60 security merge terminal and follow-up
+
+- **Actual GitHub terminal:** [PR #60](https://github.com/im-tnyx/Tio-Money/pull/60) **MERGED** via GitHub-protected non-force **squash** on 2026-11-21 22:35:30 UTC (2026-11-22 04:05:30 IST). Authenticated owner specifically requested renewed merge of the updated PR and accepted remaining Low risk (owner said up to 3; exact npm report was **2 Low entries**). Verified merge commit **`3c6cfac26ddf822dd4a9d087a4fa073c5bc6042b`** is actual `main` HEAD at terminal inspection; verified source PR head **`760a8a488bdbc2e860b1fe2ff8469703dff6b79c`**. This supersedes all earlier historical PR #60 OPEN/HOLD snapshots below. [Issue #59 terminal record](https://github.com/im-tnyx/Tio-Money/issues/59#issuecomment-7070298079).
+- **Pre-merge validations:** same-HEAD `static`, `Governance / Python, links and commit attribution`, `signal` SUCCESS; zero unresolved review threads, branch rules respected, **no bypass**; isolated EAS CLI `27.4.1` signed/npm-ci official-registry graph had **0 Critical / 0 High / 0 Moderate / 2 Low**. Existing Android+iOS Metro exports passed. Codex quota review UNAVAILABLE (not APPROVED); independent review remains deferred and no false approval recorded.
+- **Residual/next owner checks:** The 2 Low entries are one underlying `diff@7.0.0` GHSA + parent `eas-cli` metavulnerability. Owner accepted leaving these for a separate upstream-compatible remediation review; **no alert dismissed**. The original QR-free Android/iPhone Expo Go, root dependencies, Expo project IDs, Codespaces tunnel and both trusted preview Actions workflows were **not changed**. **Physical-device reopen/reconnect/refresh on Android and iPhone is NOT agent-observed and must be owner-rechecked via existing Actions**. No EAS build, OTA, privileged preview or post-merge workflow success was claimed; initial merged-HEAD runs query returned none. Verify merged-main scanning and current workflow results when available.
+- **Handoff:** [security task TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md) implementation **MERGED / follow-ups OPEN**, [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59) remains open for Low advisory and QR-free real-device recheck. PR #53/#58 and other branches unaffected. This docs-only sync is a **separate branch/PR** and has no authorization to auto-merge.
+
+---
+
+## 2026-11-22 — EAS CLI Moderate remediation completed (merge readiness in progress)
+
+- **Owner direction:** Codex quota failure may be set aside as unavailable review, but all actual security findings/protections remain enforced. [PR #60](https://github.com/im-tnyx/Tio-Money/pull/60) remains **OPEN / unmerged**; owner conditional merge grant was before expanded major transitive changes, so request **renewed PR-specific merge consent** after final gates per [post-merge policy](../.github/POST-MERGE-SYNC.md).
+- **Supersedes historical 17/14 Moderate snapshots:** Official npm unprivileged [diagnostic #44956163560](https://github.com/im-tnyx/Tio-Money/actions/runs/44956163560) **PASS**: `eas-cli 27.4.1`, signed/npm-ci reproducible 499-package tree, offline CLI command/load, **0 Critical, 0 High, 0 Moderate, 2 Low npm findings**. Two Low represent one `diff@7.0.0` GHSA plus `eas-cli` metavulnerability; compatible diff8 major patch blocked by `npm ci`. Full disposition in [task](tasks/security/eas-cli-transitive-security-20261122.md) and [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59).
+- **Files and guardrails:** Exact npm-generated `.github/preview-eas-cli/package.json` and `package-lock.json` with 19 parent-scoped overrides and major transitive compatibility checks staged in PR #60. Existing root Expo SDK/lock, `eas.json`, Codespaces, QR-free Expo Go Android/iOS Actions flows, Expo project identity, privileges and workflows **unchanged**. Added persistent tests requiring 0 Moderate/High/Critical and signed EAS install/CLI help/function API loading, and replaced stale 500-package size assertion with known installed-version checks.
+- **Pending to call merge-ready:** new final HEAD Static/Governance/signal success, current review threads and ruleset, residual Low owner risk decision and scope-change authorization; physical Expo Go device behavior cannot be inferred from Metro CI. **No merge, no preview/OTA/build dispatch, no alert dismissal and no bypass.** One-off Draft diagnostic [PR #62](https://github.com/im-tnyx/Tio-Money/pull/62) must close unmerged once evidence recorded.
+
+---
+
+## 2026-11-22 — PR #60 merge-gate readiness and one-off workflow cleanup
+
+- Owner: **“Merge gate tak go”** for [PR #60](https://github.com/im-tnyx/Tio-Money/pull/60) only; **NOT approval to merge**. RFC [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59), task [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md). This is a newer checkpoint; prior dated snapshots below remain historical.
+- Verified initial PR HEAD `2f0e01b0c92f996d090f06e002c110f8806b188a` against protected `main` `d765c97d71ba600b1838f34d180159855ac67dc1`, four successful checks, mergeable, zero unresolved review threads. Active `protect-main` ruleset requires PR and resolved threads, with zero required approvals and no named required CI contexts. Backend alerts/legacy protection visibility remains limited.
+- **Merge hygiene:** One-off `.github/workflows/eas-cli-security-candidate.yml` was created solely to validate PR #60 and has a hardcoded `#60` gate, so **remove it before final review/merge**. Successful candidate audit evidence remains archived as [run #44952518985](https://github.com/im-tnyx/Tio-Money/actions/runs/44952518985), but its status is historical, not a new check after workflow deletion. The real patched isolated npm manifest/lockfile, audit helper and tests stay in PR. Root Expo Go dependencies, QR-free Codespaces process, EAS privileged workflow and credentials untouched.
+- **Final gates outstanding:** check new exact HEAD static/governance/signal CI, check formal external review after Ready-for-Review, assess 17 Moderate+1 Low npm findings; owner-observed Android and iOS **without QR** reopen/reconnect/refresh and independent supply-chain review remain pending. Hold merge; don't weaken preview allowlist, security checks, protected rules or enable privileged preview. Owner permission for PR #53 doesn't apply to PR #60.
+
+---
+
+### 2026-11-22 — Verified EAS dependency candidate staged in Draft PR #60
+
+- Owner **“Go next”** enabled bounded isolated EAS transitive dependency remediation, **not** merge/deployment. [Issue #59](https://github.com/im-tnyx/Tio-Money/issues/59); task [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md); [Draft PR #60](https://github.com/im-tnyx/Tio-Money/pull/60).
+- Official-npm **unprivileged PR-only** [candidate run #44952056378, attempt 2](https://github.com/im-tnyx/Tio-Money/actions/runs/44952056378) validated original EAS 27.4.1 identity, npm install/audit signatures and 0 High, 0 Critical (17 Moderate and 1 Low remain). Initial runner attestation intermittency did not lead to a verification bypass.
+- Proposed official npm-generated isolated `.github/preview-eas-cli/package.json` and `package-lock.json` staged on feature branch; initial staged candidate head `ef9c91fa23379a865f94003c991ec613ee140dc8`; 11 installed package version updates, 2 redundant Joi copies removed, no added packages. Read-only audit/test scripts and separate low-privilege candidate workflow included. **No root app/Expo SDK/QR-free Codespaces tunnel change, no trusted EAS workflow edit.**
+- **Current gates:** Reverify final PR HEAD and CI **after** documentation updates; independently review supply chain; owner-observed Android+iOS Expo Go **without QR** must still PASS; Moderate/Low findings remain. PR #60 **DRAFT / NOT AUTHORIZED TO MERGE**; PR #53 and #58 separate. No branch protections or production credentials used.
+
+---
+
+## 2026-11-22 — Isolated EAS CLI security audit (Issue #59, Draft PR #60)
+
+- **Active scoped task:** [TM-SEC-EAS-20261122-001](tasks/security/eas-cli-transitive-security-20261122.md); [RFC #59](https://github.com/im-tnyx/Tio-Money/issues/59); [Draft PR #60](https://github.com/im-tnyx/Tio-Money/pull/60). Owner Go permits bounded preparation while preserving **QR-free Android and iOS Expo Go testing**; **no merge authorization** for #60.
+- **Verified branch/base:** `security/eas-cli-advisory-gate-59-20261122`, from `main` `d765c97d71ba600b1838f34d180159855ac67dc1`. Read-only advisory-floor script and regression tests added; **neither root Expo Go nor isolated EAS package manifests/lockfiles changed**.
+- **Security status:** 17 High owner-reported transitive findings in `.github/preview-eas-cli/package-lock.json` are **NOT FIXED**. External npm registry DNS unavailable for full lockfile regeneration and signature verification; no device test performed by agent. Curated floors are guidance, not a clean audit. PR #53 and PR #58 independent and untouched.
+- **Gates:** Exact-HEAD PR #60 CI, security review and provenance pending. A future candidate must use official registry npm resolver and signatures, keep EAS identity/trusted workflow intact, and obtain owner-observed Android/iOS no-QR reconnection PASS before separate PR-specific merge permission. No privileged preview dispatch, security alert dismissal or merge.
+
+---
+
 
 ## 2026-11-21 — Docs audit readiness PR toward merge gate (Issue #50)
 
