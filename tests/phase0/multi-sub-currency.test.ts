@@ -166,7 +166,8 @@ test('TM-CUR-037: one swipe Delete action closes when tapping outside, without d
   assert.match(screen, /onPress=\{\(\) => setOpenSwipeCode\(null\)\}/);
   assert.match(screen, /\{t\('currencyDelete'\)\}/);
   assert.match(screen, /dragOffset \?\? \(isOpen \? revealWidth : 0\)/);
-  assert.match(screen, /onResponderTerminate=\{\(\) => setDragOffset\(null\)\}/);
+  assert.match(screen, /onResponderTerminate=\{\(\) => \{/);
+  assert.match(screen, /setDragOffset\(null\);\s*onCardTouchEnd\(\);/);
   assert.doesNotMatch(screen, /setOffset\(/);
 });
 
