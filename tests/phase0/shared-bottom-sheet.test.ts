@@ -58,7 +58,7 @@ test('one shared shell owns modal presentation and both feature and fixture comp
     /maxHeight: dragHeight === null && !expanded \? collapsedMax : expandedMax/,
   );
   assert.match(shared, /height: dragHeight \?\? \(expanded \? expandedMax : undefined\)/);
-  assert.match(shared, /PanResponder\.create/);
+  assert.match(shared, /onMoveShouldSetResponderCapture/);
   assert.match(shared, /<ScrollView/);
   assert.match(shared, /nestedScrollEnabled/);
   assert.match(shared, /accessibilityHint=\{t\('sheetHandleHint'\)\}/);
@@ -108,7 +108,7 @@ test('one shared scrolling region shows all currency choices and bottom safe pad
   assert.equal(shell.match(/<ScrollView/g)?.length, 1);
   assert.match(shell, /contentContainerStyle=\{\{ paddingBottom: sheet\.contentBottomPadding \}\}/);
   assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
-  assert.match(shell, /onMoveShouldSetPanResponder/);
+  assert.match(shell, /onResponderMove/);
   assert.match(shell, /getDraggedBottomSheetHeight/);
   assert.doesNotMatch(main + sub, /<ScrollView|maxHeight: '70%'/);
   assert.match(main, /<AppBottomSheet/);

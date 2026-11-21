@@ -1,14 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import {
   Modal,
-  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
   useWindowDimensions,
-  type GestureResponderEvent,
-  type PanResponderGestureState,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -78,68 +75,13 @@ function SheetSurface({
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
-  const expandedRef = useRef(expanded);
 
   const { collapsedMax, expandedMax } = getBottomSheetHeightLimits(
     viewportHeight,
     topInset,
     sheet,
   );
-  const geometryRef = useRef({ collapsedMax, expandedMax, sheet });
-
-  // Only event handlers read refs, never the render path.
-  useEffect(() => {
-    expandedRef.current = expanded;
-    geometryRef.current = { collapsedMax, expandedMax, sheet };
-  }, [expanded, collapsedMax, expandedMax, sheet]);
-
-  const shouldHandleDrag = useCallback(
-    (_event: GestureResponderEvent, gesture: PanResponderGestureState) =>
-      Math.abs(gesture.dy) > geometryRef.current.sheet.dragActivationDistance &&
-      Math.abs(gesture.dy) > Math.abs(gesture.dx),
-    [],
-  );
-  const onDragStart = useCallback(() => {
-    dragStartHeight.current = currentHeight.current || geometryRef.current.collapsedMax;
-    setDragHeight(dragStartHeight.current);
-  }, []);
-  const onDragMove = useCallback(
-    (_event: GestureResponderEvent, gesture: PanResponderGestureState) => {
-      const { collapsedMax: min, expandedMax: max } = geometryRef.current;
-      setDragHeight(
-        getDraggedBottomSheetHeight(dragStartHeight.current, gesture.dy, min, max),
-      );
-    },
-    [],
-  );
-  const onDragRelease = useCallback(
-    (_event: GestureResponderEvent, gesture: PanResponderGestureState) => {
-      setExpanded(
-        shouldExpandBottomSheet(
-          expandedRef.current,
-          gesture.dy,
-          geometryRef.current.sheet.dragSnapDistance,
-        ),
-      );
-      setDragHeight(null);
-    },
-    [],
-  );
-  const onDragTerminate = useCallback(() => setDragHeight(null), []);
-
-  // The handle captures drags; options keep native vertical scrolling.
-  const handleResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => false,
-        onMoveShouldSetPanResponder: shouldHandleDrag,
-        onPanResponderGrant: onDragStart,
-        onPanResponderMove: onDragMove,
-        onPanResponderRelease: onDragRelease,
-        onPanResponderTerminate: onDragTerminate,
-      }),
-    [shouldHandleDrag, onDragStart, onDragMove, onDragRelease, onDragTerminate],
-  );
+  const touchStartY = useRef(0);
 
   return (
     <View
@@ -175,7 +117,31 @@ function SheetSurface({
           overflow: 'hidden',
         }}
       >
-        <View {...handleResponder.panHandlers}>
+        <View
+          onTouchStart={(event) => {
+            touchStartY.current = event.nativeEvent.pageY;
+          }}
+          onMoveShouldSetResponderCapture={(event) =>
+            Math.abs(event.nativeEvent.pageY - touchStartY.current) >
+            sheet.dragActivationDistance
+          }
+          onResponderGrant={() => {
+            dragStartHeight.current = currentHeight.current || collapsedMax;
+            setDragHeight(dragStartHeight.current);
+          }}
+          onResponderMove={(event) => {
+            const dy = event.nativeEvent.pageY - touchStartY.current;
+            setDragHeight(
+              getDraggedBottomSheetHeight(dragStartHeight.current, dy, collapsedMax, expandedMax),
+            );
+          }}
+          onResponderRelease={(event) => {
+            const dy = event.nativeEvent.pageY - touchStartY.current;
+            setExpanded(shouldExpandBottomSheet(expanded, dy, sheet.dragSnapDistance));
+            setDragHeight(null);
+          }}
+          onResponderTerminate={() => setDragHeight(null)}
+        >
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t(expanded ? 'sheetCollapse' : 'sheetExpand')}
