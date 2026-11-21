@@ -1,12 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
@@ -76,11 +69,8 @@ function SheetSurface({
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
 
-  const { collapsedMax, expandedMax } = getBottomSheetHeightLimits(
-    viewportHeight,
-    topInset,
-    sheet,
-  );
+  const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet);
+  const { collapsedMax, expandedMax } = limits;
   const touchStartY = useRef(0);
 
   return (
@@ -156,10 +146,10 @@ function SheetSurface({
           onTouchStart={(event) => {
             touchStartY.current = event.nativeEvent.pageY;
           }}
-          onMoveShouldSetResponderCapture={(event) =>
-            Math.abs(event.nativeEvent.pageY - touchStartY.current) >
-            sheet.dragActivationDistance
-          }
+          onMoveShouldSetResponderCapture={(event) => {
+            const dy = event.nativeEvent.pageY - touchStartY.current;
+            return Math.abs(dy) > sheet.dragActivationDistance;
+          }}
           onResponderGrant={() => {
             dragStartHeight.current = currentHeight.current || collapsedMax;
             setDragHeight(dragStartHeight.current);

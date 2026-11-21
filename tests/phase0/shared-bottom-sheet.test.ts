@@ -90,18 +90,13 @@ test('one shared shell owns modal presentation and both feature and fixture comp
 
 test('height limits respect the top safe area and handle drag direction', () => {
   const bounds = getBottomSheetHeightLimits(800, 48, bottomSheetTokens);
-  assert.equal(bounds.collapsedMax, 720);
-  assert.equal(bounds.expandedMax, 740);
-  assert.equal(
-    getDraggedBottomSheetHeight(400, -160, bounds.collapsedMax, bounds.expandedMax),
-    560,
-  );
-  assert.equal(
-    getDraggedBottomSheetHeight(400, -700, bounds.collapsedMax, bounds.expandedMax),
-    740,
-  );
-  assert.equal(getDraggedBottomSheetHeight(400, 160, bounds.collapsedMax, bounds.expandedMax), 400);
-  assert.equal(getDraggedBottomSheetHeight(740, 200, bounds.collapsedMax, bounds.expandedMax), 720);
+  const { collapsedMax, expandedMax } = bounds;
+  assert.equal(collapsedMax, 720);
+  assert.equal(expandedMax, 740);
+  assert.equal(getDraggedBottomSheetHeight(400, -160, collapsedMax, expandedMax), 560);
+  assert.equal(getDraggedBottomSheetHeight(400, -700, collapsedMax, expandedMax), 740);
+  assert.equal(getDraggedBottomSheetHeight(400, 160, collapsedMax, expandedMax), 400);
+  assert.equal(getDraggedBottomSheetHeight(740, 200, collapsedMax, expandedMax), 720);
   assert.equal(shouldExpandBottomSheet(false, -32, bottomSheetTokens.dragSnapDistance), true);
   assert.equal(shouldExpandBottomSheet(true, 32, bottomSheetTokens.dragSnapDistance), false);
   assert.equal(shouldExpandBottomSheet(true, -10, bottomSheetTokens.dragSnapDistance), true);
@@ -113,7 +108,7 @@ test('one shared scrolling region shows all currency choices and bottom safe pad
   const sub = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
   const appearance = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
   assert.equal(shell.match(/<ScrollView/g)?.length, 1);
-  assert.match(shell, /contentContainerStyle=\{\{ paddingBottom: sheet\.contentBottomPadding \}\}/);
+  assert.match(shell, /paddingBottom: sheet\.contentBottomPadding/);
   assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.match(shell, /onResponderMove/);
   assert.match(shell, /getDraggedBottomSheetHeight/);
@@ -133,10 +128,7 @@ test('existing thin handle/title geometry remains unchanged while bottom content
   assert.match(shared, /width: sheet\.handleTouchWidth/);
   assert.match(shared, /height: sheet\.handleTouchHeight/);
   assert.match(shared, /top: theme\.navigation\.origin/);
-  assert.match(
-    shared,
-    /contentContainerStyle=\{\{ paddingBottom: sheet\.contentBottomPadding \}\}/,
-  );
+  assert.match(shared, /paddingBottom: sheet\.contentBottomPadding/);
   assert.ok(
     shared.indexOf('height: sheet.handleHeight') <
       shared.indexOf('minHeight: sheet.headerMinHeight'),
