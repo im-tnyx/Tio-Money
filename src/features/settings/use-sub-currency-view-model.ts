@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   CURRENCY_OPTIONS,
@@ -32,6 +32,8 @@ import type {
   SubCurrencyUiState,
 } from './sub-currency-contract';
 
+const REFRESH_CONFIRMATION_MS = 3000;
+
 function currencyLabel(code: CurrencyCode): string {
   return formatSubCurrencyDetailCaption(code);
 }
@@ -53,6 +55,17 @@ export function useSubCurrencyViewModel(): {
     result: SubCurrencyRefreshResult;
   } | null>(null);
   const refreshRequest = useRef(0);
+
+  // Successful FX checks are brief confirmation, not persistent content.
+  // Changing the active result, starting another refresh, or unmounting
+  // automatically cancels the previous timer.
+  useEffect(() => {
+    if (!refreshResult) return;
+    const timer = setTimeout(() => {
+      setRefreshResult((current) => (current === refreshResult ? null : current));
+    }, REFRESH_CONFIRMATION_MS);
+    return () => clearTimeout(timer);
+  }, [refreshResult]);
 
   const dismissDetail = useCallback(() => {
     refreshRequest.current += 1;
