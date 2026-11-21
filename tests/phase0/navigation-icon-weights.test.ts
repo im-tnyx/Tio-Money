@@ -31,7 +31,7 @@ test('navigation active state chooses artwork without changing layout or routes'
 
   assert.match(tabBar, /selected=\{active\}/);
   assert.match(tabBar, /accessibilityState=\{\{ selected: active \}\}/);
-  assert.match(icon, /selected \? navigationTokens\.selectedIconWeight/);
+  assert.match(icon, /selected\s*\?\s*navigationTokens\.selectedIconWeight/);
   assert.match(icon, /: navigationTokens\.unselectedIconWeight/);
   assert.match(icon, /navIconSvg\[name\]\[weight\]\.replace/);
   assert.match(icon, /width=\{iconTokens\.size\} height=\{iconTokens\.size\}/);
