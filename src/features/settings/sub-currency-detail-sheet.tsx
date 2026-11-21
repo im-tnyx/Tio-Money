@@ -112,14 +112,15 @@ export function SubCurrencyDetailSheet({
               </View>
             </View>
             {detail.rateDate ? (
-              <AppText variant="caption" muted>
+              <AppText
+                variant="caption"
+                muted
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
+              >
                 {detail.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
                 {t('currencyFxSource')} · {detail.rateDate}
-              </AppText>
-            ) : null}
-            {detail.rateFetchedLabel ? (
-              <AppText variant="caption" muted>
-                {detail.rateFetchedLabel}
               </AppText>
             ) : null}
           </View>
@@ -136,7 +137,7 @@ export function SubCurrencyDetailSheet({
                 paddingHorizontal: theme.space.lg,
                 flexDirection: 'row',
                 alignItems: 'center',
-                gap: theme.space.md,
+                gap: theme.space.xs,
                 borderBottomWidth: theme.navigation.borderWidth,
                 borderBottomColor: theme.colors.border,
               }}
@@ -184,7 +185,7 @@ export function SubCurrencyDetailSheet({
                       d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"
                       fill="none"
                       stroke={theme.colors.primaryText}
-                      strokeWidth={theme.icons.stroke}
+                      strokeWidth={theme.icons.fineStroke}
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
