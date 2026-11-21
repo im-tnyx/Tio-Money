@@ -161,6 +161,9 @@ export function useSubCurrencyViewModel(): {
       choices.push({ key: item.code, code: item.code, label: currencyLabel(item.code) });
     }
     const selectedDetail = selected.find((item) => item.code === detailCode);
+    const fetchedAt = selectedDetail
+      ? (entries[fxPairKey(selectedDetail.code, preferences.mainCode)]?.fetchedAt ?? null)
+      : null;
     const subDisplay = detailCode ? resolveSubCurrencyDisplay(preferences, detailCode) : null;
     const currency = CURRENCY_OPTIONS.find((item) => item.code === detailCode);
     const displayedDigits = subDisplay
@@ -192,8 +195,13 @@ export function useSubCurrencyViewModel(): {
                   ),
               rateStatus: selectedDetail.rateStatus,
               rateDate: selectedDetail.rate?.date ?? null,
-              rateFetchedAt:
-                entries[fxPairKey(selectedDetail.code, preferences.mainCode)]?.fetchedAt ?? null,
+              rateFetchedAt: fetchedAt,
+              rateFetchedLabel: fetchedAt
+                ? t('currencyFxCheckedAt') +
+                  ': ' +
+                  new Date(fetchedAt).toISOString().slice(0, 16).replace('T', ' ') +
+                  ' UTC'
+                : null,
               unitPosition: subDisplay.unitPosition,
               decimalDigits: displayedDigits,
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
