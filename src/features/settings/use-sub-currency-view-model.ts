@@ -146,8 +146,7 @@ export function useSubCurrencyViewModel(): {
       detailCode,
       refreshingPair,
       dismissDetail,
-      preferences.mainCode,
-      preferences.subCodes,
+      preferences,
       addSubCurrency,
       removeSubCurrency,
       updateSubDisplay,
@@ -211,15 +210,7 @@ export function useSubCurrencyViewModel(): {
       limit: MAX_SUB_CURRENCIES,
       error,
     };
-  }, [
-    preferences,
-    rates,
-    detailCode,
-    sheetVisible,
-    error,
-    refreshingPair,
-    refreshError,
-  ]);
+  }, [preferences, rates, detailCode, sheetVisible, error, refreshingPair, refreshError]);
 
   return { state, onAction };
 }
