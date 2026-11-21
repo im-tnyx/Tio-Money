@@ -43,3 +43,9 @@
 - **Owned PR:** [#45](https://github.com/im-tnyx/Tio-Money/pull/45), same existing branch (its name retains historical 400). Replace exactly five selected assets with official Google `*_wght300_24px.svg`; replace JSON `400` variants with `300`; update `navigationTokens.selectedIconWeight`, focused regression tests and theme/asset provenance. Keep all original weight-200 SVGs, disabled Add FAB (400), 24dp size, colors, labels, safe areas and navigation unchanged.
 - **CI/review:** Prior successful Phase 0/Governance and Codex review were for head `4a1ce947` (before this change), so they are not proof for the new head. Require fresh exact-head checks and assess new review findings. Owner approved weight refinement, not merge. `MERGE NOT AUTHORIZED`; no privileged Codespaces/EAS or `tio-preview`.
 - **Rollback:** The earlier 400/200 PR commit remains in history if needed; no schema/dependency change.
+
+## 2026-11-21 — Owner removes 1dp icon-label gap (0dp)
+
+- **Owner refinement:** Remove the remaining 1dp visual spacing between all bottom navigation icon glyphs and captions. Keep the existing central `navigationTokens.iconLabelGap` role, but set it to `size.dp0` and retain `RootTabBar` consuming `gap: theme.navigation.iconLabelGap` so all five tabs remain consistent.
+- **Unchanged:** Selected Material Symbols 300, unselected 200, independent disabled Add FAB 400; 24dp icon size, label fonts/weights/colors, 50dp baseline, 48dp touch targets, safe areas, route state, storage and feature components. No negative margins or font metrics changes.
+- **Verification:** Update design-token regression and Theme/Google-asset READMEs. New exact-head Phase 0, Governance and Codex checks required because this supersedes older no-findings review; owner device visual acceptance remains separate. Still **NOT AUTHORIZED TO MERGE** PR #45 or activate privileged Codespaces/EAS.

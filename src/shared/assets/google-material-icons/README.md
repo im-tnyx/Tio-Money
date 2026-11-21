@@ -39,7 +39,7 @@ Only the root fill is injected from the active or inactive light/dark color role
 independently renders the exact `add.svg` source using `brandText` color inside
 the existing disabled, accessible Pressable. Icon dimensions stay 24dp; the FAB
 circle is 50dp, the tab content and base bar are 48dp and 50dp respectively
-(excluding OS bottom safe area), and icon-to-label spacing is 1dp.
+(excluding OS bottom safe area), and icon-to-label spacing is 0dp (no gap).
 No SVG Metro transformer or font icon dependency is needed. Tab accessible names
 and selected states belong to the parent tabs.
 

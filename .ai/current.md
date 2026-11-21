@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #45 bottom tab icon-label gap removed
+
+- **Latest owner refinement:** Bottom tab selected SVG **300**, unselected SVG **200**, and **icon-label gap 0dp** (formerly 1dp). The central `navigationTokens.iconLabelGap=size.dp0` drives all five tabs through existing `RootTabBar`. Older 1dp notes below are historical and superseded.
+- **Scope:** shared token, design-token regression, Theme and Google asset README, additive task checkpoint. Preserve 24dp icon size, 50dp bar baseline, typography, active colors, accessible tab semantics and disabled Add FAB. Do not add negative margins or touch navigation state.
+- **Safety:** PR #45 remains review-ready but unmerged. Requires current-HEAD CI/review on latest change; no privileged `tio-preview`, EAS, force push, auto-merge or main commit. Owner only requested refinement.
+
+---
+
 ## 2026-11-21 — PR #45 selected nav weight revised to 300 (Issue #44)
 
 - **Latest owner decision:** Active bottom-tab icon is **300** (initial 400 was too heavy); inactive remains **200**. The former 400/200 checkpoint below is superseded; FAB remains independent at 400.

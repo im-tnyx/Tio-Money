@@ -46,8 +46,8 @@ is required.
 - Current bottom navigation: **50dp baseline total height** (top border 1dp +
   top pad 1dp + 48dp minimum-height tab row), plus actual OS bottom safe area
   when present. The tab icons remain 24dp, labels 11sp, and icon-label gap
-  **1dp (reduced from 5dp; superseding the intermediate 3dp)** through
-  `navigationTokens.iconLabelGap`, between each Google icon and its label.
+  **0dp (removed; previously 1dp)** through `navigationTokens.iconLabelGap`,
+  between each Google icon and its label.
   The floating circular disabled FAB has **50dp diameter (from 56dp)**,
   with an official Google Material Symbols Outlined `add` mark at 24dp
   and default weight 400 (FAB-only). These changes retain the 48dp tab touch targets,
@@ -126,7 +126,7 @@ checks do not prove actual screen-reader or gesture behavior.
 `RootTabIcon`. `navigationTokens.selectedIconWeight=300` chooses the exact Google
 Material Symbols Outlined **300-weight** SVG; `unselectedIconWeight=200` uses
 the original **200** SVG. Both remain 24dp via `iconTokens.size`, with unchanged
-brand/secondary color roles, labels, 1dp icon-to-label gap, tab heights, safe-area
+brand/secondary color roles, labels, 0dp icon-to-label gap, tab heights, safe-area
 insets, navigation events and independent disabled Add FAB. No stroke-width
 simulation or new font/Metro transformer is used. Changing the tab's state
 only selects approved artwork from the static, source-verified
@@ -145,3 +145,11 @@ current decision uses official **300** selected and **200** unselected icons.
 These are exact `*_wght300_24px.svg` and `*_wght200_24px.svg` artwork at
 shared 24dp display size; theme colors, labels, spacing, navigation and
 accessibility roles are unchanged. The independent Add FAB remains 400.
+
+### Bottom tab icon-label spacing refinement (2026-11-21)
+
+The owner requested removal of the remaining 1dp space between each bottom-tab
+icon and label. The shared `navigationTokens.iconLabelGap` is now `size.dp0`;
+all five tabs consume it through the existing `RootTabBar` gap property. No
+change to the selected 300/unselected 200 icon artwork, typography, baseline
+height, touch targets, colors, safe areas or the independent disabled Add FAB.
