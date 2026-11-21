@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import { parseCachedReferenceRate } from '../../src/data/market/fx-reference-rate-cache-contract';
+import { parseReferenceRate } from '../../src/data/market/fx-reference-rates';
 import {
   DEFAULT_CURRENCY_PREFERENCES,
   addSubCurrency,
@@ -88,6 +89,8 @@ test('TM-FX-017: shared startup controller, screen-only display and manual force
   assert.match(controller, /activeFxPairs\(preferences.mainCode, preferences.subCodes\)/);
   assert.match(controller, /for \(const pair of pairs\)/);
   assert.match(controller, /void refreshRate\(pair.base, pair.quote\).catch/);
+  assert.match(controller, /if \(!previousKeys.has\(pair.key\)\)/);
+  assert.match(controller, /const previousKeys = activeKeys.current/);
   assert.match(controller, /const activeRequest = pending.current\[key\]/);
   assert.match(controller, /status: last.rate \? 'cached' : 'unavailable'/);
   assert.match(controller, /cache.write\(result, fetchedAt\)/);
@@ -96,4 +99,25 @@ test('TM-FX-017: shared startup controller, screen-only display and manual force
   assert.doesNotMatch(screenVm, /getReferenceRate\(|useEffect\(|setRates\(/);
   assert.match(screenVm, /useFxRates\(\)/);
   assert.match(screenVm, /void refreshRate\(detailCode, main\)/);
+});
+
+test('TM-FX-018: published blended quote validation rejects wrong/invalid/future dates', () => {
+  const base = { base: 'USD', quote: 'INR', rate: 82.5, date: '2026-11-20' };
+  assert.deepEqual(parseReferenceRate('USD', 'INR', base), base);
+  assert.equal(parseReferenceRate('EUR', 'INR', base), null);
+  assert.equal(parseReferenceRate('USD', 'INR', { ...base, rate: 0 }), null);
+  assert.equal(parseReferenceRate('USD', 'INR', { ...base, rate: Number.NaN }), null);
+  assert.equal(parseReferenceRate('USD', 'INR', { ...base, date: '2026-02-30' }), null);
+  assert.equal(parseReferenceRate('USD', 'INR', { ...base, date: '9999-12-31' }), null);
+  assert.equal(parseReferenceRate('USD', 'INR', { ...base, date: '1947-12-31' }), null);
+});
+
+test('TM-FX-019: Frankfurter integration has a bounded request and no finance data', () => {
+  const adapter = readFileSync('src/data/market/fx-reference-rates.ts', 'utf8');
+  assert.match(adapter, /FX_FETCH_TIMEOUT_MS = 8000/);
+  assert.match(adapter, /new AbortController\(\)/);
+  assert.match(adapter, /signal: controller.signal/);
+  assert.match(adapter, /clearTimeout\(timer\)/);
+  assert.match(adapter, /https:\/\/api\.frankfurter\.dev\/v2\/rate\//);
+  assert.doesNotMatch(adapter, /accountId|userId|balance|transactionId|accessToken/);
 });
