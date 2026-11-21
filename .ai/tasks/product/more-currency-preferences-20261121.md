@@ -36,3 +36,32 @@ Owner screenshot and follow-up: More has a separate Currency section; Main Curre
 ## 2026-11-21 — Owner segmented-control screenshot reference
 
 Owner supplied screenshot with dark `Write | Preview` pill selector. This is the visual basis for the **Front | End** segmented presentation, not new labels or app top-bar behavior. [RFC #54 comment](https://github.com/im-tnyx/Tio-Money/issues/54#issuecomment-7062453526) records technical PROCEED for the reusable `AppSegmentedControl` and semantic dark/light tokens. This extension stays in unmerged PR #53; `TM-CUR-014` checks props-only radio semantics, semantic tokens and shared control reuse. There are no financial data, FX, migration, app route, payment or cloud changes. Known existing Prettier failure in `main-currency-screen.tsx` remains a separate CI blocker until fixed at exact HEAD; **MERGE_AUTHORIZATION=NOT_GRANTED**.
+
+## 2026-11-21 — Explicit owner FX provider decision (bounded; MERGE NOT AUTHORIZED)
+
+Owner expressly approved Frankfurter v2 **blended indicative reference** data
+**only** for the user's enabled Sub Currency rate display and manual Refresh.
+They expressly prohibited bank/transaction/ledger conversion, user identifiers,
+paid services and merge of PR #53. Full exact wording, agent transcription,
+technical proceed and third-party source references:
+[PR #53 owner decision](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805).
+This later owner decision supersedes the old `no FX network` restriction **only**
+for the specified, non-posting Sub Currency feature. Existing RFC #52/#54
+initial scope text above remains historical. All other excludes remain.
+
+Implementation ownership: `src/data/market/fx-reference-rates.ts` is fixed-
+host HTTPS pair-only adapter, bounded by 8s timeout and pair/rate/date checks;
+`src/shared/currency/fx-rate-provider.tsx` gates network to selected pairs
+on cold launch/new pair or explicit refresh; `fx-reference-rate-cache.ts`
+retains validated locally cached metadata; Sub Currency VM/UI shows provider
+source, publication date, checked time, spinner, offline and unavailable states.
+Tests: `tests/phase0/fx-rate-lifecycle.test.ts` and existing Sub details tests.
+No new ledger, financial posting, bank integration, third-party secrets,
+cloud/Auth, background FX polling or app permissions.
+
+**Remaining Merge Gate:** Exact-new-HEAD TypeScript, ESLint, Prettier, unit and
+preview CI; independent privacy/platform review disposition; iOS/Android
+physical device swipe, accessibility, offline/stale QA; EAS trusted preview
+workflow's `.github/` source-scope issue; and separate owner merge permission.
+Owner `MERGE_AUTHORIZATION=NOT_GRANTED`; no deployment, auto-merge, force push
+or ruleset modification.
