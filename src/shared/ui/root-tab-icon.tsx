@@ -56,7 +56,9 @@ export function RootTabIcon({
   color: string;
   selected: boolean;
 }) {
-  const weight = selected ? navigationTokens.selectedIconWeight : navigationTokens.unselectedIconWeight;
+  const weight = selected
+    ? navigationTokens.selectedIconWeight
+    : navigationTokens.unselectedIconWeight;
   const xml = useMemo(
     () => MATERIAL_OUTLINED_SVG[name][weight].replace('<svg ', `<svg fill="${color}" `),
     [name, color, weight],
