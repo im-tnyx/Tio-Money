@@ -112,8 +112,8 @@ test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => 
   assert.match(screen, /!editing &&/);
   assert.match(screen, /backgroundColor: theme.colors.expense/);
   assert.match(screen, /translateX: -displayedOffset/);
-  assert.match(screen, /onDelete=\\{\\(\\) => \\{/);
-  assert.match(screen, /onAction\\(\\{ type: 'remove', code: item.code \\}\\)/);
+  assert.ok(screen.includes('onDelete={() => {'));
+  assert.ok(screen.includes("onAction({ type: 'remove', code: item.code });"));
   assert.match(screen, /key=\{item.code\}/);
   assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
   assert.match(screen, /formatReferenceRate\(item.rate\)/);
