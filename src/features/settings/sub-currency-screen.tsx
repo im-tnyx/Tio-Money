@@ -405,11 +405,7 @@ export function SubCurrencyScreen({
               </AppText>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={
-                  t('currencyFxRefreshPending') +
-                  ' · ' +
-                  state.refreshSummary.lastCheckedLabel
-                }
+                accessibilityLabel={t('currencyFxRefreshPending')}
                 accessibilityState={{ disabled: state.refreshSummary.refreshing }}
                 disabled={state.refreshSummary.refreshing}
                 onPress={() => {
