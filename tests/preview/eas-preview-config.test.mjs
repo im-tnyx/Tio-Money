@@ -57,7 +57,21 @@ test('EAS CLI has its own committed full dependency lock and registry integritie
   assert.equal(lock.lockfileVersion, 3);
   assert.equal(lock.packages[''].dependencies['eas-cli'], manifest.dependencies['eas-cli']);
   assert.equal(lock.packages['node_modules/eas-cli'].version, '27.4.1');
-  assert.ok(Object.keys(lock.packages).length >= 500);
+  // The official npm resolver deduplicates old vulnerable nested copies.
+  // Do not require a historical package COUNT that rewards unsafe duplication.
+  assert.ok(Object.keys(lock.packages).length >= 450, 'Expected a complete EAS CLI dependency tree');
+  for (const [name, expected] of Object.entries({
+    'eas-cli': '27.4.1',
+    typescript: '5.9.3',
+    'node-forge': '1.4.3',
+    ajv: '8.18.0',
+    yaml: '2.8.3',
+    glob: '14.0.2',
+    uuid: '11.1.1',
+    'ts-deepmerge': '8.0.0',
+  })) {
+    assert.equal(lock.packages['node_modules/' + name]?.version, expected, name);
+  }
   for (const [path, pkg] of Object.entries(lock.packages)) {
     if (!path || !pkg.resolved) continue;
     assert.ok(pkg.resolved.startsWith('https://registry.npmjs.org/'), path);
