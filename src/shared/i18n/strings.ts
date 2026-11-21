@@ -69,6 +69,8 @@ export const en = {
   currencyFront: 'Front',
   currencyEnd: 'End',
   currencyDecimals: 'Decimal point',
+  currencyDecimalDecrease: 'Decrease decimal places',
+  currencyDecimalIncrease: 'Increase decimal places',
   currencyDefaultDigits: 'Currency default',
   currencyDecimalNone: 'None',
   currencyDecimalOne: '1.0',
