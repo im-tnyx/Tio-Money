@@ -467,3 +467,14 @@ line. The setting labels (Exchange Rate, Unit Position, Decimal Point)
 share the same 34%-width column; their values begin in the same second
 column. This changes layout only: exchange rates and stored
 per-currency preferences are unchanged.
+
+## USD reference caption in Sub Currency detail sheet — 2026-11-21
+
+The user's reference shows `USD - USA (US$)` in the first grey caption
+and `US$ 1.00` in the left amount. Use those **only in the detail
+sheet display**, with the existing muted caption theme and a single-line
+auto-fit safeguard so the complete country/symbol text remains legible
+on compact devices. Other currency captions and the saved Sub Currency
+list retain their existing metadata, and the shared currency catalog,
+ISO identity, persistence, FX pair/rates and financial amounts remain
+unchanged.

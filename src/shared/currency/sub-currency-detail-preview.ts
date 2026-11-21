@@ -5,6 +5,15 @@ import {
   type CurrencyPreferences,
 } from './currency-preference';
 
+/** Keep detail-sheet display labels separate from persisted ISO currency catalog metadata. */
+export function formatSubCurrencyDetailCaption(subCode: CurrencyCode): string {
+  const currency = CURRENCY_OPTIONS.find((option) => option.code === subCode);
+  if (!currency) throw new Error('Unrecognized currency');
+  // Reference-specific display only: the shared currency name and symbol stay unchanged.
+  if (subCode === 'USD') return 'USD - USA (US$)';
+  return currency.code + ' – ' + currency.country + ' (' + currency.symbol + ')';
+}
+
 /** UI-only preview. Rates never alter ledger balances or booked amounts. */
 export function formatSubCurrencyDetailPreview(
   preferences: CurrencyPreferences,
@@ -21,10 +30,29 @@ export function formatSubCurrencyDetailPreview(
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   }).format(1);
+  // The USD detail preview uses the explicit US$ symbol seen in the reference.
+  const subSymbol = subCode === 'USD' ? 'US
+
+  if (rate === null || !Number.isFinite(rate) || rate <= 0) {
+    return { subPreview, mainPreview: main.symbol + ' —' };
+  }
+  const mainNumber = new Intl.NumberFormat(preferences.mainCode === 'INR' ? 'en-IN' : 'en-US', {
+    minimumFractionDigits: 6,
+    maximumFractionDigits: 6,
+  }).format(rate);
+  return {
+    subPreview,
+    mainPreview:
+      preferences.display.unitPosition === 'front'
+        ? main.symbol + ' ' + mainNumber
+        : mainNumber + ' ' + main.symbol,
+  };
+}
+ : sub.symbol;
   const subPreview =
     subDisplay.unitPosition === 'front'
-      ? sub.symbol + ' ' + subNumber
-      : subNumber + ' ' + sub.symbol;
+      ? subSymbol + ' ' + subNumber
+      : subNumber + ' ' + subSymbol;
 
   if (rate === null || !Number.isFinite(rate) || rate <= 0) {
     return { subPreview, mainPreview: main.symbol + ' —' };

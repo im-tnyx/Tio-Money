@@ -8,7 +8,10 @@ import {
   resolveSubCurrencyDisplay,
   type CurrencyCode,
 } from '@/shared/currency/currency-preference';
-import { formatSubCurrencyDetailPreview } from '@/shared/currency/sub-currency-detail-preview';
+import {
+  formatSubCurrencyDetailCaption,
+  formatSubCurrencyDetailPreview,
+} from '@/shared/currency/sub-currency-detail-preview';
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
 import { t } from '@/shared/i18n/strings';
 
@@ -207,7 +210,7 @@ export function useSubCurrencyViewModel(): {
         selectedDetail && subDisplay && preview
           ? {
               code: selectedDetail.code,
-              label: selectedDetail.label,
+              label: formatSubCurrencyDetailCaption(selectedDetail.code),
               ...preview,
               rateValue: selectedDetail.rate
                 ? selectedDetail.rate.rate.toFixed(6)
