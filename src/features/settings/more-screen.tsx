@@ -7,6 +7,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import { AppearanceSheet } from './appearance-sheet';
+import { CurrencySheet } from './currency-sheet';
 import type { MoreAction, MoreUiState } from './more-contract';
 
 /** Dumb presentation: bottom-sheet visibility and actions belong to the ViewModel. */
@@ -93,6 +94,66 @@ export function MoreScreen({
               />
             </Svg>
           </Pressable>
+          <Pressable
+            onPress={() => onAction({ type: 'currency.open' })}
+            accessibilityRole="button"
+            accessibilityLabel={t('currency')}
+            accessibilityHint={t('currencyHint')}
+            accessibilityState={{ expanded: state.currencySheetVisible }}
+            style={{
+              width: '100%',
+              minHeight: theme.buttons.minimumHeight,
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+              borderTopWidth: theme.navigation.borderWidth,
+              borderBottomWidth: theme.navigation.borderWidth,
+              borderRadius: theme.navigation.origin,
+              paddingHorizontal: theme.space.lg,
+              paddingVertical: theme.space.md,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: theme.space.sm,
+            }}
+          >
+            <Svg
+              width={theme.iconRoles.card}
+              height={theme.iconRoles.card}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Path
+                d="M12 3v18M4 8h16M4 16h16"
+                stroke={theme.colors.secondaryText}
+                strokeWidth={theme.icons.stroke}
+                fill="none"
+                strokeLinecap="round"
+              />
+            </Svg>
+            <View style={{ flex: 1 }}>
+              <AppText>{t('currency')}</AppText>
+              <AppText variant="caption" muted>
+                {state.currency.mainCode} · {state.currency.subCode ?? t('currencyNone')}
+              </AppText>
+            </View>
+            <Svg
+              width={theme.iconRoles.card}
+              height={theme.iconRoles.card}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Path
+                d="m9 18 6-6-6-6"
+                stroke={theme.colors.secondaryText}
+                strokeWidth={theme.icons.stroke}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </Pressable>
           {state.error && !state.appearanceSheetVisible ? (
             <View accessibilityLiveRegion="polite">
               <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
@@ -101,6 +162,7 @@ export function MoreScreen({
         </View>
       </ScrollView>
       <AppearanceSheet state={state} onAction={onAction} />
+      <CurrencySheet state={state} onAction={onAction} />
     </SafeAreaView>
   );
 }
