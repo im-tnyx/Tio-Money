@@ -74,7 +74,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.match(dispatchInputs, /      pr_number:\n        description: Open owner-authored PR targeting main \(JS\/assets-only change\)\n        required: true\n        type: string\n/);
+  assert.match(dispatchInputs, /      pr_number:\n        description: Open non-Draft owner PR \(src\/assets, tests and Markdown docs\)\n        required: true\n        type: string\n/);
   assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
@@ -153,6 +153,10 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
   assert.match(workflow, /github\.run_attempt == '1'/);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.ok(workflow.includes('.draft == false'));
+  assert.ok(workflow.includes('if ! jq -e --arg repo "$GITHUB_REPOSITORY"'));
+  assert.ok(workflow.includes('::error title=Draft PR not eligible::'));
+  assert.ok(workflow.includes('::error title=Invalid PR selection::'));
+  assert.ok(workflow.includes('::error title=Preview change scope::'));
   assert.ok(workflow.includes('.head.repo.full_name == $repo'));
   assert.ok(workflow.includes('.base.ref == "main"'));
   assert.ok(workflow.includes('src/*|assets/*'));
@@ -160,4 +164,16 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
   assert.doesNotMatch(workflow, /pull_request_target/);
+});
+
+test('EAS preview permits normal tracked task/docs/tests with strict config exclusions', () => {
+  const workflow = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
+  const scope = workflow.split('case "$path" in\n')[1]?.split('\n')[0].trim();
+  assert.equal(scope, 'src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;');
+  assert.ok(workflow.includes('if [[ "$native_change" -ne 0 ]]'));
+  assert.ok(workflow.includes('::error title=Preview change scope::'));
+  assert.ok(workflow.includes('.draft == false'));
+  assert.ok(workflow.includes("github.actor == 'im-tnyx'"));
+  assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
+  assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
 });

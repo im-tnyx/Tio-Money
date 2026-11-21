@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Open owner-authored PR targeting main (JS/assets-only change)
+        description: Open non-Draft owner PR (src/assets, tests and Markdown docs)
         required: true
         type: string
       operation:
@@ -65,7 +65,7 @@ jobs:
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
-          jq -e --arg repo "$GITHUB_REPOSITORY" '
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
             .state == "open" and
             .draft == false and
             .user.login == "im-tnyx" and
@@ -73,7 +73,14 @@ jobs:
             .base.repo.full_name == $repo and
             .base.ref == "main" and
             .head.sha != null and .base.sha != null
-          ' "$RUNNER_TEMP/pr.json" >/dev/null
+          ' "$RUNNER_TEMP/pr.json" >/dev/null; then
+            if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
+              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+            else
+              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+            fi
+            exit 1
+          fi
           echo "head_sha=$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
           echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
 
@@ -108,20 +115,23 @@ jobs:
               throw Error("Refusing to publish from a changed Expo project identity");
             }
           '
-          # Both operations accept only reviewed JS/assets from a PR. Native,
-          # build config and signing changes must first land through their own
-          # separately reviewed PR rather than execute with an Expo token here.
+          # Reviewed PRs may also carry tests and Markdown task/documentation
+          # records. These paths do not change the Expo runtime or build config.
+          # Native/tooling/dependency/signing changes must land in a separately
+          # reviewed PR before executing any source with an Expo token here.
           native_change=0
           while IFS= read -r -d '' path; do
             case "$path" in
-              src/*|assets/*) ;;
+              src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;
               *)
-                echo "::error::Non-preview source/config change $path; requires separate review."
                 native_change=1
                 ;;
             esac
           done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
-          if [[ "$native_change" -ne 0 ]]; then exit 1; fi
+          if [[ "$native_change" -ne 0 ]]; then
+            echo "::error title=Preview change scope::EAS permits app source/assets, tests and Markdown documentation/AI task records only. Native, tooling, dependency and other config changes require separate review and merge before OTA/build."
+            exit 1
+          fi
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then

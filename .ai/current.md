@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 latest-main safe reconciliation after bottom-sheet header refinement
+
+- **Owner action:** Reconcile [PR #18](https://github.com/im-tnyx/Tio-Money/pull/18) with current `main` without merging PR #18 into `main`. The PR head before reconciliation was `d6178ab26e0075302742b29ab60e88e37a4e13c5`; incoming main head `4614285071fd96e9010e2ca7f34653be1c2a61b4`. Both were based on `e0e4c617c2aea2b892baa9b5dd327d6a4483350d`.
+- **Disjoint integration:** Incoming main adds only changes to `.github/workflows/tio-money-eas-pr-preview.yml` and `tests/preview/eas-preview-config.test.mjs`; preserve the current 24 PR feature paths and the latest bottom-sheet center title, X dismiss, divider and square top. Use an exact two-parent non-force branch merge (existing PR HEAD first, incoming main second), not a protected-main merge; verify branch is zero behind current main.
+- **Controls:** Remove `tio-preview` before pushing to avoid unauthorized privileged Codespaces activation. Do not restore it automatically; no manual dispatch, EAS publish/build, force push or PR merge. Previous exact-head Phase 0 and Governance checks passed on `d6178ab26e0075302742b29ab60e88e37a4e13c5`; new merge-head CI, unresolved reviews and Android/iOS device QA must be checked independently.
+- **Decision:** This is branch-only reconciliation under existing UI task/RFC #17; independent UI review deferred (optional), PR #18 stays Draft and **NOT MERGE AUTHORIZED**.
+
+---
+
 ## 2026-11-21 — PR #18 Appearance row and bottom-sheet UI revision
 
 - **Owner design:** [RFC #17 approved follow-up](https://github.com/im-tnyx/Tio-Money/issues/17#issuecomment-7050140344). After safe non-force reconciliation with latest `main` `a83c608c8cd6399712813d884e9179babb535ee6`, More → General Settings becomes unboxed section text with a full-width Appearance row/chevron; selection UI moves into a stateless native bottom sheet with the same radio rows/dividers.

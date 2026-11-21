@@ -59,3 +59,10 @@
 - **Decision:** Bounded UI-only `PROCEED` within previously approved RFC #17 feature; preserve stateless `AppearanceSheet`, `useMoreViewModel` ownership, three selectable radios and local theme persistence. Avoid unrelated More-screen heading changes, finance, workflows, dependencies or native config.
 - **Safety:** Because this PR has the `tio-preview` label, remove it before any branch push to prevent unauthorized automatic privileged preview activation; do not restore or dispatch without separate approval. No merge permission.
 - **Acceptance:** Regression assertions for balanced centered title, no hint caption/Close text, accessible X button, divider below title, square top corners, dismissal, unchanged selection and current-head CI. Android/iPhone device acceptance remains pending; independent UI review deferred, not claimed as performed.
+
+## 2026-11-21 — Reconcile refined bottom sheet with newer main
+
+- **Owner request:** Safely reconcile existing Draft PR #18, not merge into main. Existing PR head `d6178ab26e0075302742b29ab60e88e37a4e13c5`, incoming main `4614285071fd96e9010e2ca7f34653be1c2a61b4`, shared ancestor `e0e4c617c2aea2b892baa9b5dd327d6a4483350d`. GitHub compare: 2 behind, 17 ahead before reconciliation, no touched-path overlap.
+- **Implementation boundary:** Adopt newer EAS preview workflow and EAS-preview config regression test verbatim from `main`. Preserve all PR #18 UI, state-management, preference persistence, assets and tests including the centered flat-top Appearance header, header divider and X dismiss.
+- **Method:** Two-parent merge commit with PR head first and main second, non-force expected-head guarded branch update; verify main ancestry, feature blob retention, exact changed paths and fresh CI after commit. No direct `main` change or unrelated scope.
+- **Security:** `tio-preview` label is present at preflight; remove before source push to prevent unintended privileged Codespaces workflow. Do not re-enable privileged preview, dispatch, publish EAS or merge. Owner device acceptance remains pending; formal independent UI review deferred, not falsely claimed.
