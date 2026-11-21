@@ -4,7 +4,7 @@
 
 ## Product flow
 
-1. Open the **More** bottom tab. **General Settings** is plain unboxed section text. A single full-available-width card below it shows **Appearance** with a right-side chevron. Tap this row to open a flat-top native bottom sheet with a **left-aligned Appearance title**, an **X dismiss icon** on the right, a **divider directly below the title** and the existing **System / Light / Dark** radio choices. The extra visible description under Appearance is removed; individual option descriptions remain accessible as hints. Tap **X**, the backdrop, or Android Back to dismiss the sheet. No separate Settings route.
+1. Open the **More** bottom tab. **General Settings** is plain unboxed section text. A single full-available-width card below it shows **Appearance** with a right-side chevron. Tap this row to open a softly rounded-top native bottom sheet with a **left-aligned Appearance title**, an **X dismiss icon** on the right, a **divider directly below the title** and the existing **System / Light / Dark** radio choices. The extra visible description under Appearance is removed; individual option descriptions remain accessible as hints. Tap **X**, the backdrop, or Android Back to dismiss the sheet. No separate Settings route.
 2. **System** is the default; existing app palettes follow the Android/iOS device's effective light/dark mode, including later device changes.
 3. **Light** and **Dark** immediately re-theme all app tabs and the status-bar foreground, regardless of the device mode.
 4. On restart, the selected choice is loaded locally before the UI is rendered. Missing/unrecognized values fall back to **System**. A storage read failure falls back to System with safe error feedback; a failed write keeps the last persisted selection and tells the user to retry.
@@ -53,3 +53,7 @@ The owner observed wasted vertical space above the Appearance heading on iPhone 
 ## 2026-11-21 — Owner follow-up: restore compact drag handle
 
 The owner confirmed the compact left-aligned Appearance header has reduced wasted space and requested the decorative top handle back. Restore the centered pill indicator above the header with existing semantic tokens: 40dp width, 4dp height, 8dp top margin and 4dp bottom margin. Keep the 48dp-min left-title/X header, flat sheet corners, divider, compact option rows and all accessibility/selection/persistence behavior unchanged. This supersedes only the prior instruction to remove the handle, not the compact layout. The handle is a visual affordance only; drag-to-dismiss is not added. Verify current-head CI and on-device visual acceptance before merge.
+
+## 2026-11-21 — Owner follow-up: header slightly higher and rounded corners
+
+Move the left-aligned Appearance title/X header upward by 4dp by removing only the decorative handle's 4dp bottom gap (`marginBottom: theme.navigation.origin`). Keep the 40×4dp handle and its 8dp top margin intact. Restore **subtle 16dp rounded top-left and top-right corners** using `theme.radius.md`. Preserve the 48dp accessible header/X touch target, bottom divider, compact System/Light/Dark rows, and all accessibility, persistence, backdrop and Android Back behavior. No new gesture, dependency or native/financial change. Real-device layout acceptance and exact-head CI remain required; no PR merge/preview activation authorization.

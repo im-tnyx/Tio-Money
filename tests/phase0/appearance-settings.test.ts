@@ -78,8 +78,9 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /onRequestClose=\{dismiss\}/);
   assert.match(sheet, /accessibilityViewIsModal/);
   assert.match(sheet, /onPress=\{dismiss\}/);
-  assert.match(sheet, /borderTopLeftRadius: theme\.navigation\.origin/);
-  assert.match(sheet, /borderTopRightRadius: theme\.navigation\.origin/);
+  assert.match(sheet, /borderTopLeftRadius: theme\.radius\.md/);
+  assert.match(sheet, /borderTopRightRadius: theme\.radius\.md/);
+  assert.doesNotMatch(sheet, /borderTopLeftRadius: theme\.navigation\.origin/);
   assert.match(sheet, /<AppText variant="section" style=\{\{ flex: 1 \}\}>/);
   assert.doesNotMatch(sheet, /textAlign: 'center'/);
   assert.match(sheet, /width: theme\.space\.xxxl/);
@@ -87,7 +88,8 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   assert.match(sheet, /borderRadius: theme\.radius\.pill/);
   assert.match(sheet, /alignSelf: 'center'/);
   assert.match(sheet, /marginTop: theme\.space\.xs/);
-  assert.match(sheet, /marginBottom: theme\.space\.xxs/);
+  assert.match(sheet, /marginBottom: theme\.navigation\.origin/);
+  assert.doesNotMatch(sheet, /marginBottom: theme\.space\.xxs/);
   assert.ok(
     sheet.indexOf('width: theme.space.xxxl') <
       sheet.indexOf('<AppText variant="section" style={{ flex: 1 }}>'),

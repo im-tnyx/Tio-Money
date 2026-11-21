@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-21 — PR #18 slight title lift + rounded bottom-sheet top corners
+
+- **Owner direction:** With compact handle restored, shift Appearance header row slightly up for visual alignment and restore rounded top corners. Preserve left title/X, divider, 40×4dp handle, choice radio rows, and persistence.
+- **UI-only PROCEED:** Remove 4dp gap below the handle to lift header while retaining handle's 8dp top margin; use existing `theme.radius.md` (16dp) for top-left and top-right corners. Update existing regression assertions and [appearance task](tasks/ui/more-appearance-20261120.md). No new dependency, native/finance changes or feature logic.
+- **Safety:** Exact-head non-force feature-branch update; `tio-preview` must be absent to avoid privileged Codespaces activation. Fresh CI and physical-device screenshot acceptance remain pending. No PR merge authorization or workflow dispatch.
+
+---
+
 ## 2026-11-21 — PR #18 restore small top handle after compact sheet revision
 
 - **Owner request:** The sheet is now sufficiently compact, restore its decorative top drag indicator. Preserve left-aligned Appearance header, right X, divider, flat top corners and existing radio rows.

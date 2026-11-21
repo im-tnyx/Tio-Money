@@ -80,3 +80,10 @@
 - **Technical PROCEED:** Restore the existing pill handle immediately above the left-aligned title, using existing spacing tokens (8dp top, 4dp tall, 4dp bottom), with no large padding row. Retain the 48dp-min header, X dismiss, header divider, flat corners, compact mode rows, ViewModel state ownership and theme preference storage.
 - **Scope:** Appearance Sheet, corresponding static regression, feature guide, additive task/index checkpoints. This is a visual indicator, not new swipe gesture support. No finance, native config, dependency, workflow, or security change.
 - **Safety/acceptance:** Non-force guarded PR #18 branch commit only; avoid `tio-preview` privileged activation, no merge into `main`, EAS publish or Codespaces dispatch. Fresh exact-head CI and iPhone/Android visual smoke pending; independent UI review deferred, owner merge permission not granted.
+
+## 2026-11-21 — Owner header vertical alignment and rounded-sheet corners
+
+- **Owner instruction:** Move Appearance text/header row slightly up so it looks centered and restore bottom-sheet corners. Prior owner request restored the handle; retain it.
+- **Technical decision PROCEED:** Minimal 4dp upward adjustment by removing the handle's `space.xxs` bottom margin, preserving its 8dp top margin and decorative size; apply existing 16dp `radius.md` only to sheet top corners. Keep left title/X, 48dp minimum accessible hit target, header divider, mode rows and theme persistence unchanged.
+- **Scope:** Sheet presentation, matching regression assertions, feature guide and additive AI task/index checkpoint on PR #18 feature branch. No screen-owned state, finance, native, CI/workflow, dependency or privileged Codespaces changes.
+- **Safeguards:** Guard exact PR/head/main, ensure `tio-preview` absent before non-force branch push. Exact-new-head CI/device visual validation required. Formal independent UI review deferred; PR #18 stays Draft and **NOT MERGE AUTHORIZED**.
