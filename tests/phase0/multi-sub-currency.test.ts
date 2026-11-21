@@ -13,6 +13,11 @@ import {
 } from '../../src/shared/currency/currency-preference';
 import { formatReferenceRate, parseReferenceRate } from '../../src/data/market/fx-reference-rates';
 import {
+  formatSubCurrencyLastChecked,
+  shouldOfferSubCurrencyRefresh,
+  wasReferenceRateCheckedToday,
+} from '../../src/features/settings/sub-currency-rate-freshness';
+import {
   getSwipeOffset,
   isHorizontalSwipe,
   snapSwipeOffset,
@@ -223,4 +228,50 @@ test('TM-CUR-048: Main row and Sub list touch without an inter-card gap', () => 
   assert.match(listCard, /backgroundColor: theme\.colors\.card/);
   assert.doesNotMatch(listCard, /borderTopWidth: theme\.navigation\.borderWidth/);
   assert.match(listCard, /borderBottomWidth: theme\.navigation\.borderWidth/);
+});
+
+test('TM-CUR-050: use local verification day, not the Frankfurter publication date', () => {
+  const today = new Date(2026, 10, 22, 12, 30).getTime();
+  const checkedToday = new Date(2026, 10, 22, 9, 30).getTime();
+  const checkedYesterday = new Date(2026, 10, 21, 18, 30).getTime();
+  const publishedFriday = '2026-11-20';
+  assert.equal(publishedFriday, '2026-11-20'); // Weekend publication may lag.
+  assert.equal(wasReferenceRateCheckedToday(checkedToday, today), true);
+  assert.equal(wasReferenceRateCheckedToday(checkedYesterday, today), false);
+  assert.equal(wasReferenceRateCheckedToday(null, today), false);
+  assert.equal(wasReferenceRateCheckedToday(today + 60_000, today), false);
+  assert.equal(shouldOfferSubCurrencyRefresh('available', checkedToday, today), false);
+  assert.equal(shouldOfferSubCurrencyRefresh('available', checkedYesterday, today), true);
+  assert.equal(shouldOfferSubCurrencyRefresh('cached', checkedToday, today), true);
+  assert.equal(shouldOfferSubCurrencyRefresh('cached', checkedYesterday, today), true);
+  assert.equal(shouldOfferSubCurrencyRefresh('unavailable', null, today), true);
+  assert.equal(shouldOfferSubCurrencyRefresh('loading', null, today), false);
+  assert.equal(formatSubCurrencyLastChecked(checkedYesterday, today), '21 Nov');
+  assert.equal(formatSubCurrencyLastChecked(null, today), null);
+  assert.equal(formatSubCurrencyLastChecked(new Date(2025, 10, 22).getTime(), today), '22 Nov 2025');
+});
+
+test('TM-CUR-051: stale FX retry is a right-aligned action within the same-height Sub card', () => {
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const provider = readFileSync('src/shared/currency/fx-rate-provider.tsx', 'utf8');
+  const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
+  const card = screen.slice(screen.indexOf('state.selected.map('));
+  assert.match(card, /minHeight: theme.buttons.minimumHeight \+ theme.space.xxl/);
+  assert.match(card, /\{item.showRefresh \? \(/);
+  assert.match(card, /width: theme.space.xxxl \* 3/);
+  assert.match(card, /minHeight: theme.buttons.minimumHeight/);
+  assert.match(card, /\{item.lastCheckedLabel\}/);
+  assert.match(card, /'currencyFxRefreshNow'/);
+  assert.match(card, /type: 'card.refresh', code: item.code/);
+  assert.match(card, /accessibilityRole="button"/);
+  assert.match(contract, /readonly showRefresh: boolean/);
+  assert.match(vm, /shouldOfferSubCurrencyRefresh\(rateStatus, checkedAt, freshnessNow\)/);
+  assert.match(vm, /formatSubCurrencyLastChecked\(checkedAt, freshnessNow\)/);
+  assert.match(vm, /case 'card.refresh'/);
+  assert.match(vm, /if \(!preferences.subCodes.includes\(action.code\)\) break/);
+  assert.match(vm, /void refreshRate\(action.code, main\)/);
+  assert.match(vm, /AppState.addEventListener\('change'/);
+  assert.match(provider, /cache.write\(result, fetchedAt\)/);
+  assert.doesNotMatch(screen, /getReferenceRate\(|setInterval\(/);
 });
