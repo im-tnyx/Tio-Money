@@ -86,6 +86,14 @@ test('TM-CUR-036: Sub detail uses inline +/- precision without another sheet', (
   assert.match(sheet, /label=\{t\('currencyDecimalIncrease'\)\}/);
   assert.match(sheet, /disabled=\{detail.decimalDigits === 0\}/);
   assert.match(sheet, /disabled=\{detail.decimalDigits === 3\}/);
+  const decimalRow = sheet.slice(sheet.indexOf("{t('currencyDecimals')}"));
+  const valueIndex = decimalRow.indexOf('{detail.decimalLabel}');
+  const minusIndex = decimalRow.indexOf("label={t('currencyDecimalDecrease')}");
+  const plusIndex = decimalRow.indexOf("label={t('currencyDecimalIncrease')}");
+  assert.ok(valueIndex >= 0 && valueIndex < minusIndex && minusIndex < plusIndex);
+  assert.match(decimalRow, /style=\{\{ flex: 1, textAlign: 'right' \}\}/);
+  assert.doesNotMatch(decimalRow, /width: theme.space.xxxl, textAlign: 'center'/);
+
   assert.doesNotMatch(sheet, /detail\.decimal\.open|detail\.decimal\.back|decimalMode|radiogroup/);
   assert.doesNotMatch(
     contract + controller,
