@@ -81,6 +81,40 @@ jobs:
           # Offline CLI command-load smoke. No EAS token or project access.
           "$temp/node_modules/.bin/eas" build --help > /dev/null
           "$temp/node_modules/.bin/eas" update --help > /dev/null
+          # Compatibility smoke for vulnerable libraries replaced across majors.
+          # Run only in the isolated temporary install, without any secrets.
+          (
+            cd "$temp"
+            node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { createRequire } from 'node:module';
+          const require=createRequire(import.meta.url);
+          const forge=require('node-forge');
+          const uuid=require('uuid');
+          const glob=require('glob');
+          const minimatch=require('minimatch');
+          const merge=require('ts-deepmerge');
+          const ajv=require('ajv');
+          const yaml=require('yaml');
+          assert.equal(typeof uuid.v4,'function');
+          assert.equal(uuid.v4().length,36);
+          assert.ok(typeof glob.globSync==='function');
+          assert.ok(glob.globSync('package.json').includes('package.json'));
+          assert.equal(typeof minimatch.minimatch,'function');
+          assert.ok(minimatch.minimatch('app.json','*.json'));
+          assert.equal(typeof merge.merge,'function');
+          assert.deepEqual(merge.merge({a:{x:1}},{a:{y:2}}),{a:{x:1,y:2}});
+          assert.equal(typeof ajv,'function');
+          assert.ok(new ajv().validate({type:'object'},{foo:1}));
+          assert.ok(yaml.parse('a: 1').a===1);
+          assert.equal(typeof forge.pki.createCertificate,'function');
+          for(const path of ['@expo/config','@expo/config-plugins','@expo/prebuild-config','sucrase','@oclif/core','@expo/bunyan','@expo/rudder-sdk-node','xcode']){
+            const pkg=require(path);
+            assert.ok(pkg!==undefined,'missing module '+path);
+          }
+          console.log('CLI_DEPENDENCY_FUNCTIONAL_SMOKE=PASS');
+          NODE
+          )
           set +e
           ( cd "$temp" && npm audit --json --registry=https://registry.npmjs.org ) > "$RUNNER_TEMP/candidate-audit.json"
           audit_rc=$?
