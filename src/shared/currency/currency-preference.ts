@@ -29,10 +29,7 @@ export const DEFAULT_CURRENCY_PREFERENCES: CurrencyPreferences = {
 };
 
 export function isCurrencyCode(value: unknown): value is CurrencyCode {
-  return (
-    typeof value === 'string' &&
-    CURRENCY_OPTIONS.some((option) => option.code === value)
-  );
+  return typeof value === 'string' && CURRENCY_OPTIONS.some((option) => option.code === value);
 }
 
 export function isCurrencyPreferences(value: unknown): value is CurrencyPreferences {

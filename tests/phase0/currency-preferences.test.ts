@@ -19,7 +19,10 @@ test('TM-CUR-001: default Main INR, Sub None and valid curated ISO display codes
   assert.deepEqual(parseCurrencyPreferences(null), DEFAULT_CURRENCY_PREFERENCES);
   assert.deepEqual(parseCurrencyPreferences('invalid'), DEFAULT_CURRENCY_PREFERENCES);
   assert.ok(CURRENCY_OPTIONS.length >= 10);
-  assert.equal(new Set(CURRENCY_OPTIONS.map((option) => option.code)).size, CURRENCY_OPTIONS.length);
+  assert.equal(
+    new Set(CURRENCY_OPTIONS.map((option) => option.code)).size,
+    CURRENCY_OPTIONS.length,
+  );
   assert.ok(CURRENCY_OPTIONS.every((option) => /^[A-Z]{3}$/.test(option.code)));
   assert.equal(isCurrencyCode('INR'), true);
   assert.equal(isCurrencyCode('ZZZ'), false);
@@ -111,5 +114,8 @@ test('TM-CUR-008: currency preference is not FX, migration or a second ledger', 
   const sheet = readFileSync('src/features/settings/currency-sheet.tsx', 'utf8');
   assert.match(migration, /version: 1/);
   assert.doesNotMatch(migration, /fx_rate_cache|currency_preferences/);
-  assert.doesNotMatch(currency + store + sheet, /https?:\/\/|fetch\(|openDatabase|PRAGMA|insert into/);
+  assert.doesNotMatch(
+    currency + store + sheet,
+    /https?:\/\/|fetch\(|openDatabase|PRAGMA|insert into/,
+  );
 });

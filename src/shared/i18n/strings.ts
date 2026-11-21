@@ -27,7 +27,8 @@ export const en = {
   currencyNone: 'None',
   currencyChoose: 'Choose the currency for this setting.',
   currencyBack: 'Back to Currency Settings',
-  currencyNoRates: 'Exchange rates and converted totals are not available yet. Original amounts never change.',
+  currencyNoRates:
+    'Exchange rates and converted totals are not available yet. Original amounts never change.',
   currencyLoadError: 'Currency settings could not be loaded. Using INR.',
   currencySaveError: 'Could not save currency settings. Try again.',
   closeCurrency: 'Close Currency Settings',

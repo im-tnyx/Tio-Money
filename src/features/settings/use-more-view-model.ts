@@ -11,8 +11,12 @@ export function useMoreViewModel(): {
 } {
   const { preference, error, selectPreference } = useAppearanceSettings();
   const [appearanceSheetVisible, setAppearanceSheetVisible] = useState(false);
-  const { preferences: currency, error: currencyError, selectMainCurrency, selectSubCurrency } =
-    useCurrencySettings();
+  const {
+    preferences: currency,
+    error: currencyError,
+    selectMainCurrency,
+    selectSubCurrency,
+  } = useCurrencySettings();
   const [currencySheetVisible, setCurrencySheetVisible] = useState(false);
   const [currencyStep, setCurrencyStep] = useState<'overview' | 'main' | 'sub'>('overview');
 

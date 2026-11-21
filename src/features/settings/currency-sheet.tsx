@@ -1,9 +1,6 @@
 import { Pressable, ScrollView, View } from 'react-native';
 
-import {
-  CURRENCY_OPTIONS,
-  type CurrencyCode,
-} from '@/shared/currency/currency-preference';
+import { CURRENCY_OPTIONS, type CurrencyCode } from '@/shared/currency/currency-preference';
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet } from '@/shared/ui/app-bottom-sheet';
@@ -154,8 +151,7 @@ export function CurrencySheet({
                 />
               ) : null}
               {CURRENCY_OPTIONS.filter(
-                (option) =>
-                  state.currencyStep === 'main' || option.code !== state.currency.mainCode,
+                (option) => state.currencyStep === 'main' || option.code !== state.currency.mainCode,
               ).map((option) => (
                 <CurrencyChoice
                   key={option.code}
