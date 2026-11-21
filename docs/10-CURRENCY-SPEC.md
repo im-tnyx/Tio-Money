@@ -169,3 +169,17 @@ unchanged. FX is a display-only reference quote; neither ledger, balance
 nor journal amounts are converted. Provider licensing, privacy review,
 reference-rate cache/offline/stale policy and coverage remain pending
 under the rate-provider ADR. This prototype is not release-approved.
+
+### Sub Currency deletion — swipe-only UI supersedes Pencil/Edit (2026-11-21)
+
+This latest owner-approved UI requirement supersedes the historical
+Pencil/X/left-minus descriptions above. Sub Currency has a 50dp
+Back | centered title | Plus header, without an edit mode. Each saved
+currency remains independently tappable to open its detail bottom sheet.
+A left swipe reveals a semantic red Delete action with white text;
+swiping itself never deletes. Right swipe and tapping outside the revealed
+action dismiss it. A screen-reader-accessible Delete action remains
+available on each currency row without showing another destructive icon.
+The existing per-currency remove operation, maximum of five Sub
+Currencies, Main/Sub uniqueness, stored preferences and finance
+boundaries are unchanged. Physical Android/iOS QA remains pending.
