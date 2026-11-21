@@ -12,11 +12,14 @@ export const RESEARCHED_FLOORS = Object.freeze({
   yaml: Object.freeze({ 2: '2.8.3' }),
   minimatch: Object.freeze({
     3: '3.1.4', 4: '4.2.5', 5: '5.1.8', 6: '6.2.2',
-    7: '7.4.8', 8: '8.0.6', 9: '9.0.7', 10: '10.2.3',
+    7: '7.4.8', 8: '8.0.6', 9: '9.0.7', 10: '10.2.3', 11: '11.0.1',
   }),
   nanoid: Object.freeze({ 3: '3.3.18', 5: '5.1.16' }),
   joi: Object.freeze({ 17: '17.13.9', 18: '18.3.1' }),
   tar: Object.freeze({ 7: '7.5.21' }),
+  glob: Object.freeze({ 6: '6.0.0', 14: '14.0.2' }),
+  uuid: Object.freeze({ 11: '11.1.1' }),
+  'ts-deepmerge': Object.freeze({ 8: '8.0.0' }),
 });
 
 export function numericVersion(value) {
