@@ -247,8 +247,8 @@ visible handle/title or consuming sheet layout height.
 
 The initial sheet cap returns to its prior **90% viewport** maximum rather
 than the experimental 72%; short sheets remain content-sized. Currency
-choices use the one shared scroll region, and content retains 40dp extra
-bottom breathing room **inside the scrollable content**, in addition to
+choices use the one shared scroll region. **Only overflowing lists** retain 40dp
+of bottom scroll clearance; short sheets add no extra space beyond the
 system bottom safe-area padding. The final row must be fully reachable
 without being covered or cut at the screen edge. Expansion may grow toward
 96% while preserving the top safe inset and theme gap. Verify on Android
@@ -267,8 +267,9 @@ affected.
 The original 4dp visible handle, top margins and 48dp title area remain
 untouched. The shared `ScrollView` now reserves the actual measured safe-area
 bottom inset when limiting the scrolling viewport, keeps flex-grow disabled
-for content-sized sheets (Decimal and Format), and adds bottom inset to its
-existing scrollable end padding. The last option should remain reachable and
+for content-sized sheets (Decimal and Format). The OS bottom inset is
+supplied exactly once by the SafeAreaView, not added inside the scroll
+content as well. The last option should remain reachable and
 fully readable above the bottom edge on Android and iOS. Physical-device
 safe-area and scroll-to-last-item QA is still required.
 
@@ -290,3 +291,15 @@ change selection persistence, currency semantics, or global navigation.
 On-device acceptance: verify 3-option Format, 4-option Decimal, 3-option
 Appearance, long Main/Sub Currency lists, dynamic type and both Android/iOS
 bottom safe areas. CI cannot prove gesture physics or visual alignment.
+
+## Short-sheet bottom blank-space correction — PR #53 (2026-11-21)
+
+When a sheet's measured options fit within the collapsed viewport (e.g.
+three Format or four Decimal choices), the shared ScrollView adds **0dp
+extra end padding**, and its SafeAreaView alone protects the real bottom
+system inset. This keeps the content-sized sheet resting at the actual
+bottom without an artificial 40dp gap or duplicate OS safe-area padding.
+Only overflowing Currency/Country lists receive the existing 40dp scroll
+clearance. The original 4dp handle, 8dp top margin and 48dp title/header
+geometry are completely unchanged, as is safe-area-aware long-list
+scrolling and handle expansion. Physical Android/iOS checks remain needed.

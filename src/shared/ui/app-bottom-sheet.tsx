@@ -85,6 +85,9 @@ function SheetSurface({
     bottomInset;
   const collapsedContentMaxHeight = Math.max(0, collapsedMax - chromeHeight);
   const canExpand = hasOverflowingSheetContent(contentHeight, collapsedContentMaxHeight);
+  // SafeAreaView already supplies OS bottom padding. Do not add it again to
+  // the list, or short Decimal/Format sheets rise above their content height.
+  const scrollBottomPadding = canExpand ? sheet.contentBottomPadding : theme.navigation.origin;
   const expandedForContent = canExpand && expanded;
   const draggedForContent = canExpand ? dragHeight : null;
   const visibleMaxHeight = draggedForContent ?? (expandedForContent ? expandedMax : collapsedMax);
@@ -164,7 +167,7 @@ function SheetSurface({
             flexGrow: expandedForContent || draggedForContent !== null ? 1 : 0,
             maxHeight: contentMaxHeight,
           }}
-          contentContainerStyle={{ paddingBottom: sheet.contentBottomPadding + bottomInset }}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
         >
           {children}
         </ScrollView>

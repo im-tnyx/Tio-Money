@@ -43,7 +43,7 @@ test('all sheets share one bottom-safe scroll area and expose final options', ()
   const appearance = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
   assert.equal(shell.match(/<ScrollView/g)?.length, 1);
   assert.match(shell, /nestedScrollEnabled/);
-  assert.match(shell, /paddingBottom: sheet\.contentBottomPadding/);
+  assert.match(shell, /paddingBottom: scrollBottomPadding/);
   assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.doesNotMatch(main + sub, /<ScrollView|maxHeight: '70%'/);
   assert.match(main, /<AppBottomSheet/);
@@ -60,7 +60,8 @@ test('short Decimal and Format sheets reserve bottom safe inset without clipping
   assert.match(shell, /const contentMaxHeight = Math\.max\(/);
   assert.match(shell, /maxHeight: contentMaxHeight/);
   assert.match(shell, /flexGrow: expandedForContent \|\| draggedForContent !== null \? 1 : 0/);
-  assert.match(shell, /paddingBottom: sheet\.contentBottomPadding \+ bottomInset/);
+  assert.match(shell, /paddingBottom: scrollBottomPadding/);
+  assert.doesNotMatch(shell, /paddingBottom: sheet\.contentBottomPadding \+ bottomInset/);
   assert.match(shell, /height: sheet\.handleHeight/);
   assert.match(shell, /minHeight: sheet\.headerMinHeight/);
   assert.match(main, /state\.choices\.map/);
@@ -92,4 +93,18 @@ test('only overflowing sheets can expand; short sheets remain at the bottom', ()
   );
   assert.match(shell, /\{canExpand \? \(/);
   assert.match(shell, /key=\{title\}/);
+});
+
+test('short sheets add zero extra space below options; long sheets retain scroll clearance', () => {
+  const sheet = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.match(sheet, /const canExpand = hasOverflowingSheetContent/);
+  assert.match(
+    sheet,
+    /const scrollBottomPadding = canExpand \? sheet\.contentBottomPadding : theme\.navigation\.origin/,
+  );
+  assert.match(sheet, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
+  assert.match(sheet, /edges=\{\['bottom', 'left', 'right'\]\}/);
+  assert.doesNotMatch(sheet, /paddingBottom: .*\+ bottomInset/);
+  assert.equal(bottomSheetTokens.contentBottomPadding, 40);
+  assert.equal(bottomSheetTokens.handleBottomMargin, 0);
 });
