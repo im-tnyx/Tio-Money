@@ -254,3 +254,28 @@ Shared `AppBottomSheet` uses 24dp overflow-only trailing padding
 with native safe-area protection intact. No finance posting, provider
 protocol, API fields, permissions or data retention policy changes.
 [Owner-directed technical discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067789782).
+
+### 2026-11-22 — Sub card Last checked / Refresh now inline hint (unmerged PR #53)
+
+A saved Sub Currency card has an **inline right-aligned compact two-line action**
+that appears when its last **successful reference-rate verification** is not
+on the device's current local calendar date, or when the current rate
+state is cached/unavailable after a failed check. Show the locally persisted
+last-check date (`Checked 21 Nov` or `Not checked`) and a tappable
+`Refresh now` at the right, with no extra card height; preserve 48dp
+minimum touch target, left-side one-line currency/rate labels, swipe-to-delete
+and accessible button semantics. While retrying it reads `Checking…`
+and is disabled. Successful same-day verification clears the hint, and
+failure retains a retry affordance.
+
+**Publication vs verification:** `ReferenceRate.date` is the **provider's
+published/effective date**. Weekend and holiday quotes may retain Friday's
+publication date even after a successful Sunday check; such a successful
+verification still counts as **checked today**. Use validated `fetchedAt`
+and local calendar day for the hint, not publication date; never invent
+a newer reference rate or claim trading-price freshness. Returning from
+background updates only the screen hint clock; no provider call is triggered
+by navigation/foreground. Manual retry uses the existing deduplicated
+Sub/Main-only provider action, subject to TM-ADR-023 privacy constraints.
+This is a non-posting presentation-only feature. [Owner-requested
+technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068050333).
