@@ -22,7 +22,6 @@ import type {
 } from './main-currency-contract';
 
 const decimalChoices = [
-  { label: t('currencyDefaultDigits'), value: 'currency' },
   { label: t('currencyDecimalNone'), value: 0 },
   { label: t('currencyDecimalOne'), value: 1 },
   { label: t('currencyDecimalTwo'), value: 2 },
@@ -88,11 +87,14 @@ export function useMainCurrencyViewModel(): {
     const effectiveGrouping = resolveNumberGrouping(preferences.mainCode, d.grouping);
     const autoLabel =
       effectiveGrouping === 'indian' ? t('currencyAutoLakhs') : t('currencyAutoMillions');
-    const decimalLabel =
+    // Preserve native minor-digit defaults without exposing a separate sheet option.
+    const displayedDigits =
       d.decimalDigits === 'currency'
-        ? t('currencyDefaultDigits')
-        : (decimalChoices.find((item) => item.value === d.decimalDigits)?.label ??
-          t('currencyDecimalTwo'));
+        ? (CURRENCY_OPTIONS.find((item) => item.code === preferences.mainCode)?.minorDigits ?? 2)
+        : d.decimalDigits;
+    const decimalLabel =
+      decimalChoices.find((item) => item.value === displayedDigits)?.label ??
+      t('currencyDecimalTwo');
     const rows = [
       { key: 'decimal', label: t('currencyDecimals'), value: decimalLabel },
       {
@@ -120,7 +122,7 @@ export function useMainCurrencyViewModel(): {
       choices = decimalChoices.map((item) => ({
         key: String(item.value),
         label: item.label,
-        selected: d.decimalDigits === item.value,
+        selected: displayedDigits === item.value,
         choice: { kind: 'decimal' as const, value: item.value },
       }));
     } else if (sheetKind === 'grouping') {

@@ -327,3 +327,14 @@ test('TM-CUR-020: selected segment uses theme brand and is wider by 11.1 percent
   assert.equal(en.currencyAutoLakhs, 'Auto (Lakhs Format)');
   assert.equal(en.currencyAutoMillions, 'Auto (Millions Format)');
 });
+
+test('TM-CUR-021: decimal sheet contains only None and 1.0 through 1.000', () => {
+  const vm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  assert.doesNotMatch(vm, /label: t\('currencyDefaultDigits'\), value: 'currency'/);
+  assert.match(vm, /selected: displayedDigits === item.value/);
+  assert.match(vm, /CURRENCY_OPTIONS\.find/);
+  assert.equal(en.currencyDecimalNone, 'None');
+  assert.equal(en.currencyDecimalOne, '1.0');
+  assert.equal(en.currencyDecimalTwo, '1.00');
+  assert.equal(en.currencyDecimalThree, '1.000');
+});
