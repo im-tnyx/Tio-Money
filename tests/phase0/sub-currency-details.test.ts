@@ -261,10 +261,7 @@ test('TM-CUR-049: successful FX check feedback disappears after three seconds', 
 });
 
 test('TM-CUR-053: per-Sub number grouping matches Main policy without Main mutations', () => {
-  const base = addSubCurrency(
-    addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'),
-    'EUR',
-  );
+  const base = addSubCurrency(addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD'), 'EUR');
   assert.equal(formatSubCurrencyNumberExample(base, 'USD', 1234567.89), 'US$ 1,234,567.89');
   const lakhs = withSubCurrencyDisplay(base, 'USD', { grouping: 'indian' });
   assert.equal(formatSubCurrencyNumberExample(lakhs, 'USD', 1234567.89), 'US$ 12,34,567.89');
@@ -281,7 +278,7 @@ test('TM-CUR-053: per-Sub number grouping matches Main policy without Main mutat
   assert.equal(removeSubCurrency(plain, 'USD').subDisplay?.USD, undefined);
 });
 
-test('TM-CUR-054: Sub Number Format keeps legacy saved records and rejects invalid grouping', () => {
+test('TM-CUR-054: legacy Sub grouping values remain safe', () => {
   const saved = addSubCurrency(DEFAULT_CURRENCY_PREFERENCES, 'USD');
   const legacy = {
     ...saved,
@@ -294,7 +291,8 @@ test('TM-CUR-054: Sub Number Format keeps legacy saved records and rejects inval
   assert.equal(edited.subDisplay?.USD?.grouping, 'indian');
   assert.equal(edited.subDisplay?.USD?.unitPosition, 'end');
   assert.equal(edited.subDisplay?.USD?.decimalDigits, 2);
-  const invalid = { ...legacy, subDisplay: { USD: { ...legacy.subDisplay.USD, grouping: 'bogus' } } };
+  const invalidGrouping = { ...legacy.subDisplay.USD, grouping: 'bogus' };
+  const invalid = { ...legacy, subDisplay: { USD: invalidGrouping } };
   assert.equal(isCurrencyPreferences(invalid), false);
   assert.deepEqual(parseCurrencyPreferences(invalid), DEFAULT_CURRENCY_PREFERENCES);
   assert.throws(
