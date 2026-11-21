@@ -23,7 +23,6 @@ export interface SubCurrencyDetail {
   readonly rateStatus: SubCurrencySelectedRow['rateStatus'];
   readonly rateDate: string | null;
   readonly rateFetchedAt: number | null;
-  readonly rateFetchedLabel: string | null;
   readonly unitPosition: UnitPosition;
   readonly decimalDigits: 0 | 1 | 2 | 3;
   readonly decimalLabel: string;
@@ -35,6 +34,7 @@ export interface SubCurrencyDetail {
 export interface SubCurrencyUiState {
   readonly mainCode: CurrencyCode;
   readonly mainLabel: string;
+  readonly canAddSub: boolean;
   readonly selected: readonly SubCurrencySelectedRow[];
   readonly choices: readonly SubCurrencyChoiceRow[];
   readonly sheetVisible: boolean;
