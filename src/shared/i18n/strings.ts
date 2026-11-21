@@ -51,6 +51,7 @@ export const en = {
   currencySubAlreadyAdded: 'Already added',
   currencySubLimitLabel: '5 of 5 Sub Currencies added',
   currencyChooseMain: 'Select Main Currency',
+  currencyChooseMainFirst: 'Select a Main Currency before adding Sub Currencies.',
   currencyChange: 'Change',
   currencyPageBack: 'Back',
   currencyCancelEdit: 'Cancel editing',
