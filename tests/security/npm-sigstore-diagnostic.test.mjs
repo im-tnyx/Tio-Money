@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { test } from 'node:test';
 import { AFFECTED, gitBlobSha1, verifyLock, sanitizeFailure,
   isIncludeAttestationsSupported } from '../../scripts/security/npm-sigstore-diagnostic.mjs';
