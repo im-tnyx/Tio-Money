@@ -144,21 +144,10 @@ export function AccountGroupsScreen({
               <AppText style={{ color: theme.colors.expense }}>{state.draftError}</AppText>
             </View>
           ) : null}
-          <View style={{ flexDirection: 'row', gap: theme.space.sm }}>
-            <View style={{ flex: 1 }}>
-              <ActionButton
-                variant="secondary"
-                label={t('accountGroupsCancel')}
-                onPress={() => onAction({ type: 'custom.dismiss' })}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <ActionButton
-                label={t('accountGroupsSave')}
-                onPress={() => onAction({ type: 'custom.save' })}
-              />
-            </View>
-          </View>
+          <ActionButton
+            label={t('accountGroupsSave')}
+            onPress={() => onAction({ type: 'custom.save' })}
+          />
         </View>
       </AppBottomSheet>
     </SafeAreaView>

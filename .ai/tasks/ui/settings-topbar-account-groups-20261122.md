@@ -41,3 +41,9 @@ labels; no financial account or ledger changes. Validate on exact PR HEAD.
 - **Scope:** `account-groups-screen.tsx`, `settings-topbar-groups.test.ts`, this task. No shared top bar/theme/token edits, no dependency, finance, credential, security workflow or main changes.
 - **Validation:** Regression assertions for icon/action parity and single-divider flush list. Required latest-exact-HEAD CI, code review and owner device UI validation must be independently observed; pending on implementation commit.
 - **Gate:** PR #80 OPEN/DRAFT; separate PR merge authorization **NOT_GRANTED**. Historical Issue #71 npm/Sigstore anomaly retained as diagnostic, not accepted.
+
+## 2026-11-23 — Owner requested a single visible Save button
+
+- **Source / technical PROCEED:** Owner current chat explicitly removed the Cancel button from Add Account Group sheet; detailed [RFC #79 checkpoint](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084056573). The earlier two-button implementation and descriptions in this task are historical and superseded, not current UI requirements.
+- **Implementation:** Keep one **full-width Save** `ActionButton` (shared 42dp painted height, 48dp touch) in the existing `AppBottomSheet`; no visible Cancel button or split row. Retain accessible dismissal via backdrop, Android Back, accessibility escape and existing `custom.dismiss` controller action without saving. Shared shell, label validation, optional errors, 5-custom-group cap and local-only store unchanged.
+- **Scope & acceptance:** `account-groups-screen.tsx`, focused Phase 0 tests and this task only; no finance/SQL/permissions/npm/CI workflow/ruleset changes. Revalidate on new exact HEAD; independent device visual QA remains owner-directed. PR #80 remains DRAFT, merge authorization not granted; Issue #71 remains OPEN without risk acceptance.

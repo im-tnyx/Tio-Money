@@ -90,14 +90,23 @@ test('group screen stays dumb, uses two tokenized header actions and no financia
   assert.doesNotMatch(store, /journal|transaction|financialLedger|supabase|fetch\(/);
 });
 
-test('Add Account Group sheet reuses shared shell, buttons and text field', () => {
+test('Add Account Group sheet has only Save; dismissal remains on shared shell', () => {
   const screen = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
   const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
   const button = readFileSync('src/shared/ui/action-button.tsx', 'utf8');
   const modal = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   assert.match(screen, /<AppBottomSheet/);
   assert.match(screen, /<AppTextField/);
-  assert.equal((screen.match(/<ActionButton/g) ?? []).length, 2);
+  assert.equal((screen.match(/<ActionButton/g) ?? []).length, 1);
+  assert.match(screen, /label=\{t\('accountGroupsSave'\)\}/);
+  assert.match(screen, /type: 'custom\.save'/);
+  assert.doesNotMatch(screen, /label=\{t\('accountGroupsCancel'\)\}/);
+  assert.doesNotMatch(screen, /variant="secondary"/);
+  assert.match(screen, /onDismiss=\{\(\) => onAction\(\{ type: 'custom\.dismiss' \}\)\}/);
+  assert.match(screen, /dismissAccessibilityLabel=\{t\('accountGroupsCancel'\)\}/);
+  assert.match(modal, /onRequestClose=\{onDismiss\}/);
+  assert.match(modal, /onAccessibilityEscape=\{onDismiss\}/);
+  assert.match(modal, /onPress=\{onDismiss\}/);
   assert.doesNotMatch(screen, /<TextInput|<Modal|style=\{\{[^}]*fontSize:/);
   assert.match(field, /TextInputProps/);
   assert.match(field, /minHeight: theme\.buttons\.minimumHeight/);

@@ -61,6 +61,8 @@ test('Account Groups route is controller-driven and shows seven informational bu
   assert.match(screen, /<AppBottomSheet/);
   assert.match(screen, /<AppTextField/);
   assert.match(screen, /<ActionButton/);
+  assert.equal((screen.match(/<ActionButton/g) ?? []).length, 1);
+  assert.match(screen, /label=\{t\('accountGroupsSave'\)\}/);
   assert.doesNotMatch(screen, /<TextInput/);
   assert.doesNotMatch(
     screen,
