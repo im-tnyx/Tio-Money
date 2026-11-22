@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { identifyInvalidPackages, redactRegistrySigningKeys,
-  verifierVersions } from '../../scripts/security/npm-sigstore-metadata.mjs';
+import { identifyInvalidPackages, identifyInvalidJsonPackages,
+  redactRegistrySigningKeys, verifierVersions } from '../../scripts/security/npm-sigstore-metadata.mjs';
 
 const lock = {
   packages: {
@@ -64,4 +64,57 @@ test('unknown npm global root provides UNVERIFIED versions, never invented data'
   assert.equal(versions.sigstore, 'UNVERIFIED');
   assert.equal(versions.sigstoreVerify, 'UNVERIFIED');
   assert.equal(versions.sigstoreTuf, 'UNVERIFIED');
+});
+
+
+test('npm JSON invalid[] isolates locked identities; never echoes unrelated records or secrets', () => {
+  const input = JSON.stringify({
+    invalid: [
+      { name: '@babel/generator', version: '7.29.15',
+        attestations: { raw: 'secret-certificate-never-output' } },
+      { name: '@unreviewed/private', version: '0.0.1',
+        token: 'secret-token-never-output' },
+      { name: '@babel/helper-module-transforms', version: '7.29.13' },
+      { name: '@babel/generator', version: '7.29.15' },
+      { name: '@babel/generator', version: '9.9.9' },
+      null,
+    ],
+    invalidMessage: 'credential=secret-creds-never-output',
+  });
+  const v = identifyInvalidJsonPackages(input, lock);
+  assert.equal(v.jsonInvalidArrayStatus, 'PRESENT');
+  assert.equal(v.jsonInvalidCount, 6);
+  assert.deepEqual(v.reportedInvalidJsonPackageIds, [
+    '@babel/generator@7.29.15', '@babel/helper-module-transforms@7.29.13',
+  ]);
+  assert.equal(v.jsonPackageIdentityStatus, 'REPORTED_IN_JSON_INVALID_LIST');
+  assert.equal(v.rawOutputRetained, false);
+  assert.ok(!JSON.stringify(v).includes('secret-'));
+  assert.ok(!JSON.stringify(v).includes('@unreviewed/private'));
+});
+
+test('unknown, malformed and oversized npm JSON remains UNVERIFIED, not success', () => {
+  for (const input of ['not-json', '{"error":{"message":"invalid attestation"}}',
+    '{"invalid": {"name":"@babel/generator","version":"7.29.15"}}',
+    'x'.repeat(6 * 1024 * 1024 + 1)]) {
+    const v = identifyInvalidJsonPackages(input, lock);
+    assert.equal(v.jsonInvalidArrayStatus, 'UNVERIFIED');
+    assert.equal(v.jsonPackageIdentityStatus, 'UNVERIFIED');
+    assert.deepEqual(v.reportedInvalidJsonPackageIds, []);
+  }
+  const empty = identifyInvalidJsonPackages('{"invalid":[]}', lock);
+  assert.equal(empty.jsonInvalidArrayStatus, 'PRESENT');
+  assert.equal(empty.jsonInvalidCount, 0);
+  assert.equal(empty.jsonPackageIdentityStatus, 'UNVERIFIED');
+});
+
+test('npm JSON invalid[] never infers package identity from unrelated verified or missing lists', () => {
+  const json = JSON.stringify({
+    verified: [{ name: '@babel/generator', version: '7.29.15' }],
+    missing: [{ name: '@babel/helper-module-transforms', version: '7.29.13' }],
+    invalid: [{ name: '@unknown/other', version: '1.0.0' }],
+  });
+  const v = identifyInvalidJsonPackages(json, lock);
+  assert.deepEqual(v.reportedInvalidJsonPackageIds, []);
+  assert.equal(v.jsonPackageIdentityStatus, 'UNVERIFIED');
 });

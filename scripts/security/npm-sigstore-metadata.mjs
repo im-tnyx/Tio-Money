@@ -84,6 +84,50 @@ const codes = ['EINTEGRITY', 'EATTESTATION', 'EINVALIDATTESTATION',
   'EINVALIDSIGNATURE', 'EMISSINGSIGNATURE', 'ECONNRESET',
   'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', 'E403', 'E404'];
 
+
+// A second, read-only --json observation can expose npm's invalid[] array.
+// Report only exact name@version identities already in the committed lockfile.
+// Never emit entire npm JSON, error objects, URLs, certificates or raw metadata.
+export function identifyInvalidJsonPackages(raw, lock) {
+  const unverified = {
+    jsonInvalidArrayStatus: 'UNVERIFIED',
+    jsonInvalidCount: null,
+    reportedInvalidJsonPackageIds: [],
+    jsonPackageIdentityStatus: 'UNVERIFIED',
+    rawOutputRetained: false,
+  };
+  if (typeof raw !== 'string' || Buffer.byteLength(raw, 'utf8') > 6 * 1024 * 1024) {
+    return unverified;
+  }
+  let data;
+  try { data = JSON.parse(raw); } catch { return unverified; }
+  if (!Array.isArray(data?.invalid)) return unverified;
+
+  const locked = new Set();
+  for (const [path, meta] of Object.entries(lock?.packages || {})) {
+    if (!path.startsWith('node_modules/') || typeof meta?.version !== 'string') continue;
+    const name = path.split('node_modules/').at(-1);
+    if (!name || name.length > 150 || !/^[a-z0-9@/._-]+$/i.test(name)) continue;
+    if (!/^\d+\.\d+\.\d+(?:[-+][a-z0-9.-]+)?$/i.test(meta.version)) continue;
+    locked.add(name + '@' + meta.version);
+  }
+
+  const matched = new Set();
+  for (const entry of data.invalid) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+    if (typeof entry.name !== 'string' || typeof entry.version !== 'string') continue;
+    const id = entry.name + '@' + entry.version;
+    if (locked.has(id)) matched.add(id);
+  }
+  return {
+    jsonInvalidArrayStatus: 'PRESENT',
+    jsonInvalidCount: data.invalid.length,
+    reportedInvalidJsonPackageIds: [...matched].sort(),
+    jsonPackageIdentityStatus: matched.size ? 'REPORTED_IN_JSON_INVALID_LIST' : 'UNVERIFIED',
+    rawOutputRetained: false,
+  };
+}
+
 export function identifyInvalidPackages(raw, lock) {
   const value = String(raw || '').slice(0, 1024 * 1024).replace(/\x1b\[[0-9;]*m/g, '');
   const count = /(\d+)\s+packages?\s+(?:have|has)\s+invalid attestations?/i.exec(value);

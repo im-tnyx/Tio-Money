@@ -7,8 +7,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
-import { identifyInvalidPackages, fetchRegistrySigningKeyMetadata,
-  verifierVersions } from './npm-sigstore-metadata.mjs';
+import { identifyInvalidPackages, identifyInvalidJsonPackages,
+  fetchRegistrySigningKeyMetadata, verifierVersions } from './npm-sigstore-metadata.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SOURCE = join(ROOT, '.github/preview-eas-cli');
@@ -137,6 +137,7 @@ export async function runDiagnostic() {
       report.failureJsonObservation = {
         observation: safeStatus(jsonObservation),
         ...sanitizeFailure(jsonObservation.stdout + '\n' + jsonObservation.stderr, lock),
+        jsonInvalidEvidence: identifyInvalidJsonPackages(jsonObservation.stdout, lock),
         firstFailureStillBlocks: true,
       };
       throw new Error('NPM_AUDIT_SIGNATURES_FAILED');
