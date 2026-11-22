@@ -1,5 +1,12 @@
 # 🧭 Current task index
 
+## 2026-11-22 — PR #76 root SECURITY.md (AGENTS.md governance checkpoint; OPEN)
+
+- **Task & RFC:** [TM-SEC-POLICY-20261122-001](tasks/security/security-policy-20261122.md), [Issue #75](https://github.com/im-tnyx/Tio-Money/issues/75); owner requested gap remediation with [documented bounded PROCEED](https://github.com/im-tnyx/Tio-Money/issues/75#issuecomment-7078378710). Current working agent ChatGPT / GPT-6 (self-identified); previous agent `UNKNOWN_NOT_VERIFIED`, not inferred from GitHub author.
+- **Branch and scope:** [PR #76](https://github.com/im-tnyx/Tio-Money/pull/76), `docs/security-policy-20261122`, protected base `main` `7d2bb686...`; previously inspected task-file commit `c69050a9...`, **index write generates a new HEAD**. Only root `SECURITY.md`, this scoped task and additive index entry are authorized. PR #65/#73 and main untouched.
+- **Decision and gates:** No security email now; verified dedicated confidential intake is a **manual release BLOCKER before first external beta/public distribution** under [#77](https://github.com/im-tnyx/Tio-Money/issues/77), not a blocker to this documentation PR's review. Historical `c4656ada...` exact-HEAD `static`/`Governance`/`signal` PASS; **fresh checks after governance commits must be reverified**. Independent human review DEFERRED; agent `COMMENTED` is not `APPROVED`. **PR #76 owner merge authorization NOT_GRANTED**. No merge/setting changes/secret access.
+
+
 ## 2026-11-22 — PR #53 Sub Detail in-place Number Format (unmerged)
 
 - **Owner requested / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068636655). Add same Millions/Lakhs/No Format policies as Main, but **expand inside the existing Sub Detail Bottom Sheet**; other setting taps or selection collapse the Format options.
