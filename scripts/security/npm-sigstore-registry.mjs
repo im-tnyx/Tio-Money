@@ -85,7 +85,8 @@ async function getPublicJson(url, maxBytes) {
     'REGISTRY_NETWORK_URL_WITH_PARAMETERS');
   return new Promise((resolve, reject) => {
     const req = get(url, { timeout: 20000,
-      headers: { Accept: 'application/json' } }, response => {
+      headers: { Accept: url.pathname === '/-/npm/v1/keys'
+        ? 'application/json' : 'application/vnd.npm.install-v1+json' } }, response => {
       if (response.statusCode !== 200) {
         response.resume(); reject(new Error('REGISTRY_METADATA_HTTP_NON_200')); return;
       }
@@ -117,9 +118,15 @@ export async function verifyTargetRegistryPublications(lock, targets,
   const reports = [];
   for (const [name, version] of Object.entries(targets)) {
     assert.match(name, /^@babel\/[a-z0-9-]+$/, 'REGISTRY_UNEXPECTED_TARGET_NAMESPACE');
-    const path = '/' + encodeURIComponent(name) + '/' + encodeURIComponent(version);
-    const info = await fetchJson(new URL(path, ORIGIN), 512 * 1024);
-    const record = checkRegistryPublication(info.parsed, keyData.parsed,
+    // npm signs version dist data in the package packument, not necessarily
+    // in a single-version metadata endpoint. Read the immutable version entry
+    // from npm's standard installation packument; never infer from a dist-tag.
+    const path = '/' + encodeURIComponent(name);
+    const info = await fetchJson(new URL(path, ORIGIN), 4 * 1024 * 1024);
+    assert.equal(info.parsed?.name, name, 'REGISTRY_PACKUMENT_NAME_MISMATCH');
+    const signedVersion = info.parsed?.versions?.[version];
+    assert.ok(signedVersion, 'REGISTRY_MISSING_EXACT_VERSION_IN_PACKUMENT');
+    const record = checkRegistryPublication(signedVersion, keyData.parsed,
       lock, name, version, pin);
     reports.push({ ...record, metadataResponseSha256: info.sha256 });
   }
@@ -137,6 +144,8 @@ export async function verifyTargetRegistryPublications(lock, targets,
 
 const SAFE_REGISTRY_ERROR_CATEGORIES = Object.freeze([
   'REGISTRY_METADATA_HTTP_NON_200',
+  'REGISTRY_PACKUMENT_NAME_MISMATCH',
+  'REGISTRY_MISSING_EXACT_VERSION_IN_PACKUMENT',
   'REGISTRY_METADATA_TOO_LARGE',
   'REGISTRY_METADATA_MALFORMED_JSON',
   'REGISTRY_METADATA_TIMEOUT',

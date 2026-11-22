@@ -66,7 +66,8 @@ test('all targets must be checked with independent, sanitized public evidence', 
   const captured = [];
   const fakeFetch = async url => {
     captured.push(url.toString());
-    const parsed = url.pathname.endsWith('/keys') ? f.keys : f.metadata;
+    const parsed = url.pathname.endsWith('/keys') ? f.keys :
+      { name, versions: { [version]: f.metadata } };
     return { parsed, sha256: 'f'.repeat(64) };
   };
   const ret = await verifyTargetRegistryPublications(lock, { [name]: version },
@@ -78,7 +79,7 @@ test('all targets must be checked with independent, sanitized public evidence', 
   assert.equal(ret.rawPackumentOrSigningKeysUploaded, false);
   assert.deepEqual(captured, [
     'https://registry.npmjs.org/-/npm/v1/keys',
-    'https://registry.npmjs.org/%40babel%2Fhelper-compilation-targets/7.29.13',
+    'https://registry.npmjs.org/%40babel%2Fhelper-compilation-targets',
   ]);
 });
 
@@ -123,4 +124,16 @@ test('failure location only exposes trusted module line, never sensitive stack',
   assert.equal(safe.sourceLine, 76);
   assert.equal(safe.messageOrStackRetained, false);
   assert.ok(!JSON.stringify(safe).includes('secret-hide'));
+});
+
+
+test('version must be explicitly present in signed packument, never dist-tag guessed', async () => {
+  const f = fixture();
+  const fakeFetch = async url => ({
+    parsed: url.pathname.endsWith('/keys') ? f.keys :
+      { name, 'dist-tags': { latest: version }, versions: {} },
+    sha256: 'f'.repeat(64),
+  });
+  await assert.rejects(verifyTargetRegistryPublications(lock, { [name]: version },
+    fakeFetch, pin), /REGISTRY_MISSING_EXACT_VERSION_IN_PACKUMENT/);
 });
