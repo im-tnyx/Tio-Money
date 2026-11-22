@@ -84,7 +84,50 @@ export async function downloadRegistryTarball(resolved) {
   });
 }
 
-export async function verifyTargetProofs(verified, lock, targets, fetchTarball = downloadRegistryTarball) {
+// The npm 11 verified-array supplies a URL, not always inline bundles.
+// Fetch only the exact package/version attestation document from the public registry.
+export async function downloadRegistryAttestations(address, name, version) {
+  const url = new URL(address);
+  assert.equal(url.origin, REGISTRY, 'UNTRUSTED_ATTESTATION_ORIGIN');
+  assert.ok(!url.username && !url.password && !url.search && !url.hash,
+    'ATTESTATION_URL_WITH_EXTRA_PARAMETERS');
+  const prefix = '/-/npm/v1/attestations/';
+  assert.ok(url.pathname.startsWith(prefix), 'UNEXPECTED_ATTESTATION_PATH');
+  assert.equal(decodeURIComponent(url.pathname.slice(prefix.length)), name + '@' + version,
+    'ATTESTATION_PACKAGE_IDENTITY_MISMATCH');
+  return new Promise((resolve, reject) => {
+    const request = get(url, { timeout: 30000, headers: { Accept: 'application/json' } },
+      (response) => {
+        if (response.statusCode !== 200) {
+          response.resume();
+          reject(new Error('REGISTRY_ATTESTATION_HTTP_NOT_200'));
+          return;
+        }
+        const chunks = [];
+        let bytes = 0;
+        response.on('data', (chunk) => {
+          bytes += chunk.length;
+          if (bytes > 8 * 1024 * 1024) {
+            response.destroy(new Error('ATTESTATION_RESPONSE_SIZE_LIMIT'));
+            return;
+          }
+          chunks.push(chunk);
+        });
+        response.on('end', () => {
+          try {
+            resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+          } catch {
+            reject(new Error('INVALID_ATTESTATION_JSON'));
+          }
+        });
+        response.on('error', reject);
+      });
+    request.on('timeout', () => request.destroy(new Error('REGISTRY_ATTESTATION_TIMEOUT')));
+    request.on('error', reject);
+  });
+}
+
+export async function verifyTargetProofs(verified, lock, targets, fetchTarball = downloadRegistryTarball, fetchAttestations = downloadRegistryAttestations) {
   assert.ok(Array.isArray(verified), 'MISSING_VERIFIED_ATTESTATION_LIST');
   const results = [];
   for (const [name, version] of Object.entries(targets)) {
@@ -99,7 +142,13 @@ export async function verifyTargetProofs(verified, lock, targets, fetchTarball =
     const sri = Buffer.from(manifest.integrity.slice(7), 'base64');
     assert.ok(sri.equals(createHash('sha512').update(tarball).digest()),
       'REGISTRY_TARBALL_SRI_MISMATCH_' + name);
-    const bundles = packageEntries[0].attestations?.bundles;
+    let bundles = packageEntries[0].attestations?.bundles;
+    if (!Array.isArray(bundles) || bundles.length === 0) {
+      const url = packageEntries[0].attestations?.url;
+      assert.ok(url, 'MISSING_PACKAGE_ATTESTATION_URL_' + name);
+      const document = await fetchAttestations(url, name, version);
+      bundles = document?.attestations;
+    }
     assert.ok(Array.isArray(bundles) && bundles.length > 0,
       'NO_PACKAGE_SPECIFIC_DSSE_BUNDLE_' + name);
     let signedDigests;

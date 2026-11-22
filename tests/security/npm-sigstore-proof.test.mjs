@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { test } from 'node:test';
-import { dssePae, downloadRegistryTarball, verifyDsseWithPublicKey,
+import { dssePae, downloadRegistryTarball, downloadRegistryAttestations,
+  verifyDsseWithPublicKey,
   verifySignedSubject, verifyTargetProofs } from '../../scripts/security/npm-sigstore-proof.mjs';
 
 test('DSSE PAE signature verifies against embedded leaf public key only', () => {
@@ -57,4 +58,17 @@ test('tarball downloader never follows unrelated registry URLs', async () => {
   await assert.rejects(downloadRegistryTarball(
     'https://registry.npmjs.org/@babel/generator/-/generator-7.29.15.tgz?token=x'),
   /TARBALL_URL_WITH_EXTRA_PARAMETERS/);
+});
+
+
+test('public attestation endpoint must match exact package and version', async () => {
+  await assert.rejects(downloadRegistryAttestations(
+    'https://attacker.invalid/-/npm/v1/attestations/@babel/generator@7.29.15',
+    '@babel/generator', '7.29.15'), /UNTRUSTED_ATTESTATION_ORIGIN/);
+  await assert.rejects(downloadRegistryAttestations(
+    'https://registry.npmjs.org/-/npm/v1/attestations/@babel/generator@7.29.14',
+    '@babel/generator', '7.29.15'), /ATTESTATION_PACKAGE_IDENTITY_MISMATCH/);
+  await assert.rejects(downloadRegistryAttestations(
+    'https://registry.npmjs.org/-/npm/v1/attestations/@babel/generator@7.29.15?token=1',
+    '@babel/generator', '7.29.15'), /ATTESTATION_URL_WITH_EXTRA_PARAMETERS/);
 });
