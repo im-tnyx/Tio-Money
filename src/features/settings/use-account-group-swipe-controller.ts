@@ -46,8 +46,10 @@ export function useAccountGroupSwipeController(): AccountGroupSwipeController {
   }, []);
 
   const offset = useCallback(
-    (id: string, width: number) =>
-      drag?.id === id ? drag.offset : openId === id ? width : 0,
+    (id: string, width: number) => {
+      if (drag?.id === id) return drag.offset;
+      return openId === id ? width : 0;
+    },
     [drag, openId],
   );
 
