@@ -85,13 +85,14 @@ export async function runDiagnostic() {
     copyFileSync(join(SOURCE, 'package.json'), join(temp, 'package.json'));
     copyFileSync(join(SOURCE, 'package-lock.json'), join(temp, 'package-lock.json'));
     mkdirSync(join(temp, 'npm-cache'), { mode: 0o700 });
-    writeFileSync(join(temp, 'empty.npmrc'), '', { mode: 0o600 });
+    writeFileSync(join(temp, 'user.npmrc'), '', { mode: 0o600 });
+    writeFileSync(join(temp, 'global.npmrc'), '', { mode: 0o600 });
     // No inherited npmrc, NODE_OPTIONS, proxy, EXPO_TOKEN, NODE_AUTH_TOKEN or GITHUB_TOKEN.
     const env = {
       PATH: process.env.PATH || '/usr/bin:/bin', HOME: temp, TMPDIR: temp,
       CI: 'true', LANG: 'C.UTF-8', npm_config_registry: REGISTRY,
-      npm_config_userconfig: join(temp, 'empty.npmrc'),
-      npm_config_globalconfig: join(temp, 'empty.npmrc'),
+      npm_config_userconfig: join(temp, 'user.npmrc'),
+      npm_config_globalconfig: join(temp, 'global.npmrc'),
       npm_config_cache: join(temp, 'npm-cache'),
       npm_config_update_notifier: 'false', npm_config_ignore_scripts: 'true',
       npm_config_progress: 'false',
