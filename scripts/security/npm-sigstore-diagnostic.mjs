@@ -18,6 +18,8 @@ const SOURCE = join(ROOT, '.github/preview-eas-cli');
 const REGISTRY = 'https://registry.npmjs.org';
 const LOCK_BLOB = 'fa92a2b84071c5cb974becffd6ac74dabf050989';
 export const AFFECTED = Object.freeze({
+  // Exact nested EAS-lockfile version reported by failing Phase 0 run 45018065154.
+  '@babel/code-frame': '7.29.7',
   // Additional exact package reported by Phase 0 after PR #70 merged (#71).
   '@babel/helper-compilation-targets': '7.29.13',
   '@babel/generator': '7.29.15',

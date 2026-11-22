@@ -58,7 +58,7 @@ test('signed key expiration, algorithm downgrade, other package and wrong versio
     version, pin), /REGISTRY_METADATA_NAME_MISMATCH/);
   f = fixture();
   assert.throws(() => checkRegistryPublication(f.metadata, f.keys, lock, name,
-    '7.29.14', pin), /REGISTRY_LOCK_VERSION_CHANGED/);
+    '7.29.14', pin), /MISSING_EXACT_LOCKED_TARGET/);
 });
 test('all targets must be checked with independent, sanitized public evidence', async () => {
   const f = fixture();
