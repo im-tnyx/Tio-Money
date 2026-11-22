@@ -15,6 +15,10 @@ export const en = {
   accountGroupsShowDescriptions: 'Show group descriptions',
   accountGroupsHideDescriptions: 'Hide group descriptions',
   accountGroupsAdd: 'Add Account Group',
+  accountGroupsRename: 'Rename Account Group',
+  accountGroupsRemove: 'Remove Account Group',
+  accountGroupsDelete: 'Delete',
+  accountGroupsHideDelete: 'Hide Delete action',
   accountGroupsName: 'Account group name',
   accountGroupsNamePlaceholder: 'Enter group name',
   accountGroupsCustomScope:

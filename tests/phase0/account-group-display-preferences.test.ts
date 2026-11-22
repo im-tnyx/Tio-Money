@@ -8,6 +8,8 @@ import {
   addCustomGroupLabel,
   isAccountGroupPreferences,
   parseAccountGroupPreferences,
+  removeCustomGroupLabel,
+  renameCustomGroupLabel,
 } from '../../src/features/settings/account-group-preferences';
 
 test('custom group display labels stay local-only and are limited to five', () => {
@@ -117,4 +119,92 @@ test('Add Account Group sheet has only Save; dismissal remains on shared shell',
   assert.match(button, /export function ActionButton/);
   assert.match(modal, /export function AppBottomSheet/);
   assert.match(screen, /maxLength=\{MAX_CUSTOM_GROUP_NAME_LENGTH\}/);
+});
+
+test('custom labels can be renamed but built-in labels and duplicates cannot', () => {
+  const first = addCustomGroupLabel(DEFAULT_ACCOUNT_GROUP_PREFERENCES, 'Household');
+  assert.equal(first.ok, true);
+  if (!first.ok) return;
+  const second = addCustomGroupLabel(first.preferences, 'Holiday');
+  assert.equal(second.ok, true);
+  if (!second.ok) return;
+
+  const same = renameCustomGroupLabel(second.preferences, 'custom-1', 'Household');
+  assert.equal(same.ok, true);
+  if (same.ok) assert.equal(same.preferences, second.preferences);
+
+  const renamed = renameCustomGroupLabel(second.preferences, 'custom-1', '  Travel   Fund ');
+  assert.equal(renamed.ok, true);
+  if (!renamed.ok) return;
+  assert.deepEqual(renamed.preferences.customGroups, [
+    { id: 'custom-1', name: 'Travel Fund' },
+    { id: 'custom-2', name: 'Holiday' },
+  ]);
+  assert.equal(isAccountGroupPreferences(renamed.preferences), true);
+  assert.deepEqual(
+    parseAccountGroupPreferences(JSON.stringify(renamed.preferences)),
+    renamed.preferences,
+  );
+
+  assert.deepEqual(renameCustomGroupLabel(renamed.preferences, 'custom-1', 'holiday'), {
+    ok: false,
+    error: 'duplicate',
+  });
+  assert.deepEqual(renameCustomGroupLabel(renamed.preferences, 'custom-2', 'Cash'), {
+    ok: false,
+    error: 'duplicate',
+  });
+  assert.deepEqual(renameCustomGroupLabel(renamed.preferences, 'cash', 'Other'), {
+    ok: false,
+    error: 'missing',
+  });
+  assert.deepEqual(renameCustomGroupLabel(renamed.preferences, 'custom-9', 'Other'), {
+    ok: false,
+    error: 'missing',
+  });
+  assert.deepEqual(renameCustomGroupLabel(renamed.preferences, 'custom-2', '   '), {
+    ok: false,
+    error: 'name',
+  });
+  assert.deepEqual(renameCustomGroupLabel(renamed.preferences, 'custom-2', 'A'.repeat(41)), {
+    ok: false,
+    error: 'name',
+  });
+});
+
+test('delete middle custom group reindexes v1 IDs and restores the max-five Add capacity', () => {
+  let preferences = DEFAULT_ACCOUNT_GROUP_PREFERENCES;
+  for (let i = 1; i <= MAX_CUSTOM_GROUPS; i += 1) {
+    const added = addCustomGroupLabel(preferences, `Custom ${i}`);
+    assert.equal(added.ok, true);
+    if (!added.ok) return;
+    preferences = added.preferences;
+  }
+  assert.equal(addCustomGroupLabel(preferences, 'Sixth').ok, false);
+  const before = preferences;
+  assert.equal(removeCustomGroupLabel(preferences, 'cash'), before);
+  assert.equal(removeCustomGroupLabel(preferences, 'custom-99'), before);
+
+  const reduced = removeCustomGroupLabel(preferences, 'custom-3');
+  assert.deepEqual(reduced.customGroups, [
+    { id: 'custom-1', name: 'Custom 1' },
+    { id: 'custom-2', name: 'Custom 2' },
+    { id: 'custom-3', name: 'Custom 4' },
+    { id: 'custom-4', name: 'Custom 5' },
+  ]);
+  assert.equal(isAccountGroupPreferences(reduced), true);
+  assert.deepEqual(parseAccountGroupPreferences(JSON.stringify(reduced)), reduced);
+  const added = addCustomGroupLabel(reduced, 'Replacement');
+  assert.equal(added.ok, true);
+  if (!added.ok) return;
+  assert.equal(added.preferences.customGroups[4]?.id, 'custom-5');
+  assert.equal(added.preferences.customGroups[4]?.name, 'Replacement');
+
+  let remaining = added.preferences;
+  while (remaining.customGroups.length > 0) {
+    remaining = removeCustomGroupLabel(remaining, 'custom-1');
+    assert.equal(isAccountGroupPreferences(remaining), true);
+  }
+  assert.deepEqual(remaining.customGroups, []);
+  assert.equal(removeCustomGroupLabel(remaining, 'custom-1'), remaining);
 });

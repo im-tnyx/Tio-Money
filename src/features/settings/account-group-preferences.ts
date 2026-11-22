@@ -100,3 +100,56 @@ export function addCustomGroupLabel(
     },
   };
 }
+
+/** Preserve the v1 display-only ID invariant after deleting an arbitrary custom row. */
+export function removeCustomGroupLabel(
+  current: AccountGroupPreferences,
+  id: string,
+): AccountGroupPreferences {
+  if (!isAccountGroupPreferences(current)) throw new Error('Invalid current account group state');
+  const remaining = current.customGroups.filter((group) => group.id !== id);
+  if (remaining.length === current.customGroups.length) return current;
+  return {
+    ...current,
+    customGroups: remaining.map((group, index) => ({
+      id: `custom-${index + 1}`,
+      name: group.name,
+    })),
+  };
+}
+
+export type GroupRenameResult =
+  | { readonly ok: true; readonly preferences: AccountGroupPreferences }
+  | { readonly ok: false; readonly error: 'name' | 'duplicate' | 'missing' };
+
+/** Rename only a saved custom display label; built-in templates never enter this collection. */
+export function renameCustomGroupLabel(
+  current: AccountGroupPreferences,
+  id: string,
+  input: string,
+): GroupRenameResult {
+  if (!isAccountGroupPreferences(current)) throw new Error('Invalid current account group state');
+  const target = current.customGroups.find((group) => group.id === id);
+  if (!target) return { ok: false, error: 'missing' };
+  const name = normalizeName(input);
+  if (!validName(name)) return { ok: false, error: 'name' };
+  const key = name.toLocaleLowerCase('en');
+  if (
+    builtInNames.has(key) ||
+    current.customGroups.some(
+      (group) => group.id !== id && group.name.toLocaleLowerCase('en') === key,
+    )
+  ) {
+    return { ok: false, error: 'duplicate' };
+  }
+  if (target.name === name) return { ok: true, preferences: current };
+  return {
+    ok: true,
+    preferences: {
+      ...current,
+      customGroups: current.customGroups.map((group) =>
+        group.id === id ? { ...group, name } : group,
+      ),
+    },
+  };
+}

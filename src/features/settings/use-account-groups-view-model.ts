@@ -7,6 +7,8 @@ import {
   DEFAULT_ACCOUNT_GROUP_PREFERENCES,
   MAX_CUSTOM_GROUPS,
   addCustomGroupLabel,
+  removeCustomGroupLabel,
+  renameCustomGroupLabel,
   type AccountGroupPreferences,
 } from './account-group-preferences';
 import type { AccountGroupsAction, AccountGroupsUiState } from './account-groups-contract';
@@ -38,6 +40,7 @@ export function useAccountGroupsViewModel(onBack: () => void): {
 } {
   const [catalog, setCatalog] = useState<LoadedCatalog>(readCatalog);
   const [addSheetVisible, setAddSheetVisible] = useState(false);
+  const [renamingGroupId, setRenamingGroupId] = useState<string | null>(null);
   const [draftName, setDraftName] = useState('');
   const [draftError, setDraftError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -71,10 +74,35 @@ export function useAccountGroupsViewModel(onBack: () => void): {
             return;
           }
           setDraftName('');
+          setRenamingGroupId(null);
           setDraftError(null);
           setAddSheetVisible(true);
           return;
+        case 'custom.edit': {
+          if (catalog.storageBlocked) return;
+          const group = catalog.preferences.customGroups.find((item) => item.id === action.id);
+          if (!group) return;
+          setRenamingGroupId(group.id);
+          setDraftName(group.name);
+          setDraftError(null);
+          setAddSheetVisible(true);
+          return;
+        }
+        case 'custom.remove': {
+          if (catalog.storageBlocked) return;
+          const next = removeCustomGroupLabel(catalog.preferences, action.id);
+          if (next === catalog.preferences) return;
+          try {
+            accountGroupPreferenceStore.write(next);
+            setCatalog({ preferences: next, storageBlocked: false });
+            setError(null);
+          } catch {
+            setError(t('accountGroupsSaveError'));
+          }
+          return;
+        }
         case 'custom.dismiss':
+          setRenamingGroupId(null);
           setDraftName('');
           setDraftError(null);
           setAddSheetVisible(false);
@@ -85,14 +113,22 @@ export function useAccountGroupsViewModel(onBack: () => void): {
           return;
         case 'custom.save': {
           if (catalog.storageBlocked || !addSheetVisible) return;
-          const result = addCustomGroupLabel(catalog.preferences, draftName);
+          const result =
+            renamingGroupId === null
+              ? addCustomGroupLabel(catalog.preferences, draftName)
+              : renameCustomGroupLabel(catalog.preferences, renamingGroupId, draftName);
           if (!result.ok) {
-            setDraftError(t(addErrors[result.error]));
+            setDraftError(
+              t(result.error === 'missing' ? 'accountGroupsSaveError' : addErrors[result.error]),
+            );
             return;
           }
           try {
-            accountGroupPreferenceStore.write(result.preferences);
-            setCatalog({ preferences: result.preferences, storageBlocked: false });
+            if (result.preferences !== catalog.preferences) {
+              accountGroupPreferenceStore.write(result.preferences);
+              setCatalog({ preferences: result.preferences, storageBlocked: false });
+            }
+            setRenamingGroupId(null);
             setDraftName('');
             setDraftError(null);
             setAddSheetVisible(false);
@@ -104,7 +140,7 @@ export function useAccountGroupsViewModel(onBack: () => void): {
         }
       }
     },
-    [onBack, catalog, addSheetVisible, draftName],
+    [onBack, catalog, addSheetVisible, draftName, renamingGroupId],
   );
 
   return {
@@ -115,6 +151,7 @@ export function useAccountGroupsViewModel(onBack: () => void): {
       canAdd:
         !catalog.storageBlocked && catalog.preferences.customGroups.length < MAX_CUSTOM_GROUPS,
       addSheetVisible,
+      renamingGroupId,
       draftName,
       draftError,
       error: catalog.storageBlocked ? t('accountGroupsLoadError') : error,

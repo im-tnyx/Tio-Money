@@ -1,4 +1,5 @@
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+import type { ReactNode } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
@@ -12,14 +13,97 @@ import { AppTopBar } from '@/shared/ui/app-top-bar';
 import { MAX_CUSTOM_GROUP_NAME_LENGTH } from './account-group-preferences';
 import { BUILT_IN_ACCOUNT_GROUPS } from './account-group-templates';
 import type { AccountGroupsAction, AccountGroupsUiState } from './account-groups-contract';
+import type { AccountGroupSwipeController } from './use-account-group-swipe-controller';
+
+/** Presentation-only custom-row gesture wiring; controller owns state and deletion. */
+function SwipeableCustomGroupRow({
+  id,
+  last,
+  swipe,
+  disabled,
+  onDelete,
+  children,
+}: {
+  id: string;
+  last: boolean;
+  swipe: AccountGroupSwipeController;
+  disabled: boolean;
+  onDelete: () => void;
+  children: ReactNode;
+}) {
+  const theme = useAppTheme();
+  const revealWidth = theme.buttons.minimumHeight + theme.space.xxxl;
+  const displayedOffset = swipe.offset(id, revealWidth);
+
+  return (
+    <View
+      onTouchStart={(event) =>
+        swipe.begin(id, event.nativeEvent.pageX, event.nativeEvent.pageY, revealWidth)
+      }
+      onTouchEnd={swipe.end}
+      onTouchCancel={swipe.cancel}
+      onMoveShouldSetResponderCapture={(event) =>
+        swipe.shouldCapture(id, event.nativeEvent.pageX, event.nativeEvent.pageY)
+      }
+      onMoveShouldSetResponder={(event) =>
+        swipe.shouldCapture(id, event.nativeEvent.pageX, event.nativeEvent.pageY)
+      }
+      onResponderMove={(event) => swipe.move(id, event.nativeEvent.pageX)}
+      onResponderRelease={(event) =>
+        swipe.release(id, event.nativeEvent.pageX, event.nativeEvent.pageY)
+      }
+      onResponderTerminate={swipe.cancel}
+      style={{
+        overflow: 'hidden',
+        backgroundColor: theme.colors.card,
+        borderBottomWidth: last ? theme.navigation.origin : theme.navigation.borderWidth,
+        borderBottomColor: theme.colors.border,
+      }}
+    >
+      {displayedOffset > 0 ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('accountGroupsRemove') + ': ' + id}
+          disabled={disabled}
+          onPress={onDelete}
+          style={{
+            position: 'absolute',
+            top: theme.navigation.origin,
+            bottom: theme.navigation.origin,
+            right: theme.navigation.origin,
+            width: revealWidth,
+            minHeight: theme.buttons.minimumHeight,
+            backgroundColor: theme.colors.deleteActionBackground,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <AppText style={{ color: theme.colors.deleteActionText }}>
+            {t('accountGroupsDelete')}
+          </AppText>
+        </Pressable>
+      ) : null}
+      <View
+        style={{
+          backgroundColor: theme.colors.card,
+          transform: [{ translateX: -displayedOffset }],
+        }}
+      >
+        {children}
+      </View>
+    </View>
+  );
+}
 
 /** Strictly presentational account group catalogue, no routing or preference writes. */
 export function AccountGroupsScreen({
   state,
   onAction,
+  swipe,
 }: {
   readonly state: AccountGroupsUiState;
   readonly onAction: (action: AccountGroupsAction) => void;
+  readonly swipe: AccountGroupSwipeController;
 }) {
   const theme = useAppTheme();
   const actions = [
@@ -49,13 +133,18 @@ export function AccountGroupsScreen({
     >
       <AppTopBar
         title={t('accountGroups')}
-        onBack={() => onAction({ type: 'back' })}
+        onBack={() => {
+          if (swipe.openId !== null) swipe.close();
+          else onAction({ type: 'back' });
+        }}
         backAccessibilityLabel={t('accountGroupsBack')}
         actions={actions}
       />
       <ScrollView
+        onScrollBeginDrag={swipe.close}
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}
         contentContainerStyle={{
+          flexGrow: 1,
           paddingBottom: theme.space.xxxl,
         }}
       >
@@ -69,6 +158,9 @@ export function AccountGroupsScreen({
           {BUILT_IN_ACCOUNT_GROUPS.map((group, index) => (
             <View
               key={group.id}
+              onTouchStart={() => {
+                if (swipe.openId !== null) swipe.close();
+              }}
               accessible
               accessibilityLabel={
                 t(group.label) + (state.showDescriptions ? '. ' + t(group.detail) : '')
@@ -94,23 +186,46 @@ export function AccountGroupsScreen({
             </View>
           ))}
           {state.customGroups.map((group, index) => (
-            <View
+            <SwipeableCustomGroupRow
               key={group.id}
-              accessible
-              accessibilityLabel={group.name}
-              style={{
-                minHeight: theme.buttons.minimumHeight,
-                paddingHorizontal: theme.space.lg,
-                paddingVertical: theme.space.sm,
-                borderBottomWidth:
-                  index === state.customGroups.length - 1
-                    ? theme.navigation.origin
-                    : theme.navigation.borderWidth,
-                borderBottomColor: theme.colors.border,
+              id={group.id}
+              last={index === state.customGroups.length - 1}
+              swipe={swipe}
+              disabled={state.storageBlocked}
+              onDelete={() => {
+                swipe.close();
+                onAction({ type: 'custom.remove', id: group.id });
               }}
             >
-              <AppText>{group.name}</AppText>
-            </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={group.name}
+                accessibilityHint={t('accountGroupsRename')}
+                accessibilityState={{ disabled: state.storageBlocked }}
+                disabled={state.storageBlocked}
+                accessibilityActions={[
+                  { name: 'delete', label: t('accountGroupsRemove') + ': ' + group.name },
+                ]}
+                onAccessibilityAction={(event) => {
+                  if (event.nativeEvent.actionName === 'delete') {
+                    swipe.close();
+                    onAction({ type: 'custom.remove', id: group.id });
+                  }
+                }}
+                onPress={() => {
+                  if (swipe.openId !== null) swipe.close();
+                  else onAction({ type: 'custom.edit', id: group.id });
+                }}
+                style={{
+                  minHeight: theme.buttons.minimumHeight,
+                  paddingHorizontal: theme.space.lg,
+                  paddingVertical: theme.space.sm,
+                  justifyContent: 'center',
+                }}
+              >
+                <AppText>{group.name}</AppText>
+              </Pressable>
+            </SwipeableCustomGroupRow>
           ))}
         </View>
         {state.error ? (
@@ -118,11 +233,19 @@ export function AccountGroupsScreen({
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
           </View>
         ) : null}
+        {swipe.openId !== null ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('accountGroupsHideDelete')}
+            onPress={swipe.close}
+            style={{ flexGrow: 1 }}
+          />
+        ) : null}
       </ScrollView>
       <AppBottomSheet
         visible={state.addSheetVisible}
         avoidKeyboard
-        title={t('accountGroupsAdd')}
+        title={t(state.renamingGroupId === null ? 'accountGroupsAdd' : 'accountGroupsRename')}
         dismissAccessibilityLabel={t('accountGroupsCancel')}
         onDismiss={() => onAction({ type: 'custom.dismiss' })}
       >
