@@ -127,7 +127,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /tio-money-eas-preview-trusted/);
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.doesNotMatch(text, /eas-cli@latest/);
-  assert.match(text, /actions\/checkout@11bd71901bbe5b1630ceea73d27597364c9af683/);
+  assert.match(text, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.match(text, /actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/);
   assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));

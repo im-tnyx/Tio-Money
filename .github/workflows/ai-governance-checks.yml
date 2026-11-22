@@ -25,9 +25,9 @@ jobs:
       contents: read
     steps:
       - name: Checkout PR merge tree (read-only, immutable action SHA)
-        # actions/checkout v4.2.2, pinned to reviewed commit; do not execute
+        # actions/checkout v7.0.1, pinned to verified release commit; do not execute
         # an unpinned third-party action or retain checkout credentials.
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
           persist-credentials: false
