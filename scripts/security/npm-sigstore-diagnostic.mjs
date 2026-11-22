@@ -28,6 +28,8 @@ export const AFFECTED = Object.freeze({
   '@babel/generator': '7.29.15',
   '@babel/helper-module-transforms': '7.29.13',
   '@babel/helper-validator-identifier': '7.29.7',
+  // First-failure on run 45027944809; exact root EAS-lock version.
+  '@babel/types': '7.29.15',
 });
 
 export function gitBlobSha1(bytes) {

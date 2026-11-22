@@ -338,3 +338,8 @@ a correct proof can assert only *internal cryptographic continuity
 from an unapproved bootstrap*. It cannot change TUF trusted settings,
 resolve historical npm10 HTTP/attestation root cause or authorize
 merging PR #65/#73. If the new chain fails, classify FAIL_CLOSED.
+
+
+## 2026-11-22 — Sixth exact target and first-response boundary follow-up
+
+Owner chat `Go follow agent.md` documented under Issue #71 comment 7079959825 permits scoped Draft #73 diagnostic work. Required Phase 0 first-failure on `338a5e32` reported `@babel/types@7.29.15` in addition to `@babel/helper-compilation-targets@7.29.13`. The existing immutable EAS lock has exact root `@babel/types@7.29.15`. Add it as a sixth mandatory target for independent locked SRI, provenance, Sigstore and npm registry ECDSA verification and the frozen-public-response comparison; synthetic missing/wrong-version and redaction tests fail closed. This does not capture the historical failed npm HTTP response or establish cause. Actual first-response-boundary interception remains UNVERIFIED until its exact data path can be demonstrated without changing mandatory Phase 0 verification or logging raw responses. Do not rerun CI to manufacture a pass. Keep #71 OPEN, #73 Draft, #65 HOLD, owner-approved TUF bootstrap UNVERIFIED; no merge or risk acceptance.

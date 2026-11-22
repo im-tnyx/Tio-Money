@@ -22,7 +22,7 @@ test('git blob hashing uses exact Git framing', () => {
 test('lock identity, registry and SRI are mandatory', () => {
   const bytes = Buffer.from('synthetic-fixture');
   const sha = gitBlobSha1(bytes);
-  assert.equal(verifyLock(mock(), bytes, sha).length, 5);
+  assert.equal(verifyLock(mock(), bytes, sha).length, 6);
   assert.throws(() => verifyLock(mock(), bytes, 'f'.repeat(40)), /LOCKFILE_IDENTITY_CHANGED/);
   const changed = mock();
   changed.packages['node_modules/@babel/generator'].integrity = '';
@@ -54,7 +54,7 @@ test('new fourth Babel target is mandatory and locked to exact version', () => {
   const name = '@babel/helper-compilation-targets';
   const good = mock();
   assert.equal(good.packages['node_modules/' + name].version, '7.29.13');
-  assert.equal(verifyLock(good, bytes, sha).length, 5);
+  assert.equal(verifyLock(good, bytes, sha).length, 6);
   delete good.packages['node_modules/' + name];
   assert.throws(() => verifyLock(good, bytes, sha),
     /MISSING_LOCKED_PACKAGE_@babel\/helper-compilation-targets/);
@@ -75,4 +75,26 @@ test('single failing npm attestation identifies fourth package without leaking o
   assert.equal(result.packageIdentityStatus, 'REPORTED_IN_INVALID_ATTESTATION_LIST');
   assert.ok(!JSON.stringify(result).includes('secret-credential'));
   assert.equal(result.rawOutputRetained, false);
+});
+
+
+test('new @babel/types first-failure target is bound to exact EAS lock version', () => {
+  const bytes = Buffer.from('synthetic-types-target');
+  const sha = gitBlobSha1(bytes);
+  const name = '@babel/types';
+  const good = mock();
+  assert.equal(AFFECTED[name], '7.29.15');
+  assert.equal(verifyLock(good, bytes, sha).length, 6);
+  delete good.packages['node_modules/' + name];
+  assert.throws(() => verifyLock(good, bytes, sha),
+    /MISSING_LOCKED_PACKAGE_@babel\/types/);
+  const wrong = mock();
+  wrong.packages['node_modules/' + name].version = '7.29.14';
+  assert.throws(() => verifyLock(wrong, bytes, sha),
+    /PACKAGE_VERSION_CHANGED_@babel\/types/);
+  const failure = sanitizeFailure('2 packages have invalid attestations:\n' +
+    '@babel/types@7.29.15 (https://registry.npmjs.org/)\n' +
+    'token=never-publish-this', mock());
+  assert.deepEqual(failure.reportedInvalidPackageIds, ['@babel/types@7.29.15']);
+  assert.ok(!JSON.stringify(failure).includes('never-publish-this'));
 });

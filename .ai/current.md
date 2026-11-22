@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Sixth locked Babel provenance target (#71)
+
+- **Owner direction / scope:** `Go follow agent.md`; bounded forensic decision in [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079959825). Draft PR #73 only; active agent ChatGPT/GPT-6. Current required `static` first failure at HEAD `338a5e32` includes `@babel/types@7.29.15`, previously outside five-target proof.
+- **Implementation:** Add exact committed EAS-lock `@babel/types` as sixth target to existing SRI/DSSE/TUF/OIDC/Rekor/registry ECDSA/frozen-pacote path with negative identity/redaction tests. Original first failing HTTP response remains NOT_CAPTURED; npm10 vs npm11 root cause and owner-approved out-of-band TUF root remain UNVERIFIED.
+- **Gate:** Verify fresh HEAD CI and scope before handoff. #73 Draft, #65 HOLD, #71 OPEN; no merge, risk acceptance, signature bypass or main change. Independent human security review DEFERRED (recommended, optional under observed settings).
+
 
 ## 2026-11-22 — TUF OLPC canonical format correction, public roots v1→v16
 
