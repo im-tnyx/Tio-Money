@@ -18,3 +18,11 @@
 - **Storage:** dedicated versioned local UI preferences via existing SQLite kv-store, validated/duplicate-safe, no ledger or account subtype mapping. On corrupt saved data block writes; on write error preserve prior state. Group name entries are NOT enabled as financial account types until a separate finance ADR.
 - **Non-goals:** no group removal/rename, payment/ledger/Insurance transactions, no native dependencies or new cloud integration; no main modifications, merge or privileged preview activation.
 - **Tests:** pure validation (five maximum, duplicate, malformed, round-trip), negative architecture checks and official SVG provenance. Exact-head CI remains to verify after code commit; Android/iOS on-device approval still pending.
+
+## Shared input/button contract refinement (owner chat 2026-11-22)
+
+The `+` header button opens the existing shared `AppBottomSheet` Add Account Group flow.
+Cancel and Save use `ActionButton`, while the group-name input uses the new
+shared, theme-owned `AppTextField`. The screen no longer defines TextInput
+visual styles. Controller validates and persists at most five display-only
+labels; no financial account or ledger changes. Validate on exact PR HEAD.

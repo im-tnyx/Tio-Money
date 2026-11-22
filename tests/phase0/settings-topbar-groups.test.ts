@@ -59,7 +59,9 @@ test('Account Groups route is controller-driven and shows seven informational bu
   assert.match(screen, /state\.showDescriptions \?/);
   assert.match(screen, /state\.customGroups\.map/);
   assert.match(screen, /<AppBottomSheet/);
-  assert.match(screen, /<TextInput/);
+  assert.match(screen, /<AppTextField/);
+  assert.match(screen, /<ActionButton/);
+  assert.doesNotMatch(screen, /<TextInput/);
   assert.doesNotMatch(
     screen,
     /useRouter|useState|useEffect|sqlite|fetch\(|Storage\.|createAccount|saveAccount/i,

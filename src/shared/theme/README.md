@@ -639,3 +639,14 @@ custom names is implemented in a controller, not in presentational screens or
 finance schema; this is not approval of new ledger account classes. User-picked
 Google `home_storage` weight-200 artwork appears ONLY on the main Settings
 Account Groups entry, not beside list rows. See Google icon asset provenance.
+
+## Shared Account Group bottom-sheet field and actions — RFC #79
+
+The **Add Account Group** flow composes the existing `AppBottomSheet` shell,
+existing reusable `ActionButton` for Cancel/Save, and shared
+`src/shared/ui/app-text-field.tsx` for its input. The `AppTextField` owns
+standard padding, minimum 48dp touch size, typography, border, colors,
+placeholder role and invalid border through the existing theme; screens provide
+only values and intents. Caller domain validation owns the max 40-character
+limit and duplicate handling. No `TextInput`-specific visual constants or
+local modal/button code are allowed in this screen.

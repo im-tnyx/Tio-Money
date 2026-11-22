@@ -80,3 +80,22 @@ test('group screen stays dumb, uses two tokenized header actions and no financia
   assert.doesNotMatch(screen, /useState|useEffect|useRouter|Storage\.|database|fetch\(|supabase|createAccount/);
   assert.doesNotMatch(store, /journal|transaction|financialLedger|supabase|fetch\(/);
 });
+
+test('Add Account Group sheet reuses shared shell, buttons and text field', () => {
+  const screen = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
+  const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
+  const button = readFileSync('src/shared/ui/action-button.tsx', 'utf8');
+  const modal = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.match(screen, /<AppBottomSheet/);
+  assert.match(screen, /<AppTextField/);
+  assert.equal((screen.match(/<ActionButton/g) ?? []).length, 2);
+  assert.doesNotMatch(screen, /<TextInput|<Modal|style=\{\{[^}]*fontSize:/);
+  assert.match(field, /TextInputProps/);
+  assert.match(field, /minHeight: theme\.buttons\.minimumHeight/);
+  assert.match(field, /placeholderTextColor=\{theme\.colors\.secondaryText\}/);
+  assert.match(field, /borderColor: invalid \? theme\.colors\.expense : theme\.colors\.border/);
+  assert.match(field, /fontSize: theme\.typeScale\.body/);
+  assert.match(button, /export function ActionButton/);
+  assert.match(modal, /export function AppBottomSheet/);
+  assert.match(screen, /maxLength=\{MAX_CUSTOM_GROUP_NAME_LENGTH\}/);
+});

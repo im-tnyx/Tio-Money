@@ -1,4 +1,4 @@
-import { ScrollView, TextInput, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
@@ -6,8 +6,10 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { ActionButton } from '@/shared/ui/action-button';
 import { AppBottomSheet } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
+import { AppTextField } from '@/shared/ui/app-text-field';
 import { AppTopBar } from '@/shared/ui/app-top-bar';
 
+import { MAX_CUSTOM_GROUP_NAME_LENGTH } from './account-group-preferences';
 import { BUILT_IN_ACCOUNT_GROUPS } from './account-group-templates';
 import type { AccountGroupsAction, AccountGroupsUiState } from './account-groups-contract';
 
@@ -124,25 +126,15 @@ export function AccountGroupsScreen({
         onDismiss={() => onAction({ type: 'custom.dismiss' })}
       >
         <View style={{ padding: theme.space.lg, gap: theme.space.md }}>
-          <TextInput
+          <AppTextField
             accessibilityLabel={t('accountGroupsName')}
             value={state.draftName}
             onChangeText={(value) => onAction({ type: 'custom.name', name: value })}
             placeholder={t('accountGroupsNamePlaceholder')}
-            placeholderTextColor={theme.colors.secondaryText}
             autoCapitalize="words"
             autoCorrect={false}
-            maxLength={40}
-            style={{
-              minHeight: theme.buttons.minimumHeight,
-              borderWidth: theme.navigation.borderWidth,
-              borderColor: theme.colors.border,
-              borderRadius: theme.radius.sm,
-              color: theme.colors.primaryText,
-              backgroundColor: theme.colors.canvas,
-              fontSize: theme.typeScale.body,
-              paddingHorizontal: theme.space.md,
-            }}
+            maxLength={MAX_CUSTOM_GROUP_NAME_LENGTH}
+            invalid={state.draftError !== null}
           />
           <AppText variant="caption" muted>
             {t('accountGroupsCustomScope')}
