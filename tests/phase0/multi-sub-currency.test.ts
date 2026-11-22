@@ -80,10 +80,7 @@ test('TM-CUR-031: show selected Main above Sub cards, without picker count clutt
   assert.ok(screen.indexOf("{t('currencyMain')}") < screen.indexOf('state.selected.map'));
   assert.match(screen, /disabled=\{!state.canAddSub\}/);
   assert.match(screen, /accessibilityState=\{\{ disabled \}\}/);
-  assert.match(
-    vm,
-    /canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES/,
-  );
+  assert.match(vm, /canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES/);
   assert.doesNotMatch(screen, /t\('currencySubCount'\)|t\('currencyFxDisclosure'\)/);
   assert.match(screen, /state.selected.map/);
   assert.match(screen, /item.rateLabel/);
@@ -122,10 +119,7 @@ test('TM-CUR-033: swipe controller preserves bounded left-swipe Delete geometry'
   assert.equal(shouldCloseRevealedSwipe(88, 20, 1, 8), true);
   assert.equal(shouldCloseRevealedSwipe(88, -40, 1, 8), false);
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
-  const swipe = readFileSync(
-    'src/features/settings/use-sub-currency-swipe-controller.ts',
-    'utf8',
-  );
+  const swipe = readFileSync('src/features/settings/use-sub-currency-swipe-controller.ts', 'utf8');
   assert.match(screen, /function SwipeableCurrencyRow/);
   assert.match(screen, /onMoveShouldSetResponderCapture/);
   assert.match(screen, /onMoveShouldSetResponder=/);
@@ -144,10 +138,7 @@ test('TM-CUR-033: swipe controller preserves bounded left-swipe Delete geometry'
 
 test('TM-CUR-044: route controller suppresses iOS Back during card touches only', () => {
   const route = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
-  const swipe = readFileSync(
-    'src/features/settings/use-sub-currency-swipe-controller.ts',
-    'utf8',
-  );
+  const swipe = readFileSync('src/features/settings/use-sub-currency-swipe-controller.ts', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const root = readFileSync('src/app/_layout.tsx', 'utf8');
   const main = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
@@ -166,10 +157,7 @@ test('TM-CUR-044: route controller suppresses iOS Back during card touches only'
 
 test('TM-CUR-037: outside-tap Delete dismiss stays controller-owned', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
-  const swipe = readFileSync(
-    'src/features/settings/use-sub-currency-swipe-controller.ts',
-    'utf8',
-  );
+  const swipe = readFileSync('src/features/settings/use-sub-currency-swipe-controller.ts', 'utf8');
   assert.match(swipe, /const \[openCode, setOpenCode\] = useState/);
   assert.match(screen, /swipe.openCode !== null/);
   assert.match(screen, /accessibilityLabel=\{t\('currencyHideDelete'\)\}/);
@@ -315,10 +303,7 @@ test('TM-CUR-059: Sub cap disables Add and detail rates are presentation-only', 
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const detail = readFileSync('src/features/settings/sub-currency-detail-screen.tsx', 'utf8');
   const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
-  assert.match(
-    vm,
-    /canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES/,
-  );
+  assert.match(vm, /canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES/);
   assert.match(screen, /disabled=\{!state.canAddSub\}/);
   assert.match(vm, /formatReferenceRate\(rate\)/);
   assert.match(screen, /\{item.rateLabel\}/);
