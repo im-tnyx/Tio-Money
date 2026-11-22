@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Settings top bar and seven informational Account Groups (RFC #79)
+
+- **Technical PROCEED:** Owner requested a new branch and UI preview with AGENTS.md/theme README. RFC https://github.com/im-tnyx/Tio-Money/issues/79; this is agent-transcribed instruction, not owner PR merge approval.
+- **Branch:** `ui/settings-topbar-account-groups-20261122` from verified `main` `bb6638b56d2dea6d1e067806be009f500666e82c`; token-owned shared AppTopBar; Account Groups template-only seven entries; Theme copy; existing local persistence/finance unaffected.
+- **Task:** `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`; exact-HEAD CI and owner device preview **PENDING** until checked. Issue #71 remains separate and OPEN; PR #65 remains SECURITY HOLD. No main change, merge or privileged Codespaces run authorized.
+
 ## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction
 
 - **Observed red test:** Gate 5 initial HEAD `c0a0ae29` first HTTP-boundary job [137250698578](https://github.com/im-tnyx/Tio-Money/actions/runs/45036298022/job/137250698578) failed 2/11 synthetic checks (partial report order fixture and literal backslash-newline fixture source). This is diagnostic test code, **not** a new npm invalid attestation.

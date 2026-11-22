@@ -597,3 +597,32 @@ dismissal is preserved, and the native gesture is not disabled for any
 other screen. Changes are scoped to gesture arbitration, not the stored
 currency or actual Delete handler. Real-device iPhone test remains required,
 especially for fast gestures beginning at the extreme left edge.
+
+
+## Shared Settings top bar and Account Groups catalogue — RFC #79 (2026-11-22)
+
+The **Settings** root content replaces the visible More heading with a centered
+50dp `AppTopBar` (the bottom destination remains `More`), with the OS top
+safe-area painted using `theme.colors.card`. The same reusable
+`src/shared/ui/app-top-bar.tsx` is consumed by the nested **Account Groups**
+catalogue, including its accessible Back icon. The header aliases existing
+`navigationTokens.topBarHeight`, `iconRoleSizes.topBar`, theme border,
+card and text roles, and symmetric side slots; no custom per-screen dimensions.
+Existing Main/Sub Currency headers already share the 50dp/card/safe-area
+visual contract, but their distinct action-heavy implementations are left
+unchanged in this limited slice; future header changes should migrate to the
+shared component after their current screen-specific regression tests.
+
+**Settings hierarchy:** Account Settings → Account Groups; Appearance →
+Theme; Currency → Main/Sub Currency. The Theme label and bottom-sheet title
+change only visible copy: System/Light/Dark state, local preference keys,
+storage and the shared modal shell are unchanged. The catalogue displays
+seven **informational** built-in labels including **Insurance**, without
+financial-class treatment, active account-creation controls, database writes,
+or invisible placeholders. Insurance data/claims/premiums require a separate
+approved product/ledger design before implementation.
+
+New feature routes compose presentation and controller callbacks, never
+router/database calls from screens. Owner-side Android/iPhone safe-area,
+dark/light, back navigation, text scaling and Codespaces preview are separate
+device acceptance evidence. No preview workflow/permissions were changed.

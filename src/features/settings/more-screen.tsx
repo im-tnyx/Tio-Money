@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
+import { AppTopBar } from '@/shared/ui/app-top-bar';
 
 import { AppearanceSheet } from './appearance-sheet';
 import type { MoreAction, MoreUiState } from './more-contract';
@@ -22,27 +23,88 @@ export function MoreScreen({
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={{ flex: 1, backgroundColor: theme.colors.canvas }}
+      style={{ flex: 1, backgroundColor: theme.colors.card }}
     >
+      <AppTopBar title={t('settings')} />
       <ScrollView
+        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
         contentContainerStyle={{
           paddingTop: theme.space.lg,
           paddingBottom: theme.space.xxxl,
           gap: theme.space.lg,
         }}
       >
-        <View style={{ paddingHorizontal: theme.space.lg }}>
-          <AppText variant="title">{t('more')}</AppText>
+        <View style={{ width: '100%', gap: theme.space.sm }}>
+          <View style={{ paddingHorizontal: theme.space.lg }}>
+            <AppText variant="section">{t('accountSettings')}</AppText>
+          </View>
+          <Pressable
+            onPress={() => onAction({ type: 'account.groups.open' })}
+            accessibilityRole="button"
+            accessibilityLabel={t('accountGroups')}
+            accessibilityHint={t('accountGroupsHint')}
+            style={{
+              width: '100%',
+              minHeight: theme.buttons.minimumHeight,
+              backgroundColor: theme.colors.card,
+              borderColor: theme.colors.border,
+              borderTopWidth: theme.navigation.borderWidth,
+              borderBottomWidth: theme.navigation.borderWidth,
+              borderRadius: theme.navigation.origin,
+              paddingHorizontal: theme.space.lg,
+              paddingVertical: theme.space.md,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: theme.space.sm,
+            }}
+          >
+            <Svg
+              width={theme.iconRoles.card}
+              height={theme.iconRoles.card}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Path
+                d="M4 5h16v14H4zM8 9h8M8 13h8"
+                stroke={theme.colors.secondaryText}
+                strokeWidth={theme.icons.stroke}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+            <View style={{ flex: 1 }}>
+              <AppText>{t('accountGroups')}</AppText>
+            </View>
+            <Svg
+              width={theme.iconRoles.card}
+              height={theme.iconRoles.card}
+              viewBox="0 0 24 24"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Path
+                d="m9 18 6-6-6-6"
+                stroke={theme.colors.secondaryText}
+                strokeWidth={theme.icons.stroke}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </Pressable>
         </View>
         <View style={{ width: '100%', gap: theme.space.sm }}>
           <View style={{ paddingHorizontal: theme.space.lg }}>
-            <AppText variant="section">{t('settings')}</AppText>
+            <AppText variant="section">{t('appearance')}</AppText>
           </View>
           <Pressable
             onPress={() => onAction({ type: 'appearance.open' })}
             accessibilityRole="button"
-            accessibilityLabel={t('appearance')}
-            accessibilityHint={t('appearanceHint')}
+            accessibilityLabel={t('theme')}
+            accessibilityHint={t('themeHint')}
             accessibilityState={{ expanded: state.appearanceSheetVisible }}
             style={{
               width: '100%',
@@ -74,7 +136,7 @@ export function MoreScreen({
               />
             </Svg>
             <View style={{ flex: 1 }}>
-              <AppText>{t('appearance')}</AppText>
+              <AppText>{t('theme')}</AppText>
             </View>
             <Svg
               width={theme.iconRoles.card}

@@ -100,8 +100,8 @@ export function AppearanceSheet({
   return (
     <AppBottomSheet
       visible={state.appearanceSheetVisible}
-      title={t('appearance')}
-      dismissAccessibilityLabel={t('closeAppearance')}
+      title={t('theme')}
+      dismissAccessibilityLabel={t('closeTheme')}
       onDismiss={dismiss}
     >
       <View accessibilityRole="radiogroup">
