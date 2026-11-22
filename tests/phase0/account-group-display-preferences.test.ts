@@ -75,7 +75,7 @@ test('group screen stays dumb, uses two tokenized header actions and no financia
   assert.match(screen, /key: 'details'/);
   assert.match(screen, /key: 'add'/);
   assert.ok(screen.indexOf("key: 'details'") < screen.indexOf("key: 'add'"));
-  assert.match(screen, /state\.showDescriptions \? 'eye-off' : 'eye'/);
+  assert.match(screen, /state\.showDescriptions \? 'eye' : 'eye-off'/);
   assert.match(screen, /disabled: !state\.canAdd/);
   assert.match(bar, /height: theme\.navigation\.topBarHeight/);
   assert.match(bar, /width=\{theme\.iconRoles\.topBar\}/);
