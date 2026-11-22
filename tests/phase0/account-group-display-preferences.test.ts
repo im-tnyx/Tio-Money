@@ -251,8 +251,10 @@ test('only the custom group input/list are single-line; the shared field is unch
   const screen = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
   const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
   const strings = readFileSync('src/shared/i18n/strings.ts', 'utf8');
-  const customRows = screen.split('state.customGroups.map')[1]?.split('</SwipeableCustomGroupRow>')[0];
-  const builtInRows = screen.split('BUILT_IN_ACCOUNT_GROUPS.map')[1]?.split('state.customGroups.map')[0];
+  const customRows =
+    screen.split('state.customGroups.map')[1]?.split('</SwipeableCustomGroupRow>')[0];
+  const builtInRows =
+    screen.split('BUILT_IN_ACCOUNT_GROUPS.map')[1]?.split('state.customGroups.map')[0];
   assert.ok(customRows);
   assert.ok(builtInRows);
   assert.match(screen, /maxLength=\{MAX_CUSTOM_GROUP_NAME_LENGTH\}/);
