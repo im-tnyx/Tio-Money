@@ -188,7 +188,7 @@ export async function fetchImmutableRoot(url, limit = MAX_ROOT_BYTES) {
 }
 
 export async function verifyPublishedRootChain(
-  fetchBytes = fetchImmutableRoot, now = new Date()) {
+  fetchBytes = fetchImmutableRoot, now = new Date(), observe = () => {}) {
   const transitions = [];
   let previous = null;
   let firstSha = '';
@@ -197,6 +197,7 @@ export async function verifyPublishedRootChain(
   for (let n = 1; n <= EXPECTED_ROOT_VERSION; n++) {
     // Historical root metadata versions may have expired by *today*; the
     // cryptographic lineage check audits old signatures, not time travel.
+    observe('HISTORY_ROOT_' + n);
     const bytes = await fetchBytes(rootSourceURL(n));
     assert.ok(Buffer.isBuffer(bytes) && bytes.length > 0 &&
       bytes.length <= MAX_ROOT_BYTES, 'TUF_HISTORY_RESPONSE_INVALID');
@@ -211,6 +212,7 @@ export async function verifyPublishedRootChain(
     lastSha = sha256(bytes);
   }
   const currentURL = new URL(BASE + 'root.json');
+  observe('CURRENT_ROOT_V16');
   const currentBytes = await fetchBytes(currentURL);
   assert.ok(Buffer.isBuffer(currentBytes) && currentBytes.length > 0 &&
     currentBytes.length <= MAX_ROOT_BYTES, 'TUF_CURRENT_RESPONSE_INVALID');
@@ -246,11 +248,16 @@ export async function main() {
   let stage = 'INIT', status = 'FAIL_CLOSED', detail = null;
   try {
     stage = 'VERIFY_1_TO_16';
-    detail = await verifyPublishedRootChain();
+    detail = await verifyPublishedRootChain(fetchImmutableRoot, new Date(),
+      marker => { stage = marker; });
     status = detail.result;
-  } catch {
-    // No raw GitHub error, signing material or key metadata to logs.
-    detail = { stage, failure: 'UNVERIFIED_TUF_CHAIN_OR_SOURCE' };
+  } catch (error) {
+    // Expose strictly reviewed local error categories, never URL, raw server
+    // responses, signing material or exception stack.
+    const message = String(error?.message || '');
+    const safeCode = /^TUF_[A-Z0-9_]{3,90}$/.test(message)
+      ? message : 'TUF_UNKNOWN_FAILURE';
+    detail = { stage, failure: safeCode };
     process.exitCode = 1;
   } finally {
     console.log(JSON.stringify({
