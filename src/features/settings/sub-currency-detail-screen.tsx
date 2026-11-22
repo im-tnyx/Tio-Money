@@ -150,7 +150,13 @@ export function SubCurrencyDetailScreen({
               </AppText>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
                 <View style={{ flex: 1, minWidth: theme.navigation.origin }}>
-                  <AppText variant="caption" muted numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                  <AppText
+                    variant="caption"
+                    muted
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.7}
+                  >
                     {detail.label}
                   </AppText>
                 </View>
@@ -163,7 +169,12 @@ export function SubCurrencyDetailScreen({
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
                 <View style={{ flex: 1, minWidth: theme.navigation.origin }}>
-                  <AppText variant="title" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+                  <AppText
+                    variant="title"
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.6}
+                  >
                     {detail.subPreview}
                   </AppText>
                 </View>
@@ -171,13 +182,25 @@ export function SubCurrencyDetailScreen({
                   <AppText variant="title">=</AppText>
                 </View>
                 <View style={{ flex: 1, minWidth: theme.navigation.origin }}>
-                  <AppText variant="title" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={{ textAlign: 'right' }}>
+                  <AppText
+                    variant="title"
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.6}
+                    style={{ textAlign: 'right' }}
+                  >
                     {detail.mainPreview}
                   </AppText>
                 </View>
               </View>
               {detail.rateDate ? (
-                <AppText variant="caption" muted numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+                <AppText
+                  variant="caption"
+                  muted
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.7}
+                >
                   {detail.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
                   {t('currencyFxSource')} · {detail.rateDate}
                 </AppText>
@@ -203,12 +226,19 @@ export function SubCurrencyDetailScreen({
                 }}
               >
                 <AppText muted style={{ width: '34%' }}>{t('currencyFxExchangeRate')}</AppText>
-                <AppText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={{ flex: 1, textAlign: 'right' }}>
+                <AppText
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.7}
+                  style={{ flex: 1, textAlign: 'right' }}
+                >
                   {detail.rateValue}
                 </AppText>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={t(detail.refreshing ? 'currencyFxChecking' : 'currencyFxRefresh')}
+                  accessibilityLabel={t(
+                    detail.refreshing ? 'currencyFxChecking' : 'currencyFxRefresh',
+                  )}
                   accessibilityState={{ disabled: detail.refreshing }}
                   disabled={detail.refreshing}
                   onPress={() => onAction({ type: 'detail.refresh' })}
@@ -217,21 +247,51 @@ export function SubCurrencyDetailScreen({
                     minWidth: theme.buttons.minimumHeight,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    opacity: detail.refreshing ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
+                    opacity: detail.refreshing
+                      ? theme.buttons.disabledOpacity
+                      : theme.buttons.enabledOpacity,
                   }}
                 >
                   {detail.refreshing ? (
                     <ActivityIndicator size="small" color={theme.colors.primaryText} />
                   ) : (
-                    <Svg width={theme.iconRoles.button} height={theme.iconRoles.button} viewBox="0 0 24 24" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-                      <Path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5" fill="none" stroke={theme.colors.primaryText} strokeWidth={theme.icons.fineStroke} strokeLinecap="round" strokeLinejoin="round" />
+                    <Svg
+                      width={theme.iconRoles.button}
+                      height={theme.iconRoles.button}
+                      viewBox="0 0 24 24"
+                      accessibilityElementsHidden
+                      importantForAccessibility="no-hide-descendants"
+                    >
+                      <Path
+                        d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"
+                        fill="none"
+                        stroke={theme.colors.primaryText}
+                        strokeWidth={theme.icons.fineStroke}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </Svg>
                   )}
                 </Pressable>
               </View>
               {detail.refreshStatus ? (
-                <View accessibilityLiveRegion="polite" style={{ paddingHorizontal: theme.space.lg, paddingVertical: theme.space.xs, borderBottomWidth: theme.navigation.borderWidth, borderBottomColor: theme.colors.border }}>
-                  <AppText variant="caption" style={{ color: detail.refreshError ? theme.colors.expense : theme.colors.secondaryText }}>
+                <View
+                  accessibilityLiveRegion="polite"
+                  style={{
+                    paddingHorizontal: theme.space.lg,
+                    paddingVertical: theme.space.xs,
+                    borderBottomWidth: theme.navigation.borderWidth,
+                    borderBottomColor: theme.colors.border,
+                  }}
+                >
+                  <AppText
+                    variant="caption"
+                    style={{
+                      color: detail.refreshError
+                        ? theme.colors.expense
+                        : theme.colors.secondaryText,
+                    }}
+                  >
                     {detail.refreshStatus}
                   </AppText>
                 </View>

@@ -340,7 +340,10 @@ test('TM-CUR-056: saved Sub selection pushes validated native stack detail route
   assert.match(detailRoute, /isCurrencyCode\(code\)/);
   assert.match(detailRoute, /useSubCurrencyViewModel\(selectedCode\)/);
   assert.match(detailScreen, /type: 'detail.dismiss'/);
-  assert.match(vm, /router.push\(\{ pathname: '\/currency\/sub-detail', params: \{ code: action.code \} \}\)/);
+  assert.match(
+    vm,
+    /router.push\(\{ pathname: '\/currency\/sub-detail', params: \{ code: action.code \} \}\)/,
+  );
   assert.match(vm, /selected.find\(\(item\) => item.code === detailCode\)/);
   assert.match(vm, /preferences.subCodes.includes\(detailCode\)/);
   assert.doesNotMatch(screen, /<SubCurrencyDetailSheet/);
