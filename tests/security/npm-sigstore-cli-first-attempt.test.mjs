@@ -1,5 +1,6 @@
 // Issue #71 Gate 8: offline-only negative fixtures; never fetch npm registry.
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';

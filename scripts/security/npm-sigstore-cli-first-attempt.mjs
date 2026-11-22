@@ -1,6 +1,7 @@
 // Issue #71 Gate 8. Sample one first unmodified npm CLI audit per clean runner.
 // This is diagnostic evidence only, NEVER historical provenance trust approval.
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
