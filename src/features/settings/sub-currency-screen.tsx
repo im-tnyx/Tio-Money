@@ -1,21 +1,16 @@
-import { useRef, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { formatReferenceRate } from '@/data/market/fx-reference-rates';
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
+import type { CurrencyCode } from '@/shared/currency/currency-preference';
+import type { SubCurrencySwipeController } from './use-sub-currency-swipe-controller';
 import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
-import {
-  getSwipeOffset,
-  isHorizontalSwipe,
-  shouldCloseRevealedSwipe,
-  snapSwipeOffset,
-} from './sub-currency-swipe';
 
 function HeaderAction({
   label,
@@ -63,89 +58,42 @@ function HeaderAction({
 }
 
 /** Horizontal-only swipe; vertical scrolling remains owned by ScrollView. */
+/** Presentation-only gesture wiring; the route controller owns swipe state. */
 function SwipeableCurrencyRow({
   code,
   last,
-  isOpen,
-  onReveal,
-  onClose,
+  swipe,
   onDelete,
-  onCardTouchStart,
-  onCardTouchEnd,
   children,
 }: {
-  code: string;
+  code: CurrencyCode;
   last: boolean;
-  isOpen: boolean;
-  onReveal: () => void;
-  onClose: () => void;
+  swipe: SubCurrencySwipeController;
   onDelete: () => void;
-  onCardTouchStart: () => void;
-  onCardTouchEnd: () => void;
   children: ReactNode;
 }) {
   const theme = useAppTheme();
   const revealWidth = theme.buttons.minimumHeight + theme.space.xxxl;
-  const [dragOffset, setDragOffset] = useState<number | null>(null);
-  const start = useRef({ x: 0, y: 0, offset: 0 });
-  // Parent owns reveal state: an outside tap closes the row immediately.
-  const displayedOffset = dragOffset ?? (isOpen ? revealWidth : 0);
+  const displayedOffset = swipe.offset(code, revealWidth);
 
   return (
     <View
-      onTouchStart={(event) => {
-        onCardTouchStart();
-        start.current = {
-          x: event.nativeEvent.pageX,
-          y: event.nativeEvent.pageY,
-          offset: displayedOffset,
-        };
-      }}
-      onTouchEnd={onCardTouchEnd}
-      onTouchCancel={onCardTouchEnd}
+      onTouchStart={(event) =>
+        swipe.begin(code, event.nativeEvent.pageX, event.nativeEvent.pageY, revealWidth)
+      }
+      onTouchEnd={swipe.end}
+      onTouchCancel={swipe.cancel}
       onMoveShouldSetResponderCapture={(event) =>
-        isHorizontalSwipe(
-          event.nativeEvent.pageX - start.current.x,
-          event.nativeEvent.pageY - start.current.y,
-          theme.bottomSheet.dragActivationDistance,
-        )
+        swipe.shouldCapture(code, event.nativeEvent.pageX, event.nativeEvent.pageY)
       }
       onMoveShouldSetResponder={(event) =>
-        isHorizontalSwipe(
-          event.nativeEvent.pageX - start.current.x,
-          event.nativeEvent.pageY - start.current.y,
-          theme.bottomSheet.dragActivationDistance,
-        )
+        swipe.shouldCapture(code, event.nativeEvent.pageX, event.nativeEvent.pageY)
       }
-      onResponderMove={(event) => {
-        const dx = event.nativeEvent.pageX - start.current.x;
-        setDragOffset(getSwipeOffset(start.current.offset, dx, revealWidth));
-      }}
-      onResponderRelease={(event) => {
-        const dx = event.nativeEvent.pageX - start.current.x;
-        const dy = event.nativeEvent.pageY - start.current.y;
-        const current = getSwipeOffset(start.current.offset, dx, revealWidth);
-        setDragOffset(null);
-        onCardTouchEnd();
-        if (
-          shouldCloseRevealedSwipe(
-            start.current.offset,
-            dx,
-            dy,
-            theme.bottomSheet.dragActivationDistance,
-          )
-        ) {
-          onClose();
-        } else if (snapSwipeOffset(current, revealWidth) > 0) {
-          onReveal();
-        } else {
-          onClose();
-        }
-      }}
-      onResponderTerminate={() => {
-        setDragOffset(null);
-        onCardTouchEnd();
-      }}
+      onResponderMove={(event) => swipe.move(code, event.nativeEvent.pageX)}
+      onResponderRelease={(event) =>
+        swipe.release(code, event.nativeEvent.pageX, event.nativeEvent.pageY)
+      }
+      onResponderTerminate={swipe.cancel}
       style={{
         overflow: 'hidden',
         backgroundColor: theme.colors.card,
@@ -189,21 +137,18 @@ function SwipeableCurrencyRow({
 export function SubCurrencyScreen({
   state,
   onAction,
-  onCardTouchStart,
-  onCardTouchEnd,
+  swipe,
 }: {
   state: SubCurrencyUiState;
   onAction: (action: SubCurrencyAction) => void;
-  onCardTouchStart: () => void;
-  onCardTouchEnd: () => void;
+  swipe: SubCurrencySwipeController;
 }) {
   const theme = useAppTheme();
   const sideWidth = theme.buttons.minimumHeight * 2;
-  const [openSwipeCode, setOpenSwipeCode] = useState<string | null>(null);
 
   return (
     <SafeAreaView
-      edges={['top', 'bottom', 'left', 'right']}
+      edges={['top', 'left', 'right']}
       style={{ flex: 1, backgroundColor: theme.colors.card }}
     >
       <View
@@ -220,7 +165,7 @@ export function SubCurrencyScreen({
           accessibilityRole="button"
           accessibilityLabel={t('currencyPageBack')}
           onPress={() => {
-            setOpenSwipeCode(null);
+            swipe.close();
             onAction({ type: 'back' });
           }}
           style={{
@@ -256,7 +201,7 @@ export function SubCurrencyScreen({
             label={t('currencyAddSub')}
             disabled={!state.canAddSub}
             onPress={() => {
-              setOpenSwipeCode(null);
+              swipe.close();
               onAction({ type: 'add.open' });
             }}
           />
@@ -267,7 +212,7 @@ export function SubCurrencyScreen({
         contentContainerStyle={{
           flexGrow: 1,
           paddingBottom: theme.space.xxxl,
-          gap: theme.space.md,
+          gap: theme.space.lg,
         }}
       >
         <View>
@@ -309,13 +254,9 @@ export function SubCurrencyScreen({
                   key={item.code}
                   code={item.code}
                   last={index === state.selected.length - 1}
-                  isOpen={openSwipeCode === item.code}
-                  onReveal={() => setOpenSwipeCode(item.code)}
-                  onClose={() => setOpenSwipeCode(null)}
-                  onCardTouchStart={onCardTouchStart}
-                  onCardTouchEnd={onCardTouchEnd}
+                  swipe={swipe}
                   onDelete={() => {
-                    setOpenSwipeCode(null);
+                    swipe.close();
                     onAction({ type: 'remove', code: item.code });
                   }}
                 >
@@ -338,12 +279,12 @@ export function SubCurrencyScreen({
                       ]}
                       onAccessibilityAction={(event) => {
                         if (event.nativeEvent.actionName === 'delete') {
-                          setOpenSwipeCode(null);
+                          swipe.close();
                           onAction({ type: 'remove', code: item.code });
                         }
                       }}
                       onPress={() => {
-                        if (openSwipeCode !== null) setOpenSwipeCode(null);
+                        if (swipe.openCode !== null) swipe.close();
                         else onAction({ type: 'detail.open', code: item.code });
                       }}
                       style={{ flex: 1, gap: theme.space.xxs }}
@@ -351,27 +292,15 @@ export function SubCurrencyScreen({
                       <AppText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
                         {item.label}
                       </AppText>
-                      {(item.rateStatus === 'available' || item.rateStatus === 'cached') &&
-                      item.rate ? (
-                        <AppText
-                          variant="caption"
-                          muted
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          minimumFontScale={0.7}
-                        >
-                          {item.rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : ''}
-                          {formatReferenceRate(item.rate)}
-                        </AppText>
-                      ) : (
-                        <AppText variant="caption" muted numberOfLines={1}>
-                          {t(
-                            item.rateStatus === 'loading'
-                              ? 'currencyFxLoading'
-                              : 'currencyFxUnavailable',
-                          )}
-                        </AppText>
-                      )}
+                      <AppText
+                        variant="caption"
+                        muted
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.7}
+                      >
+                        {item.rateLabel}
+                      </AppText>
                     </Pressable>
                   </View>
                 </SwipeableCurrencyRow>
@@ -408,7 +337,7 @@ export function SubCurrencyScreen({
                 accessibilityState={{ disabled: state.refreshSummary.refreshing }}
                 disabled={state.refreshSummary.refreshing}
                 onPress={() => {
-                  if (openSwipeCode !== null) setOpenSwipeCode(null);
+                  if (swipe.openCode !== null) swipe.close();
                   else onAction({ type: 'list.refresh' });
                 }}
                 style={{
@@ -441,16 +370,14 @@ export function SubCurrencyScreen({
             <AppText style={{ color: theme.colors.expense }}>{state.error}</AppText>
           </View>
         ) : null}
-        {openSwipeCode !== null ? (
+        {swipe.openCode !== null ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('currencyHideDelete')}
-            onPress={() => setOpenSwipeCode(null)}
+            onPress={() => swipe.close()}
             style={{ flexGrow: 1 }}
           />
-        ) : (
-          <View style={{ flexGrow: 1 }} />
-        )}
+        ) : null}
       </ScrollView>
       <SubCurrencyOptionSheet state={state} onAction={onAction} />
     </SafeAreaView>

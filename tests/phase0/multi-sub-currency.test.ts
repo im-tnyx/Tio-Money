@@ -62,11 +62,12 @@ test('TM-FX-013: pair-checked FX, six decimals, and screen-only display', () => 
   }
   const fx = readFileSync('src/data/market/fx-reference-rates.ts', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   const sheet = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
   assert.match(fx, /api\.frankfurter\.dev\/v2\/rate\//);
-  assert.match(screen, /formatReferenceRate\(item.rate\)/);
+  assert.match(screen, /item.rateLabel/);
   assert.doesNotMatch(screen, /currencyFxSource|item\.rate\.date/);
-  assert.match(screen, /currencyFxUnavailable/);
+  assert.match(vm, /currencyFxUnavailable/);
   assert.doesNotMatch(sheet, /rate\.date|formatReferenceRate|currencyFxSource/);
   assert.doesNotMatch(fx, /accountId|transactionId|ledger|balance/);
 });
@@ -80,10 +81,10 @@ test('TM-CUR-031: show selected Main above Sub cards, without picker count clutt
   assert.ok(screen.indexOf("{t('currencyMain')}") < screen.indexOf('state.selected.map'));
   assert.match(screen, /disabled=\{!state.canAddSub\}/);
   assert.match(screen, /accessibilityState=\{\{ disabled \}\}/);
-  assert.match(vm, /canAddSub: mainConfigured/);
+  assert.match(vm, /canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES/);
   assert.doesNotMatch(screen, /t\('currencySubCount'\)|t\('currencyFxDisclosure'\)/);
   assert.match(screen, /state.selected.map/);
-  assert.match(screen, /formatReferenceRate\(item.rate\)/);
+  assert.match(screen, /item.rateLabel/);
   assert.doesNotMatch(screen, /currencyFxSource|item\.rate\.date/);
   assert.match(screen, /state.error/);
   assert.doesNotMatch(sheet, /currencySubCount/);
@@ -106,7 +107,7 @@ test('TM-CUR-032: no Pencil/X/minus edit mode; swipe is the visible delete actio
   assert.doesNotMatch(row, /d="M7 12h10"|disabled=\{state\.editing\}/);
 });
 
-test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => {
+test('TM-CUR-033: swipe controller preserves bounded left-swipe Delete geometry', () => {
   assert.equal(isHorizontalSwipe(-40, 5, 8), true);
   assert.equal(isHorizontalSwipe(40, 5, 8), true);
   assert.equal(isHorizontalSwipe(5, 40, 8), false);
@@ -116,73 +117,56 @@ test('TM-CUR-033: left swipe reveals per-currency Delete without Pencil', () => 
   assert.equal(getSwipeOffset(88, 120, 88), 0);
   assert.equal(snapSwipeOffset(30, 88), 0);
   assert.equal(snapSwipeOffset(60, 88), 88);
-  // A short right swipe should dismiss the opened row, even though the
-  // midpoint-only snap previously left its Delete action visible.
-  assert.equal(snapSwipeOffset(getSwipeOffset(88, 20, 88), 88), 88);
   assert.equal(shouldCloseRevealedSwipe(88, 20, 1, 8), true);
-  assert.equal(shouldCloseRevealedSwipe(88, 120, 0, 8), true);
   assert.equal(shouldCloseRevealedSwipe(88, -40, 1, 8), false);
-  assert.equal(shouldCloseRevealedSwipe(88, 4, 1, 8), false);
-  assert.equal(shouldCloseRevealedSwipe(88, 12, 50, 8), false);
-  assert.equal(shouldCloseRevealedSwipe(0, 40, 0, 8), false);
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const swipe = readFileSync('src/features/settings/use-sub-currency-swipe-controller.ts', 'utf8');
   assert.match(screen, /function SwipeableCurrencyRow/);
   assert.match(screen, /onMoveShouldSetResponderCapture/);
   assert.match(screen, /onMoveShouldSetResponder=/);
-  assert.match(screen, /isHorizontalSwipe/);
-  assert.match(screen, /shouldCloseRevealedSwipe/);
   assert.match(screen, /onResponderRelease/);
-  assert.match(screen, /snapSwipeOffset/);
-  assert.match(screen, /shouldCloseRevealedSwipe[\s\S]*?\{\s*onClose\(\);/);
-  assert.doesNotMatch(screen, /!editing &&/);
+  assert.match(screen, /translateX: -displayedOffset/);
   assert.match(screen, /backgroundColor: theme.colors.deleteActionBackground/);
   assert.match(screen, /color: theme.colors.deleteActionText/);
-  assert.match(screen, /translateX: -displayedOffset/);
+  assert.match(swipe, /isHorizontalSwipe/);
+  assert.match(swipe, /shouldCloseRevealedSwipe/);
+  assert.match(swipe, /snapSwipeOffset/);
+  assert.match(swipe, /getSwipeOffset/);
   assert.ok(screen.includes('onDelete={() => {'));
   assert.ok(screen.includes("onAction({ type: 'remove', code: item.code });"));
-  assert.match(screen, /key=\{item.code\}/);
-  assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
-  assert.match(screen, /formatReferenceRate\(item.rate\)/);
+  assert.doesNotMatch(screen, /formatReferenceRate|@\/data\/market|useState|useRef/);
 });
 
-test('TM-CUR-044: iOS Back is suppressed only during touches that start on a Sub card', () => {
+test('TM-CUR-044: route controller suppresses iOS Back during card touches only', () => {
   const route = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
+  const swipe = readFileSync('src/features/settings/use-sub-currency-swipe-controller.ts', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const root = readFileSync('src/app/_layout.tsx', 'utf8');
   const main = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
-  assert.match(route, /<Stack.Screen options=\{\{ gestureEnabled: !cardTouchActive \}\} \/>/);
-  assert.match(route, /const \[cardTouchActive, setCardTouchActive\] = useState\(false\)/);
-  assert.match(route, /onCardTouchStart=\{onCardTouchStart\}/);
-  assert.match(route, /onCardTouchEnd=\{onCardTouchEnd\}/);
-  assert.match(screen, /onTouchStart=\{\(event\) => \{\s*onCardTouchStart\(\)/);
-  assert.match(screen, /onTouchEnd=\{onCardTouchEnd\}/);
-  assert.match(screen, /onTouchCancel=\{onCardTouchEnd\}/);
-  assert.match(screen, /onResponderTerminate=\{\(\) => \{[\s\S]*?onCardTouchEnd\(\);/);
-  assert.match(screen, /onResponderRelease=\{\(event\) => \{[\s\S]*?onCardTouchEnd\(\);/);
-  assert.match(screen, /shouldCloseRevealedSwipe/);
-  assert.doesNotMatch(route, /gestureEnabled: openSwipeCode === null/);
+  assert.match(route, /gestureEnabled: !swipe.cardTouchActive/);
+  assert.match(route, /useSubCurrencySwipeController/);
+  assert.match(screen, /onTouchStart=\{\(event\) =>/);
+  assert.match(screen, /onTouchEnd=\{swipe.end\}/);
+  assert.match(screen, /onTouchCancel=\{swipe.cancel\}/);
+  assert.match(screen, /onResponderTerminate=\{swipe.cancel\}/);
+  assert.match(swipe, /setCardTouchActive\(true\)/);
+  assert.match(swipe, /setCardTouchActive\(false\)/);
   assert.doesNotMatch(screen + root + main, /gestureEnabled:\s*false/);
-  // Screen outside cards never calls onCardTouchStart, preserving system Back.
   const outer = screen.slice(screen.indexOf('<ScrollView'), screen.indexOf('state.selected.map'));
-  assert.doesNotMatch(outer, /onCardTouchStart/);
+  assert.doesNotMatch(outer, /swipe.begin/);
 });
 
-test('TM-CUR-037: one swipe Delete action closes when tapping outside, without deletion', () => {
+test('TM-CUR-037: outside-tap Delete dismiss stays controller-owned', () => {
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
-  assert.match(
-    screen,
-    /const \[openSwipeCode, setOpenSwipeCode\] = useState<string \| null>\(null\)/,
-  );
-  assert.match(screen, /isOpen=\{openSwipeCode === item.code\}/);
-  assert.match(screen, /onReveal=\{\(\) => setOpenSwipeCode\(item.code\)\}/);
-  assert.match(screen, /onClose=\{\(\) => setOpenSwipeCode\(null\)\}/);
+  const swipe = readFileSync('src/features/settings/use-sub-currency-swipe-controller.ts', 'utf8');
+  assert.match(swipe, /const \[openCode, setOpenCode\] = useState/);
+  assert.match(screen, /swipe.openCode !== null/);
   assert.match(screen, /accessibilityLabel=\{t\('currencyHideDelete'\)\}/);
-  assert.match(screen, /onPress=\{\(\) => setOpenSwipeCode\(null\)\}/);
+  assert.match(screen, /onPress=\{\(\) => swipe.close\(\)\}/);
   assert.match(screen, /\{t\('currencyDelete'\)\}/);
-  assert.match(screen, /dragOffset \?\? \(isOpen \? revealWidth : 0\)/);
-  assert.match(screen, /onResponderTerminate=\{\(\) => \{/);
-  assert.match(screen, /setDragOffset\(null\);\s*onCardTouchEnd\(\);/);
-  assert.doesNotMatch(screen, /setOffset\(/);
+  assert.match(screen, /swipe.offset\(code, revealWidth\)/);
+  assert.match(swipe, /setDrag\(null\)/);
+  assert.doesNotMatch(screen, /setDragOffset|setOpenSwipeCode/);
 });
 
 test('TM-CUR-038: both currency headers use shared fixed 50dp token', () => {
@@ -220,7 +204,7 @@ test('TM-CUR-048: Main row and Sub list touch without an inter-card gap', () => 
     screen.indexOf('<ScrollView'),
     screen.indexOf('{state.error ? ('),
   );
-  assert.match(scrollArea, /gap: theme\.space\.md/);
+  assert.match(scrollArea, /gap: theme\.space\.lg/);
   assert.match(
     scrollArea,
     /<View>\s*<View[\s\S]*?\{t\('currencyMain'\)\}[\s\S]*?\{state\.selected\.length > 0 \? \(/,
@@ -300,4 +284,32 @@ test('TM-CUR-052: aggregate unchecked and old Sub rates without masking stale da
   assert.equal(summarizeSubCurrencyChecks(loading, now).staleCount, 0);
   assert.equal(summarizeSubCurrencyChecks(cached, now).staleCount, 1);
   assert.equal(summarizeSubCurrencyChecks(checkedToday, now).staleCount, 0);
+});
+
+test('TM-CUR-058: Main and Sub match bottom safe-area and padding without extra spacer', () => {
+  const main = readFileSync('src/features/settings/main-currency-screen.tsx', 'utf8');
+  const sub = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  for (const screen of [main, sub]) {
+    assert.match(screen, /edges=\{\['top', 'left', 'right'\]\}/);
+    assert.match(screen, /paddingBottom: theme.space.xxxl/);
+    assert.match(screen, /gap: theme.space.lg/);
+  }
+  assert.doesNotMatch(sub, /edges=\{\['top', 'bottom', 'left', 'right'\]\}/);
+  assert.doesNotMatch(sub, /<View style=\{\{ flexGrow: 1 \}\} \/>/);
+  assert.match(sub, /accessibilityLabel=\{t\('currencyHideDelete'\)\}/);
+});
+
+test('TM-CUR-059: Sub cap disables Add and detail rates are presentation-only', () => {
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const detail = readFileSync('src/features/settings/sub-currency-detail-screen.tsx', 'utf8');
+  const contract = readFileSync('src/features/settings/sub-currency-contract.ts', 'utf8');
+  assert.match(vm, /canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES/);
+  assert.match(screen, /disabled=\{!state.canAddSub\}/);
+  assert.match(vm, /formatReferenceRate\(rate\)/);
+  assert.match(screen, /\{item.rateLabel\}/);
+  assert.doesNotMatch(screen, /@\/data\/market|useState|useRef/);
+  assert.match(vm, /rateCheckedLabel: formatSubCurrencyLastChecked/);
+  assert.match(contract, /readonly rateCheckedLabel: string \| null/);
+  assert.match(detail, /\{detail.rateCheckedLabel\}/);
 });

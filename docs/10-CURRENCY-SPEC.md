@@ -13,7 +13,7 @@
 ---
 
 > [!IMPORTANT]
-> **Current unmerged PR #53 scope (2026-11-21):** More → Currency saves Main and up to five optional Sub preferences locally. The owner [explicitly approved](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) **Frankfurter v2 blended reference rates only for the saved Sub Currency display/refresh**, conditional on [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) privacy/security controls. The rate is the latest *published indicative reference*, **not a real-time executable exchange rate**. No ledger conversion, posted FX, account valuation, balances, reports, bank operations, Auth/cloud or paid provider are authorized. The [Ledger Draft](04-DATABASE-DESIGN.md) remains INR-only; no mixed-currency accounting is implemented or approved. This is NOT merge authorization. Older local-only/no-network statements below describe superseded initial scope, not the current code.
+> **Merged PR #53 scope (verified 2026-11-22):** More → Currency saves Main and up to five optional Sub preferences locally. The owner [explicitly approved](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) **Frankfurter v2 blended reference rates only for the saved Sub Currency display/refresh**, conditional on [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) privacy/security controls. The rate is the latest *published indicative reference*, **not a real-time executable exchange rate**. No ledger conversion, posted FX, account valuation, balances, reports, bank operations, Auth/cloud or paid provider are authorized. The [Ledger Draft](04-DATABASE-DESIGN.md) remains INR-only; no mixed-currency accounting is implemented or approved. This is a historical implementation decision, not new merge authorization. Older local-only/no-network statements below describe superseded initial scope, not the current code.
 
 **2026-11-21 finance decision split:** [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx) accepts per-currency exactness and forbids silent mixed-currency booking; actual balanced clearing/gain/rounding and cross-currency transfers remain **BLOCKED for implementation**. [TM-ADR-023](11-STAGE-1-FINANCE-ADRS.md#tm-adr-023--fx-quote-provider-and-privacy) conditionally approves **Frankfurter v2 blended rates for saved Sub Currency display only**; other uses, unsupported pairs and provider-specific datasets remain unapproved. Controllers/services fetch quotes; **screens may only render a provided rate ViewModel**, per [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
 
@@ -65,12 +65,14 @@ This latest owner direction **supersedes older inline Sub detail sheet,
 historical records, not the currently intended UI. Android/iPhone no-QR Expo Go
 visual/a11y and native Back/gesture acceptance remain required before merge.
 
+**2026-11-22 — post-merge Currency UI parity follow-up:** [Issue #81](https://github.com/im-tnyx/Tio-Money/issues/81) tracks Sub list bottom safe-area/padding alignment with Main, the Sub limit + affordance, controller-owned swipe/FX presentation, and checked-at visibility. Current UI retains a six-decimal *indicative reference* quote on Sub detail, which must not be mistaken for a booked balance. PR #53 is MERGED; earlier "unmerged" and single-Sub/inline-detail sections elsewhere on this page are historical unless explicitly superseded. Shared top-bar adoption is deferred to the separately owned PR #80, and optional Large Numbers remains a distinct unimplemented proposal, not a silently implemented setting.
+
 ## 01 · Main and Sub Currency behavior
 
 | Preference | Required contract |
 | :--- | :--- |
 | Main Currency | Exactly one ISO 4217 code (default `INR`), chosen in Settings for primary display/reporting |
-| Sub Currency | Optional **single** ISO 4217 code, **different from Main**, enabled only when the user chooses a different currency |
+| Sub Currency | Up to **five optional distinct** curated ISO codes, each different from Main; selected Sub display settings persist independently |
 | Same code selected | Reject/disable Sub Currency; do not create needless 1:1 FX fetch |
 | Disabled Sub Currency | All new account/transaction choices use Main Currency unless a documented currency-migration flow handles historical secondary accounts |
 | Existing account currency | **Never silently rewrite** because the display preference changed; preserve original journal currency and amounts |

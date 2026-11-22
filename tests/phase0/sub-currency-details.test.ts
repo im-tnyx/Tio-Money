@@ -146,7 +146,10 @@ test('TM-CUR-040: short USD detail caption and its special symbol are presentati
   assert.match(vm, /formatSubCurrencyDetailCaption\(selectedDetail.code\)/);
   assert.match(vm, /return formatSubCurrencyDetailCaption\(code\)/);
   assert.match(vm, /mainLabel: mainConfigured \? currencyLabel\(preferences.mainCode\)/);
-  assert.match(vm, /selected.push\(\{\s*code,\s*label: currencyLabel\(code\),/);
+  assert.match(
+    vm,
+    /selected.push\(\{ code, label: currencyLabel\(code\), rate, rateStatus, rateLabel \}\)/,
+  );
 });
 
 test('TM-CUR-041: full-screen Sub preview uses shared semantic card colors', () => {
@@ -332,7 +335,7 @@ test('TM-CUR-056: saved Sub selection pushes validated native stack detail route
   const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   assert.match(screen, /type: 'detail.open', code: item.code/);
   assert.match(screen, /onAccessibilityAction/);
-  assert.match(listRoute, /gestureEnabled: !cardTouchActive/);
+  assert.match(listRoute, /gestureEnabled: !swipe.cardTouchActive/);
   assert.match(detailPage, /<SubCurrencyDetailRoute/);
   assert.match(detailRoute, /useLocalSearchParams/);
   assert.match(detailRoute, /isCurrencyCode\(code\)/);
