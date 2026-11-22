@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
-import { generateKeyPairSync, sign } from 'node:crypto';
+import { createPublicKey, generateKeyPairSync, sign } from 'node:crypto';
 import { test } from 'node:test';
 import { canonicalTufJson, inspectRootShape, verifyRootThreshold,
   verifyRootTransition, verifyCurrentRootExpiry, rootSourceURL,
@@ -108,4 +108,30 @@ test('published chain rejects missing/invalid root evidence without leaking raw 
   assert.equal(pass.originalOwnerApprovedBootstrap, 'UNVERIFIED');
   history.get('8').signed.expires = '2030-01-01T00:00:00Z';
   await assert.rejects(verifyPublishedRootChain(fetchFake), /TUF_SIGNATURE_THRESHOLD_NOT_MET/);
+});
+
+
+test('legacy SEC1 uncompressed P256 root keys verify without weakening threshold', () => {
+  const specimen = root(1);
+  for (const k of keys) {
+    // Convert only the existing public key to historical SEC1 format.
+    const fromPem = specimen.signed.keys[k.id].keyval.public;
+    const pub = createPublicKey(fromPem).export({ format: 'jwk' });
+    const sec1 = Buffer.concat([
+      Buffer.from([4]), Buffer.from(pub.x, 'base64url'),
+      Buffer.from(pub.y, 'base64url'),
+    ]).toString('hex');
+    specimen.signed.keys[k.id].keyval.public = sec1;
+    specimen.signed.keys[k.id].keytype = 'ecdsa-sha2-nistp256';
+  }
+  const encoded = Buffer.from(canonicalTufJson(specimen.signed));
+  specimen.signatures = keys.slice(0, 2).map(k => ({
+    keyid: k.id,
+    sig: sign('sha256', encoded, k.privateKey).toString('hex'),
+  }));
+  assert.equal(verifyRootThreshold(specimen, specimen).verifiedDistinctSigners, 2);
+  const bad = structuredClone(specimen);
+  bad.signed.keys[keys[0].id].keyval.public = '03'.repeat(65);
+  assert.throws(() => verifyRootThreshold(bad, bad),
+    /TUF_INVALID_PUBLIC_KEY/);
 });

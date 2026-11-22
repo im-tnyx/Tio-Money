@@ -95,11 +95,24 @@ export function verifyRootThreshold(document, trustedRoleRoot) {
       key.keytype === 'ecdsa-sha2-nistp256') &&
       key.scheme === 'ecdsa-sha2-nistp256',
     'TUF_UNREVIEWED_KEY_TYPE');
-    const publicPem = key.keyval?.public;
-    assert.ok(typeof publicPem === 'string' && publicPem.length < 2048 &&
-      publicPem.includes('-----BEGIN PUBLIC KEY-----'),
-    'TUF_INVALID_PUBLIC_KEY');
-    const publicKey = createPublicKey(publicPem);
+    const publicValue = key.keyval?.public;
+    assert.ok(typeof publicValue === 'string' &&
+      publicValue.length < 2048, 'TUF_INVALID_PUBLIC_KEY');
+    let publicKey;
+    if (publicValue.startsWith('-----BEGIN PUBLIC KEY-----')) {
+      publicKey = createPublicKey(publicValue);
+    } else {
+      // Legacy Sigstore root v1 serialized P-256 as SEC1 04||X||Y hex,
+      // while newer roots use PEM SPKI. Preserve equivalent curve validation.
+      assert.match(publicValue, /^04[0-9a-f]{128}$/i,
+        'TUF_INVALID_PUBLIC_KEY');
+      const sec1 = Buffer.from(publicValue, 'hex');
+      publicKey = createPublicKey({ key: {
+        kty: 'EC', crv: 'P-256',
+        x: sec1.subarray(1, 33).toString('base64url'),
+        y: sec1.subarray(33, 65).toString('base64url'),
+      }, format: 'jwk' });
+    }
     assert.equal(publicKey.asymmetricKeyType, 'ec', 'TUF_KEY_NOT_EC');
     assert.equal(publicKey.asymmetricKeyDetails?.namedCurve, 'prime256v1',
       'TUF_KEY_NOT_P256');
