@@ -12,7 +12,8 @@ export const en = {
   accountGroups: 'Account Groups',
   accountGroupsHint: 'Browse the seven built-in account group templates.',
   accountGroupsBack: 'Back to Settings',
-  accountGroupsReadOnly: 'Built-in templates. Account creation and group management are coming later.',
+  accountGroupsReadOnly:
+    'Built-in templates. Account creation and group management are coming later.',
   accountGroupCash: 'Cash',
   accountGroupCashInfo: 'Track physical cash balances.',
   accountGroupBank: 'Bank Account',

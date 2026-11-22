@@ -26,11 +26,20 @@ test('Settings uses reusable token-owned top bar and preserves all five bottom t
 
 test('Account Groups route is controller-driven and shows seven informational built-ins', () => {
   const ids = BUILT_IN_ACCOUNT_GROUPS.map((g) => g.id);
-  assert.deepEqual(ids, ['cash', 'bank', 'credit-card', 'loan', 'insurance', 'investment', 'wallet']);
-  assert.equal(ids.length, new Set(ids).size);
-  assert.deepEqual(BUILT_IN_ACCOUNT_GROUPS.map((g) => en[g.label]), [
-    'Cash', 'Bank Account', 'Credit Card', 'Loan', 'Insurance', 'Investment', 'Wallet',
+  assert.deepEqual(ids, [
+    'cash',
+    'bank',
+    'credit-card',
+    'loan',
+    'insurance',
+    'investment',
+    'wallet',
   ]);
+  assert.equal(ids.length, new Set(ids).size);
+  assert.deepEqual(
+    BUILT_IN_ACCOUNT_GROUPS.map((g) => en[g.label]),
+    ['Cash', 'Bank Account', 'Credit Card', 'Loan', 'Insurance', 'Investment', 'Wallet'],
+  );
   assert.match(en.accountGroupInsuranceInfo, /not a cash account/);
   const route = read('src/features/settings/account-groups-route.tsx');
   const screen = read('src/features/settings/account-groups-screen.tsx');
@@ -45,7 +54,10 @@ test('Account Groups route is controller-driven and shows seven informational bu
   assert.match(screen, /<AppTopBar/);
   assert.match(screen, /BUILT_IN_ACCOUNT_GROUPS\.map/);
   assert.match(screen, /accountGroupsReadOnly/);
-  assert.doesNotMatch(screen, /useRouter|useState|useEffect|sqlite|fetch\(|onPress=|createAccount|saveAccount/i);
+  assert.doesNotMatch(
+    screen,
+    /useRouter|useState|useEffect|sqlite|fetch\(|onPress=|createAccount|saveAccount/i,
+  );
 });
 
 test('Theme is a display-copy change, not a new preference or finance feature', () => {

@@ -31,7 +31,9 @@ export function AccountGroupsScreen({ onBack }: { readonly onBack: () => void })
         }}
       >
         <View style={{ paddingHorizontal: theme.space.lg }}>
-          <AppText variant="caption" muted>{t('accountGroupsReadOnly')}</AppText>
+          <AppText variant="caption" muted>
+            {t('accountGroupsReadOnly')}
+          </AppText>
         </View>
         <View
           style={{
@@ -59,7 +61,9 @@ export function AccountGroupsScreen({ onBack }: { readonly onBack: () => void })
               }}
             >
               <AppText>{t(group.label)}</AppText>
-              <AppText variant="caption" muted>{t(group.detail)}</AppText>
+              <AppText variant="caption" muted>
+                {t(group.detail)}
+              </AppText>
             </View>
           ))}
         </View>
