@@ -26,7 +26,9 @@ export function AccountGroupsScreen({
     {
       key: 'details',
       icon: state.showDescriptions ? 'eye-off' : 'eye',
-      accessibilityLabel: t(state.showDescriptions ? 'accountGroupsHideDescriptions' : 'accountGroupsShowDescriptions'),
+      accessibilityLabel: t(
+        state.showDescriptions ? 'accountGroupsHideDescriptions' : 'accountGroupsShowDescriptions',
+      ),
       selected: state.showDescriptions,
       disabled: state.storageBlocked,
       onPress: () => onAction({ type: 'descriptions.toggle' }),

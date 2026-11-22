@@ -64,7 +64,12 @@ export function useAccountGroupsViewModel(onBack: () => void): {
           return;
         }
         case 'custom.open':
-          if (catalog.storageBlocked || catalog.preferences.customGroups.length >= MAX_CUSTOM_GROUPS) return;
+          if (
+            catalog.storageBlocked ||
+            catalog.preferences.customGroups.length >= MAX_CUSTOM_GROUPS
+          ) {
+            return;
+          }
           setDraftName('');
           setDraftError(null);
           setAddSheetVisible(true);
@@ -107,7 +112,8 @@ export function useAccountGroupsViewModel(onBack: () => void): {
       showDescriptions: catalog.preferences.showDescriptions,
       customGroups: catalog.preferences.customGroups,
       storageBlocked: catalog.storageBlocked,
-      canAdd: !catalog.storageBlocked && catalog.preferences.customGroups.length < MAX_CUSTOM_GROUPS,
+      canAdd:
+        !catalog.storageBlocked && catalog.preferences.customGroups.length < MAX_CUSTOM_GROUPS,
       addSheetVisible,
       draftName,
       draftError,

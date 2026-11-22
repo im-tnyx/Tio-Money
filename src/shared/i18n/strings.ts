@@ -17,7 +17,8 @@ export const en = {
   accountGroupsAdd: 'Add Account Group',
   accountGroupsName: 'Account group name',
   accountGroupsNamePlaceholder: 'Enter group name',
-  accountGroupsCustomScope: 'Custom group names are for display only until financial account types are approved.',
+  accountGroupsCustomScope:
+    'Custom group names are for display only until financial account types are approved.',
   accountGroupsCancel: 'Cancel',
   accountGroupsSave: 'Save',
   accountGroupsInvalidName: 'Use a name with 1–40 characters and no control characters.',

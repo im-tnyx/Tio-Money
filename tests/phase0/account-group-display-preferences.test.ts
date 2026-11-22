@@ -36,24 +36,30 @@ test('empty, duplicate, overlong and malformed group names cannot be saved', () 
   if (!first.ok) return;
   assert.equal(first.preferences.customGroups[0]?.name, 'My Savings');
   assert.equal(addCustomGroupLabel(first.preferences, 'my savings').ok, false);
-  assert.equal(isAccountGroupPreferences({ ...first.preferences, customGroups: [{ id: 'custom-9', name: 'Other' }] }), false);
+  const malformedGroup = {
+    ...first.preferences,
+    customGroups: [{ id: 'custom-9', name: 'Other' }],
+  };
+  assert.equal(isAccountGroupPreferences(malformedGroup), false);
   assert.throws(() => parseAccountGroupPreferences('{invalid'));
-  assert.throws(() => parseAccountGroupPreferences(JSON.stringify({
+  const duplicateBuiltIn = {
     version: 1,
     showDescriptions: false,
     customGroups: [{ id: 'custom-1', name: 'Cash' }],
-  })));
+  };
+  assert.throws(() => parseAccountGroupPreferences(JSON.stringify(duplicateBuiltIn)));
 });
 
-test('the 200-weight home_storage SVG is only on Settings Account Groups row, not catalogue list', () => {
-  const source = readFileSync('src/shared/assets/google-material-icons/home_storage.svg', 'utf8').trim();
-  const icon = JSON.parse(readFileSync(
-    'src/shared/assets/google-material-icons/settings-account-groups-icon.json', 'utf8',
-  )) as string;
+test('home_storage SVG appears only on Settings Account Groups row, not catalogue', () => {
+  const sourcePath = 'src/shared/assets/google-material-icons/home_storage.svg';
+  const iconPath = 'src/shared/assets/google-material-icons/settings-account-groups-icon.json';
+  const source = readFileSync(sourcePath, 'utf8').trim();
+  const icon = JSON.parse(readFileSync(iconPath, 'utf8')) as string;
   assert.equal(source, icon);
   assert.match(icon, /viewBox="0 -960 960 960"/);
   assert.match(icon, /m233\.85-184\.61-66\.93-400\.01/);
-  const presentation = readFileSync('src/features/settings/account-groups-setting-icon.tsx', 'utf8');
+  const presentationPath = 'src/features/settings/account-groups-setting-icon.tsx';
+  const presentation = readFileSync(presentationPath, 'utf8');
   const settings = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
   const screen = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
   assert.match(presentation, /iconRoleSizes\.card/);
@@ -77,7 +83,10 @@ test('group screen stays dumb, uses two tokenized header actions and no financia
   assert.match(viewModel, /setDraftError/);
   assert.match(store, /expo-sqlite\/kv-store/);
   assert.match(store, /tio-money\.account-groups-display\.v1/);
-  assert.doesNotMatch(screen, /useState|useEffect|useRouter|Storage\.|database|fetch\(|supabase|createAccount/);
+  assert.doesNotMatch(
+    screen,
+    /useState|useEffect|useRouter|Storage\.|database|fetch\(|supabase|createAccount/,
+  );
   assert.doesNotMatch(store, /journal|transaction|financialLedger|supabase|fetch\(/);
 });
 

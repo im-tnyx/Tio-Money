@@ -52,7 +52,9 @@ export function isAccountGroupPreferences(value: unknown): value is AccountGroup
     typeof candidate.showDescriptions !== 'boolean' ||
     !Array.isArray(candidate.customGroups) ||
     candidate.customGroups.length > MAX_CUSTOM_GROUPS
-  ) return false;
+  ) {
+    return false;
+  }
   const seen = new Set(builtInNames);
   return candidate.customGroups.every((group, index) => {
     if (!group || typeof group !== 'object') return false;
@@ -84,18 +86,17 @@ export function addCustomGroupLabel(
   if (current.customGroups.length >= MAX_CUSTOM_GROUPS) return { ok: false, error: 'limit' };
   const name = normalizeName(input);
   if (!validName(name)) return { ok: false, error: 'name' };
+  const foldedName = name.toLocaleLowerCase('en');
   const duplicate =
-    builtInNames.has(name.toLocaleLowerCase('en')) ||
-    current.customGroups.some((group) => group.name.toLocaleLowerCase('en') === name.toLocaleLowerCase('en'));
+    builtInNames.has(foldedName) ||
+    current.customGroups.some((group) => group.name.toLocaleLowerCase('en') === foldedName);
   if (duplicate) return { ok: false, error: 'duplicate' };
+  const customGroup = { id: `custom-${current.customGroups.length + 1}`, name };
   return {
     ok: true,
     preferences: {
       ...current,
-      customGroups: [
-        ...current.customGroups,
-        { id: `custom-${current.customGroups.length + 1}`, name },
-      ],
+      customGroups: [...current.customGroups, customGroup],
     },
   };
 }

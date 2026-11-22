@@ -107,7 +107,9 @@ export function AppTopBar({
               minHeight: theme.buttons.minimumHeight,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: action.disabled ? theme.buttons.disabledOpacity : theme.buttons.enabledOpacity,
+              opacity: action.disabled
+                ? theme.buttons.disabledOpacity
+                : theme.buttons.enabledOpacity,
             }}
           >
             <Svg

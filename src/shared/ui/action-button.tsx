@@ -54,14 +54,17 @@ export function ActionButton({
           paddingHorizontal: compact ? theme.space.sm : theme.space.lg,
           borderRadius: theme.radius.sm,
           backgroundColor,
-          borderWidth: variant === 'secondary' ? theme.buttons.outlineWidth : theme.buttons.noBorder,
+          borderWidth:
+            variant === 'secondary' ? theme.buttons.outlineWidth : theme.buttons.noBorder,
           borderColor: theme.colors.border,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
         {loading ? (
-          <ActivityIndicator color={isPrimary ? theme.colors.brandText : theme.colors.primaryText} />
+          <ActivityIndicator
+            color={isPrimary ? theme.colors.brandText : theme.colors.primaryText}
+          />
         ) : (
           <Text
             style={{
