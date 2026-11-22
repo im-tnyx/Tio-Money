@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Draft PR #80 Account Groups control refinement
+
+- **Owner chat / RFC #79:** Eye action next to `+` with description visibility, max five persisted *display-only* user-defined names, remove introductory template banner; `home_storage` Google wght200 icon only Settings Account Groups row (not list). Controller/local non-finance preference, no ledger/account class schema. See `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **Merge:** PR #80 remains DRAFT/unmerged, no new owner permission; exact-HEAD CI and owner Codespaces/Expo Go UI inspection pending this refinement. PR #65 security HOLD and Issue #71 separate.
+
 ## 2026-11-22 — Settings top bar and seven informational Account Groups (RFC #79)
 
 - **Technical PROCEED:** Owner requested a new branch and UI preview with AGENTS.md/theme README. RFC https://github.com/im-tnyx/Tio-Money/issues/79; this is agent-transcribed instruction, not owner PR merge approval.

@@ -7,6 +7,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 import { AppTopBar } from '@/shared/ui/app-top-bar';
 
+import { AccountGroupsSettingIcon } from './account-groups-setting-icon';
 import { AppearanceSheet } from './appearance-sheet';
 import type { MoreAction, MoreUiState } from './more-contract';
 
@@ -59,22 +60,7 @@ export function MoreScreen({
               gap: theme.space.sm,
             }}
           >
-            <Svg
-              width={theme.iconRoles.card}
-              height={theme.iconRoles.card}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-            >
-              <Path
-                d="M4 5h16v14H4zM8 9h8M8 13h8"
-                stroke={theme.colors.secondaryText}
-                strokeWidth={theme.icons.stroke}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
+            <AccountGroupsSettingIcon color={theme.colors.secondaryText} />
             <View style={{ flex: 1 }}>
               <AppText>{t('accountGroups')}</AppText>
             </View>

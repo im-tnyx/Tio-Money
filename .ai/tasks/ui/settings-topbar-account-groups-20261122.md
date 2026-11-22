@@ -10,3 +10,11 @@
 - **Acceptance:** owner may inspect Draft PR source and, **after manually selecting `tio-preview` and activating the existing protected worker**, review Expo Go UI through dedicated preview Codespace. Token/permission changes or trusted workflow run are not part of this task. Check required CI on exact SHA; Android and iPhone live UI/accessibility remain owner-device QA.
 - **Rollback:** keep Draft PR unmerged; no changes to default branch.
 - **Validation checkpoint:** exact HEAD CI **PENDING** until GitHub Actions results exist. No unrun local tests claimed.
+
+## 2026-11-22 — Owner UI refinement / scope decision
+
+- **Source:** owner chat correction and technical PROCEED recorded in [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7083229587), not a PR merge approval.
+- **UI:** Eye action to toggle descriptions (compact name-only default), plus action for up to five custom **display-only** labels via accessible sheet; remove "Built-in templates" banner; official `home_storage` wght200 only on **Settings → Account Groups row**, *not* catalogue entries.
+- **Storage:** dedicated versioned local UI preferences via existing SQLite kv-store, validated/duplicate-safe, no ledger or account subtype mapping. On corrupt saved data block writes; on write error preserve prior state. Group name entries are NOT enabled as financial account types until a separate finance ADR.
+- **Non-goals:** no group removal/rename, payment/ledger/Insurance transactions, no native dependencies or new cloud integration; no main modifications, merge or privileged preview activation.
+- **Tests:** pure validation (five maximum, duplicate, malformed, round-trip), negative architecture checks and official SVG provenance. Exact-head CI remains to verify after code commit; Android/iOS on-device approval still pending.

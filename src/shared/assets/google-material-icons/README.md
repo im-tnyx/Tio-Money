@@ -74,3 +74,15 @@ to **300**, keeping unselected icons at **200**. The updated five selected SVGs
 and the static JSON artwork bundle contain exact Google Material Symbols Outlined
 `*_wght300_24px.svg` artwork; originals at 200 are unchanged. The independent
 Add FAB keeps its separate default weight **400** and is not affected.
+
+## Settings → Account Groups row — owner icon clarification (2026-11-22)
+
+Use Google's authentic `home_storage_wght200_24px.svg` (Material Symbols
+Outlined, weight **200**, 24px optical) **only on the Settings → Account Groups
+entry row**, never on Account Groups catalogue rows. Source upstream:
+`symbols/web/home_storage/materialsymbolsoutlined/home_storage_wght200_24px.svg`
+from `google/material-design-icons` commit `10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7`.
+Exact upstream SVG is archived as `home_storage.svg`; identical runtime XML is
+`settings-account-groups-icon.json`. Render via `SvgXml` with shared
+`iconRoleSizes.card` and theme color, no extra icon fonts/dependencies.
+Existing Apache 2.0 license applies.

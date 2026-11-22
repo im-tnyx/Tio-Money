@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router';
 
 import { AccountGroupsScreen } from './account-groups-screen';
+import { useAccountGroupsViewModel } from './use-account-groups-view-model';
 
-/** Controller owns navigation; the screen is presentation only. */
+/** Router concerns stay in this controller; screens receive only state and intents. */
 export function AccountGroupsRoute() {
   const router = useRouter();
-  return <AccountGroupsScreen onBack={() => router.back()} />;
+  const { state, onAction } = useAccountGroupsViewModel(() => router.back());
+  return <AccountGroupsScreen state={state} onAction={onAction} />;
 }

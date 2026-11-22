@@ -626,3 +626,16 @@ New feature routes compose presentation and controller callbacks, never
 router/database calls from screens. Owner-side Android/iPhone safe-area,
 dark/light, back navigation, text scaling and Codespaces preview are separate
 device acceptance evidence. No preview workflow/permissions were changed.
+
+## Account Groups compact header refinement — RFC #79 / Draft PR #80
+
+Account Groups uses the shared `AppTopBar` with two accessible actions on its
+right: **Eye** (show/hide built-in descriptions) followed by **Add**. Both use
+shared 24dp top-bar icon roles and 48dp touch targets, with symmetric left/right
+header slots preserving the centered 50dp title. Default rows show names only;
+Eye toggles optional caption descriptions. The introductory "Built-in templates"
+paragraph is removed entirely. A maximum of five locally persisted *display-only*
+custom names is implemented in a controller, not in presentational screens or
+finance schema; this is not approval of new ledger account classes. User-picked
+Google `home_storage` weight-200 artwork appears ONLY on the main Settings
+Account Groups entry, not beside list rows. See Google icon asset provenance.

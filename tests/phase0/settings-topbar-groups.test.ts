@@ -48,15 +48,21 @@ test('Account Groups route is controller-driven and shows seven informational bu
   const vm = read('src/features/settings/use-more-view-model.ts');
   assert.match(page, /AccountGroupsRoute/);
   assert.match(route, /useRouter\(\)/);
+  assert.match(route, /useAccountGroupsViewModel/);
   assert.match(route, /router\.back\(\)/);
   assert.match(vm, /router\.push\('\/account-groups'\)/);
   assert.match(more, /onAction\(\{ type: 'account\.groups\.open' \}\)/);
   assert.match(screen, /<AppTopBar/);
   assert.match(screen, /BUILT_IN_ACCOUNT_GROUPS\.map/);
-  assert.match(screen, /accountGroupsReadOnly/);
+  assert.doesNotMatch(screen, /accountGroupsReadOnly|Built-in templates/);
+  assert.match(screen, /actions=\{actions\}/);
+  assert.match(screen, /state\.showDescriptions \?/);
+  assert.match(screen, /state\.customGroups\.map/);
+  assert.match(screen, /<AppBottomSheet/);
+  assert.match(screen, /<TextInput/);
   assert.doesNotMatch(
     screen,
-    /useRouter|useState|useEffect|sqlite|fetch\(|onPress=|createAccount|saveAccount/i,
+    /useRouter|useState|useEffect|sqlite|fetch\(|Storage\.|createAccount|saveAccount/i,
   );
 });
 
