@@ -9,7 +9,7 @@ import { radius, space } from '../../src/shared/theme/tokens';
 test('shared bottom-sheet geometry aliases central primitives and semantic tokens', () => {
   assert.equal(bottomSheetTokens.topCornerRadius, radius.xl);
   assert.equal(bottomSheetTokens.topCornerRadius, size.dp24);
-  assert.equal(bottomSheetTokens.maxHeight, '90%');
+  assert.equal(bottomSheetTokens.collapsedViewportFraction, 0.9);
   assert.equal(bottomSheetTokens.backdropOpacity, opacity.bottomSheetBackdrop);
   assert.equal(opacity.bottomSheetBackdrop, 0.45);
   assert.equal(bottomSheetTokens.handleWidth, space.xxxl);
@@ -42,7 +42,7 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.equal(shared.match(/onPress=\{onDismiss\}/g)?.length, 1);
   assert.match(shared, /StyleSheet\.absoluteFill/);
   assert.match(shared, /opacity: sheet\.backdropOpacity/);
-  assert.match(shared, /maxHeight: sheet\.maxHeight/);
+  assert.match(shared, /maxHeight: draggedForContent/);
   assert.match(shared, /borderTopLeftRadius: sheet\.topCornerRadius/);
   assert.match(shared, /borderTopRightRadius: sheet\.topCornerRadius/);
   assert.match(shared, /overflow: 'hidden'/);
@@ -54,7 +54,7 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(shared, /headerDividerWidth/);
   assert.match(shared, /textAlign: 'center'/);
   assert.match(shared, /\{children\}/);
-  assert.doesNotMatch(shared, /useState|expo-sqlite|Storage\.|useRouter|onPress=\{dismiss\}/);
+  assert.doesNotMatch(shared, /expo-sqlite|Storage\.|useRouter|onPress=\{dismiss\}/);
   assert.match(provider, /bottomSheet: bottomSheetTokens/);
 
   assert.match(feature, /<AppBottomSheet/);
@@ -66,4 +66,12 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(fixture, /title="Example"/);
   assert.match(fixture, /<AppText>Independent test-only content<\/AppText>/);
   assert.doesNotMatch(fixture, /MoreUiState|AppearancePreference/);
+});
+
+test('TM-CUR-047: shared overflowing bottom sheets have reduced spacing without double safe-area', () => {
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.equal(bottomSheetTokens.contentBottomPadding, space.xl);
+  assert.match(shared, /scrollBottomPadding = canExpand \? sheet.contentBottomPadding/);
+  assert.match(shared, /edges=\{\['bottom', 'left', 'right'\]\}/);
+  assert.match(shared, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
 });
