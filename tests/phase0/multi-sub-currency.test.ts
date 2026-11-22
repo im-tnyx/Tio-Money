@@ -62,11 +62,12 @@ test('TM-FX-013: pair-checked FX, six decimals, and screen-only display', () => 
   }
   const fx = readFileSync('src/data/market/fx-reference-rates.ts', 'utf8');
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
+  const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   const sheet = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
   assert.match(fx, /api\.frankfurter\.dev\/v2\/rate\//);
   assert.match(screen, /item.rateLabel/);
   assert.doesNotMatch(screen, /currencyFxSource|item\.rate\.date/);
-  assert.match(screen, /currencyFxUnavailable/);
+  assert.match(vm, /currencyFxUnavailable/);
   assert.doesNotMatch(sheet, /rate\.date|formatReferenceRate|currencyFxSource/);
   assert.doesNotMatch(fx, /accountId|transactionId|ledger|balance/);
 });
