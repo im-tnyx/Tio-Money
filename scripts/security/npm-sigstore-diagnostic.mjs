@@ -6,6 +6,7 @@ import { copyFileSync, readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSy
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SOURCE = join(ROOT, '.github/preview-eas-cli');
@@ -71,7 +72,8 @@ export async function runDiagnostic() {
     replica: /^[a-z0-9-]{1,32}$/.test(name) ? name : 'unspecified',
     timestampUtc: new Date().toISOString(), node: process.version,
     registry: REGISTRY, install: 'NOT_RUN', signatures: 'NOT_RUN',
-    jsonAttestations: 'NOT_RUN', independentSigstoreVerification: false,
+    jsonAttestations: 'NOT_RUN', packageProofStatus: 'NOT_RUN',
+    independentSigstoreVerification: false,
     rawAttestationsUploaded: false,
   };
   let failed = false;
@@ -81,7 +83,8 @@ export async function runDiagnostic() {
     report.lockGitBlob = gitBlobSha1(lockBytes);
     report.lockSha256 = createHash('sha256').update(lockBytes).digest('hex');
     report.manifestSha256 = createHash('sha256').update(manifest).digest('hex');
-    report.packages = verifyLock(JSON.parse(lockBytes.toString('utf8')), lockBytes);
+    const lock = JSON.parse(lockBytes.toString('utf8'));
+    report.packages = verifyLock(lock, lockBytes);
     copyFileSync(join(SOURCE, 'package.json'), join(temp, 'package.json'));
     copyFileSync(join(SOURCE, 'package-lock.json'), join(temp, 'package-lock.json'));
     mkdirSync(join(temp, 'npm-cache'), { mode: 0o700 });
@@ -131,6 +134,29 @@ export async function runDiagnostic() {
       report.bundleMetadataPresent = Array.isArray(parsed?.verified) &&
         parsed.verified.some(entry => entry && typeof entry === 'object' &&
           ('attestations' in entry || 'bundle' in entry || 'verificationMaterial' in entry));
+      // npm verified the bundle; independently bind each target's signed DSSE
+      // subject and embedded-leaf signature to freshly downloaded tarball bytes.
+      // A leaf signature alone is NOT Fulcio chain, OIDC identity or Rekor trust.
+      try {
+        report.packageProofs = await verifyTargetProofs(parsed.verified, lock, AFFECTED);
+        report.packageProofStatus = 'SUBJECT_DIGEST_AND_LEAF_SIGNATURE_PASS';
+      } catch (proofError) {
+        report.packageProofStatus = 'FAIL_CLOSED';
+        const categories = [
+          'MISSING_OR_AMBIGUOUS_VERIFIED_PACKAGE',
+          'NO_PACKAGE_SPECIFIC_DSSE_BUNDLE',
+          'MISSING_SIGNING_CERTIFICATE',
+          'MISSING_TRANSPARENCY_LOG_EVIDENCE',
+          'ATTESTED_SHA512_TARBALL_MISMATCH',
+          'REGISTRY_TARBALL_SRI_MISMATCH',
+          'DSSE_LEAF_SIGNATURE_INVALID',
+          'MISSING_OR_AMBIGUOUS_PACKAGE_SUBJECT',
+          'UNTRUSTED_TARBALL_ORIGIN',
+        ];
+        report.packageProofFailure = categories.find((code) =>
+          String(proofError.message).startsWith(code)) || 'OTHER_PROOF_ERROR';
+        throw new Error('PACKAGE_PROOF_VERIFICATION_FAILED');
+      }
     } else {
       report.jsonAttestations = 'UNSUPPORTED_BY_BUNDLED_NPM';
     }

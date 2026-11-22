@@ -7,7 +7,9 @@ on:
     paths:
       - .github/workflows/eas-cli-sigstore-diagnostic.yml
       - scripts/security/npm-sigstore-diagnostic.mjs
+      - scripts/security/npm-sigstore-proof.mjs
       - tests/security/npm-sigstore-diagnostic.test.mjs
+      - tests/security/npm-sigstore-proof.test.mjs
 
 permissions:
   contents: read
@@ -47,7 +49,7 @@ jobs:
           node-version: ${{ matrix.node }}
           package-manager-cache: false
       - name: Validate fail-closed diagnostic logic
-        run: node --test tests/security/npm-sigstore-diagnostic.test.mjs
+        run: node --test tests/security/npm-sigstore-diagnostic.test.mjs tests/security/npm-sigstore-proof.test.mjs
       - name: Run isolated registry signature and provenance diagnostics
         env:
           DIAGNOSTIC_REPLICA: ${{ matrix.replica }}
