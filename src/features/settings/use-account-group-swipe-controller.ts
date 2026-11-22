@@ -53,7 +53,13 @@ export function useAccountGroupSwipeController(): AccountGroupSwipeController {
 
   const begin = useCallback(
     (id: string, x: number, y: number, width: number) => {
-      start.current = { id, x, y, offset: openId === id ? width : 0, width };
+      start.current = {
+        id,
+        x,
+        y,
+        offset: openId === id ? width : 0,
+        width,
+      };
       setCardTouchActive(true);
     },
     [openId],
@@ -77,7 +83,10 @@ export function useAccountGroupSwipeController(): AccountGroupSwipeController {
   const move = useCallback((id: string, x: number) => {
     const from = start.current;
     if (from?.id !== id) return;
-    setDrag({ id, offset: getSwipeOffset(from.offset, x - from.x, from.width) });
+    setDrag({
+      id,
+      offset: getSwipeOffset(from.offset, x - from.x, from.width),
+    });
   }, []);
 
   const release = useCallback(

@@ -1,5 +1,11 @@
 # 🧭 Current task index
 
+## 2026-11-23 — Draft PR #80 custom Account Group swipe Delete and tap Rename
+
+- **Owner direction / RFC #79:** custom display-only groups reveal Delete on left swipe, and open the existing one-Save, keyboard-aware bottom sheet with a prefilled name for Rename on tap. Built-in groups remain read-only. Technical decisions and acceptance: [swipe](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084481580), [rename](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084496503).
+- **Work in progress:** PR #80 branch `ui/settings-topbar-account-groups-20261122`, bounded local v1 preference edits and route-owned swipe controller; exact HEAD CI, independent device swipe/keyboard/a11y QA pending. No merge authorization, no main/security modifications; Issue #71 remains OPEN.
+- **Assigned task:** `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+
 ## 2026-11-22 — PR #80 shared ActionButton visual 42dp, touch 48dp
 
 - **Owner request / RFC #79:** all shared ActionButtons painted 42dp from central theme primitives, retain accessible 48dp touch region, preserve variants and statuses. See active task `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.

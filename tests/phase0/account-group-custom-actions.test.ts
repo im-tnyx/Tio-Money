@@ -37,10 +37,10 @@ test('swipe reveals Delete only on custom rows; tap edits; built-ins stay read-o
   const contract = read('src/features/settings/account-groups-contract.ts');
   const shared = read('src/shared/ui/app-bottom-sheet.tsx');
 
-  const builtin = screen.split('BUILT_IN_ACCOUNT_GROUPS.map')[1]
-    ?.split('state.customGroups.map')[0] ?? '';
-  const custom = screen.split('state.customGroups.map')[1]
-    ?.split('</SwipeableCustomGroupRow>')[0] ?? '';
+  const builtin =
+    screen.split('BUILT_IN_ACCOUNT_GROUPS.map')[1]?.split('state.customGroups.map')[0] ?? '';
+  const custom =
+    screen.split('state.customGroups.map')[1]?.split('</SwipeableCustomGroupRow>')[0] ?? '';
   assert.doesNotMatch(builtin, /SwipeableCustomGroupRow|custom\.edit|custom\.remove/);
   assert.match(custom, /SwipeableCustomGroupRow/);
   assert.match(custom, /type: 'custom\.remove'/);
