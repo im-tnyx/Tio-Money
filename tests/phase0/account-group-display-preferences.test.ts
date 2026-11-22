@@ -34,7 +34,7 @@ test('empty, duplicate, overlong and malformed group names cannot be saved', () 
   const first = addCustomGroupLabel(state, '  My   Savings  ');
   assert.equal(first.ok, true);
   if (!first.ok) return;
-  assert.equal(first.preferences.customGroups[0].name, 'My Savings');
+  assert.equal(first.preferences.customGroups[0]?.name, 'My Savings');
   assert.equal(addCustomGroupLabel(first.preferences, 'my savings').ok, false);
   assert.equal(isAccountGroupPreferences({ ...first.preferences, customGroups: [{ id: 'custom-9', name: 'Other' }] }), false);
   assert.throws(() => parseAccountGroupPreferences('{invalid'));
