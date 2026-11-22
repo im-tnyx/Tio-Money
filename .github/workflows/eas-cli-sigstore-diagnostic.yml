@@ -27,6 +27,8 @@ on:
       - tests/security/npm-sigstore-pacote.test.mjs
       - tests/security/npm-sigstore-root-chain.test.mjs
       - tests/security/npm-sigstore-http-boundary.test.mjs
+      - scripts/security/npm-sigstore-cli-first-attempt.mjs
+      - tests/security/npm-sigstore-cli-first-attempt.test.mjs
       - tests/preview/eas-cli-locked-install.test.mjs
 
 permissions:
@@ -208,3 +210,38 @@ jobs:
         run: node --test tests/security/npm-sigstore-http-boundary.test.mjs
       - name: Run one instrumented npm10 signature audit without secrets
         run: node scripts/security/npm-sigstore-http-boundary.mjs
+
+  # Owner-authorized diagnostic-only first CLI attempts. Never overrides static.
+  cli-first-attempt:
+    name: Sigstore first CLI audit / ${{ matrix.replica }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - replica: npm10-clean
+            node: '22.16.0'
+          - replica: npm11-clean
+            node: '26.8.2'
+    steps:
+      - name: Checkout immutable PR HEAD without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Install pinned toolchain without npm cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: Verify fail-closed diagnostic fixtures offline
+        run: node --test tests/security/npm-sigstore-cli-first-attempt.test.mjs
+      - name: Run exactly one npm audit signatures in clean runner
+        env:
+          DIAGNOSTIC_REPLICA: ${{ matrix.replica }}
+        run: node scripts/security/npm-sigstore-cli-first-attempt.mjs
