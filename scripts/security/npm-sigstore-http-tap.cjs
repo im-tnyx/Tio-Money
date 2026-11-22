@@ -3,7 +3,7 @@
 'use strict';
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
-const { writeFileSync } = require('node:fs');
+const { realpathSync, writeFileSync } = require('node:fs');
 const { createRequire } = require('node:module');
 const { resolve } = require('node:path');
 
@@ -36,7 +36,9 @@ function report() {
 }
 process.on('exit', report);
 
-const npmRequire = createRequire(process.argv[1]);
+// npm's executable is commonly a symlink in setup-node; resolve its real
+// npm-cli.js location before locating the bundled fetch implementation.
+const npmRequire = createRequire(realpathSync(process.argv[1]));
 const modulePath = npmRequire.resolve('make-fetch-happen');
 const original = npmRequire(modulePath);
 assert.equal(typeof original, 'function', 'TAP_FETCH_MODULE_UNEXPECTED');

@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-22 — HTTP tap path fix, distinct npm10 failure (#71)
+
+- **Pre-fix head `6bb1c9cc`:** New instrumented job failed before capture due to npm executable symlink path; fix preloader module resolution with `realpathSync` and synthetic symlink test. Separate uninstrumented node22-clean-a genuinely failed `@babel/code-frame@7.29.7` attestation on unchanged EAS lock; node22-clean-b/npm11 and required static/Governance passed. First failed HTTP bytes remain NOT_CAPTURED.
+- **Gate:** Fresh fixed-head CI is required. #71 OPEN, #73 Draft, #65 HOLD; no merge/risk acceptance or signature bypass. Independent human review DEFERRED.
+
 ## 2026-11-22 — Instrumented first npm10 HTTP boundary (#71)
 
 - **Scope/decision:** Owner `Go`, continuing [Issue #71 RFC](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079959825); Draft PR #73 only. Agent ChatGPT/GPT-6. A new isolated read-only job records bounded first target response fingerprints from npm10's bundled fetch boundary in one real `npm audit signatures` invocation. No raw payload/secret output, retries, mandatory Phase 0 changes, trust-policy switch or #65/main edit.

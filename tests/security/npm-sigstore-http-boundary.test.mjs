@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
@@ -50,10 +50,12 @@ test('preload hashes first in-process response without writing body or request c
     const cli = join(root, 'npm-cli.cjs');
     writeFileSync(cli, `require('make-fetch-happen')(
       'https://registry.npmjs.org/%40babel%2Ftypes').then(() => {});`);
+    const bin = join(root, 'npm');
+    symlinkSync(cli, bin);
     const tap = join(dirname(fileURLToPath(import.meta.url)),
       '../../scripts/security/npm-sigstore-http-tap.cjs');
     const report = join(root, 'result.json');
-    const result = spawnSync(process.execPath, ['--require', tap, cli], {
+    const result = spawnSync(process.execPath, ['--require', tap, bin], {
       encoding: 'utf8', timeout: 10000,
       env: { ...process.env, TM_HTTP_TAP_REPORT: report },
     });
