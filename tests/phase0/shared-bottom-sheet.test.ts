@@ -75,3 +75,21 @@ test('TM-CUR-047: shared overflowing bottom sheets have reduced spacing without 
   assert.match(shared, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.match(shared, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
 });
+
+test('Account Groups alone opts into keyboard avoidance without changing shared sheet geometry', () => {
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  const groups = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
+  const appearance = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
+  const currency = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
+  assert.match(shared, /avoidKeyboard = false/);
+  assert.match(shared, /avoidKeyboard\?: boolean/);
+  assert.match(shared, /<KeyboardAvoidingView/);
+  assert.match(shared, /behavior=\{Platform\.OS === 'ios' \? 'padding' : 'height'\}/);
+  assert.match(shared, /style=\{\{ flex: 1 \}\}/);
+  assert.match(groups, /<AppBottomSheet\s+visible=\{state\.addSheetVisible\}\s+avoidKeyboard/);
+  assert.doesNotMatch(appearance, /avoidKeyboard/);
+  assert.doesNotMatch(currency, /avoidKeyboard/);
+  assert.equal((shared.match(/<SheetSurface/g) ?? []).length, 1);
+  assert.match(shared, /onRequestClose=\{onDismiss\}/);
+  assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
+});

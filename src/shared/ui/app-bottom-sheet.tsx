@@ -1,5 +1,14 @@
 import { useRef, useState, type ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
@@ -20,13 +29,26 @@ export function AppBottomSheet({
   dismissAccessibilityLabel,
   onDismiss,
   children,
+  avoidKeyboard = false,
 }: {
   visible: boolean;
   title: string;
   dismissAccessibilityLabel: string;
   onDismiss: () => void;
   children: ReactNode;
+  avoidKeyboard?: boolean;
 }) {
+  const surface = visible ? (
+    <SheetSurface
+      key={title}
+      title={title}
+      dismissAccessibilityLabel={dismissAccessibilityLabel}
+      onDismiss={onDismiss}
+    >
+      {children}
+    </SheetSurface>
+  ) : null;
+
   return (
     <Modal
       visible={visible}
@@ -35,16 +57,16 @@ export function AppBottomSheet({
       onRequestClose={onDismiss}
       statusBarTranslucent
     >
-      {visible ? (
-        <SheetSurface
-          key={title}
-          title={title}
-          dismissAccessibilityLabel={dismissAccessibilityLabel}
-          onDismiss={onDismiss}
+      {avoidKeyboard ? (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
         >
-          {children}
-        </SheetSurface>
-      ) : null}
+          {surface}
+        </KeyboardAvoidingView>
+      ) : (
+        surface
+      )}
     </Modal>
   );
 }

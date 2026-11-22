@@ -121,6 +121,7 @@ export function AccountGroupsScreen({
       </ScrollView>
       <AppBottomSheet
         visible={state.addSheetVisible}
+        avoidKeyboard
         title={t('accountGroupsAdd')}
         dismissAccessibilityLabel={t('accountGroupsCancel')}
         onDismiss={() => onAction({ type: 'custom.dismiss' })}

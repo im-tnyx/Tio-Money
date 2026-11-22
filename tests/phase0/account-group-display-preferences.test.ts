@@ -96,6 +96,7 @@ test('Add Account Group sheet has only Save; dismissal remains on shared shell',
   const button = readFileSync('src/shared/ui/action-button.tsx', 'utf8');
   const modal = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   assert.match(screen, /<AppBottomSheet/);
+  assert.match(screen, /avoidKeyboard/);
   assert.match(screen, /<AppTextField/);
   assert.equal((screen.match(/<ActionButton/g) ?? []).length, 1);
   assert.match(screen, /label=\{t\('accountGroupsSave'\)\}/);
