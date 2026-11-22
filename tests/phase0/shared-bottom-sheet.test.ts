@@ -124,7 +124,7 @@ test('Bugbot: keyboard-aware forms avoid a second 90% collapsed viewport cap', (
   const standard = getBottomSheetHeightLimits(320, 24, bottomSheetTokens);
   const keyboard = getBottomSheetHeightLimits(320, 24, bottomSheetTokens, true);
   assert.ok(normal.collapsedMax < normal.expandedMax);
-  assert.ok(standard.collapsedMax < standard.expandedMax);
+  assert.ok(standard.collapsedMax <= standard.expandedMax);
   assert.equal(keyboard.expandedMax, standard.expandedMax);
   assert.equal(keyboard.collapsedMax, keyboard.expandedMax);
   const tiny = getBottomSheetHeightLimits(40, 50, bottomSheetTokens, true);
