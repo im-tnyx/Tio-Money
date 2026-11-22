@@ -86,8 +86,13 @@ export function main() {
     // Inspect the first result only; never rerun after a failure.
     report.auditResult = audit.status === 0 && !audit.error && !audit.signal ? 'PASS' : 'FAIL';
     try {
-      report.boundary = sanitizeTapReport(JSON.parse(readFileSync(join(temp, 'capture.json'), 'utf8')));
+      const snapshot = JSON.parse(readFileSync(join(temp, 'capture.json'), 'utf8'));
+      report.tapStage = ['PRELOAD_STARTED', 'NPM_PATH_RESOLVED',
+        'FETCH_MODULE_LOADED', 'FETCH_HOOK_INSTALLED', 'TARGET_RESPONSE_SEEN',
+        'TARGET_RESPONSE_HASHED'].includes(snapshot.stage) ? snapshot.stage : 'UNVERIFIED';
+      report.boundary = sanitizeTapReport(snapshot);
     } catch { report.boundary = 'UNVERIFIED_OR_INCOMPLETE'; }
+    if (!report.tapStage) report.tapStage = 'NO_CAPTURE_FILE';
     if (report.auditResult !== 'PASS') {
       report.firstFailure = firstFailureFingerprint({ stdout: audit.stdout,
         stderr: audit.stderr, exitStatus: audit.status, signal: audit.signal,

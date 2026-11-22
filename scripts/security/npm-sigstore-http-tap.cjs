@@ -13,6 +13,7 @@ const TARGETS = new Map([
   ['@babel/types', '7.29.15'],
 ]);
 const evidence = [];
+let stage = 'PRELOAD_STARTED';
 function classify(uri) {
   try {
     const url = new URL(typeof uri === 'string' ? uri : uri?.url);
@@ -30,7 +31,7 @@ function classify(uri) {
 function report() {
   const filename = process.env.TM_HTTP_TAP_REPORT;
   if (filename && resolve(filename) === filename) {
-    try { writeFileSync(filename, JSON.stringify({ evidence }), { mode: 0o600 }); }
+    try { writeFileSync(filename, JSON.stringify({ stage, evidence }), { mode: 0o600 }); }
     catch { /* Parent treats missing report as UNVERIFIED. */ }
   }
 }
@@ -39,13 +40,16 @@ process.on('exit', report);
 // npm's executable is commonly a symlink in setup-node; resolve its real
 // npm-cli.js location before locating the bundled fetch implementation.
 const npmRequire = createRequire(realpathSync(process.argv[1]));
+stage = 'NPM_PATH_RESOLVED';
 const modulePath = npmRequire.resolve('make-fetch-happen');
 const original = npmRequire(modulePath);
 assert.equal(typeof original, 'function', 'TAP_FETCH_MODULE_UNEXPECTED');
+stage = 'FETCH_MODULE_LOADED';
 const wrapped = async (...args) => {
   const target = classify(args[0]);
   const response = await original(...args);
   if (target && response?.status === 200) {
+    stage = 'TARGET_RESPONSE_SEEN';
     const item = { ...target, order: evidence.length + 1, status: 'UNVERIFIED' };
     evidence.push(item);
     // Clone uses the very same response stream; no second registry GET.
@@ -57,8 +61,10 @@ const wrapped = async (...args) => {
     item.sha256 = createHash('sha256').update(bytes).digest('hex');
     item.bytes = bytes.length;
     item.status = 'HASHED_INSTRUMENTED_RESPONSE';
+    stage = 'TARGET_RESPONSE_HASHED';
   }
   return response;
 };
 Object.assign(wrapped, original);
 require.cache[modulePath].exports = wrapped;
+stage = 'FETCH_HOOK_INSTALLED';
