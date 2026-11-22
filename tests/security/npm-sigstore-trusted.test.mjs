@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import { enforcePinnedVerifier, trustedVerificationOptions,
-  verifyTrustedTargetProvenance } from '../../scripts/security/npm-sigstore-trusted.mjs';
+  verifyTrustedTargetProvenance, observeVerifiedPublisherSource } from '../../scripts/security/npm-sigstore-trusted.mjs';
 
 const name = '@babel/helper-compilation-targets';
 const version = '7.29.13';
@@ -155,4 +155,69 @@ test('trusted verification uses exact nested @babel/code-frame version and signe
     async () => {}, temp, async () => tarball,
     async () => ({ attestations: [{ predicateType: 'https://slsa.dev/provenance/v1', bundle }] })),
   /INCONSISTENT_NESTED_TARGET_SRI/);
+});
+
+
+// Public source identity observations do not change the existing accepted SAN
+// policy. Test the exact workflow/ref, source SHA and run URI shape, then reject
+// malicious/unexpected fields without echoing them into GitHub Actions logs.
+const sampleSource = (ref, sha = 'a'.repeat(40)) => ({
+  predicate: {
+    buildDefinition: {
+      externalParameters: { workflow: {
+        repository: 'https://github.com/babel/babel',
+        path: '.github/workflows/release.yml',
+        ref,
+      } },
+      resolvedDependencies: [{
+        uri: 'git+https://github.com/babel/babel@' + ref,
+        digest: { gitCommit: sha },
+      }],
+    },
+    runDetails: { metadata: {
+      invocationId: 'https://github.com/babel/babel/actions/runs/123456789/attempts/1',
+    } },
+  },
+});
+
+test('signed Babel release sample exposes only exact allowlisted public workflow, SHA and run', () => {
+  const ref = 'refs/tags/v7.29.15';
+  const san = 'URI:https://github.com/babel/babel/.github/workflows/release.yml@' + ref;
+  const observation = observeVerifiedPublisherSource(san, sampleSource(ref));
+  assert.equal(observation.exactReleaseWorkflowSanStatus, 'OBSERVED_IN_VERIFIED_CERT_SAMPLE');
+  assert.equal(observation.signedSlsaWorkflowStatus, 'OBSERVED_IN_SIGNED_SAMPLE');
+  assert.equal(observation.signedSourceCommitStatus, 'OBSERVED_IN_SIGNED_SAMPLE');
+  assert.equal(observation.signedRunIdentityStatus, 'OBSERVED_IN_SIGNED_SAMPLE');
+  assert.equal(observation.refAgreement, 'MATCH');
+  assert.equal(observation.signedSourceCommit, 'a'.repeat(40));
+  assert.equal(observation.releaseWorkflowSan, san.slice(4));
+  assert.equal(observation.npmRegisteredTrustedPublisher, 'UNVERIFIED');
+  assert.equal(observation.sourceCommitMatchesOfficialReleaseTree, 'UNVERIFIED');
+  assert.equal(observation.rootBootstrapSeparatelyApproved, false);
+});
+
+test('signed/public identity mismatch is observed, never treated as approval', () => {
+  const signed = sampleSource('refs/tags/v7.29.13');
+  const san = 'URI:https://github.com/babel/babel/.github/workflows/release.yml@refs/heads/release';
+  const observation = observeVerifiedPublisherSource(san, signed);
+  assert.equal(observation.refAgreement, 'MISMATCH');
+  assert.equal(observation.npmRegisteredTrustedPublisher, 'UNVERIFIED');
+});
+
+test('unknown SAN, unexpected workflow/ref and untrusted strings are redacted', () => {
+  const secret = 'token=never-disclose-this';
+  const source = sampleSource('refs/heads/../unsafe', secret);
+  source.predicate.runDetails.metadata.invocationId =
+    'https://evil.example/actions/runs/12?token=' + secret;
+  const result = observeVerifiedPublisherSource(
+    'URI:https://evil.example/' + secret, source);
+  assert.equal(result.exactReleaseWorkflowSanStatus, 'UNVERIFIED');
+  assert.equal(result.signedSlsaWorkflowStatus, 'UNVERIFIED');
+  assert.equal(result.signedSourceCommitStatus, 'UNVERIFIED');
+  assert.equal(result.signedRunIdentityStatus, 'UNVERIFIED');
+  assert.equal(result.refAgreement, 'UNVERIFIED');
+  assert.ok(!JSON.stringify(result).includes(secret));
+  const noCert = observeVerifiedPublisherSource('', sampleSource('refs/tags/v7.29.7'));
+  assert.equal(noCert.exactReleaseWorkflowSanStatus, 'UNVERIFIED');
+  assert.equal(noCert.signedSlsaWorkflowStatus, 'OBSERVED_IN_SIGNED_SAMPLE');
 });
