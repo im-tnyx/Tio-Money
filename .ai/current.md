@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+
+## 2026-11-22 — Issue #71 first-failure npm evidence gate, Draft PR #73
+
+- **Task/owner direction:** [TM-SEC-SIGSTORE-20261122-001](tasks/security/npm-sigstore-forensics-20261122.md) and [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079012893), agent-transcribed owner chat "Go" for narrowly scoped First-Failure Evidence Capture, not permission to merge or accept unknown risk. Active agent ChatGPT/GPT-6; independent human security reviewer SKIPPED (optional by owner).
+- **Safe branch/scope:** [Draft PR #73](https://github.com/im-tnyx/Tio-Money/pull/73), branch security/issue-71-npm-sigstore-diagnostic; first-failure helper/synthetic tests, Phase 0 EAS signature TEST, no-secrets diagnostic/workflow/task record and this current index only. Original npm CLI stdout/stderr SHA-256 and exact lockfile package identity recorded on first failure; later public registry fingerprints distinctly AFTER_FIRST_NPM_CLI_FAILURE. No raw HTTP/DSSE/certificates/credentials, no retries or signature bypass. App, EAS/root lock, #65, protected main and ruleset unchanged.
+- **Verified checkpoint BEFORE this index-only commit:** PR HEAD 6113cf79e542bc4de6859657f3e847f4c391341e, base protected main 44f033b83921c660797d610a3befa744ab832f9f, 0 commits behind, 7/7 native GitHub checks SUCCESS: required static and Governance, npm10 A/B, npm11, same-bundle, optional signal. App/preview tests and Metro Android/iOS PASS. The current index edit creates a NEW HEAD; its own exact-head CI must be rechecked rather than inheriting prior PASS.
+- **Security disposition:** No live first-failure captured on the green checkpoint; first-failure code tested with safe negative fixtures, not historical HTTP reproduction. Historical npm attestation cause, owner-approved independent TUF trust anchor and exact Babel signing workflow ref remain UNVERIFIED. Issue #71 OPEN; PR #73 Draft/unmerged; PR #65 SECURITY HOLD. No merge, risk acceptance or protection bypass.
+
+
 ## 2026-11-22 — PR #76 root SECURITY.md (AGENTS.md governance checkpoint; OPEN)
 
 - **Task & RFC:** [TM-SEC-POLICY-20261122-001](tasks/security/security-policy-20261122.md), [Issue #75](https://github.com/im-tnyx/Tio-Money/issues/75); owner requested gap remediation with [documented bounded PROCEED](https://github.com/im-tnyx/Tio-Money/issues/75#issuecomment-7078378710). Current working agent ChatGPT / GPT-6 (self-identified); previous agent `UNKNOWN_NOT_VERIFIED`, not inferred from GitHub author.
