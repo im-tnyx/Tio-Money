@@ -3,6 +3,7 @@
 // This is NOT an npm CLI offline replay or a historical invalid-response capture.
 // No packages are installed, no secrets used, no raw bundles/certificates logged.
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
