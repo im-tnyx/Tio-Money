@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction
+
+- **Observed red test:** Gate 5 initial HEAD `c0a0ae29` first HTTP-boundary job [137250698578](https://github.com/im-tnyx/Tio-Money/actions/runs/45036298022/job/137250698578) failed 2/11 synthetic checks (partial report order fixture and literal backslash-newline fixture source). This is diagnostic test code, **not** a new npm invalid attestation.
+- **Correction:** Reindex only the partial fixture event to order 1; join generated JS with actual newlines. Keep historical failed run, original secure runtime behavior, first npm audit fail-closed, Issue #71 OPEN, PR #73 DRAFT/HOLD, PR #65 HOLD, main unchanged. Fresh exact-HEAD CI and agent review required.
+
 ## 2026-11-22 — Issue #71 Gate 5: eighth exact Babel HTTP target on Draft PR #73
 
 - **Technical PROCEED:** Owner chat `Go next`, scoped [Issue #71 RFC](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7081014363), existing Draft PR #73 branch only. Active agent ChatGPT/GPT-6; no new PR, merge, risk waiver or protected-main write.

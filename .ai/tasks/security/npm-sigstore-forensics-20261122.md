@@ -470,3 +470,22 @@ DRAFT/MERGE HOLD, PR #65 SECURITY HOLD; independently owner-approved out-of-band
 Sigstore bootstrap/rotation policy, approved Babel publisher workflow ref and
 historical npm10 causal explanation remain UNVERIFIED. Independent human
 review optional but strongly recommended, record its actual disposition.
+
+### Gate 5 first exact-HEAD synthetic test correction (no npm signature waiver)
+
+First Gate 5 HEAD `c0a0ae2922514ff1c1df5b0c9023e66759075eaf`,
+isolated HTTP-boundary synthetic job
+[137250698578](https://github.com/im-tnyx/Tio-Money/actions/runs/45036298022/job/137250698578)
+FAILED at its **test stage**: 9/11 PASS, two fixtures failed.
+The optional helpers partial-evidence fixture copied observation order 5 into
+a one-element event list where the strict sanitizer correctly requires order 1.
+The preloader integration fixture generated a JS file using literal
+backslash-n separators instead of actual newline separators. Both are
+**test implementation failures**, distinct from historical npm/Sigstore
+invalid-attestation failures; neither justifies security-risk acceptance.
+
+**Narrow correction:** reindex only the standalone partial synthetic observation
+to order 1 and use newline escapes when joining fixture source lines.
+No change to runtime preloader/sanitizer, original two REQUIRED identities,
+network access, locks, workflow, signing policy, PR #65 or protected main.
+Retain the failing CI run and verify fresh exact-HEAD synthetic and security checks.

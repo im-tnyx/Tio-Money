@@ -212,7 +212,7 @@ test('eighth observed exact EAS-lock helpers identity is accepted only at review
   assert.equal(verified.first.length, 4);
   assert.equal(verified.counts['@babel/helpers@7.29.15'].attestation, 1);
   assert.equal(verified.observed[4].packageId, '@babel/helpers@7.29.15');
-  const partial = sanitizeTapReport({ evidence: [sampled.evidence[4]] }, { allowPartial: true });
+  const partial = sanitizeTapReport({ evidence: [{ ...sampled.evidence[4], order: 1 }] }, { allowPartial: true });
   assert.equal(partial.observed[0].packageId, '@babel/helpers@7.29.15');
   assert.equal(partial.captureCompleteness, 'PARTIAL_FIRST_FAILURE_UNVERIFIED');
   const wrong = fixture();
@@ -231,7 +231,7 @@ test('npm preloader hashes helpers registry packument and exact attestation, rej
       "module.exports = async () => ({ status: 200,",
       " body: Readable.from([Buffer.from('{\"private\":\"fixture-secret\"}')]),",
       " json: async () => ({}) });",
-    ].join('\\n'));
+    ].join('\n'));
     const cli = join(root, 'npm-cli.cjs');
     const urls = [
       'https://registry.npmjs.org/%40babel%2Fhelpers',
@@ -245,7 +245,7 @@ test('npm preloader hashes helpers registry packument and exact attestation, rej
       'const urls = ' + JSON.stringify(urls) + ';',
       '(async () => { for (const url of urls) await (await fetch(url)).json(); })()',
       '.catch(() => { process.exitCode = 1; });',
-    ].join('\\n'));
+    ].join('\n'));
     const bin = join(root, 'npm');
     symlinkSync(cli, bin);
     const tap = join(dirname(fileURLToPath(import.meta.url)),
