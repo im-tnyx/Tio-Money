@@ -358,3 +358,43 @@ First isolated HTTP-boundary job on `6bb1c9cc` failed **before capture**: npm ex
 ## 2026-11-22 — JSON reader boundary after clone interception failed
 
 On HEAD `298b626f`, isolated tap job reached TARGET_RESPONSE_SEEN but failed before hashing; npm10 clean A/B and required static/Governance PASS. The failed clone is a diagnostic instrumentation problem, not a confirmed npm provenance finding. The reviewed replacement wraps the target response's `json()` reader: consumes the same bounded response bytes once via `buffer()`, hashes those bytes, parses JSON in-memory, returns the object to npm. No extra registry GET or raw body output. Unlike the unmodified CLI, this instrumented parser may change timing and error classes; never equate a green result with original failing static HTTP bytes. Synthetic local fixture verified a targeted JSON response hash with no body in the report. Exact-HEAD CI remains the acceptance gate.
+
+
+## 2026-11-22 — HTTP-boundary reader cap semantics: scoped fix
+
+**Owner direction:** "Go" after the read-only Gate 1 recommendation; recorded as
+agent-transcribed technical PROCEED at [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080458729). NOT authorization to merge,
+accept supply-chain risk, change TUF root pin, or modify production privileges.
+
+**Pre-fix exact HEAD:** Draft PR #73 a0ac978e8dfb76faf7d969adf1283c04d049cced,
+isolated HTTP-boundary job 137234370007 FAIL_CLOSED, tap stage
+TARGET_RESPONSE_SEEN then incomplete (no hash), npm CLI stdout empty,
+stderr fingerprinted, invalid attestation identities UNVERIFIED. Required
+static/Governance PASS. Do not infer actual npm package compromise.
+
+**Root cause of diagnostic failure:** Installed npm 10.9.2 bundled
+minipass-fetch Body interprets positive response.size as the expected
+**exact** length and pipes into MinipassSized. The previous preload set
+response.size to 8MiB expecting a maximum; smaller bodies therefore fail.
+Existing test used a Buffer mock which bypasses that streaming behavior.
+
+**Fix:** Do not mutate response.size. For the two exact locked
+@babel names only, consume response.body via bounded async iteration
+(or bounded Buffer path), abort/destroy on >8MiB, hash bytes actually
+used by instrumented JSON.parse, and never persist/render payload. On
+unsupported chunks/body, too-large stream, network error or invalid
+JSON, return a fixed allowlisted local failure category only and keep
+the first npm audit signature failure as CI FAIL_CLOSED. Test with a
+real streamed response and a property setter that rejects setting size;
+negative tests for over-limit stream and malformed JSON, plus no raw
+secret/token output. Distinguish decoded/parsing bytes from original
+unmodified registry HTTP wire bytes; instrumentation may change timing.
+
+**Scope:** Diagnostic preload, synthetic tests, diagnostic status
+allowlist, task/index only; EAS/root lock, npm signature requirements,
+production app, protected main, PR #65, privileged preview workflow
+and security rulesets unchanged. No force push, CI retry-until-green,
+secret access or merge. Acceptance is fresh exact-head CI and independent
+code-review disposition; historical cause / owner approved TUF root
+remain UNVERIFIED. Roll back only this scoped Draft PR commit if
+instrumentation remains unsafe.

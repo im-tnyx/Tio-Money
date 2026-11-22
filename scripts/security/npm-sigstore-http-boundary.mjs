@@ -89,7 +89,14 @@ export function main() {
       const snapshot = JSON.parse(readFileSync(join(temp, 'capture.json'), 'utf8'));
       report.tapStage = ['PRELOAD_STARTED', 'NPM_PATH_RESOLVED',
         'FETCH_MODULE_LOADED', 'FETCH_HOOK_INSTALLED', 'TARGET_RESPONSE_SEEN',
-        'TARGET_RESPONSE_HASHED'].includes(snapshot.stage) ? snapshot.stage : 'UNVERIFIED';
+        'TARGET_RESPONSE_HASHED', 'TARGET_RESPONSE_REJECTED'].includes(snapshot.stage) ? snapshot.stage : 'UNVERIFIED';
+      // Only predefined local categories may be published; never forward
+      // npm's raw response/parser/transport exception.
+      const failed = snapshot.evidence?.find(item => item.status === 'REJECTED');
+      report.tapReaderFailureCategory = [
+        'TAP_BODY_READ_REJECTED', 'TAP_BODY_CHUNK_INVALID',
+        'TAP_BODY_TOO_LARGE', 'TAP_BODY_UNSUPPORTED', 'TAP_JSON_INVALID',
+      ].includes(failed?.failureCategory) ? failed.failureCategory : undefined;
       report.boundary = sanitizeTapReport(snapshot);
     } catch { report.boundary = 'UNVERIFIED_OR_INCOMPLETE'; }
     if (!report.tapStage) report.tapStage = 'NO_CAPTURE_FILE';

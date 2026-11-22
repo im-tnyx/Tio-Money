@@ -1,5 +1,14 @@
 # 🧭 Current task index
 
+
+## 2026-11-22 — npm10 HTTP JSON reader streaming-bound fix (Issue #71)
+
+- **Authority/agent:** Owner's "Go" after read-only audit recommended the HTTP Boundary Diagnostic Fix, agent-transcribed [Issue #71 scoped PROCEED](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080458729). Active agent ChatGPT/GPT-6; independent human security review DEFERRED (optional under actual rule).
+- **Verified pre-fix HEAD:** Draft PR #73 a0ac978e8dfb76faf7d969adf1283c04d049cced, main 44f033b83921c660797d610a3befa744ab832f9f. Required static and Governance PASS; isolated http-boundary diagnostic FAIL_CLOSED after TARGET_RESPONSE_SEEN before TARGET_RESPONSE_HASHED. First CLI stdout was empty, invalid attestation package UNVERIFIED; not evidence of actual package compromise.
+- **Root diagnostic defect:** Preloader set npm10 minipass-fetch response.size=8MiB as a maximum; that field triggers MinipassSized requiring exact response size. The previous synthetic Buffer mock never exercised the stream size check. New instrumented reader consumes decoded response.body async-iterably with explicit 8MiB incremental cap and fails closed for unreadable/oversized/malformed body. Sanitize only fixed error category; no raw body/credential/error text output. Tests now exercise real stream bodies, size-setter rejection, too-large chunks, malformed JSON, redaction.
+- **Boundaries:** Instrumented decoded JSON bytes are NOT original historical uninstrumented HTTP wire bytes. Audit still single first attempt with no signature bypass/retry. Only scoped Draft #73 source/test/task/index edits; no app, lockfiles, PR #65, protected main, secrets, privileged workflow or ruleset changes. Post-fix exact HEAD and CI must be reverified. Issue #71 stays OPEN; PR #73 Draft; PR #65 Security HOLD; independent TUF trust anchor UNVERIFIED.
+
+
 ## 2026-11-22 — JSON response-boundary diagnostic correction (#71)
 
 - **Observed:** `298b626f` tap stage TARGET_RESPONSE_SEEN then failed before hashing; all uninstrumented npm diagnostics and required static/Governance passed. Clone-based interception was a diagnostic bug, not npm attestation proof.

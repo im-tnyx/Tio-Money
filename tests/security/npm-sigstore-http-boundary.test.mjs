@@ -44,10 +44,15 @@ test('preload hashes first in-process response without writing body or request c
   try {
     const mod = join(root, 'node_modules/make-fetch-happen');
     mkdirSync(mod, { recursive: true });
-    writeFileSync(join(mod, 'index.js'), `module.exports = async () => ({
-      status: 200, json: async () => ({}),
-      buffer: async () => Buffer.from('{"private":"fixture-body"}')
-    });`);
+    writeFileSync(join(mod, 'index.js'), `const { Readable } = require('node:stream');
+    module.exports = async () => {
+      const result = { status: 200, json: async () => ({}),
+        body: Readable.from([Buffer.from('{"private":"fixture-body"}')]) };
+      // minipass-fetch treats size as EXPECTED length, never as a limit.
+      Object.defineProperty(result, 'size', { get: () => 0,
+        set: () => { throw new Error('TAP_MUST_NOT_SET_EXACT_SIZE'); } });
+      return result;
+    };`);
     const cli = join(root, 'npm-cli.cjs');
     writeFileSync(cli, `require('make-fetch-happen')(
       'https://registry.npmjs.org/%40babel%2Ftypes').then(res => res.json())
@@ -59,7 +64,8 @@ test('preload hashes first in-process response without writing body or request c
     const report = join(root, 'result.json');
     const result = spawnSync(process.execPath, ['--require', tap, bin], {
       encoding: 'utf8', timeout: 10000,
-      env: { ...process.env, TM_HTTP_TAP_REPORT: report },
+      env: { PATH: process.env.PATH || '/usr/bin:/bin',
+        TM_HTTP_TAP_REPORT: report },
     });
     assert.equal(result.status, 0, 'instrumented fixture process failed');
     const raw = readFileSync(report, 'utf8');
@@ -68,5 +74,78 @@ test('preload hashes first in-process response without writing body or request c
     assert.equal(first.packageId, '@babel/types@7.29.15');
     assert.equal(first.sha256, createHash('sha256')
       .update('{"private":"fixture-body"}').digest('hex'));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+
+test('streamed oversized response fails before JSON parsing and preserves no body', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tm-tap-oversize-'));
+  try {
+    const mod = join(root, 'node_modules/make-fetch-happen');
+    mkdirSync(mod, { recursive: true });
+    writeFileSync(join(mod, 'index.js'), [
+      "const { Readable } = require('node:stream');",
+      "module.exports = async () => ({ status: 200,",
+      "  body: Readable.from([Buffer.alloc(4*1024*1024, 88),",
+      "    Buffer.alloc(4*1024*1024+1, 89)]),",
+      "  json: async () => ({untrusted:'fixture-secret'}) });",
+    ].join('\n'));
+    const cli = join(root, 'npm-cli.cjs');
+    writeFileSync(cli,
+      "require('make-fetch-happen')(" +
+      "'https://registry.npmjs.org/%40babel%2Ftypes')" +
+      ".then(r => r.json()).then(() => { process.exitCode = 7; })" +
+      ".catch(() => { process.exitCode = 1; });");
+    const bin = join(root, 'npm');
+    symlinkSync(cli, bin);
+    const tap = join(dirname(fileURLToPath(import.meta.url)),
+      '../../scripts/security/npm-sigstore-http-tap.cjs');
+    const report = join(root, 'result.json');
+    const result = spawnSync(process.execPath, ['--require', tap, bin], {
+      encoding: 'utf8', timeout: 10000,
+      env: { PATH: process.env.PATH || '/usr/bin:/bin',
+        TM_HTTP_TAP_REPORT: report },
+    });
+    assert.equal(result.status, 1, 'oversized stream must fail');
+    const raw = readFileSync(report, 'utf8');
+    assert.ok(!raw.includes('fixture-secret'));
+    const data = JSON.parse(raw);
+    assert.equal(data.stage, 'TARGET_RESPONSE_REJECTED');
+    assert.equal(data.evidence[0].status, 'REJECTED');
+    assert.equal(data.evidence[0].failureCategory, 'TAP_BODY_TOO_LARGE');
+    assert.equal(data.evidence[0].sha256, undefined);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('malformed streamed JSON fails with redacted allowlisted category', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tm-tap-bad-json-'));
+  try {
+    const mod = join(root, 'node_modules/make-fetch-happen');
+    mkdirSync(mod, { recursive: true });
+    writeFileSync(join(mod, 'index.js'), [
+      "const { Readable } = require('node:stream');",
+      "module.exports = async () => ({ status: 200,",
+      " body: Readable.from([Buffer.from('{invalid fixture-secret')]),",
+      " json: async () => ({}) });",
+    ].join('\n'));
+    const cli = join(root, 'npm-cli.cjs');
+    writeFileSync(cli,
+      "require('make-fetch-happen')(" +
+      "'https://registry.npmjs.org/%40babel%2Ftypes')" +
+      ".then(r => r.json()).catch(() => { process.exitCode = 1; });");
+    const bin = join(root, 'npm');
+    symlinkSync(cli, bin);
+    const tap = join(dirname(fileURLToPath(import.meta.url)),
+      '../../scripts/security/npm-sigstore-http-tap.cjs');
+    const report = join(root, 'result.json');
+    const result = spawnSync(process.execPath, ['--require', tap, bin], {
+      encoding: 'utf8', timeout: 10000,
+      env: { PATH: process.env.PATH || '/usr/bin:/bin',
+        TM_HTTP_TAP_REPORT: report },
+    });
+    assert.equal(result.status, 1);
+    const raw = readFileSync(report, 'utf8');
+    assert.ok(!raw.includes('fixture-secret'));
+    assert.equal(JSON.parse(raw).evidence[0].failureCategory, 'TAP_JSON_INVALID');
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

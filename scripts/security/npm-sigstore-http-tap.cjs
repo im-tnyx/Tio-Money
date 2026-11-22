@@ -53,18 +53,57 @@ const wrapped = async (...args) => {
     const item = { ...target, order: evidence.length + 1, status: 'UNVERIFIED' };
     evidence.push(item);
     assert.equal(typeof response.json, 'function', 'TAP_JSON_READER_UNAVAILABLE');
-    assert.equal(typeof response.buffer, 'function', 'TAP_BUFFER_READER_UNAVAILABLE');
-    // npm's minipass-fetch JSON reader also consumes bytes and JSON.parse's
-    // UTF-8 string. This instrumented replacement may affect timing/errors.
+    // CRITICAL: minipass-fetch's response.size means an EXPECTED exact
+    // stream length (MinipassSized), NOT an upper bound. Never assign MAX.
+    // Read the decoded response body incrementally, with a hard byte cap.
+    // This is not a wire capture and may change the instrumented audit timing.
     response.json = async () => {
-      response.size = MAX;
-      const bytes = await response.buffer();
-      assert.ok(bytes.length <= MAX, 'TAP_TARGET_RESPONSE_TOO_LARGE');
-      item.sha256 = createHash('sha256').update(bytes).digest('hex');
-      item.bytes = bytes.length;
-      item.status = 'HASHED_INSTRUMENTED_RESPONSE';
-      stage = 'TARGET_RESPONSE_HASHED';
-      return JSON.parse(bytes.toString('utf8'));
+      let failure = 'TAP_BODY_READ_REJECTED';
+      try {
+        const body = response.body;
+        const chunks = [];
+        let total = 0;
+        const append = value => {
+          if (!(Buffer.isBuffer(value) || typeof value === 'string' ||
+            value instanceof Uint8Array)) {
+            failure = 'TAP_BODY_CHUNK_INVALID';
+            throw new Error(failure);
+          }
+          const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
+          total += bytes.length;
+          if (total > MAX) {
+            failure = 'TAP_BODY_TOO_LARGE';
+            throw new Error(failure);
+          }
+          chunks.push(bytes);
+        };
+        if (Buffer.isBuffer(body)) {
+          append(body);
+        } else if (body && typeof body[Symbol.asyncIterator] === 'function') {
+          try {
+            for await (const chunk of body) append(chunk);
+          } catch {
+            body.destroy?.();
+            throw new Error(failure);
+          }
+        } else {
+          failure = 'TAP_BODY_UNSUPPORTED';
+          throw new Error(failure);
+        }
+        const bytes = Buffer.concat(chunks, total);
+        item.sha256 = createHash('sha256').update(bytes).digest('hex');
+        item.bytes = bytes.length;
+        item.status = 'HASHED_INSTRUMENTED_RESPONSE';
+        stage = 'TARGET_RESPONSE_HASHED';
+        try { return JSON.parse(bytes.toString('utf8')); }
+        catch { failure = 'TAP_JSON_INVALID'; throw new Error(failure); }
+      } catch {
+        item.status = 'REJECTED';
+        item.failureCategory = failure;
+        stage = 'TARGET_RESPONSE_REJECTED';
+        // Never print the original parser, transport or HTTP error.
+        throw new Error(failure);
+      }
     };
   }
   return response;
