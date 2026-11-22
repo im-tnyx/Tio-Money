@@ -208,4 +208,3 @@ test('delete middle custom group reindexes v1 IDs and restores the max-five Add 
   assert.deepEqual(remaining.customGroups, []);
   assert.equal(removeCustomGroupLabel(remaining, 'custom-1'), remaining);
 });
-
