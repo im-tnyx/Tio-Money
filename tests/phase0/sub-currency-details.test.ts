@@ -95,11 +95,13 @@ test('TM-CUR-036: saved Sub opens a native detail screen with Main-style option 
   assert.match(detail, /detail.refreshError/);
   assert.match(detail, /<SubCurrencyDetailOptionSheet/);
   assert.doesNotMatch(detail, /<AppBottomSheet|AppSegmentedActionControl/);
-  assert.match(options, /<AppBottomSheet/);
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  assert.match(options, /<CurrencyRadioChoiceSheet/);
   assert.match(options, /visible=\{detail !== null && kind !== null\}/);
-  assert.match(options, /accessibilityRole="radiogroup"/);
-  assert.match(options, /accessibilityRole="radio"/);
-  assert.match(options, /accessibilityState=\{\{ checked \}\}/);
+  assert.match(radio, /<AppBottomSheet/);
+  assert.match(radio, /accessibilityRole="radiogroup"/);
+  assert.match(radio, /accessibilityRole="radio"/);
+  assert.match(radio, /accessibilityState=\{\{ checked: choice.selected \}\}/);
   assert.match(options, /onDismiss=\{\(\) => onAction\(\{ type: 'detail.options.dismiss' \}\)\}/);
   assert.match(controller, /setRefreshResult\(null\)/);
   assert.match(controller, /classifySubCurrencyRefresh\(previousRate, quote\)/);
@@ -184,7 +186,7 @@ test('TM-CUR-042: Sub Decimal sheet preserves 0–3 precision only for saved Sub
   );
   const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   assert.match(main, /<MainCurrencyOptionSheet/);
-  assert.match(mainSheet, /<AppBottomSheet/);
+  assert.match(mainSheet, /<CurrencyRadioChoiceSheet/);
   assert.match(options, /currencyDecimalNone/);
   assert.match(options, /currencyDecimalOne/);
   assert.match(options, /currencyDecimalTwo/);
@@ -304,10 +306,12 @@ test('TM-CUR-055: Format is a separate selected-radio sheet, not an accordion', 
   assert.match(options, /currencyLakhsExample/);
   assert.match(options, /currencyNoFormatExample/);
   assert.match(options, /type: 'detail.format.select'/);
-  assert.match(options, /accessibilityRole="radiogroup"/);
-  assert.match(options, /accessibilityRole="radio"/);
-  assert.match(options, /accessibilityState=\{\{ checked \}\}/);
-  assert.match(options, /minHeight: theme.buttons.minimumHeight/);
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  assert.match(options, /<CurrencyRadioChoiceSheet/);
+  assert.match(radio, /accessibilityRole="radiogroup"/);
+  assert.match(radio, /accessibilityRole="radio"/);
+  assert.match(radio, /accessibilityState=\{\{ checked: choice.selected \}\}/);
+  assert.match(radio, /minHeight: theme.buttons.minimumHeight/);
   assert.match(vm, /const \[detailSheetKind, setDetailSheetKind\] = useState/);
   assert.match(vm, /case 'detail.options.open'/);
   assert.match(vm, /case 'detail.options.dismiss'/);
@@ -342,4 +346,28 @@ test('TM-CUR-056: saved Sub selection pushes validated native stack detail route
   assert.match(vm, /preferences.subCodes.includes\(detailCode\)/);
   assert.doesNotMatch(screen, /<SubCurrencyDetailSheet/);
   assert.doesNotMatch(detailScreen, /AppSegmentedActionControl|<AppBottomSheet/);
+});
+
+test('TM-CUR-057: Main and saved Sub reuse one radio sheet without shared persistence', () => {
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  const main = readFileSync('src/features/settings/main-currency-option-sheet.tsx', 'utf8');
+  const sub = readFileSync('src/features/settings/sub-currency-detail-option-sheet.tsx', 'utf8');
+  const mainVm = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  const subVm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+
+  assert.match(radio, /export function CurrencyRadioChoiceSheet/);
+  assert.match(radio, /<AppBottomSheet/);
+  assert.match(radio, /accessibilityRole="radiogroup"/);
+  assert.match(radio, /accessibilityRole="radio"/);
+  assert.match(radio, /accessibilityState=\{\{ checked: choice.selected \}\}/);
+  assert.match(radio, /onPress=\{choice.onSelect\}/);
+  assert.match(main, /<CurrencyRadioChoiceSheet/);
+  assert.match(sub, /<CurrencyRadioChoiceSheet/);
+  assert.doesNotMatch(main + sub, /<AppBottomSheet|accessibilityRole="radio"/);
+  assert.match(main, /type: 'select', choice: row.choice/);
+  assert.match(sub, /type: 'detail.decimal.select', value: item.value/);
+  assert.match(sub, /type: 'detail.format.select', value: item.value/);
+  assert.match(mainVm, /updateDisplay\(patch\)/);
+  assert.match(subVm, /updateSubDisplay\(detailCode, \{ decimalDigits: action.value \}\)/);
+  assert.match(subVm, /updateSubDisplay\(detailCode, \{ grouping: action.value \}\)/);
 });

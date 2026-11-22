@@ -51,6 +51,15 @@ decimal +/- stepper, or nested detail modal. Refresh, reference FX source/date,
 cached/offline indication, successful check feedback and six-decimal raw quote
 remain presentation-only, with no posting, ledger, network-host or permission changes.
 
+To avoid Main/Sub UI divergence, `MainCurrencyOptionSheet` and
+`SubCurrencyDetailOptionSheet` use the **same**
+`CurrencyRadioChoiceSheet` (which composes the existing `AppBottomSheet`
+and accessibility/scroll/safe-area behavior). They provide their own
+selections and callbacks; Main preferences and each saved Sub's preferences
+remain independently persisted. Main's Change Currency picker also continues
+to use this shared radio UI. This is a presentation-only reuse, not a
+cross-currency mutation or navigation change.
+
 This latest owner direction **supersedes older inline Sub detail sheet,
 +/- decimal and in-sheet Format accordion instructions below**; those remain
 historical records, not the currently intended UI. Android/iPhone no-QR Expo Go

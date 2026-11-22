@@ -45,7 +45,9 @@ test('all sheets share one bottom-safe scroll area and expose final options', ()
   assert.match(shell, /paddingBottom: scrollBottomPadding/);
   assert.match(shell, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.doesNotMatch(main, /<ScrollView|maxHeight: '70%'/);
-  assert.match(main, /<AppBottomSheet/);
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  assert.match(main, /<CurrencyRadioChoiceSheet/);
+  assert.match(radio, /<AppBottomSheet/);
   const subPicker = readFileSync('src/features/settings/sub-currency-option-sheet.tsx', 'utf8');
   assert.match(subPicker, /<AppBottomSheet/);
   assert.doesNotMatch(subPicker, /<ScrollView/);
@@ -66,7 +68,9 @@ test('short Decimal and Format sheets reserve bottom safe inset without clipping
   assert.match(shell, /height: sheet\.handleHeight/);
   assert.match(shell, /minHeight: sheet\.headerMinHeight/);
   assert.match(main, /state\.choices\.map/);
-  assert.doesNotMatch(main, /maxHeight: '70%'|<ScrollView/);
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  assert.match(radio, /choices\.map/);
+  assert.doesNotMatch(main + radio, /maxHeight: '70%'|<ScrollView/);
 });
 
 test('only overflowing sheets can expand; short sheets remain at the bottom', () => {

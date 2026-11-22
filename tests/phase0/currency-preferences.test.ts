@@ -196,9 +196,11 @@ test('TM-CUR-012: More Currency section and dedicated Main Currency screen are d
   assert.match(segmented, /accessibilityRole="radiogroup"/);
   assert.match(segmented, /accessibilityState=\{\{ checked: selected \}\}/);
   assert.match(screen, /<MainCurrencyOptionSheet/);
-  assert.match(sheet, /<AppBottomSheet/);
-  assert.match(sheet, /accessibilityRole="radio"/);
-  assert.match(sheet, /accessibilityState=\{\{ checked: row.selected \}\}/);
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  assert.match(sheet, /<CurrencyRadioChoiceSheet/);
+  assert.match(radio, /<AppBottomSheet/);
+  assert.match(radio, /accessibilityRole="radio"/);
+  assert.match(radio, /accessibilityState=\{\{ checked: choice.selected \}\}/);
   assert.match(vm, /updateDisplay\(/);
   assert.match(route, /<MainCurrencyRoute \/>/);
   assert.doesNotMatch(screen + sheet, /useState|useEffect|useRouter|SQLite|Storage\.|fetch\(/);
@@ -216,9 +218,11 @@ test('TM-CUR-013: icon-only Back, shared icon sizes and reusable sheet shell', (
   assert.doesNotMatch(screen, /<AppText>\{t\('currencyPageBack'\)\}<\/AppText>/);
   assert.match(tokens, /topBar: iconTokens\.size/);
   assert.match(tokens, /bottomSheet: iconTokens\.size/);
-  assert.match(options, /<AppBottomSheet/);
+  const radio = readFileSync('src/features/settings/currency-radio-choice-sheet.tsx', 'utf8');
+  assert.match(options, /<CurrencyRadioChoiceSheet/);
+  assert.match(radio, /<AppBottomSheet/);
   assert.doesNotMatch(subScreen, /<AppBottomSheet/);
-  assert.match(options, /theme\.iconRoles\.bottomSheet/);
+  assert.match(radio, /theme\.iconRoles\.bottomSheet/);
   assert.match(subScreen, /theme\.iconRoles\.topBar/);
 });
 
