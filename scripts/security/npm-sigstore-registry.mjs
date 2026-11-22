@@ -63,18 +63,23 @@ export function checkRegistryPublication(metadata, keys, lock, name, version,
     'REGISTRY_DIST_SIGNATURES_ABSENT');
   const signatures = signaturesRaw.filter(x => x?.keyid === pin.keyid);
   assert.ok(signatures.length > 0, 'REGISTRY_KEY_ID_MISMATCH');
-  assert.equal(signatures.length, 1, 'REGISTRY_DUPLICATE_PINNED_SIGNATURES');
+  // npm may publish multiple attestations/signatures under the same key ID.
+  // Never silently take the first; verify EVERY pinned-key signature.
+  assert.ok(signatures.length <= 16, 'REGISTRY_TOO_MANY_PINNED_SIGNATURES');
   const signed = Buffer.from(name + '@' + version + ':' + manifest.integrity);
-  const signature = exactBase64(signatures[0].sig);
-  assert.ok(verifySignature('sha256', signed, publicKey, signature),
-    'REGISTRY_ECDSA_SIGNATURE_INVALID');
+  const decodedSignatures = signatures.map(item => exactBase64(item.sig));
+  for (const signature of decodedSignatures) {
+    assert.ok(verifySignature('sha256', signed, publicKey, signature),
+      'REGISTRY_ECDSA_SIGNATURE_INVALID');
+  }
   return {
     name, version,
     status: 'PASS_PINNED_P256_ECDSA',
     keyid: pin.keyid,
     publicKeyFingerprintPinned: true,
     signedSubjectDigest: sha256(signed),
-    signatureDigest: sha256(signature),
+    signatureCountIndependentlyVerified: decodedSignatures.length,
+    signatureDigests: decodedSignatures.map(sha256).sort(),
     keyTrustSource: pin.anchor,
     rawSignatureOrPublicKeyRetained: false,
     independentOfNpmCliVerification: true,
@@ -168,6 +173,7 @@ const SAFE_REGISTRY_ERROR_CATEGORIES = Object.freeze([
   'REGISTRY_DIST_SIGNATURES_ABSENT',
   'REGISTRY_KEY_ID_MISMATCH',
   'REGISTRY_DUPLICATE_PINNED_SIGNATURES',
+  'REGISTRY_TOO_MANY_PINNED_SIGNATURES',
   'REGISTRY_ECDSA_SIGNATURE_INVALID',
   'REGISTRY_ORIGIN_UNTRUSTED',
   'REGISTRY_LOCK_SRI_MISSING',

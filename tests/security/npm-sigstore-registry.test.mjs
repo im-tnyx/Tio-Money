@@ -148,3 +148,21 @@ test('version must be explicitly present in signed packument, never dist-tag gue
   await assert.rejects(verifyTargetRegistryPublications(lock, { [name]: version },
     fakeFetch, pin), /REGISTRY_MISSING_EXACT_VERSION_IN_PACKUMENT/);
 });
+
+
+test('multiple pinned-key publish signatures are ALL verified, never ignored', () => {
+  const f = fixture();
+  const same = { ...f.metadata.dist.signatures[0] };
+  f.metadata.dist.signatures.push(same);
+  const valid = checkRegistryPublication(f.metadata, f.keys, lock, name, version, pin);
+  assert.equal(valid.signatureCountIndependentlyVerified, 2);
+  assert.equal(valid.signatureDigests.length, 2);
+  f.metadata.dist.signatures[1].sig = Buffer.from('fake-sig').toString('base64');
+  assert.throws(() => checkRegistryPublication(f.metadata, f.keys, lock, name, version, pin),
+    /REGISTRY_ECDSA_SIGNATURE_INVALID/);
+  const many = fixture();
+  many.metadata.dist.signatures = Array.from({ length: 17 },
+    () => ({ ...many.metadata.dist.signatures[0] }));
+  assert.throws(() => checkRegistryPublication(many.metadata, many.keys,
+    lock, name, version, pin), /REGISTRY_TOO_MANY_PINNED_SIGNATURES/);
+});
