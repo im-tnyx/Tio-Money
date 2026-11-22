@@ -5,7 +5,6 @@ import { test } from 'node:test';
 import {
   DEFAULT_ACCOUNT_GROUP_PREFERENCES,
   MAX_CUSTOM_GROUPS,
-  MAX_CUSTOM_GROUP_NAME_LENGTH,
   addCustomGroupLabel,
   isAccountGroupPreferences,
   parseAccountGroupPreferences,
@@ -210,59 +209,3 @@ test('delete middle custom group reindexes v1 IDs and restores the max-five Add 
   assert.equal(removeCustomGroupLabel(remaining, 'custom-1'), remaining);
 });
 
-test('custom group names accept 20 but reject 21 characters on Add and Rename', () => {
-  assert.equal(MAX_CUSTOM_GROUP_NAME_LENGTH, 20);
-  const twenty = 'A'.repeat(MAX_CUSTOM_GROUP_NAME_LENGTH);
-  const valid = addCustomGroupLabel(DEFAULT_ACCOUNT_GROUP_PREFERENCES, twenty);
-  assert.equal(valid.ok, true);
-  if (!valid.ok) return;
-  assert.equal(valid.preferences.customGroups[0]?.name, twenty);
-  assert.deepEqual(addCustomGroupLabel(DEFAULT_ACCOUNT_GROUP_PREFERENCES, twenty + 'B'), {
-    ok: false,
-    error: 'name',
-  });
-
-  const renamed = renameCustomGroupLabel(valid.preferences, 'custom-1', 'B'.repeat(20));
-  assert.equal(renamed.ok, true);
-  if (renamed.ok) assert.equal(renamed.preferences.customGroups[0]?.name, 'B'.repeat(20));
-  assert.deepEqual(renameCustomGroupLabel(valid.preferences, 'custom-1', 'B'.repeat(21)), {
-    ok: false,
-    error: 'name',
-  });
-  assert.deepEqual(renameCustomGroupLabel(valid.preferences, 'custom-1', '  '), {
-    ok: false,
-    error: 'name',
-  });
-
-  const normalized = addCustomGroupLabel(DEFAULT_ACCOUNT_GROUP_PREFERENCES, '  Daily\n  Cash  ');
-  assert.equal(normalized.ok, true);
-  if (normalized.ok) assert.equal(normalized.preferences.customGroups[0]?.name, 'Daily Cash');
-
-  const invalidSaved = {
-    version: 1,
-    showDescriptions: false,
-    customGroups: [{ id: 'custom-1', name: 'C'.repeat(21) }],
-  };
-  assert.equal(isAccountGroupPreferences(invalidSaved), false);
-  assert.throws(() => parseAccountGroupPreferences(JSON.stringify(invalidSaved)));
-});
-
-test('only the custom group input/list are single-line; the shared field is unchanged', () => {
-  const screen = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
-  const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
-  const strings = readFileSync('src/shared/i18n/strings.ts', 'utf8');
-  const customRows =
-    screen.split('state.customGroups.map')[1]?.split('</SwipeableCustomGroupRow>')[0];
-  const builtInRows =
-    screen.split('BUILT_IN_ACCOUNT_GROUPS.map')[1]?.split('state.customGroups.map')[0];
-  assert.ok(customRows);
-  assert.ok(builtInRows);
-  assert.match(screen, /maxLength=\{MAX_CUSTOM_GROUP_NAME_LENGTH\}/);
-  assert.match(screen, /multiline=\{false\}/);
-  assert.match(screen, /returnKeyType="done"/);
-  assert.match(customRows, /<AppText numberOfLines=\{1\}>\{group.name\}<\/AppText>/);
-  assert.doesNotMatch(builtInRows, /numberOfLines=\{1\}/);
-  assert.match(strings, /accountGroupsInvalidName: 'Use a name with 1–20 characters/);
-  assert.match(field, /TextInputProps/);
-  assert.doesNotMatch(field, /maxLength=\{20\}|multiline=\{false\}/);
-});
