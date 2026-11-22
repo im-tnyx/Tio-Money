@@ -45,11 +45,13 @@ test('preload hashes first in-process response without writing body or request c
     const mod = join(root, 'node_modules/make-fetch-happen');
     mkdirSync(mod, { recursive: true });
     writeFileSync(join(mod, 'index.js'), `module.exports = async () => ({
-      status: 200, clone: () => ({ buffer: async () => Buffer.from('private-fixture-body') })
+      status: 200, json: async () => ({}),
+      buffer: async () => Buffer.from('{"private":"fixture-body"}')
     });`);
     const cli = join(root, 'npm-cli.cjs');
     writeFileSync(cli, `require('make-fetch-happen')(
-      'https://registry.npmjs.org/%40babel%2Ftypes').then(() => {});`);
+      'https://registry.npmjs.org/%40babel%2Ftypes').then(res => res.json())
+      .then(value => { if (value.private !== 'fixture-body') process.exitCode = 1; });`);
     const bin = join(root, 'npm');
     symlinkSync(cli, bin);
     const tap = join(dirname(fileURLToPath(import.meta.url)),
@@ -61,9 +63,10 @@ test('preload hashes first in-process response without writing body or request c
     });
     assert.equal(result.status, 0, 'instrumented fixture process failed');
     const raw = readFileSync(report, 'utf8');
-    assert.ok(!raw.includes('private-fixture-body'));
+    assert.ok(!raw.includes('fixture-body'));
     const first = JSON.parse(raw).evidence[0];
     assert.equal(first.packageId, '@babel/types@7.29.15');
-    assert.equal(first.sha256, createHash('sha256').update('private-fixture-body').digest('hex'));
+    assert.equal(first.sha256, createHash('sha256')
+      .update('{"private":"fixture-body"}').digest('hex'));
   } finally { rmSync(root, { recursive: true, force: true }); }
 });

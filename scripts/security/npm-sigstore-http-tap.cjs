@@ -1,5 +1,5 @@
-// Diagnostic-only preload. The original Response still goes to npm's verifier.
-// A bounded clone is hashed before delivery; no response body is persisted.
+// Diagnostic-only preload. Hash the exact bounded bytes consumed by the
+// instrumented JSON reader; no response body is persisted or printed.
 'use strict';
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
@@ -52,16 +52,20 @@ const wrapped = async (...args) => {
     stage = 'TARGET_RESPONSE_SEEN';
     const item = { ...target, order: evidence.length + 1, status: 'UNVERIFIED' };
     evidence.push(item);
-    // Clone uses the very same response stream; no second registry GET.
-    // The bounded read is diagnostic instrumentation and may alter timing.
-    const copy = response.clone();
-    copy.size = MAX;
-    const bytes = await copy.buffer();
-    assert.ok(bytes.length <= MAX, 'TAP_TARGET_RESPONSE_TOO_LARGE');
-    item.sha256 = createHash('sha256').update(bytes).digest('hex');
-    item.bytes = bytes.length;
-    item.status = 'HASHED_INSTRUMENTED_RESPONSE';
-    stage = 'TARGET_RESPONSE_HASHED';
+    assert.equal(typeof response.json, 'function', 'TAP_JSON_READER_UNAVAILABLE');
+    assert.equal(typeof response.buffer, 'function', 'TAP_BUFFER_READER_UNAVAILABLE');
+    // npm's minipass-fetch JSON reader also consumes bytes and JSON.parse's
+    // UTF-8 string. This instrumented replacement may affect timing/errors.
+    response.json = async () => {
+      response.size = MAX;
+      const bytes = await response.buffer();
+      assert.ok(bytes.length <= MAX, 'TAP_TARGET_RESPONSE_TOO_LARGE');
+      item.sha256 = createHash('sha256').update(bytes).digest('hex');
+      item.bytes = bytes.length;
+      item.status = 'HASHED_INSTRUMENTED_RESPONSE';
+      stage = 'TARGET_RESPONSE_HASHED';
+      return JSON.parse(bytes.toString('utf8'));
+    };
   }
   return response;
 };

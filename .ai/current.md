@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-22 — JSON response-boundary diagnostic correction (#71)
+
+- **Observed:** `298b626f` tap stage TARGET_RESPONSE_SEEN then failed before hashing; all uninstrumented npm diagnostics and required static/Governance passed. Clone-based interception was a diagnostic bug, not npm attestation proof.
+- **Fix:** Consume the actual targeted JSON response through bounded `buffer()`, hash before `JSON.parse`, return parsed object; no second HTTP GET or raw output. Local synthetic response fixture and syntax PASS. Instrumented behavior may alter timing/error handling; old failure HTTP still NOT_CAPTURED. Fresh CI required; #71 OPEN, #73 Draft, #65 HOLD.
+
 ## 2026-11-22 — HTTP tap path fix, distinct npm10 failure (#71)
 
 - **Pre-fix head `6bb1c9cc`:** New instrumented job failed before capture due to npm executable symlink path; fix preloader module resolution with `realpathSync` and synthetic symlink test. Separate uninstrumented node22-clean-a genuinely failed `@babel/code-frame@7.29.7` attestation on unchanged EAS lock; node22-clean-b/npm11 and required static/Governance passed. First failed HTTP bytes remain NOT_CAPTURED.
