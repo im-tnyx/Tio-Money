@@ -76,7 +76,7 @@ test('TM-CUR-047: shared overflowing bottom sheets have reduced spacing without 
   assert.match(shared, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
 });
 
-test('Account Groups alone opts into keyboard avoidance without changing shared sheet geometry', () => {
+test('Account Groups opt into keyboard avoidance; other sheets stay unchanged', () => {
   const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   const groups = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
   const appearance = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
