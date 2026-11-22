@@ -2,7 +2,7 @@
 
 Tio-Money is an actively developed, private finance application. Security reports matter even when a feature is experimental or not yet shipped. This policy explains the current support boundary and how to request a confidential reporting channel without exposing sensitive information.
 
-> **Reporting-channel status (2026-11-22):** No project-designated public security email address or external private-reporting endpoint has been verified. Do not infer that GitHub's **Report a vulnerability** button is enabled for this private repository. Establishing and verifying a dedicated channel is tracked in [security policy issue #75](https://github.com/im-tnyx/Tio-Money/issues/75).
+> **Current private-development policy (2026-11-22):** The owner has deferred creating a dedicated security reporting mailbox until release preparation. No project-designated external confidential reporting endpoint is verified, and GitHub's **Report a vulnerability** feature must not be assumed enabled for this private repository. Existing trusted private maintainer contacts and metadata-only requests are the interim options below. A verified reporting email is a mandatory **pre-external-release gate**, tracked in [release security issue #77](https://github.com/im-tnyx/Tio-Money/issues/77).
 
 ## Supported versions
 
@@ -14,13 +14,24 @@ Tio-Money is an actively developed, private finance application. Security report
 
 This table does not claim that code scanning, dependency alerts, third-party audits or vulnerability reporting features are enabled, or that the application is production-ready. Verify current repository state before treating a release or build as supported.
 
+## Mandatory security reporting release gate
+
+**RELEASE HOLD until verified:** Before the **first external beta or public/production distribution** (including TestFlight external testers, Google Play external testing or public app-store distribution), the maintainers must satisfy and document [issue #77](https://github.com/im-tnyx/Tio-Money/issues/77):
+
+- Establish a dedicated, project-controlled, confidential security reporting email address and confirm a safe test message is actually received. Do not publish a placeholder, invented mailbox or personal contact.
+- Assign responsible security triage recipients, monitoring and continuity coverage, and an appropriate confidential handling/escalation process.
+- Update this file with the verified contact, supported released versions and coordinated-disclosure guidance; verify external discoverability and complete security-owner/release-owner review.
+- Record a release checklist decision and **block external release** if the reporting route or required evidence is missing. An equivalent alternative intake requires a new explicit owner decision documented in issue #77.
+
+**Not required during current internal development:** This release gate does not block private coding, CI, internal Expo Go smoke tests or a separately authorized documentation-only PR merge. The gate is a **documented policy, not an automated GitHub Actions enforcement check**; any future automation requires a reviewed, separately authorized change. Email setup is intentionally deferred until release preparation.
+
 ## Reporting a potential vulnerability
 
 **Do not post exploit details, credentials, private financial information, reproduction logs, or proof-of-concept code in ordinary GitHub issues, PRs, Discussions, screenshots or public messages.** A private repository is not the same as a restricted security-response channel: many collaborators may see its issues.
 
 1. **If you already have a trusted, private communication channel with the repository owner/maintainer, use that channel** to request a security triage conversation before sharing sensitive technical details. Confirm that the recipient is the intended maintainer.
 2. **If you have repository access but no verified private channel,** you may open a **metadata-only security contact request** in this private repository, linking to this policy. Say only that you need a confidential route to report a potential vulnerability. **Do not include the vulnerability itself, affected secrets, or exploit steps** in that request.
-3. **If you have no repository access and no established private contact,** there is currently **no verified external reporting route** to publish here. Do not guess a `security@` email address or send details to an unverified account. Maintainers must first publish or establish a verified secure reporting mechanism, as tracked in [issue #75](https://github.com/im-tnyx/Tio-Money/issues/75).
+3. **If you have no repository access and no established private contact,** there is currently **no verified external reporting route** to publish here. Do not guess a `security@` email address or send details to an unverified account. The owner has deferred creating a dedicated mailbox during internal development; a real confidential reporting route **must** be established before any external release under [issue #77](https://github.com/im-tnyx/Tio-Money/issues/77).
 
 GitHub's private vulnerability reporting for outside researchers is documented for public repositories; this project's private status must not be mistaken for an enabled or accessible reporting feature.
 
@@ -53,6 +64,7 @@ The reporter and maintainer should agree privately on a reasonable disclosure pl
 
 - [Security baseline and operator verification](docs/14-SECURITY-BASELINE-SETUP.md)
 - [Contributor and agent controls](AGENTS.md)
-- [Reporting-channel decision and policy review](https://github.com/im-tnyx/Tio-Money/issues/75)
+- [Interim reporting policy decision and review](https://github.com/im-tnyx/Tio-Money/issues/75)
+- [Mandatory pre-external-release reporting gate](https://github.com/im-tnyx/Tio-Money/issues/77)
 
 Any modification of security settings, code, deployment configuration, secrets or protected branches requires its own authorized change process. A reviewed policy file alone does not establish security compliance.
