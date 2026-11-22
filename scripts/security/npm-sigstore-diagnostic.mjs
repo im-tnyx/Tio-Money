@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
+import { loadPinnedVerifier, verifyTrustedTargetProvenance }
+  from './npm-sigstore-trusted.mjs';
 import { identifyInvalidPackages, identifyInvalidJsonPackages,
   fetchRegistrySigningKeyMetadata, verifierVersions } from './npm-sigstore-metadata.mjs';
 
@@ -79,6 +81,7 @@ export async function runDiagnostic() {
     registry: REGISTRY, install: 'NOT_RUN', signatures: 'NOT_RUN',
     jsonAttestations: 'NOT_RUN', packageProofStatus: 'NOT_RUN',
     independentSigstoreVerification: false,
+    trustedProvenanceStatus: 'NOT_RUN',
     rawAttestationsUploaded: false,
   };
   let failed = false;
@@ -205,6 +208,24 @@ export async function runDiagnostic() {
         report.packageProofFailure = categories.find((code) =>
           String(proofError.message).startsWith(code)) || 'OTHER_PROOF_ERROR';
         throw new Error('PACKAGE_PROOF_VERIFICATION_FAILED');
+      }
+      // Next trust gate, npm11 only. This is separate from npm's own verifier.
+      // One failed or missing authenticated root/issuer/SAN/Rekor result fails closed.
+      // No retries and no raw certificate/registry payloads are retained.
+      if (Number(report.npm.split('.')[0]) >= 11) {
+        try {
+          assert.equal(safeStatus(globalRoot), 'PASS', 'TRUST_GLOBAL_ROOT_UNAVAILABLE');
+          const verify = loadPinnedVerifier(globalRoot.stdout.trim(), report.verifierVersions);
+          report.trustedProvenanceProofs = await verifyTrustedTargetProvenance(
+            parsed.verified, lock, AFFECTED, verify, join(temp, 'sigstore-tuf-cache'));
+          report.trustedProvenanceStatus = 'TUF_FULCIO_OIDC_REKOR_PINNED_VERIFIER_PASS';
+          report.independentSigstoreVerification = true;
+        } catch {
+          report.trustedProvenanceStatus = 'FAIL_CLOSED';
+          throw new Error('TRUSTED_PROVENANCE_VERIFICATION_FAILED');
+        }
+      } else {
+        report.trustedProvenanceStatus = 'UNSUPPORTED_BY_NPM10';
       }
     } else {
       report.jsonAttestations = 'UNSUPPORTED_BY_BUNDLED_NPM';

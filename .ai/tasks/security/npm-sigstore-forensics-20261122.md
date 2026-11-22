@@ -59,3 +59,30 @@ remain **UNVERIFIED** until independently established. Only allowlisted
 evidence goes to job summaries; no raw bundles, certificates, credentials or
 network response artifacts are uploaded. This follow-up does not modify
 `main`, PR #65, lockfiles, privileged workflows or rulesets. No merge.
+
+
+## 2026-11-22 — TUF/Fulcio/OIDC/Rekor independent-from-npm verifier gate
+
+On Draft PR #73 only, npm11 diagnostic now runs the **reviewed, patched bundled**
+Sigstore 4.1.1 / @sigstore/verify 3.1.1 / @sigstore/tuf 4.0.2, with a fresh
+private TUF cache rooted in the Sigstore library's embedded public-good TUF
+bootstrap. For each of the four exactly locked Babel packages the trust gate
+re-fetches the exact public registry tarball and attestation URL (no secrets),
+checks the lockfile SHA-512 SRI and signed subject digest, and requires an
+in-toto provenance bundle with a Rekor **signed inclusion promise**. Its separate
+Sigstore verifier requires a TUF-authenticated Fulcio chain, certificate
+transparency proof, Rekor proof, and GitHub Actions OIDC issuer + Babel
+repository-scoped workflow SAN policy. In the event of any failure, it records
+a fixed allowlisted error category and **fails closed**; npm10's missing JSON
+bundle support is reported UNSUPPORTED rather than falsely PASS.
+
+The signer policy is repository-scoped to
+`https://github.com/babel/babel/.github/workflows/*.yml@refs/{heads,tags}/*`;
+it is NOT an exact publisher workflow/commit allowlist. The TUF initial trust
+bootstrap comes from a reviewed npm-bundled Sigstore version, NOT an additional
+out-of-band manually pinned Tio-Money trust root. Certificate or bundle content
+is NEVER uploaded. No external code download, npm dependency override,
+workflow privilege escalation, signature-gate bypass, or modified EAS lockfile.
+A green result will prove only the specific sampled attestations, not the
+root cause of historical intermittent npm10/Phase-0 failures. Preserve
+Issue #71 and PR #65 security HOLD until separately dispositioned.
