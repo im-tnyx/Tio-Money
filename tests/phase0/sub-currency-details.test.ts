@@ -146,7 +146,10 @@ test('TM-CUR-040: short USD detail caption and its special symbol are presentati
   assert.match(vm, /formatSubCurrencyDetailCaption\(selectedDetail.code\)/);
   assert.match(vm, /return formatSubCurrencyDetailCaption\(code\)/);
   assert.match(vm, /mainLabel: mainConfigured \? currencyLabel\(preferences.mainCode\)/);
-  assert.match(vm, /selected.push\(\{ code, label: currencyLabel\(code\), rate, rateStatus, rateLabel \}\)/);
+  assert.match(
+    vm,
+    /selected.push\(\{ code, label: currencyLabel\(code\), rate, rateStatus, rateLabel \}\)/,
+  );
 });
 
 test('TM-CUR-041: full-screen Sub preview uses shared semantic card colors', () => {
