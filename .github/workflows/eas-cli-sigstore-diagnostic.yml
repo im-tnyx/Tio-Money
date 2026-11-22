@@ -1,0 +1,210 @@
+name: EAS CLI Sigstore forensic (no secrets)
+
+# Unprivileged PR only: no workflow_run, pull_request_target or trusted environment.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/eas-cli-sigstore-diagnostic.yml
+      - scripts/security/npm-sigstore-diagnostic.mjs
+      - scripts/security/npm-sigstore-proof.mjs
+      - scripts/security/npm-sigstore-metadata.mjs
+      - scripts/security/npm-sigstore-trusted.mjs
+      - scripts/security/npm-sigstore-registry.mjs
+      - scripts/security/npm-sigstore-replay.mjs
+      - scripts/security/npm-sigstore-first-failure.mjs
+      - scripts/security/npm-sigstore-pacote.mjs
+      - scripts/security/npm-sigstore-root-chain.mjs
+      - scripts/security/npm-sigstore-http-tap.cjs
+      - scripts/security/npm-sigstore-http-boundary.mjs
+      - tests/security/npm-sigstore-diagnostic.test.mjs
+      - tests/security/npm-sigstore-proof.test.mjs
+      - tests/security/npm-sigstore-metadata.test.mjs
+      - tests/security/npm-sigstore-trusted.test.mjs
+      - tests/security/npm-sigstore-registry.test.mjs
+      - tests/security/npm-sigstore-replay.test.mjs
+      - tests/security/npm-sigstore-first-failure.test.mjs
+      - tests/security/npm-sigstore-pacote.test.mjs
+      - tests/security/npm-sigstore-root-chain.test.mjs
+      - tests/security/npm-sigstore-http-boundary.test.mjs
+      - tests/preview/eas-cli-locked-install.test.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-sigstore-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  forensic:
+    name: Sigstore diagnostic / ${{ matrix.replica }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - replica: node22-clean-a
+            node: '22.16.0'
+          - replica: node22-clean-b
+            node: '22.16.0'
+          - replica: node26-cli
+            node: '26.8.2'
+    steps:
+      - name: Checkout immutable PR revision without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Install reviewed setup-node action without package cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: Validate fail-closed diagnostic logic
+        run: node --test tests/security/npm-sigstore-diagnostic.test.mjs tests/security/npm-sigstore-proof.test.mjs tests/security/npm-sigstore-metadata.test.mjs tests/security/npm-sigstore-trusted.test.mjs tests/security/npm-sigstore-registry.test.mjs tests/security/npm-sigstore-first-failure.test.mjs
+      - name: Run isolated registry signature and provenance diagnostics
+        env:
+          DIAGNOSTIC_REPLICA: ${{ matrix.replica }}
+        run: node scripts/security/npm-sigstore-diagnostic.mjs
+
+  # A narrower sampled public same-bundle verifier comparison, NOT npm CLI offline replay.
+  # Neither raw attestations nor certificates are uploaded or logged.
+  same-bundle:
+    name: Sigstore same-bundle / npm10 vs npm11
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR revision without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select pinned Node22 npm10 toolchain
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Record local npm10 module path only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '10.9.2'
+          printf 'NPM10_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Select pinned Node26 npm11 toolchain
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.8.2'
+          package-manager-cache: false
+      - name: Record local npm11 module path only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '11.19.1'
+          printf 'NPM11_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Test strict identical-bundle reuse and fail-closed rejection
+        run: node --test tests/security/npm-sigstore-replay.test.mjs
+      - name: Compare five exact locked Babel provenance bundles without secrets
+        run: node scripts/security/npm-sigstore-replay.mjs
+
+  # Exact one-source public npm responses frozen in memory and replayed
+  # through both preinstalled npm-bundled pacote verification paths.
+  # NOT an original failed HTTP response or a full npm CLI audit replay.
+  same-pacote:
+    name: Sigstore frozen HTTP / npm10 vs npm11 pacote
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR head without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select pinned Node22 npm10
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Record reviewed npm10 module root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '10.9.2'
+          printf 'NPM10_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Select pinned Node26 npm11
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.8.2'
+          package-manager-cache: false
+      - name: Record reviewed npm11 module root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '11.19.1'
+          printf 'NPM11_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Test exact fixture isolation, rejected paths and fail-closed verdicts
+        run: node --test tests/security/npm-sigstore-pacote.test.mjs
+      - name: Compare exact signed public registry snapshots at pacote boundary
+        run: node scripts/security/npm-sigstore-pacote.mjs
+
+  # Verify TUF OLPC JSON signing bytes and P256 keys for public roots v1->v16.
+  # The historical v4->v5 client format break is explicit in task evidence.
+  # Initial v1 comes from SAME upstream Git commit: NOT an owner-approved
+  # independent trust anchor. Do not silently alter npm or TUF trust policy.
+  root-chain:
+    name: Sigstore TUF OLPC root lineage 1-16 / isolated
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR head without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select reviewed Node22 without package cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Check canonical JSON and adversarial root-chain fixtures
+        run: node --test tests/security/npm-sigstore-root-chain.test.mjs
+      - name: Verify immutable public root-chain history without trust changes
+        run: node scripts/security/npm-sigstore-root-chain.mjs
+
+  # Instrumented CLI path only: this cannot recover old failing HTTP bytes.
+  http-boundary:
+    name: Sigstore npm10 first HTTP boundary / isolated
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR head without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select reviewed Node22/npm10 without package cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Test strict bounded response capture and redaction
+        run: node --test tests/security/npm-sigstore-http-boundary.test.mjs
+      - name: Run one instrumented npm10 signature audit without secrets
+        run: node scripts/security/npm-sigstore-http-boundary.mjs
