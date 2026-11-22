@@ -94,7 +94,7 @@ test('immutable source URLs exclude arbitrary paths and mutable ref', () => {
 });
 test('published chain rejects missing/invalid root evidence without leaking raw data', async () => {
   const history = new Map();
-  for (let n = 1; n <= 16; n++) history.set('' + n, root(n));
+  for (let n = 10; n <= 16; n++) history.set('' + n, root(n));
   const fetchFake = async url => {
     const version = /root_history\/(\d+)\.root\.json/.exec(url.pathname)?.[1];
     return Buffer.from(JSON.stringify(version ? history.get(version) :
@@ -103,10 +103,12 @@ test('published chain rejects missing/invalid root evidence without leaking raw 
   const pass = await verifyPublishedRootChain(fetchFake,
     new Date('2026-11-22T00:00:00Z'));
   assert.equal(pass.result,
-    'ROOT_CHAIN_SIGNATURES_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP');
-  assert.equal(pass.verifiedOldAndNewThresholdTransitions, 15);
+    'MODERN_ROOT_V10_TO_V16_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP');
+  assert.equal(pass.verifiedOldAndNewThresholdTransitions, 6);
+  assert.equal(pass.verifiedBootstrapVersion, 10);
+  assert.equal(pass.historicalLegacyRootV1ToV10, 'UNVERIFIED_FORMAT_MIGRATION');
   assert.equal(pass.originalOwnerApprovedBootstrap, 'UNVERIFIED');
-  history.get('8').signed.expires = '2030-01-01T00:00:00Z';
+  history.get('12').signed.expires = '2030-01-01T00:00:00Z';
   await assert.rejects(verifyPublishedRootChain(fetchFake), /TUF_SIGNATURE_THRESHOLD_NOT_MET/);
 });
 

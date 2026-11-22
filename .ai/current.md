@@ -1,6 +1,14 @@
 # 🧭 Current task index
 
 
+## 2026-11-22 — Updated Sigstore root-chain boundary: v10 to v16 (#71)
+
+- **Observed:** Draft PR #73 initial 1→16 root diagnostic first failed on legacy SEC1 hex key parsing; strict P256 decoding fixed it, then real historical v4→v5 failed TUF_SIGNATURE_THRESHOLD_NOT_MET despite signature IDs present. No threshold bypass. Official Sigstore docs describe a backward-incompatible historical root format and recommend a modern v10 bootstrap.
+- **Next exact gate:** Verify modern root v10→v16 successor+predecessor ECDSA signature thresholds and v16 expiry/equality from immutable public upstream commit 25b222a48cda4aa88e1af85605bdd193f5619a60. Deliberately classify v4→v5 and owner-approved independent trust anchor UNVERIFIED. This is technical proof of internal continuity, NOT a trusted-root pin change.
+- **State:** Issue #71 OPEN, PR #73 Draft, #65 SECURITY HOLD, main protected. Root chain must not be declared fully trusted or historical npm failure resolved; record new exact-head checks. Independent human reviewer optional, no merge authorization.
+
+
+
 ## 2026-11-22 — Sigstore TUF public root-chain signatures, Gate 3 (#71)
 
 - **Owner/PROCEED:** Chat "Go next" after successful frozen-pacote Gate 2. Agent-transcribed security discussion [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079714316); bounded forensic diagnostic on Draft PR #73. ChatGPT/GPT-6 acting agent; optional external human review not requested. No merge or root policy authorization.

@@ -155,11 +155,12 @@ jobs:
       - name: Compare exact signed public registry snapshots at pacote boundary
         run: node scripts/security/npm-sigstore-pacote.mjs
 
-  # Validate Sigstore published TUF root v1->v16 signature lineage only.
-  # Initial v1 comes from SAME upstream Git commit: NOT an owner-approved
+  # Verify documented Sigstore root v10->v16 ECDSA signing lineage only.
+  # Legacy v4->v5 bridge is INCOMPATIBLE/UNVERIFIED: never claim full v1->v16.
+  # Initial v10 comes from SAME upstream Git commit: NOT an owner-approved
   # independent trust anchor. Do not silently alter npm or TUF trust policy.
   root-chain:
-    name: Sigstore TUF root lineage / isolated
+    name: Sigstore TUF modern root 10-16 / isolated
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

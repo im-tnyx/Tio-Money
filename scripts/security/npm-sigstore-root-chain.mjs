@@ -1,6 +1,7 @@
-// Issue #71: check public Sigstore TUF root signing lineage 1..16.
+// Issue #71: check Sigstore's documented modern bootstrap root 10 to 16.
 // IMPORTANT: historical root v1 is taken from the SAME immutable upstream Git
-// commit as v16. This verifies internal continuity, NOT independently trusted
+// commit as v16. Versions 1..9 are an incompatible historical trust segment.
+// This verifies internal continuity from v10, NOT independently trusted
 // out-of-band bootstrap, owner-approved root pin, or historical npm root cause.
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
@@ -13,6 +14,7 @@ const ROOT_REPOSITORY = 'sigstore/root-signing';
 export const IMMUTABLE_SOURCE_COMMIT =
   '25b222a48cda4aa88e1af85605bdd193f5619a60';
 export const EXPECTED_ROOT_VERSION = 16;
+export const DOCUMENTED_MODERN_BOOTSTRAP_VERSION = 10;
 const BASE = 'https://raw.githubusercontent.com/' + ROOT_REPOSITORY +
   '/' + IMMUTABLE_SOURCE_COMMIT + '/metadata/';
 const MAX_ROOT_BYTES = 64 * 1024;
@@ -207,7 +209,8 @@ export async function verifyPublishedRootChain(
   let firstSha = '';
   let lastSha = '';
   let lastDoc = null;
-  for (let n = 1; n <= EXPECTED_ROOT_VERSION; n++) {
+  for (let n = DOCUMENTED_MODERN_BOOTSTRAP_VERSION;
+    n <= EXPECTED_ROOT_VERSION; n++) {
     // Historical root metadata versions may have expired by *today*; the
     // cryptographic lineage check audits old signatures, not time travel.
     observe('HISTORY_ROOT_' + n);
@@ -216,7 +219,7 @@ export async function verifyPublishedRootChain(
       bytes.length <= MAX_ROOT_BYTES, 'TUF_HISTORY_RESPONSE_INVALID');
     const doc = JSON.parse(bytes.toString('utf8'));
     inspectRootShape(doc, n);
-    if (n === 1) {
+    if (n === DOCUMENTED_MODERN_BOOTSTRAP_VERSION) {
       firstSha = sha256(bytes);
       verifyRootThreshold(doc, doc);
     } else transitions.push(verifyRootTransition(previous, doc));
@@ -234,17 +237,22 @@ export async function verifyPublishedRootChain(
   assert.deepEqual(currentDoc, lastDoc,
     'TUF_PUBLISHED_CURRENT_ROOT_MISMATCH');
   const expiry = verifyCurrentRootExpiry(currentDoc, now);
-  assert.equal(transitions.length, EXPECTED_ROOT_VERSION - 1,
+  assert.equal(transitions.length,
+    EXPECTED_ROOT_VERSION - DOCUMENTED_MODERN_BOOTSTRAP_VERSION,
     'TUF_HISTORY_INCOMPLETE');
   return {
-    result: 'ROOT_CHAIN_SIGNATURES_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP',
-    historicalRootCount: EXPECTED_ROOT_VERSION,
+    result: 'MODERN_ROOT_V10_TO_V16_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP',
+    verifiedBootstrapVersion: DOCUMENTED_MODERN_BOOTSTRAP_VERSION,
+    historicalLegacyRootV1ToV10: 'UNVERIFIED_FORMAT_MIGRATION',
+    priorV4ToV5Bridge: 'UNVERIFIED_BACKWARD_INCOMPATIBLE_KEY_FORMAT',
+    historicalRootCount: EXPECTED_ROOT_VERSION -
+      DOCUMENTED_MODERN_BOOTSTRAP_VERSION + 1,
     verifiedOldAndNewThresholdTransitions: transitions.length,
     allOldAndNewThresholds: transitions.every(x =>
       x.previousAuthorized && x.selfAuthorized),
     lastRootVersion: EXPECTED_ROOT_VERSION,
     lastRootExpires: expiry,
-    bootstrapV1Sha256: firstSha,
+    publicGitHubBootstrapV10Sha256: firstSha,
     signedRootV16HistorySha256: lastSha,
     publishedRootV16Sha256: sha256(currentBytes),
     currentAndHistory16StructurallyEqual: true,

@@ -269,3 +269,41 @@ job with SHA-pinned actions and no install/new packages, OIDC, token
 access, artifact upload or privileged triggers. Recheck all exact-head
 required statuses and preserve any FAIL, never retry-until-green.
 PR #73 Draft, PR #65 Security HOLD, Issue #71 OPEN.
+
+
+## 2026-11-22 — Live legacy v4/v5 bridge evidence and revised modern-root gate
+
+**Initial exact-head failure:** The first v1-to-v16 canonical+ECDSA root
+history diagnostic on Draft PR #73 HEAD ae7449e0 failed closed at v1
+due old Sigstore root keys serialized as SEC1 uncompressed 04||X||Y
+hex, not PEM SPKI. Fix commit 4d90da3f added strict legacy-P256
+encoding and a synthetic negative fixture. On this actual HEAD,
+8/8 synthetic tests PASS, while the real chain reached v5 and
+failed TUF_SIGNATURE_THRESHOLD_NOT_MET. In exact, immutable upstream
+root history, root v4 to root v5 changes all five root role key IDs;
+new metadata lists both old and new signer identities, but our
+standalone general-purpose verifier cannot cryptographically establish
+the predecessor threshold.
+
+**Authoritative upstream explanation:** Sigstore documentation
+https://docs.sigstore.dev/cosign/system_config/installation/ explicitly
+says the historical root chain has a backward-incompatible format
+change requiring manual verification, and recommends bootstrapping
+the modern chain from root version **10**. Sigstore root-signing Issue
+#329 (key encoding incompatibility) documents hex-vs-PEM migration.
+We must NOT auto-translate key IDs, discard a failing signature or
+silently mark the v1->v16 chain trusted; **v4->v5 remains UNVERIFIED**
+unless an independent manual cryptographic continuity audit plus
+owner trust policy is recorded.
+
+**Revised scoped diagnostic:** Use the recommended v10 bootstrap
+instead, fetched from the SAME immutable upstream Git commit, to
+verify cryptographically all 6 transitions v10->v16 (both predecessor
+and successor signature thresholds). Require published root v16 to
+match signed history v16 and be unexpired. Report exactly
+MODERN_ROOT_V10_TO_V16_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP on success;
+historical v1-v10 and v4-v5 bridge remain UNVERIFIED. This does not
+pin an independently approved out-of-band v10 SHA-256 nor change npm's
+TUF trusted bootstrap. Capture actual exact-head CI rather than
+inheriting old red or green results. Owner policy and historical npm
+attestation cause still HOLD.
