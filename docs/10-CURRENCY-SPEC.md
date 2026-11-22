@@ -32,6 +32,30 @@ preferences only, never the exact native ledger amount or FX behavior.
 
 **Preference + approved Sub-only reference display:** a local versioned kv-store key and root-provided global hook share saved choices; the app-scoped optional Sub-only FX controller displays validated date-stamped quotes. The curated ISO-labelled codes are **display settings**, not a promise of supported provider pairs or approved financial posting. Existing four finance screens remain blank. A Main/Sub collision clears Sub. Rate and accounting requirements below remain blocked by TM-ADR-018/023.
 
+### 2026-11-22 — Sub Currency detail screen navigation (latest PR #53 decision)
+
+Opening **More → Sub Currency** continues to show the dedicated Sub list screen.
+Tapping a saved Sub card now pushes a **native full-screen detail route**
+`/currency/sub-detail?code=ISO` (validated against the saved Sub list),
+**not a detail bottom sheet**. The detail page uses the same Back navigation
+pattern as Main Currency. The list's Add Currency picker stays a bottom sheet;
+swipe-to-Delete and the single list FX freshness footer are preserved.
+
+On the saved Sub detail screen, Unit Position remains the Main-style inline
+segmented setting. **Decimal point** opens a separate radio bottom sheet with
+None / 1.0 / 1.00 / 1.000. **Format** opens a separate radio bottom sheet
+with Millions / Lakhs / No Format. Both use the shared `AppBottomSheet`,
+close on selection/backdrop/native Back and persist only that saved Sub's
+existing versioned display preferences. There is no inline Format accordion,
+decimal +/- stepper, or nested detail modal. Refresh, reference FX source/date,
+cached/offline indication, successful check feedback and six-decimal raw quote
+remain presentation-only, with no posting, ledger, network-host or permission changes.
+
+This latest owner direction **supersedes older inline Sub detail sheet,
++/- decimal and in-sheet Format accordion instructions below**; those remain
+historical records, not the currently intended UI. Android/iPhone no-QR Expo Go
+visual/a11y and native Back/gesture acceptance remain required before merge.
+
 ## 01 · Main and Sub Currency behavior
 
 | Preference | Required contract |

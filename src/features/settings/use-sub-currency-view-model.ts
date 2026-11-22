@@ -19,10 +19,7 @@ import { useFxRates } from '@/shared/currency/fx-rate-provider';
 import { fxPairKey } from '@/shared/currency/fx-rate-lifecycle';
 import { t } from '@/shared/i18n/strings';
 
-import {
-  formatSubCurrencyDecimalExample,
-  stepSubCurrencyDecimalDigits,
-} from './sub-currency-decimal-step';
+import { formatSubCurrencyDecimalExample } from './sub-currency-decimal-step';
 import {
   classifySubCurrencyRefresh,
   type SubCurrencyRefreshResult,
@@ -45,7 +42,7 @@ function currencyLabel(code: CurrencyCode): string {
   return formatSubCurrencyDetailCaption(code);
 }
 
-export function useSubCurrencyViewModel(): {
+export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null = null): {
   state: SubCurrencyUiState;
   onAction: (action: SubCurrencyAction) => void;
 } {
@@ -56,8 +53,8 @@ export function useSubCurrencyViewModel(): {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [freshnessNow, setFreshnessNow] = useState(() => Date.now());
   const [refreshingList, setRefreshingList] = useState(false);
-  const [detailCode, setDetailCode] = useState<CurrencyCode | null>(null);
-  const [formatExpanded, setFormatExpanded] = useState(false);
+  const [detailCode, setDetailCode] = useState<CurrencyCode | null>(initialDetailCode);
+  const [detailSheetKind, setDetailSheetKind] = useState<'decimal' | 'format' | null>(null);
   const [refreshingPair, setRefreshingPair] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshResult, setRefreshResult] = useState<{
@@ -97,7 +94,7 @@ export function useSubCurrencyViewModel(): {
   const dismissDetail = useCallback(() => {
     refreshRequest.current += 1;
     setDetailCode(null);
-    setFormatExpanded(false);
+    setDetailSheetKind(null);
     setRefreshingPair(null);
     setRefreshError(null);
     setRefreshResult(null);
@@ -128,34 +125,33 @@ export function useSubCurrencyViewModel(): {
           break;
         case 'detail.open':
           if (preferences.subCodes.includes(action.code)) {
-            dismissDetail();
-            setDetailCode(action.code);
+            router.push({ pathname: '/currency/sub-detail', params: { code: action.code } });
           }
           break;
         case 'detail.dismiss':
           dismissDetail();
+          router.back();
           break;
-        case 'detail.position.select':
-          setFormatExpanded(false);
-          if (detailCode) updateSubDisplay(detailCode, { unitPosition: action.value });
-          break;
-        case 'detail.decimal.step':
-          setFormatExpanded(false);
+        case 'detail.options.open':
           if (detailCode && preferences.subCodes.includes(detailCode)) {
-            const current = resolveSubCurrencyDisplay(preferences, detailCode).decimalDigits;
-            const currency = CURRENCY_OPTIONS.find((item) => item.code === detailCode);
-            const effective = current === 'currency' ? (currency?.minorDigits ?? 2) : current;
-            const next = stepSubCurrencyDecimalDigits(effective, action.delta);
-            if (next !== effective) updateSubDisplay(detailCode, { decimalDigits: next });
+            setDetailSheetKind(action.sheet);
           }
           break;
-        case 'detail.format.toggle':
+        case 'detail.options.dismiss':
+          setDetailSheetKind(null);
+          break;
+        case 'detail.position.select':
+          setDetailSheetKind(null);
+          if (detailCode) updateSubDisplay(detailCode, { unitPosition: action.value });
+          break;
+        case 'detail.decimal.select':
+          setDetailSheetKind(null);
           if (detailCode && preferences.subCodes.includes(detailCode)) {
-            setFormatExpanded((current) => !current);
+            updateSubDisplay(detailCode, { decimalDigits: action.value });
           }
           break;
         case 'detail.format.select':
-          setFormatExpanded(false);
+          setDetailSheetKind(null);
           if (detailCode && preferences.subCodes.includes(detailCode)) {
             updateSubDisplay(detailCode, { grouping: action.value });
           }
@@ -184,7 +180,7 @@ export function useSubCurrencyViewModel(): {
           break;
         }
         case 'detail.refresh': {
-          setFormatExpanded(false);
+          setDetailSheetKind(null);
           if (!detailCode || !preferences.subCodes.includes(detailCode)) break;
           const main = preferences.mainCode;
           const pair = fxPairKey(detailCode, main);
@@ -298,6 +294,7 @@ export function useSubCurrencyViewModel(): {
         checks.staleCount > 0 ? { lastCheckedLabel, refreshing: refreshingList } : null,
       choices,
       sheetVisible,
+      detailSheetKind: selectedDetail ? detailSheetKind : null,
       detail:
         selectedDetail && subDisplay && preview
           ? {
@@ -319,7 +316,6 @@ export function useSubCurrencyViewModel(): {
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
               formatGrouping,
               formatLabel,
-              formatExpanded,
               refreshing: refreshingPair === detailCode + '/' + preferences.mainCode,
               refreshError,
               refreshStatus:
@@ -350,7 +346,7 @@ export function useSubCurrencyViewModel(): {
     refreshResult,
     freshnessNow,
     refreshingList,
-    formatExpanded,
+    detailSheetKind,
   ]);
 
   return { state, onAction };

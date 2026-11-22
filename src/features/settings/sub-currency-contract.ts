@@ -37,7 +37,6 @@ export interface SubCurrencyDetail {
   readonly decimalLabel: string;
   readonly formatGrouping: 'indian' | 'international' | 'none';
   readonly formatLabel: string;
-  readonly formatExpanded: boolean;
   readonly refreshing: boolean;
   readonly refreshError: string | null;
   readonly refreshStatus: string | null;
@@ -52,6 +51,7 @@ export interface SubCurrencyUiState {
   readonly choices: readonly SubCurrencyChoiceRow[];
   readonly sheetVisible: boolean;
   readonly detail: SubCurrencyDetail | null;
+  readonly detailSheetKind: 'decimal' | 'format' | null;
   readonly limit: number;
   readonly error: string | null;
 }
@@ -67,6 +67,7 @@ export type SubCurrencyAction =
   | { readonly type: 'detail.refresh' }
   | { readonly type: 'list.refresh' }
   | { readonly type: 'detail.position.select'; readonly value: UnitPosition }
-  | { readonly type: 'detail.decimal.step'; readonly delta: -1 | 1 }
-  | { readonly type: 'detail.format.toggle' }
+  | { readonly type: 'detail.options.open'; readonly sheet: 'decimal' | 'format' }
+  | { readonly type: 'detail.options.dismiss' }
+  | { readonly type: 'detail.decimal.select'; readonly value: 0 | 1 | 2 | 3 }
   | { readonly type: 'detail.format.select'; readonly value: Exclude<NumberGrouping, 'auto'> };

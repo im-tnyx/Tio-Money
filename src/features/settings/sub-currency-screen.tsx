@@ -9,7 +9,6 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { SubCurrencyAction, SubCurrencyUiState } from './sub-currency-contract';
-import { SubCurrencyDetailSheet } from './sub-currency-detail-sheet';
 import { SubCurrencyOptionSheet } from './sub-currency-option-sheet';
 import {
   getSwipeOffset,
@@ -454,7 +453,6 @@ export function SubCurrencyScreen({
         )}
       </ScrollView>
       <SubCurrencyOptionSheet state={state} onAction={onAction} />
-      <SubCurrencyDetailSheet state={state} onAction={onAction} />
     </SafeAreaView>
   );
 }
