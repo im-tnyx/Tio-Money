@@ -1,5 +1,104 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction
+
+- **Observed red test:** Gate 5 initial HEAD `c0a0ae29` first HTTP-boundary job [137250698578](https://github.com/im-tnyx/Tio-Money/actions/runs/45036298022/job/137250698578) failed 2/11 synthetic checks (partial report order fixture and literal backslash-newline fixture source). This is diagnostic test code, **not** a new npm invalid attestation.
+- **Correction:** Reindex only the partial fixture event to order 1; join generated JS with actual newlines. Keep historical failed run, original secure runtime behavior, first npm audit fail-closed, Issue #71 OPEN, PR #73 DRAFT/HOLD, PR #65 HOLD, main unchanged. Fresh exact-HEAD CI and agent review required.
+
+## 2026-11-22 — Issue #71 Gate 5: eighth exact Babel HTTP target on Draft PR #73
+
+- **Technical PROCEED:** Owner chat `Go next`, scoped [Issue #71 RFC](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7081014363), existing Draft PR #73 branch only. Active agent ChatGPT/GPT-6; no new PR, merge, risk waiver or protected-main write.
+- **Root evidence:** First npm10 uninstrumented clean-a at parent `28d607b5` genuinely FAIL_CLOSED for `@babel/helpers@7.29.15`; full parent CI 9/10 with one red forensic job; post-failure public GET and distinct green instrumented audit do not reproduce old failed HTTP bytes. EAS lock blob `fa92a2b8` includes exact signed-registry URL/SRI for helpers.
+- **Scoped change:** Extend existing first HTTP tap and sanitizer literal allowed exact Babel identities to eight, preserve existing REQUIRED two, 8MiB cap, no raw bodies, nonzero-first audit gate, and add adversarial URL/version/redaction and partial-capture fixtures; task/index only. Existing locked packages, workflows, perms, PR #65 and main unchanged.
+- **Remaining gate:** Verify fresh exact-HEAD CI and agent comment review. Issue #71 OPEN, PR #73 Draft/HOLD, PR #65 Security HOLD; independent approved Sigstore TUF root, Babel publisher ref and historical cause remain UNVERIFIED.
+
+
+## 2026-11-22 — Issue #71 Gate 4 first-failure HTTP coverage (Draft PR #73)
+
+- **Technical PROCEED:** Owner chat `Go` after [Issue #71 historical comparison](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080858530), scoped RFC [#71 Gate 4](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080890333). One existing Draft PR #73, existing unprivileged isolated HTTP tap only; no new PR, no merge/risk waiver.
+- **Implementation:** Literal seven exact EAS-lock historical Babel target identities for the first instrumented npm10 HTTP boundary; bounded hashes, non-200/fetch categories and sanitized partial incident evidence on an initial nonzero audit. Old `7.29.14` graphs excluded. Keep original audit fail-closed, no retry, no raw HTTP/credentials, no trust-policy changes. Existing root/EAS locks, privileged workflows, PR #65 and main untouched.
+- **Gate:** Fresh exact-HEAD static/Governance/forensic CI and security review after the scoped commit; historical original failed HTTP bytes, causality, independent owner-approved Sigstore TUF bootstrap and exact authorized Babel publish workflow remain UNVERIFIED. #71 OPEN, #73 DRAFT/HOLD, #65 SECURITY HOLD.
+
+
+
+## 2026-11-22 — npm10 HTTP JSON reader streaming-bound fix (Issue #71)
+
+- **Authority/agent:** Owner's "Go" after read-only audit recommended the HTTP Boundary Diagnostic Fix, agent-transcribed [Issue #71 scoped PROCEED](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080458729). Active agent ChatGPT/GPT-6; independent human security review DEFERRED (optional under actual rule).
+- **Verified pre-fix HEAD:** Draft PR #73 a0ac978e8dfb76faf7d969adf1283c04d049cced, main 44f033b83921c660797d610a3befa744ab832f9f. Required static and Governance PASS; isolated http-boundary diagnostic FAIL_CLOSED after TARGET_RESPONSE_SEEN before TARGET_RESPONSE_HASHED. First CLI stdout was empty, invalid attestation package UNVERIFIED; not evidence of actual package compromise.
+- **Root diagnostic defect:** Preloader set npm10 minipass-fetch response.size=8MiB as a maximum; that field triggers MinipassSized requiring exact response size. The previous synthetic Buffer mock never exercised the stream size check. New instrumented reader consumes decoded response.body async-iterably with explicit 8MiB incremental cap and fails closed for unreadable/oversized/malformed body. Sanitize only fixed error category; no raw body/credential/error text output. Tests now exercise real stream bodies, size-setter rejection, too-large chunks, malformed JSON, redaction.
+- **Boundaries:** Instrumented decoded JSON bytes are NOT original historical uninstrumented HTTP wire bytes. Audit still single first attempt with no signature bypass/retry. Only scoped Draft #73 source/test/task/index edits; no app, lockfiles, PR #65, protected main, secrets, privileged workflow or ruleset changes. Post-fix exact HEAD and CI must be reverified. Issue #71 stays OPEN; PR #73 Draft; PR #65 Security HOLD; independent TUF trust anchor UNVERIFIED.
+
+
+## 2026-11-22 — JSON response-boundary diagnostic correction (#71)
+
+- **Observed:** `298b626f` tap stage TARGET_RESPONSE_SEEN then failed before hashing; all uninstrumented npm diagnostics and required static/Governance passed. Clone-based interception was a diagnostic bug, not npm attestation proof.
+- **Fix:** Consume the actual targeted JSON response through bounded `buffer()`, hash before `JSON.parse`, return parsed object; no second HTTP GET or raw output. Local synthetic response fixture and syntax PASS. Instrumented behavior may alter timing/error handling; old failure HTTP still NOT_CAPTURED. Fresh CI required; #71 OPEN, #73 Draft, #65 HOLD.
+
+## 2026-11-22 — HTTP tap path fix, distinct npm10 failure (#71)
+
+- **Pre-fix head `6bb1c9cc`:** New instrumented job failed before capture due to npm executable symlink path; fix preloader module resolution with `realpathSync` and synthetic symlink test. Separate uninstrumented node22-clean-a genuinely failed `@babel/code-frame@7.29.7` attestation on unchanged EAS lock; node22-clean-b/npm11 and required static/Governance passed. First failed HTTP bytes remain NOT_CAPTURED.
+- **Gate:** Fresh fixed-head CI is required. #71 OPEN, #73 Draft, #65 HOLD; no merge/risk acceptance or signature bypass. Independent human review DEFERRED.
+
+## 2026-11-22 — Instrumented first npm10 HTTP boundary (#71)
+
+- **Scope/decision:** Owner `Go`, continuing [Issue #71 RFC](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079959825); Draft PR #73 only. Agent ChatGPT/GPT-6. A new isolated read-only job records bounded first target response fingerprints from npm10's bundled fetch boundary in one real `npm audit signatures` invocation. No raw payload/secret output, retries, mandatory Phase 0 changes, trust-policy switch or #65/main edit.
+- **Limit:** Preload may alter timing; old failed HTTP response is unrecoverable. Green instrumented audit cannot resolve root cause. First nonzero audit remains FAIL_CLOSED; missing response UNVERIFIED. Exact-HEAD CI/review to verify after commit; independent human review DEFERRED (recommended, optional).
+
+## 2026-11-22 — Sixth locked Babel provenance target (#71)
+
+- **Owner direction / scope:** `Go follow agent.md`; bounded forensic decision in [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079959825). Draft PR #73 only; active agent ChatGPT/GPT-6. Current required `static` first failure at HEAD `338a5e32` includes `@babel/types@7.29.15`, previously outside five-target proof.
+- **Implementation:** Add exact committed EAS-lock `@babel/types` as sixth target to existing SRI/DSSE/TUF/OIDC/Rekor/registry ECDSA/frozen-pacote path with negative identity/redaction tests. Original first failing HTTP response remains NOT_CAPTURED; npm10 vs npm11 root cause and owner-approved out-of-band TUF root remain UNVERIFIED.
+- **Gate:** Verify fresh HEAD CI and scope before handoff. #73 Draft, #65 HOLD, #71 OPEN; no merge, risk acceptance, signature bypass or main change. Independent human security review DEFERRED (recommended, optional under observed settings).
+
+
+## 2026-11-22 — TUF OLPC canonical format correction, public roots v1→v16
+
+- **Exact failed HEAD evidence:** dd9833f1 root v10's self-signature rejected by the standalone diagnostic because JSON.stringify escaped PEM newlines as \\n. TUF/OLPC canonical encoding signs literal newline bytes; the mismatch was in our diagnostic, not evidence of compromised root metadata.
+- **New scoped check:** Strict TUF OLPC canonical JSON (only escape backslash/quote) + legacy SEC1 P256 and modern PEM public keys, full v1→v16 old+new signature threshold transitions, no root version skipping. Synthetic negative cases, safe source/version labels and fail-closed workflow.
+- **Trust boundary unchanged:** Public root v1 sourced at immutable upstream Git commit, NOT independently owner-approved out-of-band ceremony bootstrap. Never promote chain continuity to trusted root config. Historical npm attestation causal root, exact Babel publisher policy and PR #65 Security HOLD remain open. Task [#71](https://github.com/im-tnyx/Tio-Money/issues/71); Draft #73 only.
+
+
+
+## 2026-11-22 — Updated Sigstore root-chain boundary: v10 to v16 (#71)
+
+- **Observed:** Draft PR #73 initial 1→16 root diagnostic first failed on legacy SEC1 hex key parsing; strict P256 decoding fixed it, then real historical v4→v5 failed TUF_SIGNATURE_THRESHOLD_NOT_MET despite signature IDs present. No threshold bypass. Official Sigstore docs describe a backward-incompatible historical root format and recommend a modern v10 bootstrap.
+- **Next exact gate:** Verify modern root v10→v16 successor+predecessor ECDSA signature thresholds and v16 expiry/equality from immutable public upstream commit 25b222a48cda4aa88e1af85605bdd193f5619a60. Deliberately classify v4→v5 and owner-approved independent trust anchor UNVERIFIED. This is technical proof of internal continuity, NOT a trusted-root pin change.
+- **State:** Issue #71 OPEN, PR #73 Draft, #65 SECURITY HOLD, main protected. Root chain must not be declared fully trusted or historical npm failure resolved; record new exact-head checks. Independent human reviewer optional, no merge authorization.
+
+
+
+## 2026-11-22 — Sigstore TUF public root-chain signatures, Gate 3 (#71)
+
+- **Owner/PROCEED:** Chat "Go next" after successful frozen-pacote Gate 2. Agent-transcribed security discussion [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079714316); bounded forensic diagnostic on Draft PR #73. ChatGPT/GPT-6 acting agent; optional external human review not requested. No merge or root policy authorization.
+- **Proposed check:** Strict upstream immutable Git source at 25b222a48cda4aa88e1af85605bdd193f5619a60, root_history v1-v16; independent ECDSA P-256 signatures, previous+new TUF root-role thresholds, version continuity, v16 matching current root and not expired. Negative fixtures fail-closed. Raw public keys and signed content not logged.
+- **Critical status:** ROOT_CHAIN_SIGNATURES_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP is deliberately distinct from an owner-approved *independently supplied out-of-band* trust anchor, still UNVERIFIED. Historical npm10 failed-HTTP root cause and exact publisher workflow ref also UNVERIFIED. No trust pin switch, EAS lock, app, privileged workflow, secret, ruleset, #65 or main mutation. Post-change current SHA/checks to be verified.
+
+
+
+## 2026-11-22 — Gate 2: Controlled same-public-registry-response pacote comparison (#71)
+
+- **Active agent:** ChatGPT/GPT-6; bounded PROCEED transcribed from owner's chat "Go next" after first-failure evidence; discussion [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079157593). NOT PR-specific merge authorization, security risk acceptance or independent review.
+- **Task:** [TM-SEC-SIGSTORE-20261122-001](tasks/security/npm-sigstore-forensics-20261122.md), Draft PR #73 only, base main `44f033b83921c660797d610a3befa744ab832f9f`; first-failure HEAD `e4e08e02` had npm10 real invalid-attestation and 6/7 checks green, one red. That evidence stays retained and unwaived.
+- **New controlled gate:** Public npm full package packument and attestation bytes each read ONCE per exact locked Babel package, independent pinned registry ECDSA check, identical frozen bytes served locally to npm10+11 pinned bundled pacote. Output only source digests, package IDs, bounded verdicts; no raw blobs/certs/credentials/redirects, no package installation or EAS lock change.
+- **Security decisions still OPEN:** Historical failing registry HTTP bytes NOT CAPTURED; same-response pacote test cannot establish full npm CLI causal root. Out-of-band Sigstore TUF root and exact approved publisher workflow ref UNVERIFIED. Keep Issue #71 OPEN, #73 Draft, #65 SECURITY HOLD. Post-change HEAD and CI must be freshly verified; no merge.
+
+
+
+## 2026-11-22 — Issue #71 first-failure npm evidence gate, Draft PR #73
+
+- **Task/owner direction:** [TM-SEC-SIGSTORE-20261122-001](tasks/security/npm-sigstore-forensics-20261122.md) and [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079012893), agent-transcribed owner chat "Go" for narrowly scoped First-Failure Evidence Capture, not permission to merge or accept unknown risk. Active agent ChatGPT/GPT-6; independent human security reviewer SKIPPED (optional by owner).
+- **Safe branch/scope:** [Draft PR #73](https://github.com/im-tnyx/Tio-Money/pull/73), branch security/issue-71-npm-sigstore-diagnostic; first-failure helper/synthetic tests, Phase 0 EAS signature TEST, no-secrets diagnostic/workflow/task record and this current index only. Original npm CLI stdout/stderr SHA-256 and exact lockfile package identity recorded on first failure; later public registry fingerprints distinctly AFTER_FIRST_NPM_CLI_FAILURE. No raw HTTP/DSSE/certificates/credentials, no retries or signature bypass. App, EAS/root lock, #65, protected main and ruleset unchanged.
+- **Verified checkpoint BEFORE this index-only commit:** PR HEAD 6113cf79e542bc4de6859657f3e847f4c391341e, base protected main 44f033b83921c660797d610a3befa744ab832f9f, 0 commits behind, 7/7 native GitHub checks SUCCESS: required static and Governance, npm10 A/B, npm11, same-bundle, optional signal. App/preview tests and Metro Android/iOS PASS. The current index edit creates a NEW HEAD; its own exact-head CI must be rechecked rather than inheriting prior PASS.
+- **Security disposition:** No live first-failure captured on the green checkpoint; first-failure code tested with safe negative fixtures, not historical HTTP reproduction. Historical npm attestation cause, owner-approved independent TUF trust anchor and exact Babel signing workflow ref remain UNVERIFIED. Issue #71 OPEN; PR #73 Draft/unmerged; PR #65 SECURITY HOLD. No merge, risk acceptance or protection bypass.
+
+
+## 2026-11-22 — PR #76 root SECURITY.md (AGENTS.md governance checkpoint; OPEN)
+
+- **Task & RFC:** [TM-SEC-POLICY-20261122-001](tasks/security/security-policy-20261122.md), [Issue #75](https://github.com/im-tnyx/Tio-Money/issues/75); owner requested gap remediation with [documented bounded PROCEED](https://github.com/im-tnyx/Tio-Money/issues/75#issuecomment-7078378710). Current working agent ChatGPT / GPT-6 (self-identified); previous agent `UNKNOWN_NOT_VERIFIED`, not inferred from GitHub author.
+- **Branch and scope:** [PR #76](https://github.com/im-tnyx/Tio-Money/pull/76), `docs/security-policy-20261122`, protected base `main` `7d2bb686...`; previously inspected task-file commit `c69050a9...`, **index write generates a new HEAD**. Only root `SECURITY.md`, this scoped task and additive index entry are authorized. PR #65/#73 and main untouched.
+- **Decision and gates:** No security email now; verified dedicated confidential intake is a **manual release BLOCKER before first external beta/public distribution** under [#77](https://github.com/im-tnyx/Tio-Money/issues/77), not a blocker to this documentation PR's review. Historical `c4656ada...` exact-HEAD `static`/`Governance`/`signal` PASS; **fresh checks after governance commits must be reverified**. Independent human review DEFERRED; agent `COMMENTED` is not `APPROVED`. **PR #76 owner merge authorization NOT_GRANTED**. No merge/setting changes/secret access.
+
+
 ## 2026-11-22 — PR #53 Sub Detail in-place Number Format (unmerged)
 
 - **Owner requested / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068636655). Add same Millions/Lakhs/No Format policies as Main, but **expand inside the existing Sub Detail Bottom Sheet**; other setting taps or selection collapse the Format options.

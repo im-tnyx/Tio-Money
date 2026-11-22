@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { firstFailureFingerprint, samplePostFailurePublicRegistry }
+  from '../../scripts/security/npm-sigstore-first-failure.mjs';
+import { verifierVersions } from '../../scripts/security/npm-sigstore-metadata.mjs';
 import { copyFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -9,7 +12,7 @@ import { test } from 'node:test';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const LOCK_DIR = join(ROOT, '.github', 'preview-eas-cli');
 
-test('CI verifies isolated committed EAS CLI using npm ci and registry signatures', (t) => {
+test('CI verifies isolated committed EAS CLI using npm ci and registry signatures', async (t) => {
   if (process.env.GITHUB_ACTIONS !== 'true') {
     t.skip('networked npm package-signature verification is exercised on GitHub CI');
     return;
@@ -29,15 +32,34 @@ test('CI verifies isolated committed EAS CLI using npm ci and registry signature
   const signatures = spawnSync('npm', [
     'audit', 'signatures', '--registry=https://registry.npmjs.org'
   ], { cwd: target, encoding: 'utf8', timeout: 180000, maxBuffer: 4 * 1024 * 1024 });
-  // npm audit signatures sometimes reports registry verification failures on
-  // stdout, not stderr. Preserve the fail-closed gate and surface a bounded
-  // diagnostic rather than an unexplained "1 !== 0" assertion.
-  const diagnostic = [signatures.stdout, signatures.stderr, signatures.error?.message]
-    .filter(Boolean)
-    .join('\n')
-    .replace(/[\x00-\x08\x0b-\x1f\x7f]/g, '?')
-    .slice(-4000);
-  assert.equal(signatures.status, 0, `npm audit signatures failed: ${diagnostic || 'no diagnostic output'}`);
+  // FIRST failure only. Hash original CLI stdout/stderr without logging them.
+  // Fresh public registry fingerprints are sampled AFTER the failure, not
+  // the exact HTTP bytes npm saw. Do not retry npm audit signatures to pass.
+  if (signatures.status !== 0 || signatures.error || signatures.signal) {
+    const lockBytes = readFileSync(join(LOCK_DIR, 'package-lock.json'));
+    const lock = JSON.parse(lockBytes.toString('utf8'));
+    const npmVersion = spawnSync('npm', ['--version'], {
+      cwd: target, encoding: 'utf8', timeout: 10000,
+    });
+    const npmGlobalRoot = spawnSync('npm', ['root', '-g'], {
+      cwd: target, encoding: 'utf8', timeout: 10000,
+    });
+    let versions = { status: 'UNVERIFIED' };
+    if (npmGlobalRoot.status === 0 &&
+      npmGlobalRoot.stdout.trim().length < 500) {
+      try { versions = verifierVersions(npmGlobalRoot.stdout.trim()); }
+      catch { /* metadata unavailable; failure still blocks */ }
+    }
+    const first = firstFailureFingerprint({
+      stdout: signatures.stdout, stderr: signatures.stderr,
+      exitStatus: signatures.status, signal: signatures.signal,
+      npmVersion: npmVersion.status === 0 ? npmVersion.stdout.trim() : '',
+      verifierVersions: versions, lock, lockBytes,
+    });
+    const fresh = await samplePostFailurePublicRegistry(first, lock);
+    assert.fail('NPM_AUDIT_SIGNATURES_FIRST_FAILURE_FAIL_CLOSED ' +
+      JSON.stringify({ first, fresh }));
+  }
 
   // Enforce that the committed isolated EAS dependency graph stays clear
   // of Critical, High and Moderate advisories. Known Low findings are
