@@ -58,9 +58,12 @@ export function checkRegistryPublication(metadata, keys, lock, name, version,
   assert.equal(publicKey.asymmetricKeyType, 'ec', 'REGISTRY_KEY_NOT_EC');
   assert.equal(publicKey.asymmetricKeyDetails?.namedCurve, 'prime256v1',
     'REGISTRY_KEY_NOT_P256');
-  const signatures = (metadata?.dist?.signatures || []).filter(x =>
-    x?.keyid === pin.keyid);
-  assert.equal(signatures.length, 1, 'REGISTRY_PINNED_SIGNATURE_NOT_FOUND');
+  const signaturesRaw = metadata?.dist?.signatures;
+  assert.ok(Array.isArray(signaturesRaw) && signaturesRaw.length > 0,
+    'REGISTRY_DIST_SIGNATURES_ABSENT');
+  const signatures = signaturesRaw.filter(x => x?.keyid === pin.keyid);
+  assert.ok(signatures.length > 0, 'REGISTRY_KEY_ID_MISMATCH');
+  assert.equal(signatures.length, 1, 'REGISTRY_DUPLICATE_PINNED_SIGNATURES');
   const signed = Buffer.from(name + '@' + version + ':' + manifest.integrity);
   const signature = exactBase64(signatures[0].sig);
   assert.ok(verifySignature('sha256', signed, publicKey, signature),
@@ -85,8 +88,7 @@ async function getPublicJson(url, maxBytes) {
     'REGISTRY_NETWORK_URL_WITH_PARAMETERS');
   return new Promise((resolve, reject) => {
     const req = get(url, { timeout: 20000,
-      headers: { Accept: url.pathname === '/-/npm/v1/keys'
-        ? 'application/json' : 'application/vnd.npm.install-v1+json' } }, response => {
+      headers: { Accept: 'application/json' } }, response => {
       if (response.statusCode !== 200) {
         response.resume(); reject(new Error('REGISTRY_METADATA_HTTP_NON_200')); return;
       }
@@ -122,7 +124,7 @@ export async function verifyTargetRegistryPublications(lock, targets,
     // in a single-version metadata endpoint. Read the immutable version entry
     // from npm's standard installation packument; never infer from a dist-tag.
     const path = '/' + encodeURIComponent(name);
-    const info = await fetchJson(new URL(path, ORIGIN), 4 * 1024 * 1024);
+    const info = await fetchJson(new URL(path, ORIGIN), 8 * 1024 * 1024);
     assert.equal(info.parsed?.name, name, 'REGISTRY_PACKUMENT_NAME_MISMATCH');
     const signedVersion = info.parsed?.versions?.[version];
     assert.ok(signedVersion, 'REGISTRY_MISSING_EXACT_VERSION_IN_PACKUMENT');
@@ -163,6 +165,9 @@ const SAFE_REGISTRY_ERROR_CATEGORIES = Object.freeze([
   'REGISTRY_KEY_NOT_EC',
   'REGISTRY_KEY_NOT_P256',
   'REGISTRY_PINNED_SIGNATURE_NOT_FOUND',
+  'REGISTRY_DIST_SIGNATURES_ABSENT',
+  'REGISTRY_KEY_ID_MISMATCH',
+  'REGISTRY_DUPLICATE_PINNED_SIGNATURES',
   'REGISTRY_ECDSA_SIGNATURE_INVALID',
   'REGISTRY_ORIGIN_UNTRUSTED',
   'REGISTRY_LOCK_SRI_MISSING',

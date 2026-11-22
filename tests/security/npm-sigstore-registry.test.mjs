@@ -61,6 +61,17 @@ test('signed key expiration, algorithm downgrade, other package and wrong versio
   assert.throws(() => checkRegistryPublication(f.metadata, f.keys, lock, name,
     '7.29.14', pin), /MISSING_EXACT_LOCKED_TARGET/);
 });
+test('missing dist signature or unexpected signing key ID cannot pass', () => {
+  let f = fixture();
+  delete f.metadata.dist.signatures;
+  assert.throws(() => checkRegistryPublication(f.metadata, f.keys, lock, name, version, pin),
+    /REGISTRY_DIST_SIGNATURES_ABSENT/);
+  f = fixture();
+  f.metadata.dist.signatures[0].keyid = 'SHA256:other-key';
+  assert.throws(() => checkRegistryPublication(f.metadata, f.keys, lock, name, version, pin),
+    /REGISTRY_KEY_ID_MISMATCH/);
+});
+
 test('all targets must be checked with independent, sanitized public evidence', async () => {
   const f = fixture();
   const captured = [];
