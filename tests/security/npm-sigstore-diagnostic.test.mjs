@@ -119,9 +119,9 @@ for (const [name, version] of [
     wrong.packages['node_modules/' + name].version = '0.0.0';
     assert.throws(() => verifyLock(wrong, bytes, sha),
       /PACKAGE_VERSION_CHANGED_/);
-    const output = '1 package has an invalid attestation:\\n' +
-      name + '@' + version + ' (https://registry.npmjs.org/)\\n' +
-      'password=never-release-this';
+    const output = ['1 package has an invalid attestation:',
+      name + '@' + version + ' (https://registry.npmjs.org/)',
+      'password=never-release-this'].join(String.fromCharCode(10));
     const result = sanitizeFailure(output, mock());
     assert.deepEqual(result.reportedInvalidPackageIds, [name + '@' + version]);
     assert.equal(result.rawOutputRetained, false);
