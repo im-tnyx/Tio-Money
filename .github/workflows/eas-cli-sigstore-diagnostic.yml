@@ -13,6 +13,7 @@ on:
       - scripts/security/npm-sigstore-registry.mjs
       - scripts/security/npm-sigstore-replay.mjs
       - scripts/security/npm-sigstore-first-failure.mjs
+      - scripts/security/npm-sigstore-pacote.mjs
       - tests/security/npm-sigstore-diagnostic.test.mjs
       - tests/security/npm-sigstore-proof.test.mjs
       - tests/security/npm-sigstore-metadata.test.mjs
@@ -20,6 +21,7 @@ on:
       - tests/security/npm-sigstore-registry.test.mjs
       - tests/security/npm-sigstore-replay.test.mjs
       - tests/security/npm-sigstore-first-failure.test.mjs
+      - tests/security/npm-sigstore-pacote.test.mjs
       - tests/preview/eas-cli-locked-install.test.mjs
 
 permissions:
@@ -107,3 +109,46 @@ jobs:
         run: node --test tests/security/npm-sigstore-replay.test.mjs
       - name: Compare five exact locked Babel provenance bundles without secrets
         run: node scripts/security/npm-sigstore-replay.mjs
+
+  # Exact one-source public npm responses frozen in memory and replayed
+  # through both preinstalled npm-bundled pacote verification paths.
+  # NOT an original failed HTTP response or a full npm CLI audit replay.
+  same-pacote:
+    name: Sigstore frozen HTTP / npm10 vs npm11 pacote
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR head without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select pinned Node22 npm10
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Record reviewed npm10 module root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '10.9.2'
+          printf 'NPM10_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Select pinned Node26 npm11
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.8.2'
+          package-manager-cache: false
+      - name: Record reviewed npm11 module root
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '11.19.1'
+          printf 'NPM11_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Test exact fixture isolation, rejected paths and fail-closed verdicts
+        run: node --test tests/security/npm-sigstore-pacote.test.mjs
+      - name: Compare exact signed public registry snapshots at pacote boundary
+        run: node scripts/security/npm-sigstore-pacote.mjs

@@ -188,3 +188,48 @@ green run proves only implementation tests, NOT a captured historical failure.
 independent Tio-Money-approved out-of-band Sigstore TUF root and exact
 Babel publisher workflow-ref policy remain UNVERIFIED. Issue #71 OPEN;
 PR #73 Draft/unmerged; PR #65 Security HOLD; no merge or risk acceptance.
+
+
+## 2026-11-22 — Gate 2 Controlled Same-HTTP-Response npm10/npm11 pacote differential
+
+**Decision:** Owner's next "Go next" after reviewing the First-Failure Capture evidence
+authorizes ONLY this scoped diagnostic development, not branch merge, release,
+security-risk waiver or trusted-root policy change. [Issue #71 RFC/proceed](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079157593).
+
+**Threat and evidence boundary:** Draft PR #73 prior exact HEAD e4e08e02
+contained a real fail-closed npm10 observation for
+@babel/helper-module-transforms@7.29.13. Its later public registry snapshots
+are NOT the original failing HTTP response; actual historic cause is unknown.
+The existing Sigstore3/4 comparison used the same DSSE in-memory bundle but
+not npm's package metadata/registry fetch/attestation integration.
+
+**Implementation:** A new no-secrets, SHA-pinned, contents:read GitHub
+same-pacote job independently selects preinstalled pinned Node22/npm10.9.2
+and Node26/npm11.19.1 without npm install/CLI override. On the SAME Node
+runtime, capture a bounded one-time official npm public FULL packument and
+attestation response per five exact EAS-lock Babel targets, plus the public
+keyset. Before either client uses them, check exact lockfile blob, version,
+tarball SHA-512 integrity, trusted public registry P256 ECDSA SPKI key pin,
+signatures and provenance identity. Only in-memory bytes are served to BOTH
+built-in pacote registry/attestation verification paths through a
+GET-only 127.0.0.1 local loopback endpoint; strict URL allowlist, no
+redirect, no auth, no raw bodies or certificates in CI output. Use
+separate ephemeral TUF/cache directories, no retries; both library paths
+must request the same full packument and attestation bytes once each and
+independently accept them. Rejection or unexpected network request
+FAILS CLOSED and is reported only as a bounded status. Synthetic fixtures
+test spoofed paths/identities, negative and positive frozen-replay verdicts,
+no raw secret output.
+
+**Limitations:** This is a SAMPLED SAME-PUBLIC-HTTP-RESPONSE **pacote** verifier
+comparison, not interception of the original npm CLI failed request,
+not an entire npm audit signatures CLI replay, not proof of harmlessness,
+not a trusted independent out-of-band Sigstore TUF root or exact
+owner-approved Babel publisher workflow ref. The separately tested npm
+signature/attestation gate remains required, not modified. If new CI is
+red, preserve the failure as evidence rather than rerun-until-green.
+
+**Excluded:** main, PR #65, EAS/root dependency lockfiles, EAS tokens,
+security ruleset, production Expo/finance code, trusted preview workflows,
+environment permissions and auto-merge. PR #73 stays Draft; Issue #71 open;
+PR #65 security HOLD, manual reviewer optional.

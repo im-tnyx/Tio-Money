@@ -1,6 +1,15 @@
 # 🧭 Current task index
 
 
+## 2026-11-22 — Gate 2: Controlled same-public-registry-response pacote comparison (#71)
+
+- **Active agent:** ChatGPT/GPT-6; bounded PROCEED transcribed from owner's chat "Go next" after first-failure evidence; discussion [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079157593). NOT PR-specific merge authorization, security risk acceptance or independent review.
+- **Task:** [TM-SEC-SIGSTORE-20261122-001](tasks/security/npm-sigstore-forensics-20261122.md), Draft PR #73 only, base main `44f033b83921c660797d610a3befa744ab832f9f`; first-failure HEAD `e4e08e02` had npm10 real invalid-attestation and 6/7 checks green, one red. That evidence stays retained and unwaived.
+- **New controlled gate:** Public npm full package packument and attestation bytes each read ONCE per exact locked Babel package, independent pinned registry ECDSA check, identical frozen bytes served locally to npm10+11 pinned bundled pacote. Output only source digests, package IDs, bounded verdicts; no raw blobs/certs/credentials/redirects, no package installation or EAS lock change.
+- **Security decisions still OPEN:** Historical failing registry HTTP bytes NOT CAPTURED; same-response pacote test cannot establish full npm CLI causal root. Out-of-band Sigstore TUF root and exact approved publisher workflow ref UNVERIFIED. Keep Issue #71 OPEN, #73 Draft, #65 SECURITY HOLD. Post-change HEAD and CI must be freshly verified; no merge.
+
+
+
 ## 2026-11-22 — Issue #71 first-failure npm evidence gate, Draft PR #73
 
 - **Task/owner direction:** [TM-SEC-SIGSTORE-20261122-001](tasks/security/npm-sigstore-forensics-20261122.md) and [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079012893), agent-transcribed owner chat "Go" for narrowly scoped First-Failure Evidence Capture, not permission to merge or accept unknown risk. Active agent ChatGPT/GPT-6; independent human security reviewer SKIPPED (optional by owner).
