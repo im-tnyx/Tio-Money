@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
+import { identifyInvalidPackages, fetchRegistrySigningKeyMetadata,
+  verifierVersions } from './npm-sigstore-metadata.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SOURCE = join(ROOT, '.github/preview-eas-cli');
@@ -38,7 +40,7 @@ export function verifyLock(lock, bytes, expectedBlob = LOCK_BLOB) {
   });
 }
 
-export function sanitizeFailure(raw) {
+export function sanitizeFailure(raw, lock) {
   const value = String(raw || '');
   const found = /([0-9]+) packages? have invalid attestations?/i.exec(value);
   return {
@@ -48,6 +50,7 @@ export function sanitizeFailure(raw) {
       'ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', 'EINTEGRITY']
       .filter(s => value.toLowerCase().includes(s.toLowerCase())),
     rawOutputRetained: false,
+    ...identifyInvalidPackages(raw, lock),
   };
 }
 
@@ -104,17 +107,38 @@ export async function runDiagnostic() {
     assert.equal(safeStatus(version), 'PASS', 'NPM_VERSION_UNAVAILABLE');
     assert.match(version.stdout.trim(), /^\d+\.\d+\.\d+$/, 'NPM_VERSION_INVALID');
     report.npm = version.stdout.trim();
+    const globalRoot = execNpm(['root', '-g'], temp, env, 15000);
+    report.verifierVersions = safeStatus(globalRoot) === 'PASS'
+      ? verifierVersions(globalRoot.stdout.trim())
+      : { status: 'UNVERIFIED' };
+    try {
+      report.registrySigningKeys = {
+        status: 'AVAILABLE_BUT_NOT_INDEPENDENTLY_TRUSTED',
+        keys: await fetchRegistrySigningKeyMetadata(),
+      };
+    } catch {
+      report.registrySigningKeys = { status: 'UNVERIFIED' };
+    }
     const install = execNpm(['ci', '--ignore-scripts', '--no-audit', '--no-fund',
       '--prefer-online', '--registry=' + REGISTRY], temp, env, 300000);
     report.install = safeStatus(install);
     if (report.install !== 'PASS') {
-      report.failure = { gate: 'NPM_CI', ...sanitizeFailure(install.stdout + '\n' + install.stderr) };
+      report.failure = { gate: 'NPM_CI', ...sanitizeFailure(install.stdout + '\n' + install.stderr, lock) };
       throw new Error('NPM_CI_FAILED');
     }
     const signatures = execNpm(['audit', 'signatures', '--registry=' + REGISTRY], temp, env);
     report.signatures = safeStatus(signatures);
     if (report.signatures !== 'PASS') {
-      report.failure = { gate: 'NPM_AUDIT_SIGNATURES', ...sanitizeFailure(signatures.stdout + '\n' + signatures.stderr) };
+      report.failure = { gate: 'NPM_AUDIT_SIGNATURES',
+        ...sanitizeFailure(signatures.stdout + '\n' + signatures.stderr, lock) };
+      // Forensic second observation only; never replace the failed mandatory result.
+      const jsonObservation = execNpm(['audit', 'signatures', '--json',
+        '--registry=' + REGISTRY], temp, env, 180000);
+      report.failureJsonObservation = {
+        observation: safeStatus(jsonObservation),
+        ...sanitizeFailure(jsonObservation.stdout + '\n' + jsonObservation.stderr, lock),
+        firstFailureStillBlocks: true,
+      };
       throw new Error('NPM_AUDIT_SIGNATURES_FAILED');
     }
     const support = execNpm(['config', 'get', 'include-attestations'], temp, env, 20000);
@@ -123,7 +147,7 @@ export async function runDiagnostic() {
         '--registry=' + REGISTRY], temp, env);
       report.jsonAttestations = safeStatus(detail);
       if (report.jsonAttestations !== 'PASS') {
-        report.failure = { gate: 'NPM_JSON_ATTESTATIONS', ...sanitizeFailure(detail.stdout + '\n' + detail.stderr) };
+        report.failure = { gate: 'NPM_JSON_ATTESTATIONS', ...sanitizeFailure(detail.stdout + '\n' + detail.stderr, lock) };
         throw new Error('NPM_JSON_VERIFICATION_FAILED');
       }
       let parsed;
