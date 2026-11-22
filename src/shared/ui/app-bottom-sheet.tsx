@@ -1,5 +1,6 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -44,6 +45,7 @@ export function AppBottomSheet({
       title={title}
       dismissAccessibilityLabel={dismissAccessibilityLabel}
       onDismiss={onDismiss}
+      underlayBehindKeyboard={avoidKeyboard && Platform.OS === 'ios'}
     >
       {children}
     </SheetSurface>
@@ -77,11 +79,13 @@ function SheetSurface({
   dismissAccessibilityLabel,
   onDismiss,
   children,
+  underlayBehindKeyboard,
 }: {
   title: string;
   dismissAccessibilityLabel: string;
   onDismiss: () => void;
   children: ReactNode;
+  underlayBehindKeyboard: boolean;
 }) {
   const theme = useAppTheme();
   const sheet = theme.bottomSheet;
@@ -91,6 +95,7 @@ function SheetSurface({
   const [expanded, setExpanded] = useState(false);
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const [contentHeight, setContentHeight] = useState(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
 
@@ -116,6 +121,25 @@ function SheetSurface({
   const contentMaxHeight = Math.max(0, visibleMaxHeight - chromeHeight);
   const touchStartY = useRef(0);
 
+  useEffect(() => {
+    if (!underlayBehindKeyboard) return;
+
+    const updateHeight = (event: { endCoordinates: { height: number } }) => {
+      setKeyboardHeight(Math.max(0, event.endCoordinates.height));
+    };
+    // iOS keyboard corners/translucency reveal the pixels behind the native keyboard.
+    // Only the background extends under it; KeyboardAvoidingView still lifts the form.
+    const show = Keyboard.addListener('keyboardWillShow', updateHeight);
+    const frame = Keyboard.addListener('keyboardWillChangeFrame', updateHeight);
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+
+    return () => {
+      show.remove();
+      frame.remove();
+      hide.remove();
+    };
+  }, [underlayBehindKeyboard]);
+
   return (
     <View
       onLayout={(event) => {
@@ -133,6 +157,21 @@ function SheetSurface({
           { backgroundColor: theme.colors.shadow, opacity: sheet.backdropOpacity },
         ]}
       />
+      {underlayBehindKeyboard && keyboardHeight > 0 ? (
+        <View
+          pointerEvents="none"
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+          style={{
+            position: 'absolute',
+            left: theme.navigation.origin,
+            right: theme.navigation.origin,
+            bottom: -keyboardHeight,
+            height: keyboardHeight,
+            backgroundColor: theme.colors.card,
+          }}
+        />
+      ) : null}
       <SafeAreaView
         edges={['bottom', 'left', 'right']}
         accessibilityViewIsModal

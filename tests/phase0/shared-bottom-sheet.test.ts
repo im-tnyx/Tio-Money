@@ -93,3 +93,24 @@ test('Account Groups opt into keyboard avoidance; other sheets stay unchanged', 
   assert.match(shared, /onRequestClose=\{onDismiss\}/);
   assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
 });
+
+test('iOS keyboard underlay paints the full native keyboard area without moving the sheet', () => {
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  const groups = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
+  assert.match(shared, /underlayBehindKeyboard=\{avoidKeyboard && Platform\.OS === 'ios'\}/);
+  assert.match(shared, /Keyboard\.addListener\('keyboardWillShow', updateHeight\)/);
+  assert.match(shared, /Keyboard\.addListener\('keyboardWillChangeFrame', updateHeight\)/);
+  assert.match(shared, /Keyboard\.addListener\('keyboardDidHide', \(\) => setKeyboardHeight\(0\)\)/);
+  assert.match(shared, /show\.remove\(\)/);
+  assert.match(shared, /frame\.remove\(\)/);
+  assert.match(shared, /hide\.remove\(\)/);
+  assert.match(shared, /underlayBehindKeyboard && keyboardHeight > 0/);
+  assert.match(shared, /pointerEvents="none"/);
+  assert.match(shared, /importantForAccessibility="no-hide-descendants"/);
+  assert.match(shared, /bottom: -keyboardHeight/);
+  assert.match(shared, /height: keyboardHeight/);
+  assert.match(shared, /backgroundColor: theme\.colors\.card/);
+  assert.doesNotMatch(shared, /borderBottomLeftRadius|borderBottomRightRadius/);
+  assert.match(groups, /<AppBottomSheet\s+visible=\{state\.addSheetVisible\}\s+avoidKeyboard/);
+  assert.equal((groups.match(/<ActionButton/g) ?? []).length, 1);
+});
