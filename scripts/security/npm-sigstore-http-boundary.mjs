@@ -14,29 +14,68 @@ import { verifierVersions } from './npm-sigstore-metadata.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const SOURCE = join(ROOT, '.github/preview-eas-cli');
 const LOCK_BLOB = 'fa92a2b84071c5cb974becffd6ac74dabf050989';
-const TARGETS = new Set([
+const REQUIRED = new Set([
   '@babel/helper-compilation-targets@7.29.13', '@babel/types@7.29.15',
 ]);
-export function sanitizeTapReport(data) {
+const TARGETS = new Set([
+  '@babel/generator@7.29.15',
+  '@babel/helper-module-transforms@7.29.13',
+  '@babel/helper-validator-identifier@7.29.7',
+  '@babel/traverse@7.29.15',
+  '@babel/helper-compilation-targets@7.29.13',
+  '@babel/code-frame@7.29.7',
+  '@babel/types@7.29.15',
+]);
+const TAP_REJECTIONS = new Set([
+  'TAP_BODY_READ_REJECTED', 'TAP_BODY_CHUNK_INVALID',
+  'TAP_BODY_TOO_LARGE', 'TAP_BODY_UNSUPPORTED', 'TAP_JSON_INVALID',
+]);
+export function sanitizeTapReport(data, { allowPartial = false } = {}) {
   assert.ok(Array.isArray(data?.evidence) && data.evidence.length <= 32,
     'TAP_REPORT_INVALID');
-  const evidence = data.evidence.map(item => {
+  const evidence = data.evidence.map((item, index) => {
     assert.ok(TARGETS.has(item.packageId) &&
       ['packument', 'attestation'].includes(item.kind) &&
-      Number.isSafeInteger(item.order) && item.order > 0 && item.order <= 32 &&
-      item.status === 'HASHED_INSTRUMENTED_RESPONSE' &&
-      /^[0-9a-f]{64}$/.test(item.sha256) &&
-      Number.isSafeInteger(item.bytes) && item.bytes > 0 && item.bytes <= 8 * 1024 * 1024,
-    'TAP_REPORT_UNVERIFIED');
-    return { packageId: item.packageId, kind: item.kind, order: item.order,
-      sha256: item.sha256, bytes: item.bytes };
+      Number.isSafeInteger(item.order) && item.order === index + 1 &&
+      item.order <= 32, 'TAP_REPORT_UNVERIFIED');
+    const base = { packageId: item.packageId, kind: item.kind, order: item.order };
+    if (item.status === 'HASHED_INSTRUMENTED_RESPONSE') {
+      assert.ok(/^[0-9a-f]{64}$/.test(item.sha256) &&
+        Number.isSafeInteger(item.bytes) && item.bytes > 0 &&
+        item.bytes <= 8 * 1024 * 1024, 'TAP_REPORT_UNVERIFIED');
+      return { ...base, status: 'HASHED_INSTRUMENTED_RESPONSE',
+        sha256: item.sha256, bytes: item.bytes };
+    }
+    if (item.status === 'NON_200') {
+      assert.ok(['4XX', '5XX', 'OTHER'].includes(item.statusClass),
+        'TAP_REPORT_UNVERIFIED');
+      return { ...base, status: 'NON_200', statusClass: item.statusClass };
+    }
+    if (item.status === 'FETCH_REJECTED') {
+      return { ...base, status: 'FETCH_REJECTED' };
+    }
+    if (item.status === 'REJECTED') {
+      assert.ok(TAP_REJECTIONS.has(item.failureCategory),
+        'TAP_REPORT_UNVERIFIED');
+      return { ...base, status: 'REJECTED',
+        failureCategory: item.failureCategory };
+    }
+    throw new Error('TAP_REPORT_UNVERIFIED');
   });
-  const first = [...TARGETS].flatMap(packageId => ['packument', 'attestation'].map(kind =>
-    evidence.find(item => item.packageId === packageId && item.kind === kind)));
-  assert.ok(first.every(Boolean), 'TAP_TARGET_RESPONSE_NOT_OBSERVED');
-  return { first, counts: Object.fromEntries([...TARGETS].map(packageId => [packageId,
-    Object.fromEntries(['packument', 'attestation'].map(kind => [kind,
-      evidence.filter(item => item.packageId === packageId && item.kind === kind).length]))])),
+  const first = [...REQUIRED].flatMap(packageId =>
+    ['packument', 'attestation'].map(kind => evidence.find(item =>
+      item.packageId === packageId && item.kind === kind &&
+      item.status === 'HASHED_INSTRUMENTED_RESPONSE')));
+  if (!allowPartial) {
+    assert.ok(first.every(Boolean), 'TAP_TARGET_RESPONSE_NOT_OBSERVED');
+  }
+  return { first: first.filter(Boolean), observed: evidence,
+    captureCompleteness: allowPartial ? 'PARTIAL_FIRST_FAILURE_UNVERIFIED' :
+      'REQUIRED_PACKUMENTS_AND_ATTESTATIONS_HASHED',
+    counts: Object.fromEntries([...TARGETS].map(packageId => [packageId,
+      Object.fromEntries(['packument', 'attestation'].map(kind => [kind,
+        evidence.filter(item => item.packageId === packageId &&
+          item.kind === kind && item.status === 'HASHED_INSTRUMENTED_RESPONSE').length]))])),
     exactFirstHttpResponseFromHistoricalFailure: false,
     instrumentedNpmCliPath: true, rawResponsesPersisted: false };
 }
@@ -97,13 +136,26 @@ export function main() {
         'TAP_BODY_READ_REJECTED', 'TAP_BODY_CHUNK_INVALID',
         'TAP_BODY_TOO_LARGE', 'TAP_BODY_UNSUPPORTED', 'TAP_JSON_INVALID',
       ].includes(failed?.failureCategory) ? failed.failureCategory : undefined;
-      report.boundary = sanitizeTapReport(snapshot);
+      report.boundary = sanitizeTapReport(snapshot,
+        { allowPartial: report.auditResult !== 'PASS' });
     } catch { report.boundary = 'UNVERIFIED_OR_INCOMPLETE'; }
     if (!report.tapStage) report.tapStage = 'NO_CAPTURE_FILE';
     if (report.auditResult !== 'PASS') {
       report.firstFailure = firstFailureFingerprint({ stdout: audit.stdout,
         stderr: audit.stderr, exitStatus: audit.status, signal: audit.signal,
         npmVersion: version.stdout.trim(), verifierVersions: versions, lock, lockBytes });
+      const observed = typeof report.boundary === 'object' ?
+        report.boundary.observed : [];
+      report.firstFailureBoundaryCorrelation = {
+        interpretation: 'INSTRUMENTED_FIRST_AUDIT_ONLY_CAUSE_UNVERIFIED',
+        packages: report.firstFailure.reportedInvalidPackageIds.map(packageId => ({
+          packageId,
+          httpObservations: observed.filter(item => item.packageId === packageId),
+          coverage: observed.some(item => item.packageId === packageId) ?
+            'PARTIAL_OR_COMPLETE_OBSERVATION' : 'NO_REVIEWED_RESPONSE_OBSERVED',
+        })),
+        noHistoricalHttpBytesClaim: true,
+      };
       throw new Error('TAP_FIRST_AUDIT_FAILURE');
     }
     assert.notEqual(report.boundary, 'UNVERIFIED_OR_INCOMPLETE', 'TAP_NO_VERIFIED_BOUNDARY');

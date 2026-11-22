@@ -149,3 +149,55 @@ test('malformed streamed JSON fails with redacted allowlisted category', () => {
     assert.equal(JSON.parse(raw).evidence[0].failureCategory, 'TAP_JSON_INVALID');
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('historical exact locked Babel identity is accepted without weakening required target gate', () => {
+  const sampled = fixture();
+  sampled.evidence.push({ packageId: '@babel/traverse@7.29.15', kind: 'attestation',
+    order: 5, status: 'HASHED_INSTRUMENTED_RESPONSE',
+    sha256: 'b'.repeat(64), bytes: 88 });
+  const out = sanitizeTapReport(sampled);
+  assert.equal(out.first.length, 4);
+  assert.equal(out.counts['@babel/traverse@7.29.15'].attestation, 1);
+  assert.ok(out.observed.some(e => e.packageId === '@babel/traverse@7.29.15'));
+  const oldLock = fixture();
+  oldLock.evidence[0].packageId = '@babel/parser@7.29.14';
+  assert.throws(() => sanitizeTapReport(oldLock), /TAP_REPORT_UNVERIFIED/);
+});
+
+test('failed first audit may retain sanitized partial response and non-200 class', () => {
+  const partial = { evidence: [
+    { packageId: '@babel/code-frame@7.29.7', kind: 'packument', order: 1,
+      status: 'HASHED_INSTRUMENTED_RESPONSE', sha256: 'c'.repeat(64), bytes: 100 },
+    { packageId: '@babel/code-frame@7.29.7', kind: 'attestation', order: 2,
+      status: 'NON_200', statusClass: '5XX' },
+    { packageId: '@babel/traverse@7.29.15', kind: 'packument', order: 3,
+      status: 'FETCH_REJECTED' },
+  ] };
+  assert.throws(() => sanitizeTapReport(partial), /TAP_TARGET_RESPONSE_NOT_OBSERVED/);
+  const evidence = sanitizeTapReport(partial, { allowPartial: true });
+  assert.equal(evidence.captureCompleteness, 'PARTIAL_FIRST_FAILURE_UNVERIFIED');
+  assert.equal(evidence.first.length, 0);
+  assert.equal(evidence.observed[1].statusClass, '5XX');
+  assert.equal(evidence.observed[2].status, 'FETCH_REJECTED');
+  assert.equal(evidence.exactFirstHttpResponseFromHistoricalFailure, false);
+  const spoofed = structuredClone(partial);
+  spoofed.evidence[1].statusClass = 'secret-stolen';
+  assert.throws(() => sanitizeTapReport(spoofed, { allowPartial: true }),
+    /TAP_REPORT_UNVERIFIED/);
+  const unknown = structuredClone(partial);
+  unknown.evidence[0].packageId = '@babel/arbitrary@7.29.15';
+  assert.throws(() => sanitizeTapReport(unknown, { allowPartial: true }),
+    /TAP_REPORT_UNVERIFIED/);
+});
+
+test('response order and bounded digest bytes cannot be forged in partial reports', () => {
+  const duplicate = fixture();
+  duplicate.evidence[1].order = 1;
+  assert.throws(() => sanitizeTapReport(duplicate, { allowPartial: true }),
+    /TAP_REPORT_UNVERIFIED/);
+  const reject = { evidence: [{ packageId: '@babel/types@7.29.15',
+    kind: 'attestation', order: 1, status: 'REJECTED',
+    failureCategory: 'secret-raw-error' }] };
+  assert.throws(() => sanitizeTapReport(reject, { allowPartial: true }),
+    /TAP_REPORT_UNVERIFIED/);
+});

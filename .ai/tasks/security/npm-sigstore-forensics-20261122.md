@@ -398,3 +398,33 @@ secret access or merge. Acceptance is fresh exact-head CI and independent
 code-review disposition; historical cause / owner approved TUF root
 remain UNVERIFIED. Roll back only this scoped Draft PR commit if
 instrumentation remains unsafe.
+
+## 2026-11-22 — Gate 4: historical exact-lock HTTP first-failure correlation
+
+**Owner authorization:** Chat `Go` following read-only comparative audit; bounded technical PROCEED recorded at
+[Issue #71 comment 7080890333](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080890333).
+This is NOT merge authorization or risk acceptance.
+
+**Gap and fix scope:** Previously the isolated instrumented npm10 one-time
+`npm audit signatures` capture only covered two Babel package identities.
+A future first failure on another historically observed exact locked identity
+could lose the relevant safe HTTP fingerprints. Expand the literal allowlist
+to seven recorded exact EAS-lock identities, including nested code-frame and
+traverse; exclude `7.29.14` versions from older lock graphs. The unchanged
+verified locked EAS manifest/blob remains the authority. Capture only
+official-registry matched packument/attestation responses, SHA-256/byte count
+for bounded decoded JSON bodies, and sanitized 4XX/5XX/OTHER or fixed
+fetch/body failure categories; **never raw HTTP, headers, certs or secrets**.
+On a naturally occurring first audit failure, permit partial sanitized response
+evidence and correlate only exact package identities reported from the lock;
+the **first failed audit still exits nonzero / FAIL_CLOSED**. Current successful
+sampled responses do not recreate an older uninstrumented failing response.
+Instrumenting response.json can alter timing; no causal verdict is inferred.
+
+**Boundaries:** Existing isolated `pull_request` security workflow, no
+permissions or token/OIDC changes; no new package, lockfile, EAS, app, policy,
+main, PR #65 or release work. Deterministic negative fixtures validate spoofed
+IDs, old graph exclusion, non-200 class, partial failure, ordering, overflow,
+digest and credential redaction. Retain Issue #71 OPEN, #73 Draft, #65
+Security HOLD; independent owner-approved TUF bootstrap and exact publisher
+workflow/ref pending. Record real exact-HEAD CI separately; failures not waived.

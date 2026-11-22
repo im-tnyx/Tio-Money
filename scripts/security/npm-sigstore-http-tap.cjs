@@ -9,8 +9,15 @@ const { createRequire } = require('node:module');
 const { resolve } = require('node:path');
 
 const MAX = 8 * 1024 * 1024;
+// Current isolated EAS-lock identities from observed first-failure incidents.
+// Older @babel/*@7.29.14 history belongs to a different lockfile graph.
 const TARGETS = new Map([
+  ['@babel/generator', '7.29.15'],
+  ['@babel/helper-module-transforms', '7.29.13'],
+  ['@babel/helper-validator-identifier', '7.29.7'],
+  ['@babel/traverse', '7.29.15'],
   ['@babel/helper-compilation-targets', '7.29.13'],
+  ['@babel/code-frame', '7.29.7'],
   ['@babel/types', '7.29.15'],
 ]);
 const evidence = [];
@@ -48,7 +55,25 @@ assert.equal(typeof original, 'function', 'TAP_FETCH_MODULE_UNEXPECTED');
 stage = 'FETCH_MODULE_LOADED';
 const wrapped = async (...args) => {
   const target = classify(args[0]);
-  const response = await original(...args);
+  let response;
+  try { response = await original(...args); }
+  catch (error) {
+    if (target) {
+      evidence.push({ ...target, order: evidence.length + 1,
+        status: 'FETCH_REJECTED' });
+      stage = 'TARGET_RESPONSE_REJECTED';
+    }
+    // Preserve the verifier's original error; never print it in our report.
+    throw error;
+  }
+  if (target && response?.status !== 200) {
+    const code = response?.status;
+    const statusClass = Number.isInteger(code) && code >= 400 && code < 500 ?
+      '4XX' : Number.isInteger(code) && code >= 500 && code < 600 ? '5XX' : 'OTHER';
+    evidence.push({ ...target, order: evidence.length + 1,
+      status: 'NON_200', statusClass });
+    stage = 'TARGET_RESPONSE_REJECTED';
+  }
   if (target && response?.status === 200) {
     stage = 'TARGET_RESPONSE_SEEN';
     const item = { ...target, order: evidence.length + 1, status: 'UNVERIFIED' };

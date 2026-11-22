@@ -1,5 +1,12 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Issue #71 Gate 4 first-failure HTTP coverage (Draft PR #73)
+
+- **Technical PROCEED:** Owner chat `Go` after [Issue #71 historical comparison](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080858530), scoped RFC [#71 Gate 4](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080890333). One existing Draft PR #73, existing unprivileged isolated HTTP tap only; no new PR, no merge/risk waiver.
+- **Implementation:** Literal seven exact EAS-lock historical Babel target identities for the first instrumented npm10 HTTP boundary; bounded hashes, non-200/fetch categories and sanitized partial incident evidence on an initial nonzero audit. Old `7.29.14` graphs excluded. Keep original audit fail-closed, no retry, no raw HTTP/credentials, no trust-policy changes. Existing root/EAS locks, privileged workflows, PR #65 and main untouched.
+- **Gate:** Fresh exact-HEAD static/Governance/forensic CI and security review after the scoped commit; historical original failed HTTP bytes, causality, independent owner-approved Sigstore TUF bootstrap and exact authorized Babel publish workflow remain UNVERIFIED. #71 OPEN, #73 DRAFT/HOLD, #65 SECURITY HOLD.
+
+
 
 ## 2026-11-22 — npm10 HTTP JSON reader streaming-bound fix (Issue #71)
 
