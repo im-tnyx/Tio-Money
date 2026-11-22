@@ -1,6 +1,14 @@
 # 🧭 Current task index
 
 
+## 2026-11-22 — TUF OLPC canonical format correction, public roots v1→v16
+
+- **Exact failed HEAD evidence:** dd9833f1 root v10's self-signature rejected by the standalone diagnostic because JSON.stringify escaped PEM newlines as \\n. TUF/OLPC canonical encoding signs literal newline bytes; the mismatch was in our diagnostic, not evidence of compromised root metadata.
+- **New scoped check:** Strict TUF OLPC canonical JSON (only escape backslash/quote) + legacy SEC1 P256 and modern PEM public keys, full v1→v16 old+new signature threshold transitions, no root version skipping. Synthetic negative cases, safe source/version labels and fail-closed workflow.
+- **Trust boundary unchanged:** Public root v1 sourced at immutable upstream Git commit, NOT independently owner-approved out-of-band ceremony bootstrap. Never promote chain continuity to trusted root config. Historical npm attestation causal root, exact Babel publisher policy and PR #65 Security HOLD remain open. Task [#71](https://github.com/im-tnyx/Tio-Money/issues/71); Draft #73 only.
+
+
+
 ## 2026-11-22 — Updated Sigstore root-chain boundary: v10 to v16 (#71)
 
 - **Observed:** Draft PR #73 initial 1→16 root diagnostic first failed on legacy SEC1 hex key parsing; strict P256 decoding fixed it, then real historical v4→v5 failed TUF_SIGNATURE_THRESHOLD_NOT_MET despite signature IDs present. No threshold bypass. Official Sigstore docs describe a backward-incompatible historical root format and recommend a modern v10 bootstrap.

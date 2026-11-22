@@ -307,3 +307,34 @@ pin an independently approved out-of-band v10 SHA-256 nor change npm's
 TUF trusted bootstrap. Capture actual exact-head CI rather than
 inheriting old red or green results. Owner policy and historical npm
 attestation cause still HOLD.
+
+
+## 2026-11-22 — Root signature failure explained by TUF OLPC vs JCS encoding
+
+**Exact current evidence:** Draft PR #73 modern v10-to-v16 diagnostic
+HEAD dd9833f1 again failed closed at its bootstrap root v10 with
+TUF_SIGNATURE_THRESHOLD_NOT_MET despite correct PEM key scheme,
+signature identities and 3-of-5 threshold. The earlier v1-v4 check
+passed with no PEM newlines; root v5+ introduces multi-line PEM strings.
+
+**Verified canonical format discrepancy:** The TUF/OLPC canonical JSON
+signed bytes escape ONLY literal backslash and double quote; they DO
+NOT escape newline characters in PEM public-key strings. Our initial
+checker used JSON.stringify, which wrote \\n instead of a real linefeed
+byte, so the signed bytes changed. See TUF-compatible
+canonical_json documentation (sigstore_tuf) and the official historical
+Sigstore key-format migration issue. This is a **diagnostic
+implementation bug**, NOT evidence of invalid upstream signatures,
+key compromise or a supply-chain incident.
+
+**Corrected gate:** Strict no-new-dependency OLPC canonical encoding,
+including literal PEM newlines and SEC1 historical public-key hex.
+Now cryptographically retry public v1->v16 transitions under separate
+old/new root-role thresholds, no threshold downgrade or skipped root
+rotation. The original root v1 is still obtained from the pinned
+*upstream Git commit*, NOT independently validated against the public
+2021 signing ceremony or approved as Tio-Money's bootstrap. Thus even
+a correct proof can assert only *internal cryptographic continuity
+from an unapproved bootstrap*. It cannot change TUF trusted settings,
+resolve historical npm10 HTTP/attestation root cause or authorize
+merging PR #65/#73. If the new chain fails, classify FAIL_CLOSED.

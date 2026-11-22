@@ -1,7 +1,7 @@
-// Issue #71: check Sigstore's documented modern bootstrap root 10 to 16.
+// Issue #71: TUF OLPC canonical-json root signing continuity v1 to v16.
 // IMPORTANT: historical root v1 is taken from the SAME immutable upstream Git
-// commit as v16. Versions 1..9 are an incompatible historical trust segment.
-// This verifies internal continuity from v10, NOT independently trusted
+// commit as v16. Legacy SEC1 and modern PEM key formats are supported.
+// This verifies signing continuity, NOT independently trusted
 // out-of-band bootstrap, owner-approved root pin, or historical npm root cause.
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
@@ -14,6 +14,7 @@ const ROOT_REPOSITORY = 'sigstore/root-signing';
 export const IMMUTABLE_SOURCE_COMMIT =
   '25b222a48cda4aa88e1af85605bdd193f5619a60';
 export const EXPECTED_ROOT_VERSION = 16;
+export const OBSERVED_BOOTSTRAP_VERSION = 1;
 export const DOCUMENTED_MODERN_BOOTSTRAP_VERSION = 10;
 const BASE = 'https://raw.githubusercontent.com/' + ROOT_REPOSITORY +
   '/' + IMMUTABLE_SOURCE_COMMIT + '/metadata/';
@@ -23,11 +24,18 @@ const SHA256_ID = /^[0-9a-f]{64}$/;
 const HEX_SIGNATURE = /^[0-9a-f]{100,1024}$/i;
 const sha256 = b => createHash('sha256').update(b).digest('hex');
 
+function tufCanonicalString(value) {
+  assert.equal(typeof value, 'string', 'TUF_NONCANONICAL_STRING');
+  // TUF OLPC canonical JSON escapes ONLY backslash + double-quote.
+  // Real PEM key newlines stay literal. JSON.stringify would write \\n,
+  // changing cryptographically signed bytes (not RFC 8785/JCS).
+  return '"' + value.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+}
+
 export function canonicalTufJson(value) {
   if (value === null) return 'null';
-  if (typeof value === 'string' || typeof value === 'boolean') {
-    return JSON.stringify(value);
-  }
+  if (typeof value === 'string') return tufCanonicalString(value);
+  if (typeof value === 'boolean') return JSON.stringify(value);
   if (typeof value === 'number') {
     assert.ok(Number.isSafeInteger(value), 'TUF_NONCANONICAL_NUMBER');
     return String(value);
@@ -41,7 +49,7 @@ export function canonicalTufJson(value) {
       Object.getPrototypeOf(value) === null), 'TUF_NONCANONICAL_JSON');
   const keys = Object.keys(value);
   assert.ok(keys.length < 10000, 'TUF_OBJECT_TOO_LARGE');
-  return '{' + keys.sort().map(key => JSON.stringify(key) + ':' +
+  return '{' + keys.sort().map(key => tufCanonicalString(key) + ':' +
     canonicalTufJson(value[key])).join(',') + '}';
 }
 
@@ -209,7 +217,7 @@ export async function verifyPublishedRootChain(
   let firstSha = '';
   let lastSha = '';
   let lastDoc = null;
-  for (let n = DOCUMENTED_MODERN_BOOTSTRAP_VERSION;
+  for (let n = OBSERVED_BOOTSTRAP_VERSION;
     n <= EXPECTED_ROOT_VERSION; n++) {
     // Historical root metadata versions may have expired by *today*; the
     // cryptographic lineage check audits old signatures, not time travel.
@@ -219,7 +227,7 @@ export async function verifyPublishedRootChain(
       bytes.length <= MAX_ROOT_BYTES, 'TUF_HISTORY_RESPONSE_INVALID');
     const doc = JSON.parse(bytes.toString('utf8'));
     inspectRootShape(doc, n);
-    if (n === DOCUMENTED_MODERN_BOOTSTRAP_VERSION) {
+    if (n === OBSERVED_BOOTSTRAP_VERSION) {
       firstSha = sha256(bytes);
       verifyRootThreshold(doc, doc);
     } else transitions.push(verifyRootTransition(previous, doc));
@@ -238,21 +246,21 @@ export async function verifyPublishedRootChain(
     'TUF_PUBLISHED_CURRENT_ROOT_MISMATCH');
   const expiry = verifyCurrentRootExpiry(currentDoc, now);
   assert.equal(transitions.length,
-    EXPECTED_ROOT_VERSION - DOCUMENTED_MODERN_BOOTSTRAP_VERSION,
+    EXPECTED_ROOT_VERSION - OBSERVED_BOOTSTRAP_VERSION,
     'TUF_HISTORY_INCOMPLETE');
   return {
-    result: 'MODERN_ROOT_V10_TO_V16_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP',
-    verifiedBootstrapVersion: DOCUMENTED_MODERN_BOOTSTRAP_VERSION,
-    historicalLegacyRootV1ToV10: 'UNVERIFIED_FORMAT_MIGRATION',
-    priorV4ToV5Bridge: 'UNVERIFIED_BACKWARD_INCOMPATIBLE_KEY_FORMAT',
+    result: 'ROOT_V1_TO_V16_SIGNING_CHAIN_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP',
+    observedBootstrapVersion: OBSERVED_BOOTSTRAP_VERSION,
+    documentedModernRecommendedBootstrap: DOCUMENTED_MODERN_BOOTSTRAP_VERSION,
+    legacyV4ToV5Transition: 'THRESHOLD_SIGNATURES_VERIFIED_WITH_TUF_OLPC_JSON',
     historicalRootCount: EXPECTED_ROOT_VERSION -
-      DOCUMENTED_MODERN_BOOTSTRAP_VERSION + 1,
+      OBSERVED_BOOTSTRAP_VERSION + 1,
     verifiedOldAndNewThresholdTransitions: transitions.length,
     allOldAndNewThresholds: transitions.every(x =>
       x.previousAuthorized && x.selfAuthorized),
     lastRootVersion: EXPECTED_ROOT_VERSION,
     lastRootExpires: expiry,
-    publicGitHubBootstrapV10Sha256: firstSha,
+    upstreamUnapprovedBootstrapV1Sha256: firstSha,
     signedRootV16HistorySha256: lastSha,
     publishedRootV16Sha256: sha256(currentBytes),
     currentAndHistory16StructurallyEqual: true,
