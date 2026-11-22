@@ -42,7 +42,9 @@ function DetailOptionRow({
         borderBottomColor: theme.colors.border,
       }}
     >
-      <AppText muted style={{ flex: 1 }}>{label}</AppText>
+      <AppText muted style={{ flex: 1 }}>
+        {label}
+      </AppText>
       <AppText
         numberOfLines={1}
         adjustsFontSizeToFit
@@ -225,7 +227,9 @@ export function SubCurrencyDetailScreen({
                   borderBottomColor: theme.colors.border,
                 }}
               >
-                <AppText muted style={{ width: '34%' }}>{t('currencyFxExchangeRate')}</AppText>
+                <AppText muted style={{ width: '34%' }}>
+                  {t('currencyFxExchangeRate')}
+                </AppText>
                 <AppText
                   numberOfLines={1}
                   adjustsFontSizeToFit
@@ -309,7 +313,9 @@ export function SubCurrencyDetailScreen({
                   borderBottomColor: theme.colors.border,
                 }}
               >
-                <AppText muted style={{ flex: 1 }}>{t('currencyPosition')}</AppText>
+                <AppText muted style={{ flex: 1 }}>
+                  {t('currencyPosition')}
+                </AppText>
                 <CurrencyUnitPositionControl
                   value={detail.unitPosition}
                   onChange={(value) => onAction({ type: 'detail.position.select', value })}

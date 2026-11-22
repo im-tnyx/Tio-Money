@@ -323,14 +323,8 @@ test('TM-CUR-056: saved Sub selection pushes validated native stack detail route
   const screen = readFileSync('src/features/settings/sub-currency-screen.tsx', 'utf8');
   const listRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
   const detailPage = readFileSync('src/app/currency/sub-detail.tsx', 'utf8');
-  const detailRoute = readFileSync(
-    'src/features/settings/sub-currency-detail-route.tsx',
-    'utf8',
-  );
-  const detailScreen = readFileSync(
-    'src/features/settings/sub-currency-detail-screen.tsx',
-    'utf8',
-  );
+  const detailRoute = readFileSync('src/features/settings/sub-currency-detail-route.tsx', 'utf8');
+  const detailScreen = readFileSync('src/features/settings/sub-currency-detail-screen.tsx', 'utf8');
   const vm = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   assert.match(screen, /type: 'detail.open', code: item.code/);
   assert.match(screen, /onAccessibilityAction/);
