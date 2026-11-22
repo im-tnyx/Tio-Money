@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
+import { firstFailureFingerprint, samplePostFailurePublicRegistry }
+  from './npm-sigstore-first-failure.mjs';
 import { verifyTargetRegistryPublications, classifyRegistryProofFailure,
   safeRegistryFailureLocation } from './npm-sigstore-registry.mjs';
 import { loadPinnedVerifier, verifyTrustedTargetProvenance }
@@ -141,6 +143,15 @@ export async function runDiagnostic() {
     if (report.signatures !== 'PASS') {
       report.failure = { gate: 'NPM_AUDIT_SIGNATURES',
         ...sanitizeFailure(signatures.stdout + '\n' + signatures.stderr, lock) };
+      // Preserve the FIRST command's result BEFORE any second JSON observation.
+      report.firstFailureEvidence = firstFailureFingerprint({
+        stdout: signatures.stdout, stderr: signatures.stderr,
+        exitStatus: signatures.status, signal: signatures.signal,
+        npmVersion: report.npm, verifierVersions: report.verifierVersions,
+        lock, lockBytes,
+      });
+      report.postFailurePublicRegistry = await samplePostFailurePublicRegistry(
+        report.firstFailureEvidence, lock);
       // Forensic second observation only; never replace the failed mandatory result.
       const jsonObservation = execNpm(['audit', 'signatures', '--json',
         '--registry=' + REGISTRY], temp, env, 180000);

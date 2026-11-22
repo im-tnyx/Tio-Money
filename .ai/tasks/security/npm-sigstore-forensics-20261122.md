@@ -145,3 +145,46 @@ replace or weaken the trust root.
 static/Governance and optional signal must report exact HEAD conclusions.
 If any check fails, record the actual failure. Keep #71 OPEN, #73 Draft,
 #65 HOLD and main protected. No merge permission implicit.
+
+
+## 2026-11-22 — First-failure evidence capture gate (owner-directed PROCEED)
+
+**Decision source:** Owner's chat "Go" in response to the scoped
+"First-Failure Evidence Capture" next-gate recommendation. This is an
+agent-transcribed technical PROCEED; NOT permission to merge, accept
+attestation risk, weaken CI or change protected branch settings.
+
+**Scope:** Draft PR #73 only. Extend both the isolated npm10/npm11 diagnostic
+and the preexisting Phase 0 isolated EAS CLI security TEST. Add deterministic
+negative tests and a first-failure fingerprint module. No app/Expo product
+logic, EAS or root dependency lockfiles, privileged workflows, tokens,
+rulesets or other PRs are modified.
+
+**Evidence boundary:** Immediately after the FIRST npm audit signatures
+invocation returns a failure, record exact allowlisted name@version from the
+committed nested EAS CLI lockfile; npm/Sigstore versions where available;
+SHA-256 of lockfile and original npm CLI stdout/stderr (never raw strings);
+bounded error categories, failed exit status, invalid count and fail-closed
+disposition. Explicitly declare the original npm HTTP registry response
+NOT_CAPTURED_BY_NPM_CLI.
+
+**Post-failure sampling:** With no retries, credentials, redirects or upload,
+perform one bounded read-only public sample of the npm signing-key endpoint
+and at most three exact, lockfile-identified Babel package attestation and
+packument endpoints. SHA-256 digest and byte-count only; stream hashing
+without storing raw HTTP bodies or headers. Timestamp boundary is labeled
+AFTER_FIRST_NPM_CLI_FAILURE. Any network/validation failure is UNVERIFIED,
+never a substitute for the original response and never a green-check waiver.
+
+**Tests and security:** Synthetic fixtures assert correct nested versions,
+no secret/raw-string logging, injected unknown package rejection, no
+arbitrary HTTP target selection, bounded digests, error redaction,
+transport-failure UNVERIFIED, and never-promote-first-failure behavior.
+No ID-token write permission or privileged workflow. The diagnostic's
+second npm JSON observation cannot cancel the first failure. A current
+green run proves only implementation tests, NOT a captured historical failure.
+
+**Remaining:** Historical intermittent npm10/Phase0 invalid attestations,
+independent Tio-Money-approved out-of-band Sigstore TUF root and exact
+Babel publisher workflow-ref policy remain UNVERIFIED. Issue #71 OPEN;
+PR #73 Draft/unmerged; PR #65 Security HOLD; no merge or risk acceptance.
