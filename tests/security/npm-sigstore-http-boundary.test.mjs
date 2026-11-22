@@ -201,3 +201,75 @@ test('response order and bounded digest bytes cannot be forged in partial report
   assert.throws(() => sanitizeTapReport(reject, { allowPartial: true }),
     /TAP_REPORT_UNVERIFIED/);
 });
+
+test('eighth observed exact EAS-lock helpers identity is accepted only at reviewed version', () => {
+  const sampled = fixture();
+  sampled.evidence.push({
+    packageId: '@babel/helpers@7.29.15', kind: 'attestation', order: 5,
+    status: 'HASHED_INSTRUMENTED_RESPONSE', sha256: 'd'.repeat(64), bytes: 144,
+  });
+  const verified = sanitizeTapReport(sampled);
+  assert.equal(verified.first.length, 4);
+  assert.equal(verified.counts['@babel/helpers@7.29.15'].attestation, 1);
+  assert.equal(verified.observed[4].packageId, '@babel/helpers@7.29.15');
+  const partial = sanitizeTapReport({ evidence: [sampled.evidence[4]] }, { allowPartial: true });
+  assert.equal(partial.observed[0].packageId, '@babel/helpers@7.29.15');
+  assert.equal(partial.captureCompleteness, 'PARTIAL_FIRST_FAILURE_UNVERIFIED');
+  const wrong = fixture();
+  wrong.evidence[0].packageId = '@babel/helpers@7.29.14';
+  assert.throws(() => sanitizeTapReport(wrong), /TAP_REPORT_UNVERIFIED/);
+  assert.ok(!JSON.stringify(verified).includes('fixture-secret'));
+});
+
+test('npm preloader hashes helpers registry packument and exact attestation, rejects spoofed URLs', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tm-tap-helpers-'));
+  try {
+    const mod = join(root, 'node_modules/make-fetch-happen');
+    mkdirSync(mod, { recursive: true });
+    writeFileSync(join(mod, 'index.js'), [
+      "const { Readable } = require('node:stream');",
+      "module.exports = async () => ({ status: 200,",
+      " body: Readable.from([Buffer.from('{\"private\":\"fixture-secret\"}')]),",
+      " json: async () => ({}) });",
+    ].join('\\n'));
+    const cli = join(root, 'npm-cli.cjs');
+    const urls = [
+      'https://registry.npmjs.org/%40babel%2Fhelpers',
+      'https://registry.npmjs.org/-/npm/v1/attestations/%40babel%2Fhelpers@7.29.15',
+      'https://registry.npmjs.org/-/npm/v1/attestations/%40babel%2Fhelpers@7.29.14',
+      'https://evil.invalid/%40babel%2Fhelpers',
+      'https://registry.npmjs.org/%40babel%2Fhelpers?token=fixture-secret',
+    ];
+    writeFileSync(cli, [
+      "const fetch = require('make-fetch-happen');",
+      'const urls = ' + JSON.stringify(urls) + ';',
+      '(async () => { for (const url of urls) await (await fetch(url)).json(); })()',
+      '.catch(() => { process.exitCode = 1; });',
+    ].join('\\n'));
+    const bin = join(root, 'npm');
+    symlinkSync(cli, bin);
+    const tap = join(dirname(fileURLToPath(import.meta.url)),
+      '../../scripts/security/npm-sigstore-http-tap.cjs');
+    const report = join(root, 'result.json');
+    const result = spawnSync(process.execPath, ['--require', tap, bin], {
+      encoding: 'utf8', timeout: 10000,
+      env: { PATH: process.env.PATH || '/usr/bin:/bin',
+        TM_HTTP_TAP_REPORT: report },
+    });
+    assert.equal(result.status, 0, 'preloaded helpers fixture failed');
+    const body = readFileSync(report, 'utf8');
+    assert.ok(!body.includes('fixture-secret'));
+    assert.ok(!body.includes('evil.invalid'));
+    assert.ok(!body.includes('token='));
+    const snapshot = JSON.parse(body);
+    assert.equal(snapshot.evidence.length, 2);
+    assert.deepEqual(snapshot.evidence.map(x => x.kind), ['packument', 'attestation']);
+    assert.ok(snapshot.evidence.every(x => x.packageId === '@babel/helpers@7.29.15'));
+    const digest = createHash('sha256').update('{\"private\":\"fixture-secret\"}').digest('hex');
+    assert.ok(snapshot.evidence.every(x => x.sha256 === digest));
+    const partial = sanitizeTapReport(snapshot, { allowPartial: true });
+    assert.equal(partial.observed.length, 2);
+    assert.equal(partial.counts['@babel/helpers@7.29.15'].packument, 1);
+    assert.equal(partial.counts['@babel/helpers@7.29.15'].attestation, 1);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

@@ -428,3 +428,45 @@ IDs, old graph exclusion, non-200 class, partial failure, ordering, overflow,
 digest and credential redaction. Retain Issue #71 OPEN, #73 Draft, #65
 Security HOLD; independent owner-approved TUF bootstrap and exact publisher
 workflow/ref pending. Record real exact-HEAD CI separately; failures not waived.
+
+## 2026-11-22 — Gate 5: exact locked `@babel/helpers@7.29.15` first-response coverage
+
+**Decision and review:** Owner chat `Go next` following the fresh genuine clean-a
+first failure in [run 45035459798, job 137248093959](https://github.com/im-tnyx/Tio-Money/actions/runs/45035459798/job/137248093959).
+The bounded forensic RFC/technical PROCEED is documented at
+[Issue #71 comment 7081014363](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7081014363).
+Active agent ChatGPT/GPT-6; this is **not** a merge approval or security risk waiver.
+
+**First-failure evidence retained unchanged:** Existing PR #73 parent HEAD
+`28d607b502d0fc5a4777e285a0357a3c8f8f9106` completed 9/10
+exact-head checks SUCCESS, with a real independent npm10 clean-a
+FAIL_CLOSED identifying `@babel/helpers@7.29.15` as one invalid attestation.
+Same-lock first stdout SHA-256
+`9ed138b55b93b7103d3b7f5b97cd06fafa36952b318ea404a84fd34335a464e2`.
+That failing CLI's original HTTP bytes were **NOT_CAPTURED**.
+The second JSON observation and a distinct instrumented runner passing
+**do not** waive the first failure or establish its cause.
+The immutable EAS lock SHA-256 is
+`664b9505a3eff95735f8aad055338cb0402015d35852c5286aba5a40ebaa4aff`.
+Exact `node_modules/@babel/helpers` v7.29.15 comes from official
+npm registry with locked SHA-512 SRI; older v7.29.14 graphs are excluded.
+
+**Scope:** Add this specific eighth identity to the existing in-process
+no-secrets HTTP preloader and allowlisted report sanitizer. The instrumented
+npm10 first `npm audit signatures` still uses its existing single invocation
+with fixed response cap, exact npm version and fail-closed semantics. The original
+two pass-boundary REQUIRED identities remain unchanged. Deterministic
+synthetic fixtures must cover exact official packument and attestation URLs,
+wrong-version/host/query exclusion, partial incident reporting, hashes,
+zero raw body/credentials and no change to required coverage.
+This is a capability for **future** first instrumented failures, not a
+replay or same-response comparison of the prior uninstrumented clean-a failure.
+No retry of historical red job.
+
+**Boundary/hold:** No new PR, dependency, lockfile, CI workflow or permissions
+mutation, privileged EAS workflow, app, deployment, signing policy, TUF root,
+PR #65 or protected main change. Issue #71 remains OPEN, PR #73 stays
+DRAFT/MERGE HOLD, PR #65 SECURITY HOLD; independently owner-approved out-of-band
+Sigstore bootstrap/rotation policy, approved Babel publisher workflow ref and
+historical npm10 causal explanation remain UNVERIFIED. Independent human
+review optional but strongly recommended, record its actual disposition.

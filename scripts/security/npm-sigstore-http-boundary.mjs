@@ -19,6 +19,7 @@ const REQUIRED = new Set([
 ]);
 const TARGETS = new Set([
   '@babel/generator@7.29.15',
+  '@babel/helpers@7.29.15',
   '@babel/helper-module-transforms@7.29.13',
   '@babel/helper-validator-identifier@7.29.7',
   '@babel/traverse@7.29.15',

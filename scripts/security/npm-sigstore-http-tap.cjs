@@ -13,6 +13,7 @@ const MAX = 8 * 1024 * 1024;
 // Older @babel/*@7.29.14 history belongs to a different lockfile graph.
 const TARGETS = new Map([
   ['@babel/generator', '7.29.15'],
+  ['@babel/helpers', '7.29.15'],
   ['@babel/helper-module-transforms', '7.29.13'],
   ['@babel/helper-validator-identifier', '7.29.7'],
   ['@babel/traverse', '7.29.15'],

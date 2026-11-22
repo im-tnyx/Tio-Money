@@ -1,5 +1,13 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Issue #71 Gate 5: eighth exact Babel HTTP target on Draft PR #73
+
+- **Technical PROCEED:** Owner chat `Go next`, scoped [Issue #71 RFC](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7081014363), existing Draft PR #73 branch only. Active agent ChatGPT/GPT-6; no new PR, merge, risk waiver or protected-main write.
+- **Root evidence:** First npm10 uninstrumented clean-a at parent `28d607b5` genuinely FAIL_CLOSED for `@babel/helpers@7.29.15`; full parent CI 9/10 with one red forensic job; post-failure public GET and distinct green instrumented audit do not reproduce old failed HTTP bytes. EAS lock blob `fa92a2b8` includes exact signed-registry URL/SRI for helpers.
+- **Scoped change:** Extend existing first HTTP tap and sanitizer literal allowed exact Babel identities to eight, preserve existing REQUIRED two, 8MiB cap, no raw bodies, nonzero-first audit gate, and add adversarial URL/version/redaction and partial-capture fixtures; task/index only. Existing locked packages, workflows, perms, PR #65 and main unchanged.
+- **Remaining gate:** Verify fresh exact-HEAD CI and agent comment review. Issue #71 OPEN, PR #73 Draft/HOLD, PR #65 Security HOLD; independent approved Sigstore TUF root, Babel publisher ref and historical cause remain UNVERIFIED.
+
+
 ## 2026-11-22 — Issue #71 Gate 4 first-failure HTTP coverage (Draft PR #73)
 
 - **Technical PROCEED:** Owner chat `Go` after [Issue #71 historical comparison](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080858530), scoped RFC [#71 Gate 4](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7080890333). One existing Draft PR #73, existing unprivileged isolated HTTP tap only; no new PR, no merge/risk waiver.
