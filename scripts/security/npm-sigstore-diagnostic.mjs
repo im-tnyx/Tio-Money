@@ -7,8 +7,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
-import { verifyTargetRegistryPublications, classifyRegistryProofFailure }
-  from './npm-sigstore-registry.mjs';
+import { verifyTargetRegistryPublications, classifyRegistryProofFailure,
+  safeRegistryFailureLocation } from './npm-sigstore-registry.mjs';
 import { loadPinnedVerifier, verifyTrustedTargetProvenance }
   from './npm-sigstore-trusted.mjs';
 import { identifyInvalidPackages, identifyInvalidJsonPackages,
@@ -238,6 +238,7 @@ export async function runDiagnostic() {
         } catch (registryError) {
           report.independentlyVerifiedRegistryPublishSignature = 'FAIL_CLOSED';
           report.registryProofFailureCategory = classifyRegistryProofFailure(registryError);
+          report.registryProofFailureLocation = safeRegistryFailureLocation(registryError);
           throw new Error('REGISTRY_PUBLISH_ECDSA_VERIFICATION_FAILED');
         }
       } else {

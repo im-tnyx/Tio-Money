@@ -170,3 +170,22 @@ export function classifyRegistryProofFailure(error) {
     message === code || message.startsWith(code + '_') || message.startsWith(code + ':'))
     || 'UNVERIFIED_REGISTRY_PROOF_FAILURE';
 }
+
+
+// Source file/line and error class only, never a raw error message or stack.
+export function safeRegistryFailureLocation(error) {
+  const kind = ['TypeError', 'RangeError', 'SyntaxError', 'AssertionError',
+    'Error'].includes(error?.name) ? error.name : 'UNVERIFIED';
+  const allowedCodes = ['ENOTFOUND', 'EAI_AGAIN', 'ECONNRESET', 'ETIMEDOUT',
+    'ERR_ASSERTION', 'ERR_INVALID_ARG_TYPE', 'ERR_INVALID_URL',
+    'ERR_OSSL_EVP_UNSUPPORTED', 'ERR_OSSL_ASN1_WRONG_TAG'];
+  const code = allowedCodes.includes(error?.code) ? error.code : 'UNVERIFIED';
+  const match = /npm-sigstore-(registry|proof)\.mjs:(\d+):(\d+)/.exec(String(error?.stack || ''));
+  const line = match ? Number(match[2]) : null;
+  return {
+    kind, code,
+    sourceFile: match ? 'npm-sigstore-' + match[1] + '.mjs' : 'UNVERIFIED',
+    sourceLine: Number.isSafeInteger(line) && line > 0 && line < 1000 ? line : null,
+    messageOrStackRetained: false,
+  };
+}

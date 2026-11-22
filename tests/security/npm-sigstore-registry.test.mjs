@@ -3,7 +3,8 @@ import { Buffer } from 'node:buffer';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { test } from 'node:test';
 import { checkRegistryPublication, verifyTargetRegistryPublications,
-  classifyRegistryProofFailure } from '../../scripts/security/npm-sigstore-registry.mjs';
+  classifyRegistryProofFailure, safeRegistryFailureLocation }
+  from '../../scripts/security/npm-sigstore-registry.mjs';
 
 const name = '@babel/helper-compilation-targets', version = '7.29.13';
 const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
@@ -106,4 +107,20 @@ test('registry diagnosis is bounded allowlisted status, never a raw exception le
   assert.equal(classifyRegistryProofFailure(
     new Error('token=secret-not-allowed; private signing document')),
     'UNVERIFIED_REGISTRY_PROOF_FAILURE');
+});
+
+
+test('failure location only exposes trusted module line, never sensitive stack', () => {
+  const secret = new TypeError('token=secret-hide');
+  secret.code = 'ERR_INVALID_ARG_TYPE';
+  secret.stack = 'TypeError: token=secret-hide\nat getPublicJson ' +
+    '(file:///home/runner/work/repo/scripts/security/npm-sigstore-registry.mjs:76:11)' +
+    '\nat https://registry.npmjs.org/?token=secret-hide';
+  const safe = safeRegistryFailureLocation(secret);
+  assert.equal(safe.kind, 'TypeError');
+  assert.equal(safe.code, 'ERR_INVALID_ARG_TYPE');
+  assert.equal(safe.sourceFile, 'npm-sigstore-registry.mjs');
+  assert.equal(safe.sourceLine, 76);
+  assert.equal(safe.messageOrStackRetained, false);
+  assert.ok(!JSON.stringify(safe).includes('secret-hide'));
 });
