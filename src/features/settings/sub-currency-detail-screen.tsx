@@ -207,6 +207,11 @@ export function SubCurrencyDetailScreen({
                   {t('currencyFxSource')} · {detail.rateDate}
                 </AppText>
               ) : null}
+              {detail.rateCheckedLabel ? (
+                <AppText variant="caption" muted numberOfLines={1}>
+                  {detail.rateCheckedLabel}
+                </AppText>
+              ) : null}
             </View>
             <View
               style={{

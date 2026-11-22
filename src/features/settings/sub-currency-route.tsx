@@ -1,8 +1,8 @@
 import { Stack } from 'expo-router';
-import { useCallback, useState } from 'react';
 
 import { SubCurrencyScreen } from './sub-currency-screen';
 import { useSubCurrencyViewModel } from './use-sub-currency-view-model';
+import { useSubCurrencySwipeController } from './use-sub-currency-swipe-controller';
 
 /**
  * Native iOS Back gesture remains available on the surrounding screen.
@@ -12,19 +12,12 @@ import { useSubCurrencyViewModel } from './use-sub-currency-view-model';
  */
 export function SubCurrencyRoute() {
   const { state, onAction } = useSubCurrencyViewModel();
-  const [cardTouchActive, setCardTouchActive] = useState(false);
-  const onCardTouchStart = useCallback(() => setCardTouchActive(true), []);
-  const onCardTouchEnd = useCallback(() => setCardTouchActive(false), []);
+  const swipe = useSubCurrencySwipeController();
 
   return (
     <>
-      <Stack.Screen options={{ gestureEnabled: !cardTouchActive }} />
-      <SubCurrencyScreen
-        state={state}
-        onAction={onAction}
-        onCardTouchStart={onCardTouchStart}
-        onCardTouchEnd={onCardTouchEnd}
-      />
+      <Stack.Screen options={{ gestureEnabled: !swipe.cardTouchActive }} />
+      <SubCurrencyScreen state={state} onAction={onAction} swipe={swipe} />
     </>
   );
 }

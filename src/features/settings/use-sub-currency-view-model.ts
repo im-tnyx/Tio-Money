@@ -2,6 +2,8 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
+import { formatReferenceRate } from '@/data/market/fx-reference-rates';
+
 import {
   CURRENCY_OPTIONS,
   MAX_SUB_CURRENCIES,
@@ -108,6 +110,7 @@ export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null =
           break;
         case 'add.open':
           if (!isCurrencyCode(preferences.mainCode)) break;
+          if (preferences.subCodes.length >= MAX_SUB_CURRENCIES) break;
           dismissDetail();
           setSheetVisible(true);
           break;
@@ -121,6 +124,7 @@ export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null =
           break;
         case 'select':
           if (!isCurrencyCode(preferences.mainCode)) break;
+          if (preferences.subCodes.length >= MAX_SUB_CURRENCIES) break;
           if (addSubCurrency(action.code)) setSheetVisible(false);
           break;
         case 'detail.open':
@@ -237,7 +241,12 @@ export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null =
       if (rateStatus === 'available' && current?.fetchedAt !== null && current?.fetchedAt) {
         currentCheckTime = Math.max(currentCheckTime, current.fetchedAt);
       }
-      selected.push({ code, label: currencyLabel(code), rate, rateStatus });
+      const rateLabel =
+        (rateStatus === 'available' || rateStatus === 'cached') && rate
+          ? (rateStatus === 'cached' ? t('currencyFxCached') + ' · ' : '') +
+            formatReferenceRate(rate)
+          : t(rateStatus === 'loading' ? 'currencyFxLoading' : 'currencyFxUnavailable');
+      selected.push({ code, label: currencyLabel(code), rate, rateStatus, rateLabel });
     }
     const checks = summarizeSubCurrencyChecks(
       preferences.subCodes.map((code) => {
@@ -288,7 +297,7 @@ export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null =
     return {
       mainCode: preferences.mainCode,
       mainLabel: mainConfigured ? currencyLabel(preferences.mainCode) : t('currencyChooseMain'),
-      canAddSub: mainConfigured,
+      canAddSub: mainConfigured && preferences.subCodes.length < MAX_SUB_CURRENCIES,
       selected,
       refreshSummary:
         checks.staleCount > 0 ? { lastCheckedLabel, refreshing: refreshingList } : null,
@@ -311,6 +320,11 @@ export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null =
               rateStatus: selectedDetail.rateStatus,
               rateDate: selectedDetail.rate?.date ?? null,
               rateFetchedAt: fetchedAt,
+              rateCheckedLabel: formatSubCurrencyLastChecked(fetchedAt, currentCheckTime)
+                ? t('currencyFxCheckedAt') +
+                  ' · ' +
+                  formatSubCurrencyLastChecked(fetchedAt, currentCheckTime)
+                : null,
               unitPosition: subDisplay.unitPosition,
               decimalDigits: displayedDigits,
               decimalLabel: formatSubCurrencyDecimalExample(displayedDigits),
