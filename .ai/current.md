@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-22 — Instrumented first npm10 HTTP boundary (#71)
+
+- **Scope/decision:** Owner `Go`, continuing [Issue #71 RFC](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079959825); Draft PR #73 only. Agent ChatGPT/GPT-6. A new isolated read-only job records bounded first target response fingerprints from npm10's bundled fetch boundary in one real `npm audit signatures` invocation. No raw payload/secret output, retries, mandatory Phase 0 changes, trust-policy switch or #65/main edit.
+- **Limit:** Preload may alter timing; old failed HTTP response is unrecoverable. Green instrumented audit cannot resolve root cause. First nonzero audit remains FAIL_CLOSED; missing response UNVERIFIED. Exact-HEAD CI/review to verify after commit; independent human review DEFERRED (recommended, optional).
+
 ## 2026-11-22 — Sixth locked Babel provenance target (#71)
 
 - **Owner direction / scope:** `Go follow agent.md`; bounded forensic decision in [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079959825). Draft PR #73 only; active agent ChatGPT/GPT-6. Current required `static` first failure at HEAD `338a5e32` includes `@babel/types@7.29.15`, previously outside five-target proof.

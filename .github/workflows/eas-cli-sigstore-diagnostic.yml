@@ -15,6 +15,8 @@ on:
       - scripts/security/npm-sigstore-first-failure.mjs
       - scripts/security/npm-sigstore-pacote.mjs
       - scripts/security/npm-sigstore-root-chain.mjs
+      - scripts/security/npm-sigstore-http-tap.cjs
+      - scripts/security/npm-sigstore-http-boundary.mjs
       - tests/security/npm-sigstore-diagnostic.test.mjs
       - tests/security/npm-sigstore-proof.test.mjs
       - tests/security/npm-sigstore-metadata.test.mjs
@@ -24,6 +26,7 @@ on:
       - tests/security/npm-sigstore-first-failure.test.mjs
       - tests/security/npm-sigstore-pacote.test.mjs
       - tests/security/npm-sigstore-root-chain.test.mjs
+      - tests/security/npm-sigstore-http-boundary.test.mjs
       - tests/preview/eas-cli-locked-install.test.mjs
 
 permissions:
@@ -181,3 +184,27 @@ jobs:
         run: node --test tests/security/npm-sigstore-root-chain.test.mjs
       - name: Verify immutable public root-chain history without trust changes
         run: node scripts/security/npm-sigstore-root-chain.mjs
+
+  # Instrumented CLI path only: this cannot recover old failing HTTP bytes.
+  http-boundary:
+    name: Sigstore npm10 first HTTP boundary / isolated
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR head without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select reviewed Node22/npm10 without package cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Test strict bounded response capture and redaction
+        run: node --test tests/security/npm-sigstore-http-boundary.test.mjs
+      - name: Run one instrumented npm10 signature audit without secrets
+        run: node scripts/security/npm-sigstore-http-boundary.mjs
