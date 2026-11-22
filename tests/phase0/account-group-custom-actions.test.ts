@@ -11,7 +11,7 @@ import {
 
 const read = (path: string) => readFileSync(path, 'utf8');
 
-test('Account Groups uses Sub Currency bounded horizontal swipe, preserving vertical scroll', () => {
+test('Account Groups reuse Sub Currency bounded horizontal swipe without blocking scroll', () => {
   assert.equal(isHorizontalSwipe(-45, 6, 8), true);
   assert.equal(isHorizontalSwipe(3, 50, 8), false);
   assert.equal(getSwipeOffset(0, -150, 88), 88);

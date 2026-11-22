@@ -1,5 +1,5 @@
-import { Pressable, ScrollView, View } from 'react-native';
 import type { ReactNode } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
@@ -18,6 +18,7 @@ import type { AccountGroupSwipeController } from './use-account-group-swipe-cont
 /** Presentation-only custom-row gesture wiring; controller owns state and deletion. */
 function SwipeableCustomGroupRow({
   id,
+  name,
   last,
   swipe,
   disabled,
@@ -25,6 +26,7 @@ function SwipeableCustomGroupRow({
   children,
 }: {
   id: string;
+  name: string;
   last: boolean;
   swipe: AccountGroupSwipeController;
   disabled: boolean;
@@ -63,7 +65,7 @@ function SwipeableCustomGroupRow({
       {displayedOffset > 0 ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('accountGroupsRemove') + ': ' + id}
+          accessibilityLabel={t('accountGroupsRemove') + ': ' + name}
           disabled={disabled}
           onPress={onDelete}
           style={{
@@ -189,6 +191,7 @@ export function AccountGroupsScreen({
             <SwipeableCustomGroupRow
               key={group.id}
               id={group.id}
+              name={group.name}
               last={index === state.customGroups.length - 1}
               swipe={swipe}
               disabled={state.storageBlocked}
