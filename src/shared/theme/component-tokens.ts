@@ -25,6 +25,7 @@ export const iconRoleSizes = {
 /** Safe-area padding remains dynamic; these values own fixed UI geometry. */
 export const navigationTokens = {
   origin: size.dp0,
+  topBarHeight: size.dp50,
   itemHeight: size.dp48,
   borderWidth: size.dp1,
   iconLabelGap: size.dp0,
@@ -49,6 +50,16 @@ export const buttonTokens = {
   pressedOpacity: opacity.pressed,
 } as const;
 
+/** Rounded segmented selectors use the shared button touch size and existing spacing scale. */
+export const segmentedControlTokens = {
+  minimumOptionHeight: buttonTokens.minimumHeight,
+  compactWidth: size.dp100 + size.dp20,
+  compactOptionHeight: size.dp24,
+  compactHitSlop: size.dp12,
+  inset: space.xxs,
+  radius: radius.pill,
+} as const;
+
 export const shadowTokens = {
   fab: {
     elevation: size.dp6,
@@ -66,7 +77,14 @@ export const recoveryTokens = {
 /** Shared native bottom-sheet geometry. No individual feature may override the shell. */
 export const bottomSheetTokens = {
   topCornerRadius: radius.xl,
-  maxHeight: '90%' as const,
+  collapsedViewportFraction: 0.9,
+  expandedViewportFraction: 0.96,
+  topSafeGap: space.sm,
+  handleTouchHeight: buttonTokens.minimumHeight,
+  handleTouchWidth: size.dp100 + space.lg,
+  dragActivationDistance: size.dp8,
+  dragSnapDistance: size.dp32,
+  contentBottomPadding: space.xl,
   backdropOpacity: opacity.bottomSheetBackdrop,
   handleWidth: space.xxxl,
   handleHeight: space.xxs,

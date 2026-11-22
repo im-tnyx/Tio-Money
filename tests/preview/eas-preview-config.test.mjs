@@ -128,7 +128,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.doesNotMatch(text, /eas-cli@latest/);
   assert.match(text, /actions\/checkout@11bd71901bbe5b1630ceea73d27597364c9af683/);
-  assert.match(text, /actions\/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020/);
+  assert.match(text, /actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/);
   assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
   assert.ok(text.includes('--registry=https://registry.npmjs.org'));
@@ -190,4 +190,13 @@ test('EAS preview permits normal tracked task/docs/tests with strict config excl
   assert.ok(workflow.includes("github.actor == 'im-tnyx'"));
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
+});
+
+// The nonprivileged Phase 0 runner must also use the reviewed immutable
+// setup-node commit, without enabling automatic PR dependency caching.
+test('Phase 0 setup-node uses the reviewed pinned v7.1.0 SHA without automatic package cache', () => {
+  const workflow = readFileSync(join(ROOT, '.github/workflows/phase-0-checks.yml'), 'utf8');
+  assert.match(workflow, /actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/);
+  assert.doesNotMatch(workflow, /uses: actions\/setup-node@v[0-9]/);
+  assert.match(workflow, /^\s+package-manager-cache: false$/m);
 });
