@@ -100,7 +100,10 @@ test('iOS keyboard underlay paints the full native keyboard area without moving 
   assert.match(shared, /underlayBehindKeyboard=\{avoidKeyboard && Platform\.OS === 'ios'\}/);
   assert.match(shared, /Keyboard\.addListener\('keyboardWillShow', updateHeight\)/);
   assert.match(shared, /Keyboard\.addListener\('keyboardWillChangeFrame', updateHeight\)/);
-  assert.match(shared, /Keyboard\.addListener\('keyboardDidHide', \(\) => setKeyboardHeight\(0\)\)/);
+  assert.match(
+    shared,
+    /Keyboard\.addListener\('keyboardDidHide', \(\) => setKeyboardHeight\(0\)\)/,
+  );
   assert.match(shared, /show\.remove\(\)/);
   assert.match(shared, /frame\.remove\(\)/);
   assert.match(shared, /hide\.remove\(\)/);
