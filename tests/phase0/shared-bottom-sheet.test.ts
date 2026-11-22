@@ -58,7 +58,7 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(provider, /bottomSheet: bottomSheetTokens/);
 
   assert.match(feature, /<AppBottomSheet/);
-  assert.match(feature, /dismissAccessibilityLabel=\{t\('closeAppearance'\)\}/);
+  assert.match(feature, /dismissAccessibilityLabel=\{t\('closeTheme'\)\}/);
   assert.match(feature, /accessibilityRole="radiogroup"/);
   assert.match(feature, /APPEARANCE_OPTIONS\.map/);
   assert.doesNotMatch(feature, /<Modal|<SafeAreaView|StyleSheet\.absoluteFill/);
