@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { test } from 'node:test';
-import { checkRegistryPublication, verifyTargetRegistryPublications }
-  from '../../scripts/security/npm-sigstore-registry.mjs';
+import { checkRegistryPublication, verifyTargetRegistryPublications,
+  classifyRegistryProofFailure } from '../../scripts/security/npm-sigstore-registry.mjs';
 
 const name = '@babel/helper-compilation-targets', version = '7.29.13';
 const { publicKey, privateKey } = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
@@ -95,4 +95,15 @@ test('ECDSA publisher check selects matching nested package version, not root', 
   nested.packages['node_modules/@babel/traverse/node_modules/' + name].integrity = 'sha512-other';
   assert.throws(() => checkRegistryPublication(f.metadata, f.keys, nested, name, version, pin),
     /INCONSISTENT_NESTED_TARGET_SRI/);
+});
+
+
+test('registry diagnosis is bounded allowlisted status, never a raw exception leak', () => {
+  assert.equal(classifyRegistryProofFailure(new Error('REGISTRY_METADATA_HTTP_NON_200')),
+    'REGISTRY_METADATA_HTTP_NON_200');
+  assert.equal(classifyRegistryProofFailure(new Error('REGISTRY_ECDSA_SIGNATURE_INVALID')),
+    'REGISTRY_ECDSA_SIGNATURE_INVALID');
+  assert.equal(classifyRegistryProofFailure(
+    new Error('token=secret-not-allowed; private signing document')),
+    'UNVERIFIED_REGISTRY_PROOF_FAILURE');
 });
