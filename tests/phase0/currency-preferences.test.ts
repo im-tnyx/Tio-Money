@@ -120,7 +120,8 @@ test('TM-CUR-007: FX display on Sub screen; app-scoped fetching and swipe Delete
   assert.match(screen, /accessibilityLabel=\{t\('currencyPageBack'\)\}/);
   assert.match(screen, /type: 'back'/);
   assert.doesNotMatch(screen, /pencil|state\.editing|currencyCancelEdit|currencyEditSub/);
-  assert.match(screen, /formatReferenceRate\(item.rate\)/);
+  assert.match(screen, /item.rateLabel/);
+  assert.doesNotMatch(screen, /formatReferenceRate|@\/data\/market/);
   assert.doesNotMatch(screen, /item.rate.date|currencyFxSource/);
   assert.match(picker, /<AppBottomSheet/);
   assert.match(picker, /accessibilityRole="button"/);
