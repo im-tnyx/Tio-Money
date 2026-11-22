@@ -59,6 +59,8 @@ test('only custom labels and Add/Rename input are single-line', () => {
   assert.ok(builtInSegment);
   const customRows = customSegment.split('</SwipeableCustomGroupRow>')[0];
   const builtInRows = builtInSegment.split('state.customGroups.map')[0];
+  assert.ok(customRows);
+  assert.ok(builtInRows);
   assert.match(screen, /maxLength=\{MAX_CUSTOM_GROUP_NAME_LENGTH\}/);
   assert.match(screen, /multiline=\{false\}/);
   assert.match(screen, /returnKeyType="done"/);
