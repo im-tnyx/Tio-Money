@@ -2,6 +2,7 @@
 // instrumented JSON reader; no response body is persisted or printed.
 'use strict';
 const assert = require('node:assert/strict');
+const { Buffer } = require('node:buffer');
 const { createHash } = require('node:crypto');
 const { realpathSync, writeFileSync } = require('node:fs');
 const { createRequire } = require('node:module');
