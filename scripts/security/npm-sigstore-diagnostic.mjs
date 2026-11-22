@@ -170,6 +170,9 @@ export async function runDiagnostic() {
           'REGISTRY_TARBALL_SRI_MISMATCH',
           'DSSE_LEAF_SIGNATURE_INVALID',
           'MISSING_OR_AMBIGUOUS_PACKAGE_SUBJECT',
+          'MISSING_FULCIO_PROVENANCE_BUNDLE',
+          'UNREVIEWED_PUBLIC_KEY_ATTESTATION',
+          'MISSING_REGISTRY_KEY_HINT',
           'UNTRUSTED_TARBALL_ORIGIN',
         ];
         report.packageProofFailure = categories.find((code) =>

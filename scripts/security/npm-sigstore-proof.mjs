@@ -152,6 +152,8 @@ export async function verifyTargetProofs(verified, lock, targets, fetchTarball =
     assert.ok(Array.isArray(bundles) && bundles.length > 0,
       'NO_PACKAGE_SPECIFIC_DSSE_BUNDLE_' + name);
     let signedDigests;
+    let provenanceLeafSignatures = 0;
+    let registryKeyAttestations = 0;
     for (const record of bundles) {
       const bundle = record?.bundle;
       const envelope = bundle?.dsseEnvelope;
@@ -161,22 +163,38 @@ export async function verifyTargetProofs(verified, lock, targets, fetchTarball =
       const material = bundle.verificationMaterial;
       const certBytes = material?.certificate?.rawBytes ||
         material?.x509CertificateChain?.certificates?.[0]?.rawBytes;
-      assert.ok(certBytes, 'MISSING_SIGNING_CERTIFICATE_' + name);
+      if (!certBytes) {
+        // npm's registry PUBLISH attestation is key-signed, not Fulcio-certified.
+        // The public key must come from an independently verified trusted root.
+        assert.equal(record.predicateType,
+          'https://github.com/npm/attestation/tree/main/specs/publish/v0.1',
+          'UNREVIEWED_PUBLIC_KEY_ATTESTATION_' + name);
+        assert.ok(material?.publicKey?.hint, 'MISSING_REGISTRY_KEY_HINT_' + name);
+        registryKeyAttestations += 1;
+        continue;
+      }
+      assert.ok(record.predicateType?.startsWith('https://slsa.dev/provenance/'),
+        'UNREVIEWED_CERTIFICATE_ATTESTATION_' + name);
       const leaf = new X509Certificate(Buffer.from(certBytes, 'base64'));
       assert.ok(verifyDsseWithPublicKey(envelope, leaf.publicKey),
         'DSSE_LEAF_SIGNATURE_INVALID_' + name);
       assert.ok(Array.isArray(material?.tlogEntries) && material.tlogEntries.length > 0,
         'MISSING_TRANSPARENCY_LOG_EVIDENCE_' + name);
+      provenanceLeafSignatures += 1;
     }
+    assert.ok(provenanceLeafSignatures > 0, 'MISSING_FULCIO_PROVENANCE_BUNDLE_' + name);
     results.push({
       name,
       version,
       bundlesChecked: bundles.length,
+      provenanceLeafSignatures,
+      registryKeyAttestations,
       sha512Tarball: signedDigests.sha512,
       sha256Tarball: signedDigests.sha256,
       committedSriMatchesDownloadedTarball: true,
       signedSubjectDigestMatchesTarball: true,
       dsseSignatureVerifiedAgainstEmbeddedLeaf: true,
+      registryKeySignatureIndependentlyVerified: 'UNVERIFIED',
       certificateChainTrusted: 'UNVERIFIED',
       signerIdentityPolicyVerified: 'UNVERIFIED',
       rekorInclusionCryptographicallyVerified: 'UNVERIFIED',

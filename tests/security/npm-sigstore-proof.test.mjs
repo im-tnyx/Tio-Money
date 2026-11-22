@@ -76,3 +76,32 @@ test('public attestation endpoint must match exact package and version', async (
     'https://registry.npmjs.org/-/npm/v1/attestations/@babel/generator@7.29.15?token=1',
     '@babel/generator', '7.29.15'), /ATTESTATION_URL_WITH_EXTRA_PARAMETERS/);
 });
+
+
+test('registry key-signed publish evidence cannot replace Fulcio provenance', async () => {
+  const name = '@babel/generator';
+  const version = '7.29.15';
+  const bytes = Buffer.from('synthetic-tarball');
+  const digest = createHash('sha512').update(bytes).digest('hex');
+  const lock = { packages: { ['node_modules/' + name]: {
+    version, integrity: 'sha512-' + createHash('sha512').update(bytes).digest('base64'),
+    resolved: 'https://registry.npmjs.org/@babel/generator/-/generator-7.29.15.tgz',
+  } } };
+  const statement = { subject: [{ name: 'pkg:npm/%40babel/generator@7.29.15',
+    digest: { sha512: digest } }] };
+  const envelope = {
+    payloadType: 'application/vnd.in-toto+json',
+    payload: Buffer.from(JSON.stringify(statement)).toString('base64'),
+    signatures: [{ sig: Buffer.from('fake').toString('base64') }],
+  };
+  const verified = [{ name, version, attestations: { url:
+    'https://registry.npmjs.org/-/npm/v1/attestations/@babel/generator@7.29.15' } }];
+  const fetchTarball = async () => bytes;
+  const fetchAttestations = async () => ({ attestations: [{
+    predicateType: 'https://github.com/npm/attestation/tree/main/specs/publish/v0.1',
+    bundle: { dsseEnvelope: envelope,
+      verificationMaterial: { publicKey: { hint: 'npm-registry' } } },
+  }] });
+  await assert.rejects(verifyTargetProofs(verified, lock, { [name]: version },
+    fetchTarball, fetchAttestations), /MISSING_FULCIO_PROVENANCE_BUNDLE/);
+});
