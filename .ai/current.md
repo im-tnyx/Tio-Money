@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-23 — PR #80 Codex P1 + Bugbot keyboard/input remediation
+
+- Owner “Sahi kre”, scoped PROCEED https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085443402. Route/controller owns Back/rename/delete; shared single-line Android input centers; keyboard-aware Bottom Sheet no longer reapplies the 90% collapsed cap, default Currency/Theme unchanged.
+- Task: .ai/tasks/ui/settings-topbar-account-groups-20261122.md. Exact-HEAD checks and physical device QA pending; review threads not pre-emptively cleared; Issue #71 remains OPEN. No PR merge authorization or protected main modification.
+
 ## 2026-11-23 — PR #80 owner-approved single-line 1–20 custom group names
 
 - **Source:** Owner final **Go**, [Issue #79 RFC](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085252621). Existing task \`.ai/tasks/ui/settings-topbar-account-groups-20261122.md\` remains assigned to GPT-6; PR #80 Ready for Review, source/input/domain tests scoped only.

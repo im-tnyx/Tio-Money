@@ -102,10 +102,18 @@ export function AccountGroupsScreen({
   state,
   onAction,
   swipe,
+  onBack,
+  onCustomGroupPress,
+  onCustomGroupDelete,
+  onDismissRevealedDelete,
 }: {
   readonly state: AccountGroupsUiState;
   readonly onAction: (action: AccountGroupsAction) => void;
   readonly swipe: AccountGroupSwipeController;
+  readonly onBack: () => void;
+  readonly onCustomGroupPress: (id: string) => void;
+  readonly onCustomGroupDelete: (id: string) => void;
+  readonly onDismissRevealedDelete: () => void;
 }) {
   const theme = useAppTheme();
   const actions = [
@@ -135,15 +143,12 @@ export function AccountGroupsScreen({
     >
       <AppTopBar
         title={t('accountGroups')}
-        onBack={() => {
-          if (swipe.openId !== null) swipe.close();
-          else onAction({ type: 'back' });
-        }}
+        onBack={onBack}
         backAccessibilityLabel={t('accountGroupsBack')}
         actions={actions}
       />
       <ScrollView
-        onScrollBeginDrag={swipe.close}
+        onScrollBeginDrag={onDismissRevealedDelete}
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}
         contentContainerStyle={{
           flexGrow: 1,
@@ -160,9 +165,7 @@ export function AccountGroupsScreen({
           {BUILT_IN_ACCOUNT_GROUPS.map((group, index) => (
             <View
               key={group.id}
-              onTouchStart={() => {
-                if (swipe.openId !== null) swipe.close();
-              }}
+              onTouchStart={onDismissRevealedDelete}
               accessible
               accessibilityLabel={
                 t(group.label) + (state.showDescriptions ? '. ' + t(group.detail) : '')
@@ -195,10 +198,7 @@ export function AccountGroupsScreen({
               last={index === state.customGroups.length - 1}
               swipe={swipe}
               disabled={state.storageBlocked}
-              onDelete={() => {
-                swipe.close();
-                onAction({ type: 'custom.remove', id: group.id });
-              }}
+              onDelete={() => onCustomGroupDelete(group.id)}
             >
               <Pressable
                 accessibilityRole="button"
@@ -211,14 +211,10 @@ export function AccountGroupsScreen({
                 ]}
                 onAccessibilityAction={(event) => {
                   if (event.nativeEvent.actionName === 'delete') {
-                    swipe.close();
-                    onAction({ type: 'custom.remove', id: group.id });
+                    onCustomGroupDelete(group.id);
                   }
                 }}
-                onPress={() => {
-                  if (swipe.openId !== null) swipe.close();
-                  else onAction({ type: 'custom.edit', id: group.id });
-                }}
+                onPress={() => onCustomGroupPress(group.id)}
                 style={{
                   minHeight: theme.buttons.minimumHeight,
                   paddingHorizontal: theme.space.lg,
@@ -240,7 +236,7 @@ export function AccountGroupsScreen({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('accountGroupsHideDelete')}
-            onPress={swipe.close}
+            onPress={onDismissRevealedDelete}
             style={{ flexGrow: 1 }}
           />
         ) : null}

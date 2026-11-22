@@ -46,6 +46,7 @@ export function AppBottomSheet({
       dismissAccessibilityLabel={dismissAccessibilityLabel}
       onDismiss={onDismiss}
       underlayBehindKeyboard={avoidKeyboard && Platform.OS === 'ios'}
+      keyboardAvoiding={avoidKeyboard}
     >
       {children}
     </SheetSurface>
@@ -80,12 +81,14 @@ function SheetSurface({
   onDismiss,
   children,
   underlayBehindKeyboard,
+  keyboardAvoiding,
 }: {
   title: string;
   dismissAccessibilityLabel: string;
   onDismiss: () => void;
   children: ReactNode;
   underlayBehindKeyboard: boolean;
+  keyboardAvoiding: boolean;
 }) {
   const theme = useAppTheme();
   const sheet = theme.bottomSheet;
@@ -99,7 +102,7 @@ function SheetSurface({
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
 
-  const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet);
+  const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet, keyboardAvoiding);
   const { collapsedMax, expandedMax } = limits;
   // The handle/title never move. Measure only the choices: short sheets stay
   // content-sized at the bottom; overflowing lists may expand when dragged.

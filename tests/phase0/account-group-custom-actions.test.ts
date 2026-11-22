@@ -35,6 +35,7 @@ test('swipe reveals Delete only on custom rows; tap edits; built-ins stay read-o
   const screen = read('src/features/settings/account-groups-screen.tsx');
   const vm = read('src/features/settings/use-account-groups-view-model.ts');
   const contract = read('src/features/settings/account-groups-contract.ts');
+  const route = read('src/features/settings/account-groups-route.tsx');
   const shared = read('src/shared/ui/app-bottom-sheet.tsx');
 
   const builtin =
@@ -43,8 +44,10 @@ test('swipe reveals Delete only on custom rows; tap edits; built-ins stay read-o
     screen.split('state.customGroups.map')[1]?.split('</SwipeableCustomGroupRow>')[0] ?? '';
   assert.doesNotMatch(builtin, /SwipeableCustomGroupRow|custom\.edit|custom\.remove/);
   assert.match(custom, /SwipeableCustomGroupRow/);
-  assert.match(custom, /type: 'custom\.remove'/);
-  assert.match(custom, /type: 'custom\.edit'/);
+  assert.match(custom, /onCustomGroupDelete\(group.id\)/);
+  assert.match(custom, /onCustomGroupPress\(group.id\)/);
+  assert.match(route, /type: 'custom\.remove'/);
+  assert.match(route, /type: 'custom\.edit'/);
   assert.match(custom, /name: 'delete'/);
   assert.match(screen, /function SwipeableCustomGroupRow/);
   assert.match(screen, /onMoveShouldSetResponderCapture/);
@@ -71,4 +74,25 @@ test('swipe reveals Delete only on custom rows; tap edits; built-ins stay read-o
   assert.match(screen, /avoidKeyboard/);
   assert.match(shared, /underlayBehindKeyboard/);
   assert.doesNotMatch(screen, /useState|useEffect|useRef|Storage\.|sqlite|fetch\(/);
+});
+
+test('Codex P1: only route owns conditional Back, Rename and Delete workflows', () => {
+  const screen = read('src/features/settings/account-groups-screen.tsx');
+  const route = read('src/features/settings/account-groups-route.tsx');
+  assert.match(screen, /onBack=\{onBack\}/);
+  assert.match(screen, /onPress=\{\(\) => onCustomGroupPress\(group.id\)\}/);
+  assert.match(screen, /onDelete=\{\(\) => onCustomGroupDelete\(group.id\)\}/);
+  assert.match(screen, /onTouchStart=\{onDismissRevealedDelete\}/);
+  assert.match(screen, /onScrollBeginDrag=\{onDismissRevealedDelete\}/);
+  assert.match(screen, /onPress=\{onDismissRevealedDelete\}/);
+  assert.doesNotMatch(screen, /if \(swipe.openId !== null\)/);
+  assert.doesNotMatch(screen, /onAction\(\{ type: '(?:back|custom\.edit|custom\.remove)'/);
+  assert.match(route, /const onBack = \(\) =>/);
+  assert.match(route, /const onCustomGroupPress = \(id: string\) =>/);
+  assert.match(route, /const onCustomGroupDelete = \(id: string\) =>/);
+  assert.match(route, /if \(swipe.openId !== null\)/);
+  assert.match(route, /onAction\(\{ type: 'back' \}\)/);
+  assert.match(route, /onAction\(\{ type: 'custom\.edit', id \}\)/);
+  assert.match(route, /onAction\(\{ type: 'custom\.remove', id \}\)/);
+  assert.match(route, /onDismissRevealedDelete=\{swipe.close\}/);
 });

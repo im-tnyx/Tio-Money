@@ -22,6 +22,8 @@ export function AppTextField({ invalid = false, ...props }: AppTextFieldProps) {
         color: theme.colors.primaryText,
         backgroundColor: theme.colors.canvas,
         fontSize: theme.typeScale.body,
+        // Center single-line Android input; leave multiline editing top aligned.
+        textAlignVertical: props.multiline ? 'top' : 'center',
         paddingHorizontal: theme.space.md,
       }}
     />

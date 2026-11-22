@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import { bottomSheetTokens } from '../../src/shared/theme/component-tokens';
+import { getBottomSheetHeightLimits } from '../../src/shared/ui/bottom-sheet-geometry';
 import { opacity, size } from '../../src/shared/theme/primitives';
 import { radius, space } from '../../src/shared/theme/tokens';
 
@@ -116,4 +117,37 @@ test('iOS keyboard underlay paints the full native keyboard area without moving 
   assert.doesNotMatch(shared, /borderBottomLeftRadius|borderBottomRightRadius/);
   assert.match(groups, /<AppBottomSheet\s+visible=\{state\.addSheetVisible\}\s+avoidKeyboard/);
   assert.equal((groups.match(/<ActionButton/g) ?? []).length, 1);
+});
+
+test('Bugbot: keyboard-aware forms avoid a second 90% collapsed viewport cap', () => {
+  const normal = getBottomSheetHeightLimits(800, 24, bottomSheetTokens);
+  const standard = getBottomSheetHeightLimits(320, 24, bottomSheetTokens);
+  const keyboard = getBottomSheetHeightLimits(320, 24, bottomSheetTokens, true);
+  assert.ok(normal.collapsedMax < normal.expandedMax);
+  assert.ok(standard.collapsedMax < standard.expandedMax);
+  assert.equal(keyboard.expandedMax, standard.expandedMax);
+  assert.equal(keyboard.collapsedMax, keyboard.expandedMax);
+  const tiny = getBottomSheetHeightLimits(40, 50, bottomSheetTokens, true);
+  assert.equal(tiny.collapsedMax, 0);
+  assert.equal(tiny.expandedMax, 0);
+});
+
+test('Bugbot: keyboard-aware geometry is opt-in, and Android input centers only one line', () => {
+  const geometry = readFileSync('src/shared/ui/bottom-sheet-geometry.ts', 'utf8');
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
+  const groups = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
+  assert.match(geometry, /keyboardAvoiding = false/);
+  assert.match(geometry, /keyboardAvoiding\s*\?\s*expandedMax/);
+  assert.match(shared, /keyboardAvoiding=\{avoidKeyboard\}/);
+  assert.match(
+    shared,
+    /getBottomSheetHeightLimits\(viewportHeight, topInset, sheet, keyboardAvoiding\)/,
+  );
+  assert.match(shared, /behavior=\{Platform\.OS === 'ios' \? 'padding' : 'height'\}/);
+  assert.match(shared, /underlayBehindKeyboard=\{avoidKeyboard && Platform\.OS === 'ios'\}/);
+  assert.match(shared, /edges=\{\['bottom', 'left', 'right'\]\}/);
+  assert.match(groups, /<AppBottomSheet\s+visible=\{state\.addSheetVisible\}\s+avoidKeyboard/);
+  assert.match(field, /textAlignVertical: props\.multiline \? 'top' : 'center'/);
+  assert.match(groups, /multiline=\{false\}/);
 });
