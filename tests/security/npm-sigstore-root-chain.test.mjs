@@ -144,3 +144,17 @@ test('legacy SEC1 uncompressed P256 root keys verify without weakening threshold
   assert.throws(() => verifyRootThreshold(bad, bad),
     /TUF_INVALID_PUBLIC_KEY/);
 });
+
+
+test('empty historical keyholder slots count as ZERO threshold signatures', () => {
+  const doc = root(12, [keys[0], keys[1], keys[2]]);
+  doc.signatures[0].sig = '';
+  assert.equal(verifyRootThreshold(doc, doc).verifiedDistinctSigners, 2);
+  doc.signatures[1].sig = '';
+  assert.throws(() => verifyRootThreshold(doc, doc),
+    /TUF_SIGNATURE_THRESHOLD_NOT_MET/);
+  const invalid = root(12, [keys[0], keys[1]]);
+  invalid.signatures[0].sig = 'fake-nonempty';
+  assert.throws(() => verifyRootThreshold(invalid, invalid),
+    /TUF_BAD_SIGNATURE_ENCODING/);
+});

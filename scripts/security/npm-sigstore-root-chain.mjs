@@ -100,6 +100,10 @@ export function verifyRootThreshold(document, trustedRoleRoot) {
     assert.ok(!seen.has(id), 'TUF_DUPLICATE_SIGNATURE_KEY_ID');
     seen.add(id);
     if (!trusted.keyids.includes(id)) continue;
+    // Upstream historical root v12-v14 contains explicit empty keyholder
+    // signature slots. NEVER count empty entries as an authorization.
+    // Only a separate cryptographically valid signature meets the threshold.
+    if (entry.sig === '') continue;
     const key = trustedRoleRoot.signed.keys?.[id];
     assert.ok(key && (key.keytype === 'ecdsa' ||
       key.keytype === 'ecdsa-sha2-nistp256') &&
