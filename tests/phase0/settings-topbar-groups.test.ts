@@ -68,6 +68,26 @@ test('Account Groups route is controller-driven and shows seven informational bu
   );
 });
 
+test('Account Groups visibility icon matches current state and list is flush under top bar', () => {
+  const screen = read('src/features/settings/account-groups-screen.tsx');
+  const prefs = read('src/features/settings/account-group-preferences.ts');
+  const bar = read('src/shared/ui/app-top-bar.tsx');
+  assert.match(prefs, /showDescriptions: false/);
+  assert.match(screen, /icon: state\.showDescriptions \? 'eye' : 'eye-off'/);
+  assert.match(
+    screen,
+    /state\.showDescriptions \? 'accountGroupsHideDescriptions' : 'accountGroupsShowDescriptions'/,
+  );
+  assert.match(screen, /selected: state\.showDescriptions/);
+  assert.match(screen, /onPress: \(\) => onAction\(\{ type: 'descriptions\.toggle' \}\)/);
+  const list = screen.slice(screen.indexOf('<ScrollView'), screen.indexOf('BUILT_IN_ACCOUNT_GROUPS.map'));
+  assert.match(list, /<ScrollView/);
+  assert.match(list, /paddingBottom: theme\.space\.xxxl/);
+  assert.doesNotMatch(list, /paddingTop:/);
+  assert.doesNotMatch(list, /borderTopWidth:/);
+  assert.match(bar, /borderBottomWidth: theme\.navigation\.borderWidth/);
+});
+
 test('Theme is a display-copy change, not a new preference or finance feature', () => {
   const screen = read('src/features/settings/more-screen.tsx');
   const sheet = read('src/features/settings/appearance-sheet.tsx');

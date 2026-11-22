@@ -32,3 +32,12 @@ labels; no financial account or ledger changes. Validate on exact PR HEAD.
 - **Owner chat instruction:** "Action button height pure app ke liye 42 rahega"; technical PROCEED in [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7083306947).
 - The existing reusable `ActionButton` receives a token-owned **42dp painted visual** inside an accessible **48dp minimum Pressable**, preserving screen-reader and minimum touch height. The same shared button powers Add Account Group bottom-sheet Save/Cancel and other current app ActionButton usages. Other controls retain their own tokens; responsive large text may expand the visual height rather than clip labels.
 - Extra test guards explicitly reject accidental visual/touch target conflation; no finance data, security or root navigation changes. Exact HEAD CI and device UI review required before merge.
+
+## 2026-11-23 — Account Groups owner UI correction
+
+- **Owner source:** Current chat: eye icon state reversed (Show vs Hide) and unnecessary empty area between top bar and built-in group list. Technical PROCEED and specific rationale recorded in [RFC #79 comment](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084013456); agent-transcribed, not GitHub owner merge permission.
+- **Decision:** Showing descriptions displays the **open eye**; hiding descriptions displays the **crossed eye**. Screen-reader button label still communicates the action **to take next** (Hide when currently visible, Show when currently hidden). Keep current persisted preference and controller behavior.
+- **Layout:** Remove Account Groups scroll `paddingTop` and redundant list top border under the shared top bar's existing bottom divider. Preserve list bottom padding and platform safe-area handling.
+- **Scope:** `account-groups-screen.tsx`, `settings-topbar-groups.test.ts`, this task. No shared top bar/theme/token edits, no dependency, finance, credential, security workflow or main changes.
+- **Validation:** Regression assertions for icon/action parity and single-divider flush list. Required latest-exact-HEAD CI, code review and owner device UI validation must be independently observed; pending on implementation commit.
+- **Gate:** PR #80 OPEN/DRAFT; separate PR merge authorization **NOT_GRANTED**. Historical Issue #71 npm/Sigstore anomaly retained as diagnostic, not accepted.

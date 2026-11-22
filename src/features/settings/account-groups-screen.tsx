@@ -25,7 +25,7 @@ export function AccountGroupsScreen({
   const actions = [
     {
       key: 'details',
-      icon: state.showDescriptions ? 'eye-off' : 'eye',
+      icon: state.showDescriptions ? 'eye' : 'eye-off',
       accessibilityLabel: t(
         state.showDescriptions ? 'accountGroupsHideDescriptions' : 'accountGroupsShowDescriptions',
       ),
@@ -56,14 +56,12 @@ export function AccountGroupsScreen({
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.canvas }}
         contentContainerStyle={{
-          paddingTop: theme.space.lg,
           paddingBottom: theme.space.xxxl,
         }}
       >
         <View
           style={{
             backgroundColor: theme.colors.card,
-            borderTopWidth: theme.navigation.borderWidth,
             borderBottomWidth: theme.navigation.borderWidth,
             borderColor: theme.colors.border,
           }}
