@@ -127,6 +127,27 @@ export async function downloadRegistryAttestations(address, name, version) {
   });
 }
 
+export function selectLockedTarget(lock, name, version) {
+  // EAS includes several versions of @babel/code-frame. NEVER choose the root
+  // 7.23.5 when the npm signature error concerns nested 7.29.7 copies.
+  const suffix = 'node_modules/' + name;
+  const copies = Object.entries(lock?.packages || {}).filter(([path, value]) =>
+    (path === suffix || path.endsWith('/' + suffix)) && value?.version === version);
+  assert.ok(copies.length > 0, 'MISSING_EXACT_LOCKED_TARGET_' + name);
+  const first = copies[0][1];
+  assert.match(first.integrity || '', /^sha512-[A-Za-z0-9+/=]+$/,
+    'MISSING_EXACT_TARGET_SRI_' + name);
+  assert.ok(first.resolved?.startsWith(REGISTRY + '/') && first.resolved.endsWith('.tgz'),
+    'UNTRUSTED_EXACT_TARGET_ORIGIN_' + name);
+  for (const [, value] of copies) {
+    assert.equal(value.integrity, first.integrity,
+      'INCONSISTENT_NESTED_TARGET_SRI_' + name);
+    assert.equal(value.resolved, first.resolved,
+      'INCONSISTENT_NESTED_TARGET_URL_' + name);
+  }
+  return { manifest: first, copies: copies.length };
+}
+
 export async function verifyTargetProofs(verified, lock, targets, fetchTarball = downloadRegistryTarball, fetchAttestations = downloadRegistryAttestations) {
   assert.ok(Array.isArray(verified), 'MISSING_VERIFIED_ATTESTATION_LIST');
   const results = [];
@@ -134,8 +155,7 @@ export async function verifyTargetProofs(verified, lock, targets, fetchTarball =
     const packageEntries = verified.filter((entry) => entry?.name === name &&
       entry?.version === version);
     assert.equal(packageEntries.length, 1, 'MISSING_OR_AMBIGUOUS_VERIFIED_PACKAGE_' + name);
-    const manifest = lock.packages?.['node_modules/' + name];
-    assert.equal(manifest?.version, version, 'LOCKED_PACKAGE_IDENTITY_MISMATCH_' + name);
+    const { manifest } = selectLockedTarget(lock, name, version);
     const tarball = await fetchTarball(manifest.resolved);
     assert.ok(Buffer.isBuffer(tarball), 'TARBALL_BYTES_UNAVAILABLE_' + name);
     assert.ok(tarball.length > 0 && tarball.length <= MAX_TARBALL, 'INVALID_TARBALL_SIZE');

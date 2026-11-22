@@ -9,8 +9,8 @@ import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { isAbsolute, join } from 'node:path';
-import { downloadRegistryAttestations, downloadRegistryTarball, verifySignedSubject }
-  from './npm-sigstore-proof.mjs';
+import { downloadRegistryAttestations, downloadRegistryTarball, verifySignedSubject,
+  selectLockedTarget } from './npm-sigstore-proof.mjs';
 
 const REGISTRY = 'https://registry.npmjs.org';
 const EXPECTED_ISSUER = 'https://token.actions.githubusercontent.com';
@@ -68,8 +68,7 @@ export async function verifyTrustedTargetProvenance(verified, lock, targets,
     assert.match(version, /^\d+\.\d+\.\d+$/, 'TRUST_UNAPPROVED_PACKAGE_VERSION');
     const entries = verified.filter(x => x?.name === name && x?.version === version);
     assert.equal(entries.length, 1, 'TRUST_AMBIGUOUS_NPM_VERIFIED_PACKAGE_' + name);
-    const pkg = lock?.packages?.['node_modules/' + name];
-    assert.equal(pkg?.version, version, 'TRUST_LOCK_VERSION_MISMATCH_' + name);
+    const { manifest: pkg } = selectLockedTarget(lock, name, version);
     assert.equal(new URL(pkg.resolved).origin, REGISTRY, 'TRUST_TARBALL_REGISTRY_MISMATCH');
     assert.match(pkg.integrity || '', /^sha512-[A-Za-z0-9+/=]+$/,
       'TRUST_LOCK_SRI_MISSING_' + name);

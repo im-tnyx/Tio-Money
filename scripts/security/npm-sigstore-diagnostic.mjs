@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifyTargetProofs } from './npm-sigstore-proof.mjs';
+import { verifyTargetRegistryPublications } from './npm-sigstore-registry.mjs';
 import { loadPinnedVerifier, verifyTrustedTargetProvenance }
   from './npm-sigstore-trusted.mjs';
 import { identifyInvalidPackages, identifyInvalidJsonPackages,
@@ -82,6 +83,7 @@ export async function runDiagnostic() {
     jsonAttestations: 'NOT_RUN', packageProofStatus: 'NOT_RUN',
     independentSigstoreVerification: false,
     trustedProvenanceStatus: 'NOT_RUN',
+    independentlyVerifiedRegistryPublishSignature: 'NOT_RUN',
     rawAttestationsUploaded: false,
   };
   let failed = false;
@@ -223,6 +225,16 @@ export async function runDiagnostic() {
         } catch {
           report.trustedProvenanceStatus = 'FAIL_CLOSED';
           throw new Error('TRUSTED_PROVENANCE_VERIFICATION_FAILED');
+        }
+        // Registry ECDSA is a SEPARATE gate; do not misclassify this failure
+        // as TUF/Fulcio failure when that independent check passed.
+        try {
+          report.registryPublishProofs = await verifyTargetRegistryPublications(lock, AFFECTED);
+          report.independentlyVerifiedRegistryPublishSignature =
+            'PASS_PINNED_NPM_REGISTRY_ECDSA';
+        } catch {
+          report.independentlyVerifiedRegistryPublishSignature = 'FAIL_CLOSED';
+          throw new Error('REGISTRY_PUBLISH_ECDSA_VERIFICATION_FAILED');
         }
       } else {
         report.trustedProvenanceStatus = 'UNSUPPORTED_BY_NPM10';

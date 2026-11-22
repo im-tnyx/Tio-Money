@@ -116,3 +116,43 @@ test('untrusted result never leaks thrown verifier text or allows partial succes
     async () => true, temp, fetchTarball, fetchAttestations),
   /TRUST_AMBIGUOUS_NPM_VERIFIED_PACKAGE/);
 });
+
+
+test('trusted verification uses exact nested @babel/code-frame version and signed subject', async () => {
+  const name = '@babel/code-frame', version = '7.29.7';
+  const tarball = Buffer.from('synthetic-code-frame-tarball');
+  const digest = createHash('sha512').update(tarball).digest('hex');
+  const v = { version,
+    integrity: 'sha512-' + createHash('sha512').update(tarball).digest('base64'),
+    resolved: 'https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz' };
+  const nested = { packages: {
+    ['node_modules/' + name]: { ...v, version: '7.23.5' },
+    ['node_modules/@babel/core/node_modules/' + name]: v,
+    ['node_modules/@babel/template/node_modules/' + name]: { ...v },
+  } };
+  const verified = [{ name, version, attestations: {
+    url: 'https://registry.npmjs.org/-/npm/v1/attestations/@babel/code-frame@7.29.7',
+  } }];
+  const bundle = {
+    dsseEnvelope: { payloadType: 'application/vnd.in-toto+json',
+      payload: Buffer.from(JSON.stringify({ subject: [{
+        name: 'pkg:npm/%40babel/code-frame@7.29.7',
+        digest: { sha512: digest },
+      }] })).toString('base64'), signatures: [{ sig: 'c2ln' }] },
+    verificationMaterial: { certificate: { rawBytes: 'Y2VydA==' },
+      tlogEntries: [{ inclusionPromise: { signedEntryTimestamp: 'c2V0' } }] },
+  };
+  let verifierCount = 0;
+  const check = await verifyTrustedTargetProvenance(verified, nested, { [name]: version },
+    async () => { verifierCount += 1; }, temp, async () => tarball,
+    async () => ({ attestations: [{ predicateType: 'https://slsa.dev/provenance/v1',
+      bundle }] }));
+  assert.equal(verifierCount, 1);
+  assert.equal(check[0].name, name);
+  assert.equal(check[0].committedSri, 'PASS');
+  nested.packages['node_modules/@babel/template/node_modules/' + name].integrity = 'sha512-fake';
+  await assert.rejects(verifyTrustedTargetProvenance(verified, nested, { [name]: version },
+    async () => {}, temp, async () => tarball,
+    async () => ({ attestations: [{ predicateType: 'https://slsa.dev/provenance/v1', bundle }] })),
+  /INCONSISTENT_NESTED_TARGET_SRI/);
+});

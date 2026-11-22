@@ -10,10 +10,12 @@ on:
       - scripts/security/npm-sigstore-proof.mjs
       - scripts/security/npm-sigstore-metadata.mjs
       - scripts/security/npm-sigstore-trusted.mjs
+      - scripts/security/npm-sigstore-registry.mjs
       - tests/security/npm-sigstore-diagnostic.test.mjs
       - tests/security/npm-sigstore-proof.test.mjs
       - tests/security/npm-sigstore-metadata.test.mjs
       - tests/security/npm-sigstore-trusted.test.mjs
+      - tests/security/npm-sigstore-registry.test.mjs
 
 permissions:
   contents: read
@@ -53,7 +55,7 @@ jobs:
           node-version: ${{ matrix.node }}
           package-manager-cache: false
       - name: Validate fail-closed diagnostic logic
-        run: node --test tests/security/npm-sigstore-diagnostic.test.mjs tests/security/npm-sigstore-proof.test.mjs tests/security/npm-sigstore-metadata.test.mjs tests/security/npm-sigstore-trusted.test.mjs
+        run: node --test tests/security/npm-sigstore-diagnostic.test.mjs tests/security/npm-sigstore-proof.test.mjs tests/security/npm-sigstore-metadata.test.mjs tests/security/npm-sigstore-trusted.test.mjs tests/security/npm-sigstore-registry.test.mjs
       - name: Run isolated registry signature and provenance diagnostics
         env:
           DIAGNOSTIC_REPLICA: ${{ matrix.replica }}

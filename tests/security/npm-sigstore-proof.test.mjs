@@ -4,7 +4,7 @@ import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { test } from 'node:test';
 import { dssePae, downloadRegistryTarball, downloadRegistryAttestations,
   verifyDsseWithPublicKey,
-  verifySignedSubject, verifyTargetProofs } from '../../scripts/security/npm-sigstore-proof.mjs';
+  verifySignedSubject, verifyTargetProofs, selectLockedTarget } from '../../scripts/security/npm-sigstore-proof.mjs';
 
 test('DSSE PAE signature verifies against embedded leaf public key only', () => {
   const keys = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
@@ -119,4 +119,28 @@ test('fourth target signed subject digest binds only to exact tarball and identi
     /ATTESTED_SHA512_TARBALL_MISMATCH/);
   assert.throws(() => verifySignedSubject(signed, name, '7.29.14', bytes),
     /MISSING_OR_AMBIGUOUS_PACKAGE_SUBJECT/);
+});
+
+
+test('nested code-frame 7.29.7 is selected, never unrelated root 7.23.5', () => {
+  const name = '@babel/code-frame';
+  const match = {
+    version: '7.29.7', integrity: 'sha512-' + 'a'.repeat(64),
+    resolved: 'https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz',
+  };
+  const copies = { packages: {
+    ['node_modules/' + name]: { ...match, version: '7.23.5' },
+    ['node_modules/@babel/core/node_modules/' + name]: match,
+    ['node_modules/@babel/traverse/node_modules/' + name]: { ...match },
+  } };
+  const result = selectLockedTarget(copies, name, '7.29.7');
+  assert.equal(result.copies, 2);
+  assert.equal(result.manifest.version, '7.29.7');
+  const wrong = structuredClone(copies);
+  wrong.packages['node_modules/@babel/traverse/node_modules/' + name].integrity =
+    'sha512-' + 'b'.repeat(64);
+  assert.throws(() => selectLockedTarget(wrong, name, '7.29.7'),
+    /INCONSISTENT_NESTED_TARGET_SRI/);
+  assert.throws(() => selectLockedTarget(copies, name, '7.99.99'),
+    /MISSING_EXACT_LOCKED_TARGET/);
 });

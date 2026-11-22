@@ -22,7 +22,7 @@ test('git blob hashing uses exact Git framing', () => {
 test('lock identity, registry and SRI are mandatory', () => {
   const bytes = Buffer.from('synthetic-fixture');
   const sha = gitBlobSha1(bytes);
-  assert.equal(verifyLock(mock(), bytes, sha).length, 4);
+  assert.equal(verifyLock(mock(), bytes, sha).length, 5);
   assert.throws(() => verifyLock(mock(), bytes, 'f'.repeat(40)), /LOCKFILE_IDENTITY_CHANGED/);
   const changed = mock();
   changed.packages['node_modules/@babel/generator'].integrity = '';
@@ -54,7 +54,7 @@ test('new fourth Babel target is mandatory and locked to exact version', () => {
   const name = '@babel/helper-compilation-targets';
   const good = mock();
   assert.equal(good.packages['node_modules/' + name].version, '7.29.13');
-  assert.equal(verifyLock(good, bytes, sha).length, 4);
+  assert.equal(verifyLock(good, bytes, sha).length, 5);
   delete good.packages['node_modules/' + name];
   assert.throws(() => verifyLock(good, bytes, sha),
     /MISSING_LOCKED_PACKAGE_@babel\/helper-compilation-targets/);

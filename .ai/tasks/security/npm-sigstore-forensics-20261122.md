@@ -10,7 +10,7 @@
 
 ## Scope and ownership
 
-Current scoped PR diff: eight added files — this task, one pull_request-only unprivileged diagnostic workflow, three no-secrets Node forensic/metadata/proof scripts, and three deterministic security test files. This is diagnostic evidence tooling, not a vulnerability patch or production runtime change. No changes to EAS CLI manifest/lock, root dependencies, Expo Go Android/iOS, app source, Codespaces/EAS trusted preview, tokens/secrets, identity, permissions in existing workflows, PR #65, ruleset #27567187 or main.
+Current scoped PR diff (after package-specific follow-ups): twelve added files — this task, one pull_request-only unprivileged diagnostic workflow, five no-secrets security scripts (diagnostic/metadata/proof/trusted/registry), and five deterministic security test files. Verify live GitHub file inventory rather than relying on this count. This is diagnostic evidence tooling, not a vulnerability patch or production runtime change. No changes to EAS CLI manifest/lock, root dependencies, Expo Go Android/iOS, app source, Codespaces/EAS trusted preview, tokens/secrets, identity, permissions in existing workflows, PR #65, ruleset #27567187 or main.
 
 **Threat model:** untrusted PR code, writable GitHub token, privileged pull_request_target/workflow_run trigger, OIDC, user npmrc or NODE_OPTIONS injection, dependency lifecycle scripts, executable code on package install, tampered/unreviewed lockfile, raw npm/Sigstore response leaking data, misleading green CI interpreted as definitive provenance root cause.
 
@@ -86,3 +86,15 @@ workflow privilege escalation, signature-gate bypass, or modified EAS lockfile.
 A green result will prove only the specific sampled attestations, not the
 root cause of historical intermittent npm10/Phase-0 failures. Preserve
 Issue #71 and PR #65 security HOLD until separately dispositioned.
+
+
+## 2026-11-22 — New required-CI recurrence and exact nested package identity
+- Following merged PR #76, protected main is `44f033b83921c660797d610a3befa744ab832f9f`.
+- Draft #73 safely reconciled head `8f19503c32fbee0c2475f8ecad1c6e9b14cdd076` triggered [Phase 0 run 45018065154](https://github.com/im-tnyx/Tio-Money/actions/runs/45018065154): mandatory `npm audit signatures` FAIL in isolated EAS preview test; exact error **`@babel/code-frame@7.29.7` invalid attestation**. Three no-secrets Sigstore jobs and Governance PASS on the same HEAD; no evidence of compromise or root cause.
+- **Important nested lock boundary:** EAS lock contains root `@babel/code-frame@7.23.5`, three nested copies of the failed `7.29.7`, and additional nested copies of `7.10.4`. A proof must select all exact-version nested copies and require consistent official-registry tarball and SHA-512 SRI. Choosing the root version would silently prove the wrong artifact.
+- This isolated follow-up adds the fifth exact `7.29.7` Babel target to signed tarball SRI, DSSE subject, TUF/Fulcio/OIDC/CT/Rekor checks. Node 26/npm 11 separately validates each registry `dist.signatures` P-256 ECDSA signature against the official npm registry signing public key pinned as SPKI SHA-256 `+xkKRiEjRDUAy822UZYj5xeenzjYStTpNity0raLYsE=`, matching current npm key ID `SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U` from npm's documented key endpoint. Explicitly distinguish an official-registry key pin from a Tio-Money out-of-band approved Sigstore TUF root (still UNVERIFIED). Registry packuments are read only and not published in artifacts or job logs.
+- **No historical root-cause claim:** even if new CI passes, failure source remains UNVERIFIED; same-response replay across npm 10 and npm 11 has NOT been performed. Do not retry-until-green or modify EAS/root dependency lockfiles, app, credentials, main, #65 or rulesets. Keep #73 Draft, #65 HOLD and issue #71 open.
+
+## 2026-11-22 — Owner-authorized next gate: registry ECDSA proof and nested version fix
+
+The next evidence run on current protected-main-synchronized Draft PR #73 is expected to exercise `@babel/code-frame@7.29.7` nested exact-version copies, five pinned subject/SRI/DSSE/TUF provenance targets, and five independent registry P-256 ECDSA publish signature proofs. The official public npm registry signing key ID `SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U` is compared with a statically pinned SHA-256 SPKI digest `+xkKRiEjRDUAy822UZYj5xeenzjYStTpNity0raLYsE=` (verified from the public npm docs key endpoint). No privileged token, external action or dependency changes. The existing mandatory `npm audit signatures` failure is a hard block, not replaced by alternative successful proofs. Out-of-band independently approved Sigstore TUF root and a true npm10/npm11 same-response replay remain UNVERIFIED. Do not declare the recurring error harmless, waive it, or merge either PR.
