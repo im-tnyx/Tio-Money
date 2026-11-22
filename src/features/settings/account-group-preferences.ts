@@ -4,7 +4,7 @@ import { BUILT_IN_ACCOUNT_GROUPS } from './account-group-templates';
 
 /** Display-only preferences, never ledger group types or financial accounts. */
 export const MAX_CUSTOM_GROUPS = 5;
-export const MAX_CUSTOM_GROUP_NAME_LENGTH = 40;
+export const MAX_CUSTOM_GROUP_NAME_LENGTH = 20;
 
 export interface CustomGroupLabel {
   readonly id: string;

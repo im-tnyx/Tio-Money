@@ -25,7 +25,7 @@ export const en = {
     'Custom group names are for display only until financial account types are approved.',
   accountGroupsCancel: 'Cancel',
   accountGroupsSave: 'Save',
-  accountGroupsInvalidName: 'Use a name with 1–40 characters and no control characters.',
+  accountGroupsInvalidName: 'Use a name with 1–20 characters and no control characters.',
   accountGroupsDuplicate: 'That group name already exists.',
   accountGroupsLimitReached: 'A maximum of five custom groups is allowed.',
   accountGroupsLoadError: 'Could not read saved groups. No changes will be made.',

@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-23 — PR #80 owner-approved single-line 1–20 custom group names
+
+- **Source:** Owner final **Go**, [Issue #79 RFC](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085252621). Existing task \`.ai/tasks/ui/settings-topbar-account-groups-20261122.md\` remains assigned to GPT-6; PR #80 Ready for Review, source/input/domain tests scoped only.
+- **Gate:** New exact-HEAD CI and iPhone/Android manual UI acceptance pending; prior HEAD required \`static\` failed closed on npm attestation, Issue #71 OPEN. Diagnostic PR #84 cannot waive it. No main changes, no merge authorization.
+
 ## 2026-11-23 — Draft PR #80 custom Account Group swipe Delete and tap Rename
 
 - **Owner direction / RFC #79:** custom display-only groups reveal Delete on left swipe, and open the existing one-Save, keyboard-aware bottom sheet with a prefilled name for Rename on tap. Built-in groups remain read-only. Technical decisions and acceptance: [swipe](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084481580), [rename](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084496503).

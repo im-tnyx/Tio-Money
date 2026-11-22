@@ -226,7 +226,7 @@ export function AccountGroupsScreen({
                   justifyContent: 'center',
                 }}
               >
-                <AppText>{group.name}</AppText>
+                <AppText numberOfLines={1}>{group.name}</AppText>
               </Pressable>
             </SwipeableCustomGroupRow>
           ))}
@@ -260,6 +260,8 @@ export function AccountGroupsScreen({
             placeholder={t('accountGroupsNamePlaceholder')}
             autoCapitalize="words"
             autoCorrect={false}
+            multiline={false}
+            returnKeyType="done"
             maxLength={MAX_CUSTOM_GROUP_NAME_LENGTH}
             invalid={state.draftError !== null}
           />
