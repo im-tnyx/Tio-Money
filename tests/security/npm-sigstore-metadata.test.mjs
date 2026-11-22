@@ -6,6 +6,7 @@ import { identifyInvalidPackages, identifyInvalidJsonPackages,
 const lock = {
   packages: {
     'node_modules/@babel/generator': { version: '7.29.15' },
+    'node_modules/@babel/helper-compilation-targets': { version: '7.29.13' },
     'node_modules/@babel/helper-module-transforms': { version: '7.29.13' },
     'node_modules/@babel/helper-validator-identifier': { version: '7.29.7' },
   },
@@ -117,4 +118,20 @@ test('npm JSON invalid[] never infers package identity from unrelated verified o
   const v = identifyInvalidJsonPackages(json, lock);
   assert.deepEqual(v.reportedInvalidJsonPackageIds, []);
   assert.equal(v.jsonPackageIdentityStatus, 'UNVERIFIED');
+});
+
+
+test('npm JSON invalid[] recognizes fourth exact lockfile package only', () => {
+  const raw = JSON.stringify({ invalid: [
+    { name: '@babel/helper-compilation-targets', version: '7.29.13',
+      signedBundle: 'never-leak-sensitive-bundle' },
+    { name: '@babel/helper-compilation-targets', version: '7.29.99' },
+    { name: '@another/package', version: '1.2.3' },
+  ] });
+  const result = identifyInvalidJsonPackages(raw, lock);
+  assert.equal(result.jsonInvalidCount, 3);
+  assert.deepEqual(result.reportedInvalidJsonPackageIds,
+    ['@babel/helper-compilation-targets@7.29.13']);
+  assert.equal(result.jsonPackageIdentityStatus, 'REPORTED_IN_JSON_INVALID_LIST');
+  assert.ok(!JSON.stringify(result).includes('never-leak-sensitive-bundle'));
 });

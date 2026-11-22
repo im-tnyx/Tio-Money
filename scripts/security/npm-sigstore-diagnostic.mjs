@@ -15,6 +15,8 @@ const SOURCE = join(ROOT, '.github/preview-eas-cli');
 const REGISTRY = 'https://registry.npmjs.org';
 const LOCK_BLOB = 'fa92a2b84071c5cb974becffd6ac74dabf050989';
 export const AFFECTED = Object.freeze({
+  // Additional exact package reported by Phase 0 after PR #70 merged (#71).
+  '@babel/helper-compilation-targets': '7.29.13',
   '@babel/generator': '7.29.15',
   '@babel/helper-module-transforms': '7.29.13',
   '@babel/helper-validator-identifier': '7.29.7',

@@ -105,3 +105,18 @@ test('registry key-signed publish evidence cannot replace Fulcio provenance', as
   await assert.rejects(verifyTargetProofs(verified, lock, { [name]: version },
     fetchTarball, fetchAttestations), /MISSING_FULCIO_PROVENANCE_BUNDLE/);
 });
+
+
+test('fourth target signed subject digest binds only to exact tarball and identity', () => {
+  const name = '@babel/helper-compilation-targets';
+  const version = '7.29.13';
+  const bytes = Buffer.from('synthetic-compilation-targets-archive');
+  const digest = createHash('sha512').update(bytes).digest('hex');
+  const signed = { subject: [{ name: 'pkg:npm/%40babel/helper-compilation-targets@7.29.13',
+    digest: { sha512: digest } }] };
+  assert.equal(verifySignedSubject(signed, name, version, bytes).sha512, digest);
+  assert.throws(() => verifySignedSubject(signed, name, version, Buffer.from('different')),
+    /ATTESTED_SHA512_TARBALL_MISMATCH/);
+  assert.throws(() => verifySignedSubject(signed, name, '7.29.14', bytes),
+    /MISSING_OR_AMBIGUOUS_PACKAGE_SUBJECT/);
+});

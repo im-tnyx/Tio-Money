@@ -32,3 +32,30 @@ Verify current exact-HEAD workflow syntax, all deterministic tests in the three 
 **Retained forensic evidence:** PR #65 originally reported invalid attestations for three Babel packages; later no-secrets npm 10 replicas on PR #73 reproduced invalid-attestation failure on an identical lockfile without retaining exact package identities. Passing later runs do not resolve that contradiction. See issue #71 for attempt IDs and sanitized evidence; no direct compromise conclusion is established.
 
 Issue #71 remains open until independently reviewed cryptographic evidence or separate recorded owner/security residual-risk acceptance. A nonreproducible failure is not a waiver; never bypass signature checking. Keep PR unmerged unless owner gives explicit repo-and-PR-specific permission. Rollback is closing the diagnostic PR; it changes no protected runtime.
+
+
+## 2026-11-22 — Fourth observed Babel identity, additional target gate
+
+Protected main after PR #70: `7d2bb686bde5cf1b04f2704b085714aef503f63a`.
+Read-only exact HEAD `82f1ea9ffb882786383ab1f8d913f4b64ea041da` of this Draft PR
+reproduced **npm audit signatures** failure in required Phase 0 `static`
+for **`@babel/helper-compilation-targets@7.29.13`**, in
+`tests/preview/eas-cli-locked-install.test.mjs` ([run 45013094452](https://github.com/im-tnyx/Tio-Money/actions/runs/45013094452)).
+This was distinct from the three original Babel failures and from another
+previously observed `@babel/traverse` failure. Three separate no-secrets
+diagnostic runners on the same HEAD passed ([run 45013094532](https://github.com/im-tnyx/Tio-Money/actions/runs/45013094532)).
+Thus **intermittent verification behavior is observed, cause unknown**.
+No proof of compromise or of harmless registry/network behavior.
+
+The isolated EAS 27.4.1 lockfile remains Git blob
+`fa92a2b84071c5cb974becffd6ac74dabf050989`.
+The new package is included in the **fourth mandatory exact locked target**
+for a follow-up diagnostic: registry tarball SRI, in-toto subject digest and
+DSSE embedded-leaf signature on npm 11 if available. A genuine failing check
+must fail closed on npm 10 and npm 11; successful alternate runs do not waive
+the earlier failure. Cert chain trust to an independently pinned Fulcio root,
+signer OIDC identity, npm publish-key trust and cryptographic Rekor inclusion
+remain **UNVERIFIED** until independently established. Only allowlisted
+evidence goes to job summaries; no raw bundles, certificates, credentials or
+network response artifacts are uploaded. This follow-up does not modify
+`main`, PR #65, lockfiles, privileged workflows or rulesets. No merge.

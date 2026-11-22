@@ -22,7 +22,7 @@ test('git blob hashing uses exact Git framing', () => {
 test('lock identity, registry and SRI are mandatory', () => {
   const bytes = Buffer.from('synthetic-fixture');
   const sha = gitBlobSha1(bytes);
-  assert.equal(verifyLock(mock(), bytes, sha).length, 3);
+  assert.equal(verifyLock(mock(), bytes, sha).length, 4);
   assert.throws(() => verifyLock(mock(), bytes, 'f'.repeat(40)), /LOCKFILE_IDENTITY_CHANGED/);
   const changed = mock();
   changed.packages['node_modules/@babel/generator'].integrity = '';
@@ -45,4 +45,34 @@ test('failure summaries never copy raw network output or credentials', () => {
 test('unsupported npm is not claimed as verified JSON attestation output', () => {
   assert.equal(isIncludeAttestationsSupported('undefined\n'), false);
   assert.equal(isIncludeAttestationsSupported('false\n'), true);
+});
+
+
+test('new fourth Babel target is mandatory and locked to exact version', () => {
+  const bytes = Buffer.from('synthetic-fourth-target');
+  const sha = gitBlobSha1(bytes);
+  const name = '@babel/helper-compilation-targets';
+  const good = mock();
+  assert.equal(good.packages['node_modules/' + name].version, '7.29.13');
+  assert.equal(verifyLock(good, bytes, sha).length, 4);
+  delete good.packages['node_modules/' + name];
+  assert.throws(() => verifyLock(good, bytes, sha),
+    /MISSING_LOCKED_PACKAGE_@babel\/helper-compilation-targets/);
+  const changed = mock();
+  changed.packages['node_modules/' + name].version = '7.29.14';
+  assert.throws(() => verifyLock(changed, bytes, sha),
+    /PACKAGE_VERSION_CHANGED_@babel\/helper-compilation-targets/);
+});
+
+test('single failing npm attestation identifies fourth package without leaking output', () => {
+  const raw = 'audited 498 packages\n1 package has an invalid attestation:\n' +
+    '@babel/helper-compilation-targets@7.29.13 (https://registry.npmjs.org/)\n' +
+    'password=secret-credential-do-not-emit';
+  const result = sanitizeFailure(raw, mock());
+  assert.equal(result.invalidAttestationCount, 1);
+  assert.deepEqual(result.reportedInvalidPackageIds,
+    ['@babel/helper-compilation-targets@7.29.13']);
+  assert.equal(result.packageIdentityStatus, 'REPORTED_IN_INVALID_ATTESTATION_LIST');
+  assert.ok(!JSON.stringify(result).includes('secret-credential'));
+  assert.equal(result.rawOutputRetained, false);
 });
