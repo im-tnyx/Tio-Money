@@ -135,3 +135,17 @@ test('npm JSON invalid[] recognizes fourth exact lockfile package only', () => {
   assert.equal(result.jsonPackageIdentityStatus, 'REPORTED_IN_JSON_INVALID_LIST');
   assert.ok(!JSON.stringify(result).includes('never-leak-sensitive-bundle'));
 });
+
+
+test('npm real singular grammar has an invalid attestation for the fourth locked package', () => {
+  const raw = 'audited 498 packages\n1 package has an invalid attestation:\n' +
+    '@babel/helper-compilation-targets@7.29.13 (https://registry.npmjs.org/)\n' +
+    'password=never-report-credential';
+  const result = identifyInvalidPackages(raw, lock);
+  assert.equal(result.invalidAttestationCount, 1);
+  assert.deepEqual(result.reportedInvalidPackageIds,
+    ['@babel/helper-compilation-targets@7.29.13']);
+  assert.equal(result.packageIdentityStatus, 'REPORTED_IN_INVALID_ATTESTATION_LIST');
+  assert.equal(result.rawOutputRetained, false);
+  assert.ok(!JSON.stringify(result).includes('never-report-credential'));
+});

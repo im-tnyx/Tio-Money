@@ -44,7 +44,7 @@ export function verifyLock(lock, bytes, expectedBlob = LOCK_BLOB) {
 
 export function sanitizeFailure(raw, lock) {
   const value = String(raw || '');
-  const found = /([0-9]+) packages? have invalid attestations?/i.exec(value);
+  const found = /([0-9]+)\s+packages?\s+(?:have|has)\s+(?:an?\s+)?invalid attestations?/i.exec(value);
   return {
     invalidAttestationCount: found ? Number(found[1]) : null,
     affectedPackagesMentioned: Object.keys(AFFECTED).filter(n => value.includes(n)),

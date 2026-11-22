@@ -130,9 +130,9 @@ export function identifyInvalidJsonPackages(raw, lock) {
 
 export function identifyInvalidPackages(raw, lock) {
   const value = String(raw || '').slice(0, 1024 * 1024).replace(/\x1b\[[0-9;]*m/g, '');
-  const count = /(\d+)\s+packages?\s+(?:have|has)\s+invalid attestations?/i.exec(value);
+  const count = /(\d+)\s+packages?\s+(?:have|has)\s+(?:an?\s+)?invalid attestations?/i.exec(value);
   const lines = value.split(/\r?\n/);
-  const header = lines.findIndex((line) => /\b(?:have|has)\s+invalid attestations?\s*:/i.test(line));
+  const header = lines.findIndex((line) => /\b(?:have|has)\s+(?:an?\s+)?invalid attestations?\s*:/i.test(line));
   const section = header >= 0 ? lines.slice(header + 1, header + 24).join('\n') : '';
   const tracked = new Set();
   for (const [path, meta] of Object.entries(lock?.packages || {})) {
