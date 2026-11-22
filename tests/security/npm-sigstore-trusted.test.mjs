@@ -114,7 +114,7 @@ test('untrusted result never leaks thrown verifier text or allows partial succes
   });
   await assert.rejects(verifyTrustedTargetProvenance([], lock, { [name]: version },
     async () => true, temp, fetchTarball, fetchAttestations),
-  /TRUST_AMBIGUOUS_NPM_VERIFIED_PACKAGE/);
+  /MISSING_OR_AMBIGUOUS_VERIFIED_PACKAGE/);
 });
 
 
@@ -130,9 +130,9 @@ test('trusted verification uses exact nested @babel/code-frame version and signe
     ['node_modules/@babel/core/node_modules/' + name]: v,
     ['node_modules/@babel/template/node_modules/' + name]: { ...v },
   } };
-  const verified = [{ name, version, attestations: {
+  const verified = Array.from({ length: 2 }, () => ({ name, version, attestations: {
     url: 'https://registry.npmjs.org/-/npm/v1/attestations/@babel/code-frame@7.29.7',
-  } }];
+  } }));
   const bundle = {
     dsseEnvelope: { payloadType: 'application/vnd.in-toto+json',
       payload: Buffer.from(JSON.stringify({ subject: [{

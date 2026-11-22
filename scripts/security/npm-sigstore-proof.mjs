@@ -148,23 +148,38 @@ export function selectLockedTarget(lock, name, version) {
   return { manifest: first, copies: copies.length };
 }
 
+export function selectVerifiedLockedTarget(verified, lock, name, version) {
+  assert.ok(Array.isArray(verified), 'MISSING_VERIFIED_ATTESTATION_LIST');
+  const { manifest, copies } = selectLockedTarget(lock, name, version);
+  const entries = verified.filter(x => x?.name === name && x?.version === version);
+  assert.ok(entries.length > 0, 'MISSING_OR_AMBIGUOUS_VERIFIED_PACKAGE_' + name);
+  // npm11 reports each nested installed copy separately. Never silently
+  // dedupe missing copies or trust an unrelated root-level package.
+  assert.equal(entries.length, copies, 'VERIFIED_NESTED_COPY_COUNT_MISMATCH_' + name);
+  const url = entries[0]?.attestations?.url;
+  assert.ok(typeof url === 'string' && url.length > 0,
+    'MISSING_PACKAGE_ATTESTATION_URL_' + name);
+  for (const entry of entries) {
+    assert.equal(entry?.attestations?.url, url,
+      'INCONSISTENT_NESTED_ATTESTATION_URL_' + name);
+  }
+  return { manifest, entry: entries[0], copies };
+}
+
 export async function verifyTargetProofs(verified, lock, targets, fetchTarball = downloadRegistryTarball, fetchAttestations = downloadRegistryAttestations) {
   assert.ok(Array.isArray(verified), 'MISSING_VERIFIED_ATTESTATION_LIST');
   const results = [];
   for (const [name, version] of Object.entries(targets)) {
-    const packageEntries = verified.filter((entry) => entry?.name === name &&
-      entry?.version === version);
-    assert.equal(packageEntries.length, 1, 'MISSING_OR_AMBIGUOUS_VERIFIED_PACKAGE_' + name);
-    const { manifest } = selectLockedTarget(lock, name, version);
+    const { manifest, entry } = selectVerifiedLockedTarget(verified, lock, name, version);
     const tarball = await fetchTarball(manifest.resolved);
     assert.ok(Buffer.isBuffer(tarball), 'TARBALL_BYTES_UNAVAILABLE_' + name);
     assert.ok(tarball.length > 0 && tarball.length <= MAX_TARBALL, 'INVALID_TARBALL_SIZE');
     const sri = Buffer.from(manifest.integrity.slice(7), 'base64');
     assert.ok(sri.equals(createHash('sha512').update(tarball).digest()),
       'REGISTRY_TARBALL_SRI_MISMATCH_' + name);
-    let bundles = packageEntries[0].attestations?.bundles;
+    let bundles = entry.attestations?.bundles;
     if (!Array.isArray(bundles) || bundles.length === 0) {
-      const url = packageEntries[0].attestations?.url;
+      const url = entry.attestations?.url;
       assert.ok(url, 'MISSING_PACKAGE_ATTESTATION_URL_' + name);
       const document = await fetchAttestations(url, name, version);
       bundles = document?.attestations;

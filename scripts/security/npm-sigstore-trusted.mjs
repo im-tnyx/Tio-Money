@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { isAbsolute, join } from 'node:path';
 import { downloadRegistryAttestations, downloadRegistryTarball, verifySignedSubject,
-  selectLockedTarget } from './npm-sigstore-proof.mjs';
+  selectVerifiedLockedTarget } from './npm-sigstore-proof.mjs';
 
 const REGISTRY = 'https://registry.npmjs.org';
 const EXPECTED_ISSUER = 'https://token.actions.githubusercontent.com';
@@ -66,9 +66,7 @@ export async function verifyTrustedTargetProvenance(verified, lock, targets,
   for (const [name, version] of Object.entries(targets)) {
     assert.match(name, /^@babel\/[a-z0-9-]+$/, 'TRUST_UNAPPROVED_PACKAGE_NAMESPACE');
     assert.match(version, /^\d+\.\d+\.\d+$/, 'TRUST_UNAPPROVED_PACKAGE_VERSION');
-    const entries = verified.filter(x => x?.name === name && x?.version === version);
-    assert.equal(entries.length, 1, 'TRUST_AMBIGUOUS_NPM_VERIFIED_PACKAGE_' + name);
-    const { manifest: pkg } = selectLockedTarget(lock, name, version);
+    const { manifest: pkg, entry } = selectVerifiedLockedTarget(verified, lock, name, version);
     assert.equal(new URL(pkg.resolved).origin, REGISTRY, 'TRUST_TARBALL_REGISTRY_MISMATCH');
     assert.match(pkg.integrity || '', /^sha512-[A-Za-z0-9+/=]+$/,
       'TRUST_LOCK_SRI_MISSING_' + name);
@@ -77,7 +75,7 @@ export async function verifyTrustedTargetProvenance(verified, lock, targets,
       tarball.length <= 16 * 1024 * 1024, 'TRUST_INVALID_TARBALL_BYTES_' + name);
     assert.ok(createHash('sha512').update(tarball).digest().equals(
       Buffer.from(pkg.integrity.slice(7), 'base64')), 'TRUST_LOCK_SRI_MISMATCH_' + name);
-    const attestationURL = entries[0]?.attestations?.url;
+    const attestationURL = entry?.attestations?.url;
     assert.ok(attestationURL, 'TRUST_MISSING_ATTESTATION_URL_' + name);
     // Existing fetch enforces exact npm origin, public attestation path and package ID.
     const document = await fetchAttestations(attestationURL, name, version);

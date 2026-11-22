@@ -4,7 +4,8 @@ import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { test } from 'node:test';
 import { dssePae, downloadRegistryTarball, downloadRegistryAttestations,
   verifyDsseWithPublicKey,
-  verifySignedSubject, verifyTargetProofs, selectLockedTarget } from '../../scripts/security/npm-sigstore-proof.mjs';
+  verifySignedSubject, verifyTargetProofs, selectLockedTarget, selectVerifiedLockedTarget }
+  from '../../scripts/security/npm-sigstore-proof.mjs';
 
 test('DSSE PAE signature verifies against embedded leaf public key only', () => {
   const keys = generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
@@ -143,4 +144,30 @@ test('nested code-frame 7.29.7 is selected, never unrelated root 7.23.5', () => 
     /INCONSISTENT_NESTED_TARGET_SRI/);
   assert.throws(() => selectLockedTarget(copies, name, '7.99.99'),
     /MISSING_EXACT_LOCKED_TARGET/);
+});
+
+
+test('npm11 verified entries must match all three nested code-frame copies exactly', () => {
+  const name = '@babel/code-frame', version = '7.29.7';
+  const match = { version, integrity: 'sha512-' + 'a'.repeat(64),
+    resolved: 'https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz' };
+  const lock = { packages: {
+    ['node_modules/' + name]: { ...match, version: '7.23.5' },
+    ['node_modules/@babel/core/node_modules/' + name]: match,
+    ['node_modules/@babel/traverse/node_modules/' + name]: { ...match },
+    ['node_modules/@babel/template/node_modules/' + name]: { ...match },
+  } };
+  const url = 'https://registry.npmjs.org/-/npm/v1/attestations/@babel/code-frame@7.29.7';
+  const entries = Array.from({ length: 3 }, () => ({
+    name, version, attestations: { url },
+  }));
+  const result = selectVerifiedLockedTarget(entries, lock, name, version);
+  assert.equal(result.copies, 3);
+  assert.equal(result.manifest.version, version);
+  assert.throws(() => selectVerifiedLockedTarget(entries.slice(0, 2), lock, name, version),
+    /VERIFIED_NESTED_COPY_COUNT_MISMATCH/);
+  const altered = structuredClone(entries);
+  altered[2].attestations.url = url + '-spoofed';
+  assert.throws(() => selectVerifiedLockedTarget(altered, lock, name, version),
+    /INCONSISTENT_NESTED_ATTESTATION_URL/);
 });
