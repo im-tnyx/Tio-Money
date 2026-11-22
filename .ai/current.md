@@ -1,6 +1,14 @@
 # 🧭 Current task index
 
 
+## 2026-11-22 — Sigstore TUF public root-chain signatures, Gate 3 (#71)
+
+- **Owner/PROCEED:** Chat "Go next" after successful frozen-pacote Gate 2. Agent-transcribed security discussion [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079714316); bounded forensic diagnostic on Draft PR #73. ChatGPT/GPT-6 acting agent; optional external human review not requested. No merge or root policy authorization.
+- **Proposed check:** Strict upstream immutable Git source at 25b222a48cda4aa88e1af85605bdd193f5619a60, root_history v1-v16; independent ECDSA P-256 signatures, previous+new TUF root-role thresholds, version continuity, v16 matching current root and not expired. Negative fixtures fail-closed. Raw public keys and signed content not logged.
+- **Critical status:** ROOT_CHAIN_SIGNATURES_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP is deliberately distinct from an owner-approved *independently supplied out-of-band* trust anchor, still UNVERIFIED. Historical npm10 failed-HTTP root cause and exact publisher workflow ref also UNVERIFIED. No trust pin switch, EAS lock, app, privileged workflow, secret, ruleset, #65 or main mutation. Post-change current SHA/checks to be verified.
+
+
+
 ## 2026-11-22 — Gate 2: Controlled same-public-registry-response pacote comparison (#71)
 
 - **Active agent:** ChatGPT/GPT-6; bounded PROCEED transcribed from owner's chat "Go next" after first-failure evidence; discussion [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079157593). NOT PR-specific merge authorization, security risk acceptance or independent review.

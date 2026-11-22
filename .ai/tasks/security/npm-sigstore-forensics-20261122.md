@@ -233,3 +233,39 @@ red, preserve the failure as evidence rather than rerun-until-green.
 security ruleset, production Expo/finance code, trusted preview workflows,
 environment permissions and auto-merge. PR #73 stays Draft; Issue #71 open;
 PR #65 security HOLD, manual reviewer optional.
+
+
+## 2026-11-22 — Gate 3: Sigstore public root signing-chain crypto check
+
+**Scope:** Owner's "Go next" after successful frozen npm10/npm11 pacote
+comparison; agent-transcribed decision in [Issue #71](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7079714316).
+This authorizes implementation of an evidence-only diagnostic, NOT
+changing Tio-Money's trusted TUF root, weakening CI or merging a PR.
+
+**Method:** From a *pinned immutable public GitHub upstream commit*
+25b222a48cda4aa88e1af85605bdd193f5619a60, fetch Sigstore
+root-signing's metadata/root_history/{1..16}.root.json and
+metadata/root.json using strict HTTPS host/path, no secrets/redirects,
+bounded memory. Reconstruct TUF canonical JSON and verify
+ECDSA P-256 SHA-256 signatures with distinct key IDs; version N+1 must
+meet previous AND new root-role signature thresholds. Root v1 must
+be self-signed to its threshold, v16 must equal current published root
+and have non-expired root metadata. Historical expired versions
+are cryptographic lineage evidence, not a current rollback window.
+
+**Non-goal/trust boundary:** The source-provided historical root v1 is
+*not* separately vouched for by an independently trusted, owner-approved
+out-of-band source. Even if 15 rotations verify, the ONLY allowed
+conclusion is ROOT_CHAIN_SIGNATURES_VERIFIED_FROM_UNAPPROVED_BOOTSTRAP.
+An approved Tio-Money root fingerprint and rotation policy, exact
+authorized Babel workflow ref, and historical original-failed npm
+HTTP response/root-cause remain UNVERIFIED. No trust config changes.
+
+**Tests:** Signed synthetic ECDSA root chain; canonical JSON; tamper,
+insufficient old/new thresholds, duplicate signer, rollover gap,
+expired candidate, invalid root role, immutable source restriction and
+untrusted bootstrap distinction. CI new read-only pull_request root-chain
+job with SHA-pinned actions and no install/new packages, OIDC, token
+access, artifact upload or privileged triggers. Recheck all exact-head
+required statuses and preserve any FAIL, never retry-until-green.
+PR #73 Draft, PR #65 Security HOLD, Issue #71 OPEN.

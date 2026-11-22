@@ -14,6 +14,7 @@ on:
       - scripts/security/npm-sigstore-replay.mjs
       - scripts/security/npm-sigstore-first-failure.mjs
       - scripts/security/npm-sigstore-pacote.mjs
+      - scripts/security/npm-sigstore-root-chain.mjs
       - tests/security/npm-sigstore-diagnostic.test.mjs
       - tests/security/npm-sigstore-proof.test.mjs
       - tests/security/npm-sigstore-metadata.test.mjs
@@ -22,6 +23,7 @@ on:
       - tests/security/npm-sigstore-replay.test.mjs
       - tests/security/npm-sigstore-first-failure.test.mjs
       - tests/security/npm-sigstore-pacote.test.mjs
+      - tests/security/npm-sigstore-root-chain.test.mjs
       - tests/preview/eas-cli-locked-install.test.mjs
 
 permissions:
@@ -152,3 +154,29 @@ jobs:
         run: node --test tests/security/npm-sigstore-pacote.test.mjs
       - name: Compare exact signed public registry snapshots at pacote boundary
         run: node scripts/security/npm-sigstore-pacote.mjs
+
+  # Validate Sigstore published TUF root v1->v16 signature lineage only.
+  # Initial v1 comes from SAME upstream Git commit: NOT an owner-approved
+  # independent trust anchor. Do not silently alter npm or TUF trust policy.
+  root-chain:
+    name: Sigstore TUF root lineage / isolated
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR head without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select reviewed Node22 without package cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Check canonical JSON and adversarial root-chain fixtures
+        run: node --test tests/security/npm-sigstore-root-chain.test.mjs
+      - name: Verify immutable public root-chain history without trust changes
+        run: node scripts/security/npm-sigstore-root-chain.mjs
