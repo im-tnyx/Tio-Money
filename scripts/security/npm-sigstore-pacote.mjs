@@ -179,7 +179,10 @@ export async function sampleOfficialPublicEvidence(lock, targets,
 }
 
 export async function localFrozenRegistry(entries) {
-  assert.ok(entries instanceof Map && entries.size > 0 && entries.size <= 12,
+  // Each of the eight immutable EAS-lock targets has exactly two public JSON
+  // paths: its packument and its attestation endpoint. Keep an absolute cap.
+  assert.ok(entries instanceof Map && entries.size > 0 &&
+    entries.size <= 2 * Object.keys(AFFECTED).length,
     'PACOTE_INVALID_CAPTURE_SET');
   const counts = new Map();
   const perClient = new Map();
@@ -259,6 +262,12 @@ export async function compareFrozenPacotePaths(fixture, clients, tmp,
   runManifest = (client, id, opts) => client.pacote.manifest(id, opts)) {
   assert.ok(isAbsolute(tmp), 'PACOTE_TEMP_ROOT_NOT_ABSOLUTE');
   assert.equal(clients.length, 2, 'PACOTE_REQUIRES_TWO_CLIENTS');
+  assert.ok(Array.isArray(fixture?.samples) && fixture.samples.length > 0 &&
+    fixture.samples.length <= Object.keys(AFFECTED).length,
+    'PACOTE_UNREVIEWED_SAMPLE_COUNT');
+  assert.ok(fixture.entries instanceof Map &&
+    fixture.entries.size === 2 * fixture.samples.length,
+    'PACOTE_CAPTURE_SAMPLE_SIZE_MISMATCH');
   const local = await localFrozenRegistry(fixture.entries);
   const results = [];
   try {
