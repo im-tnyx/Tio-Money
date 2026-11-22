@@ -80,7 +80,10 @@ test('Account Groups visibility icon matches current state and list is flush und
   );
   assert.match(screen, /selected: state\.showDescriptions/);
   assert.match(screen, /onPress: \(\) => onAction\(\{ type: 'descriptions\.toggle' \}\)/);
-  const list = screen.slice(screen.indexOf('<ScrollView'), screen.indexOf('BUILT_IN_ACCOUNT_GROUPS.map'));
+  const list = screen.slice(
+    screen.indexOf('<ScrollView'),
+    screen.indexOf('BUILT_IN_ACCOUNT_GROUPS.map'),
+  );
   assert.match(list, /<ScrollView/);
   assert.match(list, /paddingBottom: theme\.space\.xxxl/);
   assert.doesNotMatch(list, /paddingTop:/);
