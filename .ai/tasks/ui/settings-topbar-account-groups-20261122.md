@@ -26,3 +26,9 @@ Cancel and Save use `ActionButton`, while the group-name input uses the new
 shared, theme-owned `AppTextField`. The screen no longer defines TextInput
 visual styles. Controller validates and persists at most five display-only
 labels; no financial account or ledger changes. Validate on exact PR HEAD.
+
+## Shared ActionButton 42dp visual / 48dp touch (2026-11-22)
+
+- **Owner chat instruction:** "Action button height pure app ke liye 42 rahega"; technical PROCEED in [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7083306947).
+- The existing reusable `ActionButton` receives a token-owned **42dp painted visual** inside an accessible **48dp minimum Pressable**, preserving screen-reader and minimum touch height. The same shared button powers Add Account Group bottom-sheet Save/Cancel and other current app ActionButton usages. Other controls retain their own tokens; responsive large text may expand the visual height rather than clip labels.
+- Extra test guards explicitly reject accidental visual/touch target conflation; no finance data, security or root navigation changes. Exact HEAD CI and device UI review required before merge.

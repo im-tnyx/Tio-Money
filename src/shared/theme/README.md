@@ -650,3 +650,16 @@ placeholder role and invalid border through the existing theme; screens provide
 only values and intents. Caller domain validation owns the max 40-character
 limit and duplicate handling. No `TextInput`-specific visual constants or
 local modal/button code are allowed in this screen.
+
+## Shared ActionButton visual height — 2026-11-22 (owner RFC #79 refinement)
+
+Every app action rendered by the canonical `src/shared/ui/action-button.tsx`
+uses a **42dp painted surface** (`buttonTokens.actionHeight = size.dp42`).
+The interactive `Pressable` keeps **at least 48dp accessible touch height**
+(`buttonTokens.minimumHeight = size.dp48`), center-aligning the 42dp surface
+inside it. The visual surface may expand for text scaling; normal buttons
+are 42dp tall. Both are single-owner theme primitives, not local numbers.
+Existing primary/secondary/ghost, compact, disabled, loading and callbacks
+are unchanged. This is NOT a global shrink of top-bar icon touch targets,
+text fields, bottom sheet headers, navigation or the disabled FAB.
+Real-device touch and text scaling checks remain pending on PR #80.

@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-22 — PR #80 shared ActionButton visual 42dp, touch 48dp
+
+- **Owner request / RFC #79:** all shared ActionButtons painted 42dp from central theme primitives, retain accessible 48dp touch region, preserve variants and statuses. See active task `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **State:** Draft PR #80; exact-HEAD CI and owner preview needed; no merge/main/security changes. Separate Issue #71 remains OPEN and PR #65 remains HOLD.
+
 ## 2026-11-22 — Draft PR #80 Account Groups control refinement
 
 - **Owner chat / RFC #79:** Eye action next to `+` with description visibility, max five persisted *display-only* user-defined names, remove introductory template banner; `home_storage` Google wght200 icon only Settings Account Groups row (not list). Controller/local non-finance preference, no ledger/account class schema. See `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
