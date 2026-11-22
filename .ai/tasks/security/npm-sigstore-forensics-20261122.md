@@ -98,3 +98,50 @@ Issue #71 and PR #65 security HOLD until separately dispositioned.
 ## 2026-11-22 — Owner-authorized next gate: registry ECDSA proof and nested version fix
 
 The next evidence run on current protected-main-synchronized Draft PR #73 is expected to exercise `@babel/code-frame@7.29.7` nested exact-version copies, five pinned subject/SRI/DSSE/TUF provenance targets, and five independent registry P-256 ECDSA publish signature proofs. The official public npm registry signing key ID `SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U` is compared with a statically pinned SHA-256 SPKI digest `+xkKRiEjRDUAy822UZYj5xeenzjYStTpNity0raLYsE=` (verified from the public npm docs key endpoint). No privileged token, external action or dependency changes. The existing mandatory `npm audit signatures` failure is a hard block, not replaced by alternative successful proofs. Out-of-band independently approved Sigstore TUF root and a true npm10/npm11 same-response replay remain UNVERIFIED. Do not declare the recurring error harmless, waive it, or merge either PR.
+
+
+## 2026-11-22 — Same-captured-response Sigstore verifier differential and TUF root candidate
+
+**Proceed scope:** Owner requested the next Issue #71 forensic gate after the
+exact HEAD ed616df8 passed 6/6 checks. This work is limited to a no-secrets
+diagnostic script, synthetic negative fixtures and one unprivileged read-only
+job under existing Draft PR #73. No main, #65, app, EAS CLI lock, privileged
+actions, secrets or ruleset changes.
+
+**Same-response methodology:** On ONE isolated hosted runner select pinned
+Node22.16.0/npm10.9.2 and Node26.8.2/npm11.19.1 toolchains with the
+immutable reviewed setup-node SHA; preserve their separate built-in
+Sigstore 3.0.0 and 4.1.1 libraries. Execute both libraries under the same
+Node runtime, isolating one dimension of verifier behavior. For each of five
+exact locked Babel packages, verify fresh tarball SHA-512 against committed
+SRI and signed DSSE subject, fetch exactly ONE public SLSA attestation
+response in memory, require nonambiguous Fulcio-backed provenance and a
+signed Rekor promise, and verify the SAME parsed bundle bytes with both
+libraries using the same issuer, Babel-workflow URI, CT/Rekor threshold
+policy and distinct fresh TUF caches. Fail closed if either rejects; emit
+only reviewed package IDs, bundle SHA-256, pinned library versions and
+allowlisted verdicts. No raw bundle/certificates/private material uploaded.
+
+**Limits:** This is a SAMPLED SAME-BUNDLE SIGSTORE LIBRARY comparison, not an
+offline npm CLI v10-v11 audit-signatures replay. CLI-specific registry
+metadata processing and original failing HTTP responses are not reproduced.
+The historical failing response was not captured. Therefore historic root
+cause and exact same-response CLI comparison remain UNVERIFIED even if both
+current verifiers pass. No retry-until-green, check weakening or risk waiver.
+
+**Out-of-band TUF root candidate:** Independently inspected the upstream
+public sigstore/root-signing repository at immutable commit
+25b222a48cda4aa88e1af85605bdd193f5619a60, metadata/root.json:
+root version 16, expires 2027-04-22T19:27:31Z, root role 3-of-5
+threshold and five present signatures. This inspection does NOT
+cryptographically validate root signatures back to an independently
+trusted older bootstrap; nor is it owner approved. npm10/npm11 embedded
+Sigstore TUF bootstrap verification is separate. A Tio-Money-approved
+independent root pin and an exact authorized Babel publisher workflow
+ref remain UNVERIFIED / PENDING OWNER SECURITY POLICY; do not silently
+replace or weaken the trust root.
+
+**Acceptance:** New same-bundle job, previous 3 Sigstore runners, required
+static/Governance and optional signal must report exact HEAD conclusions.
+If any check fails, record the actual failure. Keep #71 OPEN, #73 Draft,
+#65 HOLD and main protected. No merge permission implicit.

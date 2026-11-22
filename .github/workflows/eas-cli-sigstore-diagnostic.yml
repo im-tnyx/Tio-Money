@@ -11,11 +11,13 @@ on:
       - scripts/security/npm-sigstore-metadata.mjs
       - scripts/security/npm-sigstore-trusted.mjs
       - scripts/security/npm-sigstore-registry.mjs
+      - scripts/security/npm-sigstore-replay.mjs
       - tests/security/npm-sigstore-diagnostic.test.mjs
       - tests/security/npm-sigstore-proof.test.mjs
       - tests/security/npm-sigstore-metadata.test.mjs
       - tests/security/npm-sigstore-trusted.test.mjs
-      - tests/security/npm-sigstore-registry.test.mjs
+      - tests/security/npm-sigstore-registry.test.mjs tests/security/npm-sigstore-replay.test.mjs
+      - tests/security/npm-sigstore-replay.test.mjs
 
 permissions:
   contents: read
@@ -60,3 +62,45 @@ jobs:
         env:
           DIAGNOSTIC_REPLICA: ${{ matrix.replica }}
         run: node scripts/security/npm-sigstore-diagnostic.mjs
+
+  # A narrower sampled public same-bundle verifier comparison, NOT npm CLI offline replay.
+  # Neither raw attestations nor certificates are uploaded or logged.
+  same-bundle:
+    name: Sigstore same-bundle / npm10 vs npm11
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable PR revision without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Select pinned Node22 npm10 toolchain
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22.16.0'
+          package-manager-cache: false
+      - name: Record local npm10 module path only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '10.9.2'
+          printf 'NPM10_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Select pinned Node26 npm11 toolchain
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '26.8.2'
+          package-manager-cache: false
+      - name: Record local npm11 module path only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(npm --version)" = '11.19.1'
+          printf 'NPM11_GLOBAL_ROOT=%s\n' "$(npm root -g)" >> "$GITHUB_ENV"
+      - name: Test strict identical-bundle reuse and fail-closed rejection
+        run: node --test tests/security/npm-sigstore-replay.test.mjs
+      - name: Compare five exact locked Babel provenance bundles without secrets
+        run: node scripts/security/npm-sigstore-replay.mjs
