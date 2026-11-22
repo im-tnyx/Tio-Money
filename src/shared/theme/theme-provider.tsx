@@ -15,6 +15,7 @@ import {
   iconTokens,
   navigationTokens,
   recoveryTokens,
+  segmentedControlTokens,
   shadowTokens,
 } from './component-tokens';
 import {
@@ -38,6 +39,7 @@ export interface AppTheme {
   iconRoles: typeof iconRoleSizes;
   navigation: typeof navigationTokens;
   buttons: typeof buttonTokens;
+  segmentedControl: typeof segmentedControlTokens;
   bottomSheet: typeof bottomSheetTokens;
   shadows: typeof shadowTokens;
   recovery: typeof recoveryTokens;
@@ -101,6 +103,7 @@ export function AppThemeProvider({
       iconRoles: iconRoleSizes,
       navigation: navigationTokens,
       buttons: buttonTokens,
+      segmentedControl: segmentedControlTokens,
       bottomSheet: bottomSheetTokens,
       shadows: shadowTokens,
       recovery: recoveryTokens,

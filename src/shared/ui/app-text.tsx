@@ -10,15 +10,24 @@ export function AppText({
   variant = 'body',
   muted = false,
   style,
+  numberOfLines,
+  adjustsFontSizeToFit,
+  minimumFontScale,
 }: {
   children: ReactNode;
   variant?: Variant;
   muted?: boolean;
   style?: StyleProp<TextStyle>;
+  numberOfLines?: number;
+  adjustsFontSizeToFit?: boolean;
+  minimumFontScale?: number;
 }) {
   const theme = useAppTheme();
   return (
     <Text
+      numberOfLines={numberOfLines}
+      adjustsFontSizeToFit={adjustsFontSizeToFit}
+      minimumFontScale={minimumFontScale}
       style={[
         {
           fontSize: theme.typeScale[variant],

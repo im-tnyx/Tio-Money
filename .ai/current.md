@@ -1,4 +1,60 @@
 # 🧭 Current task index
+
+## 2026-11-22 — PR #53 Sub Detail in-place Number Format (unmerged)
+
+- **Owner requested / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068636655). Add same Millions/Lakhs/No Format policies as Main, but **expand inside the existing Sub Detail Bottom Sheet**; other setting taps or selection collapse the Format options.
+- **Data/scope:** backward-compatible optional per-Sub `grouping` field, currency Auto defaults, per-Sub display isolation, no FX/ledger change, no extra modal and no sensitive provider data. [Task](tasks/product/more-currency-preferences-20261121.md).
+- **Gate:** latest live PR HEAD CI, Android/iOS inline sheet/accessibility QA; owner PR #53 merge **NOT AUTHORIZED**.
+
+## 2026-11-22 — PR #53 single Sub FX freshness footer (unmerged)
+
+- **Owner revised UI:** [technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068449996). Move previous per-card right-side `Checked / Refresh now` to one **unboxed footer immediately below final selected Sub card**, left check-date/partial-unchecked and right manual `Refresh now`.
+- **Multi-currency accuracy:** oldest known successful check or partial-unchecked, and refresh all eligible stale/cached/unavailable saved pairs through the existing deduplicated provider. No new polling/network host, and existing card height, swipe/Delete, details and ledger untouched.
+- **Gate:** exact-head Phase 0/governance, actual device visual/a11y QA; owner PR #53 merge authorization NOT_GRANTED. [Task](tasks/product/more-currency-preferences-20261121.md).
+
+## 2026-11-22 — PR #53 inline Sub FX stale-check indicator (unmerged)
+
+- **Decision:** [owner-requested PROCEED](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7068050333) — small right-side `Checked / Refresh now` CTA in existing Sub card when today's *successful network check* is missing; provider publication date may lag (weekend), so never conflate the two.
+- **Scope:** pure local calendar helper, typed controller/manual saved-pair action and existing dumb Sub screen (same card height), tests/docs only. No automatic foreground FX request or changes to provider endpoint, ledger, Auth, secrets, permissions or EAS.
+- **Gate:** exact final-HEAD CI/governance, phone UI/swipe accessibility, no PR #53 merge permission. [Task](tasks/product/more-currency-preferences-20261121.md).
+
+## 2026-11-22 — PR #53 Sub FX Refresh result auto-hides after 3 seconds (unmerged)
+
+- **Owner direction / technical PROCEED:** [PR #53 discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067991690); successful `Checked / unchanged` or `Reference rate updated` feedback in the Sub Currency Detail Sheet disappears after 3000ms; errors remain until retry/dismiss.
+- **Implementation:** controller-owned cancellable `useEffect` timer scoped to successful `refreshResult` identity, preserving loading spinner, cleanup and unchanged FX provider/cache/ledger. Added `TM-CUR-049` and fixed test formatting for prior no-gap change `TM-CUR-048`. [Task](tasks/product/more-currency-preferences-20261121.md).
+- **Gate:** latest exact-HEAD Phase 0/governance and user on-device timing QA. PR #53 still OPEN, **MERGE NOT_AUTHORIZED**.
+
+## 2026-11-22 — PR #53 Sub Currency compact UI refinement (unmerged)
+
+- **Owner request / technical PROCEED:** [PR #53 UI discussion](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7067789782). Main selected label shown above Subs; valid Main required before Sub creation, default INR remains valid; picker removes redundant counter; FX source/publication date one line; 1.5dp refresh stroke, tighter rate/icon gap, 24dp shared overflowing-list trailing padding.
+- **Scope:** existing `feat/more-currency-preferences-20261121` branch, Sub screens/VM/provider and domain guards, shared semantic sheet token, tests and docs only. No finance/FX network or EAS workflow change. Prior non-force `main` reconciliation `4ad6a78d` remains preserved.
+- **Gate:** check **exact live PR HEAD** and fresh Phase 0 + governance, verify no `.github/` changes, review security/UX scope and new iOS/Android accessibility gestures. **PR #53 merge NOT_AUTHORIZED.**
+
+## 2026-11-21 — PR #53 bounded Sub-only FX owner approval (latest checkpoint)
+
+- **Owner decision:** [PR #53 approval](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) — Frankfurter v2 blended **reference** rate for saved Sub Currency display/refresh **only**, under TM-ADR-023 controls. Never ledger/transaction/account conversion, user identifiers or paid services. Not live trading quotes.
+- **Scope:** PR #53 FX adapter/cache/controller now part of explicitly limited owner-approved feature; earlier no-network statements below are historical. Provider/network safeguards, source date/last-check disclosure and pair-only requests are in the [Currency Spec](../docs/10-CURRENCY-SPEC.md) and [ADR](../docs/11-STAGE-1-FINANCE-ADRS.md).
+- **Gate:** latest branch edits require exact-HEAD CI, physical iPhone/Android UX and trusted EAS preview scope resolution. No independent reviewer approval is assumed. **Owner PR #53 merge authorization NOT_GRANTED.**
+
+## 2026-11-21 — More Currency preference foundation (RFC #52)
+
+- **Owner UI update:** [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54) / [PR #53](https://github.com/im-tnyx/Tio-Money/pull/53) extends the unmerged currency slice to a dedicated Main Currency screen, More Currency section, Back/title/Change, inline Front/End selection, and Decimal/Number Format bottom sheets. Earlier green checks belong to an older SHA; exact final HEAD requires revalidation. No merge authorization.
+
+- **Owner chat direction:** prioritize More → Main + optional Sub Currency before Accounts, Logs and Stats. Agent-recorded [RFC #52](https://github.com/im-tnyx/Tio-Money/issues/52) / [technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/52#issuecomment-7061682129) for **local, display-only preference/UI**, no approved FX provider/cross-currency ledger.
+- **Task:** [TM-CURRENCY-PREF-20261121-001](tasks/product/more-currency-preferences-20261121.md), branch `feat/more-currency-preferences-20261121` from `main` `b49a4a90d653090e1b4ed4de7302dd6b9f2365c0`; scoped shared context, local kv-store, More modal and tests. Four finance routes untouched.
+- **Gate:** validate exact PR HEAD CI/reviews and Android/iPhone QA separately. Independent review deferred, **MERGE_AUTHORIZATION=NOT_GRANTED**, no privileged preview, migrations, cloud or server.
+ 
+---
+
+## 2026-11-22 — Verified security-baseline PR #58 merge terminal
+
+- **Actual GitHub state:** [PR #58](https://github.com/im-tnyx/Tio-Money/pull/58) **MERGED** through a protected, non-force squash at 2026-11-21T22:50:06Z (2026-11-22 04:20:06 IST); verified merged SHA **`7d595bf334a2fd81c4e9e220fda00226c38d6305`** equals protected `main` at inspection, source HEAD `d16b65aabef685a86c6fc616a4e0aae00b785e24`. Owner explicitly instructed “Go to merge 58” after exact-scope non-force main reconciliation; 3/3 exact-head CI SUCCESS, GitHub mergeability CLEAN, 0 unresolved review threads, no branch protection bypass. [Issue #57 terminal checkpoint](https://github.com/im-tnyx/Tio-Money/issues/57#issuecomment-7070466985).
+- **Exact merged scope:** `.github/dependabot.yml` (weekly bounded **non-auto-merging** root npm + GitHub Actions update PR proposals) and [security baseline guide](../docs/14-SECURITY-BASELINE-SETUP.md). No app/FX/ledger/auth code, EAS isolated dependencies, root package dependencies, EAS/Codespaces trusted workflows, Expo Go QR-free tunnel, security settings, CodeQL activation, credentials or required-check rules changed. Dependabot alerts, CodeQL entitlement/setup and branch legacy admin settings were **NOT independently accessible/verified**, not declared secure.
+- **Updated merged-head signal (later verified):** `.github/dependabot.yml` validation **SUCCESS** and both post-merge Dependabot version-update jobs **SUCCESS** on PR #58 merge SHA. Four bot PRs [#64](https://github.com/im-tnyx/Tio-Money/pull/64), [#65](https://github.com/im-tnyx/Tio-Money/pull/65), [#66](https://github.com/im-tnyx/Tio-Money/pull/66), [#67](https://github.com/im-tnyx/Tio-Money/pull/67) were opened **without auto-merge**, but their exact-head `static` CI **FAILS**: #64/#65 changed immutable workflow Action SHAs and broke pinned-SHA security regression assertions; #66/#67 are incompatible with Expo SDK 58's expected `react-native-svg@15.16.0` and `react@19.3.0`. Do not bypass tests, auto-merge, or alter trusted QR-free preview. Owner reports **one Moderate and one Low Dependabot alert**, but this connector cannot read alert/advisory records: GHSA, affected package/manifest and remediation are **NOT VERIFIED**; alerts not dismissed. Android/iPhone physical-device QA not observed. [Issue #57](https://github.com/im-tnyx/Tio-Money/issues/57) remains OPEN; PR #53 is separately OPEN, green CI but device/source review pending. No merge permission inherited.
+- **Handoff:** Implementation in PR #58 **COMPLETED / MERGED**; administrative security setup verification and future bot-PR review **FOLLOW_UP_OPEN**. Current working agent ChatGPT (GPT-6), prior verified agent ChatGPT (GPT-6) from project task checkpoints; earlier provenance unknown. This record is staged in an **independent docs-only PR**, without independent authorization to merge that follow-up.
+
+---
+
 ## 2026-11-22 — Verified PR #60 security merge terminal and follow-up
 
 - **Actual GitHub terminal:** [PR #60](https://github.com/im-tnyx/Tio-Money/pull/60) **MERGED** via GitHub-protected non-force **squash** on 2026-11-21 22:35:30 UTC (2026-11-22 04:05:30 IST). Authenticated owner specifically requested renewed merge of the updated PR and accepted remaining Low risk (owner said up to 3; exact npm report was **2 Low entries**). Verified merge commit **`3c6cfac26ddf822dd4a9d087a4fa073c5bc6042b`** is actual `main` HEAD at terminal inspection; verified source PR head **`760a8a488bdbc2e860b1fe2ff8469703dff6b79c`**. This supersedes all earlier historical PR #60 OPEN/HOLD snapshots below. [Issue #59 terminal record](https://github.com/im-tnyx/Tio-Money/issues/59#issuecomment-7070298079).

@@ -54,7 +54,7 @@ test('trusted worker uses main-scoped Codespaces secret, owner-selected Codespac
   assert.match(worker, /Editing Codespace is explicitly disallowed/);
   assert.match(worker, /Configure TIO_MONEY_PREVIEW_CODESPACE/);
   assert.match(worker, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
-  assert.match(worker, /actions\/checkout@11bd71901bbe5b1630ceea73d27597364c9af683/);
+  assert.match(worker, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.match(worker, /ref: \$\{\{ github\.sha \}\}/);
   assert.match(worker, /persist-credentials: false/);
   assert.match(worker, /\.github\/scripts\/sync-pr-codespaces-preview\.sh/);
