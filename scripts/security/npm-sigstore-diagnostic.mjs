@@ -134,6 +134,25 @@ export async function runDiagnostic() {
       report.bundleMetadataPresent = Array.isArray(parsed?.verified) &&
         parsed.verified.some(entry => entry && typeof entry === 'object' &&
           ('attestations' in entry || 'bundle' in entry || 'verificationMaterial' in entry));
+      // Only allowlisted structural flags: never emit raw per-package bundles.
+      report.targetEvidenceShape = Object.entries(AFFECTED).map(([name, version]) => {
+        const entries = (parsed.verified || []).filter((item) =>
+          item?.name === name && item?.version === version);
+        const entry = entries[0];
+        const a = entry?.attestations;
+        return {
+          name, version, matches: entries.length,
+          topFields: ['name', 'version', 'attestations', 'bundle', 'provenance',
+            'verificationMaterial'].filter((key) => entry && key in entry),
+          attestationFields: ['url', 'bundles', 'provenance', 'publish', 'bundle',
+            'verificationMaterial'].filter((key) => a && key in a),
+          directBundles: Array.isArray(a?.bundles) ? a.bundles.length : null,
+          nestedProvenanceBundles: Array.isArray(a?.provenance?.bundles)
+            ? a.provenance.bundles.length : null,
+          attestationIsArray: Array.isArray(a),
+          topLevelBundlePresent: !!entry?.bundle,
+        };
+      });
       // npm verified the bundle; independently bind each target's signed DSSE
       // subject and embedded-leaf signature to freshly downloaded tarball bytes.
       // A leaf signature alone is NOT Fulcio chain, OIDC identity or Rekor trust.
