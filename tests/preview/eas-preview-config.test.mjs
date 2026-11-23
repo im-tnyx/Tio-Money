@@ -88,11 +88,11 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.match(dispatchInputs, /      pr_number:\n        description: Open non-Draft owner PR \(src\/assets, tests and Markdown docs\)\n        required: true\n        type: string\n/);
+  assert.match(dispatchInputs, /      pr_number:\n        description: Owner PR number \(EAS requires non-Draft; Codespaces allows Draft\)\n        required: true\n        type: string\n/);
   assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
-    /      operation:\n        description: Publish an OTA update or queue an internal preview build\n        required: true\n        default: publish_update\n        type: choice\n        options:\n          - publish_update\n          - build_preview\n/,
+    /      operation:\n        description: Live Expo Go, OTA update or internal preview build\n        required: true\n        default: codespaces_live\n        type: choice\n        options:\n          - codespaces_live\n          - publish_update\n          - build_preview\n/,
   );
   assert.match(
     dispatchInputs,
@@ -136,14 +136,11 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /npm ci --prefix/);
   assert.ok(text.includes('cp .github/preview-eas-cli/package-lock.json'));
   assert.doesNotMatch(text, /npm install --prefix/);
-  assert.ok(text.includes('src/*|assets/*'));
-  assert.match(text, /native_change=0/);
   assert.match(text, /npm audit signatures/);
   assert.match(text, /--ignore-scripts/);
   assert.match(text, /--branch pr-preview/);
   assert.match(text, /--environment preview/);
   assert.doesNotMatch(text, /--branch production|--channel production/);
-  assert.match(text, /native_change=0/);
   assert.match(text, /\.head\.repo\.full_name == \$repo/);
   assert.match(text, /\.user\.login == "im-tnyx"/);
 });
@@ -167,14 +164,12 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
   assert.match(workflow, /github\.run_attempt == '1'/);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.ok(workflow.includes('.draft == false'));
+  assert.match(workflow, /git show "\$\{GITHUB_SHA\}:\.github\/scripts\/verify-eas-preview-scope\.mjs"/);
   assert.ok(workflow.includes('if ! jq -e --arg repo "$GITHUB_REPOSITORY"'));
   assert.ok(workflow.includes('::error title=Draft PR not eligible::'));
   assert.ok(workflow.includes('::error title=Invalid PR selection::'));
-  assert.ok(workflow.includes('::error title=Preview change scope::'));
   assert.ok(workflow.includes('.head.repo.full_name == $repo'));
   assert.ok(workflow.includes('.base.ref == "main"'));
-  assert.ok(workflow.includes('src/*|assets/*'));
-  assert.ok(workflow.includes('native_change=0'));
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
   assert.doesNotMatch(workflow, /pull_request_target/);
@@ -182,11 +177,8 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
 
 test('EAS preview permits normal tracked task/docs/tests with strict config exclusions', () => {
   const workflow = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
-  const scope = workflow.split('case "$path" in\n')[1]?.split('\n')[0].trim();
-  assert.equal(scope, 'src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;');
-  assert.ok(workflow.includes('if [[ "$native_change" -ne 0 ]]'));
-  assert.ok(workflow.includes('::error title=Preview change scope::'));
   assert.ok(workflow.includes('.draft == false'));
+  assert.match(workflow, /git show "\$\{GITHUB_SHA\}:\.github\/scripts\/verify-eas-preview-scope\.mjs"/);
   assert.ok(workflow.includes("github.actor == 'im-tnyx'"));
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));

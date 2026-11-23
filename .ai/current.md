@@ -1,3 +1,24 @@
+## 2026-11-23 — PR #88 Gate 10 review fixes (RFC #87)
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094686330) for EAS base SHA and Metro runtime compatibility. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--gate-10-automated-review-fixes). Keep Ready for Review and require exact-HEAD CI. Live Codespaces and physical Android/iOS Fast Refresh remain NOT_VERIFIED.
+
+## 2026-11-23 — PR #88 security remediation (RFC #87)
+
+- [Owner-scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094088569) authorizes strict fail-closed per-platform verification and the four accompanying security fixes. [Remediation checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--security-remediation-decision-and-validation). Verify required CI at the resulting Draft PR HEAD. Independent human review DEFERRED and live Codespaces/EAS/device acceptance NOT_RUN.
+
+## 2026-11-23 — PR #88 branch reconciliation with main
+
+- Owner requested branch alignment in project chat. [Draft PR #88](https://github.com/im-tnyx/Tio-Money/pull/88) integrates main `d8badc8bee842a20db9ea5c5866cb5db4b1e77a5` from prior PR HEAD `1b68936930ed0c627ca525ed6972885ba1336d5e`. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--branch-reconciliation). Security findings remain open. Verify required CI on the resulting HEAD.
+
+## 2026-11-23 — PR #88 review correction (RFC #87 addendum)
+
+- Draft PR #88 self-audit at `53265db7a87a4a0a080c189107e45390048f0165` found old-starter `--preflight` incompatibility and PR-test/EAS-token same-runner exposure. [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/88#issuecomment-7091132864) bounds the fixes on `feat/unified-expo-preview-live-refresh`; task [record](tasks/preview/unified-expo-live-refresh-20261123.md). Trusted-main streamed preflight and a secretless EAS validation runner are implemented locally; exact new HEAD and CI still pending. Independent review DEFERRED; live Codespace/EAS/device NOT_RUN; merge prohibited without separate authorization.
+
+## 2026-11-23 — Unified Expo PR Review and persistent Codespaces refresh (RFC #87)
+
+- **Technical PROCEED:** [Issue #87](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7090616033), owner-requested scoped branch `feat/unified-expo-preview-live-refresh` from verified main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`; active agent ChatGPT/GPT-6. Task [.ai/tasks/preview/unified-expo-live-refresh-20261123.md](tasks/preview/unified-expo-live-refresh-20261123.md). No merge, privileged dispatch, Codespace action, OTA/build or secrets/settings change authorized.
+- **Review gate:** Consolidated manual form, Codespaces-only push worker, immutable bundle, healthy Metro reuse and fail-closed source-map probe in scoped feature branch. Partial local targeted tests and YAML/shell syntax PASS; full `npm run check` and `npm run preview:test` not verified locally due missing dependencies/full checkout. Exact-HEAD CI, independent security review and physical Android/iPhone acceptance remain pending; review disposition DEFERRED. Issue #71 and PR #65 security hold remain separate.
+
 ## 2026-11-23 — PR #90 Gate 3 documentation review passed (Issue #89)
 
 - **Task:** [TM-DOC-IA-20261123-001](tasks/governance/documentation-information-architecture-20261123.md), [Draft PR #90](https://github.com/im-tnyx/Tio-Money/pull/90). No blockers found in docs-only self-review: 74 core + 17 secondary + 27 governance/task docs-anchor references matched, repo CI markdown links PASS. Protected main ruleset requires static + Governance; both previously PASS at `1cdf32d6`. Exact HEAD must revalidate after this checkpoint.

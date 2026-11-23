@@ -20,15 +20,18 @@ for (const path of WORKFLOWS) {
   test(path + ' uses exact reviewed checkout and no persisted credentials', () => {
     const workflow = readFileSync(join(ROOT, path), 'utf8');
     const matches = [...workflow.matchAll(/^\s*(?:-\s*)?uses:\s*actions\/checkout@([^\s#]+)/gm)];
-    assert.equal(matches.length, 1, 'Expected one reviewed checkout step: ' + path);
-    assert.equal(matches[0][1], APPROVED_CHECKOUT_SHA, 'Unapproved checkout action SHA: ' + path);
+    const expected = path.endsWith('tio-money-eas-pr-preview.yml') ? 2 : 1;
+    assert.equal(matches.length, expected, 'Expected reviewed checkout steps: ' + path);
     assert.doesNotMatch(workflow, /allow-unsafe-pr-checkout\s*:/,
       'Never bypass checkout v7 fork-PR restrictions: ' + path);
 
     // Only the checkout step counts: a later step must not satisfy the assertion.
-    const step = workflow.slice(matches[0].index).split(/\n(?=      - (?:name|uses):)/m)[0];
-    assert.match(step, /^\s+persist-credentials:\s*false\s*$/m,
-      'Checkout must not persist workflow token: ' + path);
+    for (const match of matches) {
+      assert.equal(match[1], APPROVED_CHECKOUT_SHA, 'Unapproved checkout action SHA: ' + path);
+      const step = workflow.slice(match.index).split(/\n(?=      - (?:name|uses):)/m)[0];
+      assert.match(step, /^\s+persist-credentials:\s*false\s*$/m,
+        'Checkout must not persist workflow token: ' + path);
+    }
   });
 }
 
@@ -41,6 +44,13 @@ test('trusted preview checkout refs and separate authorization remain intact', (
   assert.ok(codespaces.includes('ref: ' + '$' + '{{ github.sha }}'));
   assert.ok(eas.includes('ref: ' + '$' + '{{ steps.pr.outputs.head_sha }}'));
   assert.ok(eas.includes('if [[ "$(git rev-parse HEAD)" != "$PR_SHA" ]]'));
+  const validation = eas.slice(eas.indexOf('  validate:'), eas.indexOf('  preview:'));
+  const publishing = eas.slice(eas.indexOf('  preview:'));
+  assert.doesNotMatch(validation, /^    environment:|secrets\.EXPO_TOKEN/m);
+  assert.match(validation, /npm run check/);
+  assert.match(publishing, /needs: \[select, validate\]/);
+  assert.match(publishing, /PR advanced since secretless validation/);
+  assert.doesNotMatch(publishing, /npm run check/);
   assert.ok(governance.includes('submodules: false'));
   assert.doesNotMatch(codespaces, /^\s*pull_request_target:/m);
   assert.doesNotMatch(eas, /^\s*pull_request_target:/m);
