@@ -20,7 +20,7 @@
 | Working branch | `docs/information-architecture-20261123` |
 | Base main SHA | `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6` |
 | Started at (UTC) | 2026-11-23; precise timestamp not independently recorded |
-| PR | Not opened at initial checkpoint |
+| PR | [Draft #90](https://github.com/im-tnyx/Tio-Money/pull/90); HEAD to be reverified |
 
 ## Mandated discussion and technical decision
 
@@ -56,3 +56,13 @@ Owner requested a task managed through `.ai` and docs restructuring into separat
 - **Next safe action:** Implement and validate bounded Markdown move map, first README/hub cleanup and backlink repairs on new branch; open draft PR and record residual links/overlaps.
 
 [Task workflow](../README.md) · [RFC guide](../../discussions/README.md) · [Agent contract](../../../AGENTS.md) · [Docs hub](../../../docs/00-INDEX.md)
+
+### 2026-11-23 UTC — Draft PR and moved-path checkpoint (ChatGPT GPT-6)
+
+- **Branch/base:** main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`; draft [PR #90](https://github.com/im-tnyx/Tio-Money/pull/90) initially HEAD `3b05155769424279779d045b4bbfdb79e547a106`; before opening it, compare showed ahead 14/behind 0, 58 changed files.
+- **Changed work:** README refreshed to ~100-line product-first page; docs hub rewritten; 18 root docs migrated and GitHub recognized most as renames; Phase-0 historical README/hub checkpoint archived in `docs/history/phase-0/README-AND-HUB-CHECKPOINTS.md`. Related references updated in `.ai/`, `AGENTS.md`, `.github/`, `SECURITY.md`, shared theme docs, `.cursor/BUGBOT.md`, and architecture Issue Template. Documentation-only link value changed in `docs/CODESPACES-LIVE-PREVIEW.md` (current PR #88 overlap; reconcile before merge).
+- **Deliberate exclusions:** PR #88 modified preview docs `docs/CODESPACES-LIVE-PREVIEW.md`, `docs/EAS-PREVIEW-UPDATES.md`, `docs/PR-CODESPACES-PREVIEW.md` stay at root until PR #88 is reconciled; PR #80 and #88 both also edit .ai/current.md. No app source or runtime behavior changed.
+- **Manual path scan:** Reviewed 82 Markdown paths in 6 index batches; no unaddressed migrated-document links observed. Three non-file/example observations: `.ai/archive/README.md` uses example `file.md#anchor`, `.ai/tasks/governance/ai-context-setup.md` contains illustrative assets/tests examples, Phase 0 source route `(tabs)` needed angle-bracket Markdown URL and was corrected. Archive original link was rebased to new foundation notes path. This scan validates relative target paths only; anchor resolution and full governance check NOT_RUN at this checkpoint.
+- **New commit history:** Created branch commits through GitHub with messages written without `Co-authored-by:`; exact GitHub commit-range audit pending. No local Git checkout/network, so local `npm run check` and `python3 scripts/ai_context.py check-links` NOT_RUN; use actual PR CI/logs and report exact results.
+- **Review and merge:** independent human review DEFERRED, no approval inferred; owner PR #90 merge authorization **NOT_GRANTED**. Draft PR; CI and scope review must be re-evaluated at final exact HEAD.
+- **Next:** Update PR/task index final HEAD, inspect Actions run status + governance link failures, fix only scoped broken docs paths, reconcile parallel PRs safely, never merge without separate permission.
