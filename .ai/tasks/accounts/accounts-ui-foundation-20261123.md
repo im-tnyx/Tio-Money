@@ -115,4 +115,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
   - `src/shared/i18n/strings.ts`
   - `tests/accounts/accounts-preview.test.ts`
 
+### 2026-11-23 — Owner correction follow-up
+
+- Codex Cloud reverified Draft #97 at `d7552a732382b82d78540395af7f2aeeb0433664` before editing and recorded the [scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098232880). The starting HEAD passed both required GitHub checks.
+- The controller contract uses the same configured currency options for rendering and for accepting draft actions. The linked Wallet explains Bank currency inheritance while Bank selection is unavailable. Regressions cover both preference states, amount clearing and other draft retention across all six groups, Bank editor retention and accessibility attributes.
+- Changed paths besides this record and the index are `src/features/accounts/account-form-contract.ts`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and physical screen-reader and navigation QA remain pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for exact published HEAD and validation results. Finance RFC #98 remains pending. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
