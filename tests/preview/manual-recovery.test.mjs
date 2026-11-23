@@ -12,6 +12,8 @@ const read = (path) => readFileSync(join(root, path), 'utf8');
 
 test('manual selection uses a bounded alternate range without adopting a foreign port', () => {
   assert.deepEqual(candidatePorts(false), [8081]);
+  assert.deepEqual(candidatePorts(false, 8083), [8083]);
+  assert.throws(() => candidatePorts(false, 8090), /Unapproved/);
   assert.deepEqual(candidatePorts(true), [8081, 8082, 8083, 8084, 8085]);
   assert.equal(preflightDecision(false, null, null, false, 'EMPTY', true), 'FOREIGN_PORT');
   assert.throws(() => preflightDecision(false, null, null, false), /occupied/);
@@ -24,7 +26,9 @@ test('manual dispatch forces sync and owned restart; automatic pushes preserve h
   assert.match(workflow, /if \[\[ "\$EVENT_NAME" == "workflow_dispatch" \]\]; then\s+echo 'no_op=false'/);
   assert.match(workflow, /mode="--manual"/);
   assert.match(starter, /current && \(manual \|\| !compatibleRuntime/);
-  assert.match(starter, /await startManaged\(fingerprint, manual\)/);
+  assert.match(starter, /await startManaged\(fingerprint, manual, recoveryPort\)/);
+  assert.match(starter, /await startManaged\(fingerprint, false, recoveryPort\)/);
+  assert.match(starter, /const recoveryPort = current\?\.port \?\? PORT/);
   assert.doesNotMatch(starter, /process\.kill\([^\n]*8081/);
 });
 

@@ -11,3 +11,7 @@
 ## Exact-HEAD CI correction
 
 - First HEAD `6a2592db3953ca672979865f5526b175e7692c80`, Draft [PR #100](https://github.com/im-tnyx/Tio-Money/pull/100): Governance [45152370494](https://github.com/im-tnyx/Tio-Money/actions/runs/45152370494) PASS; Phase 0 [45152370536](https://github.com/im-tnyx/Tio-Money/actions/runs/45152370536) FAIL because an existing regression searched the old `startManaged(fingerprint)` call text after the new explicit manual parameter was introduced. TypeScript/lint/format and preceding tests passed; Metro smoke was skipped. Updated the test to verify the new call and manual owned-restart ordering. Local targeted suite 10/10 PASS. Recheck the new exact HEAD; no live workflow was dispatched.
+
+## P2 review correction — 2026-11-23 UTC
+
+- Codex review at PR #100 HEAD `b5fb2d8041de29e81b0f381525ec2fd6f73adf32` identified an unresolved P2: after manual fallback to 8082–8085, automatic runtime recovery stopped the verified managed process then tried only 8081, which may still be foreign. Preserve the verified managed record port across owned recovery and explicit restart; never fall back to another port automatically or kill the foreign listener. Tests cover alternate-port persistence and reject out-of-policy ports. Full exact-HEAD CI and independent review pending corrective commit. No live Codespace or privileged workflow run.
