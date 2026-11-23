@@ -35,7 +35,7 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 | :--- | :--- |
 | Name | Required, trimmed, unique **ID** not name; duplicate display names may be allowed if distinguishable |
 | Opening position / amount | **Group-conditional, not universally mandatory.** Cash, Bank and funded Wallet use a nonnegative opening asset balance; Card uses **opening outstanding liability**; Investment uses **opening cost basis** and a separately dated valuation; Loan uses **opening outstanding principal** with a Given/Borrowed direction. A bank-linked Wallet reference has **no independent opening amount or journal**. See [Opening contracts](#21--group-specific-opening-contracts) below. |
-| Currency | Required ISO 4217 value allowed by the current approved currency configuration; default Main Currency |
+| Currency | Default to Main Currency. Hide the selector when no Sub Currency is configured. Otherwise show Main Currency and the configured Sub Currencies. Changing the selected currency clears entered monetary amounts. A bank-linked Wallet inherits currency from its linked Bank. |
 | Description | Optional, plain text, length-limited, escaped on render and excluded from logs |
 | Status | Active/archived; prevent new postings to archived accounts unless restored |
 | Created/updated dates | Stable UTC timestamps; user-facing dates rendered in local timezone |
@@ -99,13 +99,13 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 | :--- | :--- |
 | Card name | Required; display nickname, optional masked last four digits |
 | Opening outstanding | Required, `>= 0`; **liability**, not spendable cash |
-| Currency | Required. Main Currency is the default. Show configured Sub Currencies as selectable choices. Selecting a currency sets the draft denomination and does not convert an existing liability. |
+| Currency | Follows the shared selector rule. The selected currency sets the draft denomination. |
 | Total credit limit | Required positive amount; card limit is **not an asset** |
 | Current available credit | Read-only **estimate**: limit − posted outstanding − known pending holds + applicable adjustments; unknown issuer holds can cause mismatch |
 | Statement date/cycle | Billing day or documented provider-specific cycle boundary; handle 28–31 day month and timezone |
 | Payment due date | Actual due-date rule/date (not always a fixed monthly day); weekends/holidays only if issuer rule is known |
 | Pay from account | Optional selection of an active, eligible Bank account for repayment tracking. Linking it does not move money or select a Debit Card, UPI, Cheque, or Internet Banking mode. |
-| Payment tracking | Configuration for reminders and payment confirmation. Off / Full / Minimum / Fixed remain subject to billing policy. The form cannot trigger a real debit. |
+| Auto Pay | Tracking-only configuration for reminders and payment confirmation. Keep the control unavailable pending approval of Off / Full / Minimum / Fixed policy. Tio Money never initiates a bank debit. |
 | Description | Optional |
 
 **Actions and accounting:** card purchase = Expense + Card liability; bank-to-card repayment = Bank asset decrease and Card liability decrease, **not a new expense**; refund reverses relevant original expense; interest/fees are expenses when posted. Handle refunds, prepayments, credit balances, overlimit and partial payments via explicitly tested journal rules. **No auto-posting on due date**: only user-confirmed payments or a future authorized, verified settlement integration post money.

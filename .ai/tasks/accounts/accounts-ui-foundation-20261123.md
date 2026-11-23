@@ -100,4 +100,19 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
   - `src/shared/i18n/strings.ts`
   - `tests/accounts/accounts-preview.test.ts`
 
+### 2026-11-23T10:28:45Z — Owner correction for Currency and Credit Card
+
+- [Owner transcript and technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097962644). Verified starting Draft #97 HEAD `0f470fc4f29d477abb28c2f9a567e8b0e0468b76`, live main `f865969d200d70fbc8e84dd6a48d8020a155e42c` and Accounts branch ownership. PR #100 overlaps the shared index only. Existing records were preserved.
+- The view model hides the entire Currency selector when no Sub Currency is configured or the Wallet is bank-linked. New eligible drafts default to Main. Removed currency choices reconcile the in-memory draft and clear old amounts, so re-adding a currency cannot revive them. Funded Wallet section data is retained when its currency remains eligible. The six group field layouts and named Bank linked-mode editor are covered by regression tests. Card uses Total Credit Limit and Due Date and displays a dedicated disabled tracking-only Auto Pay control alongside Pay From Account. Finance RFC #98 remains DECISION_PENDING.
+- Source self-review PERFORMED. Controllers own preferences and draft changes. The screen uses typed props, radio checkmarks and disabled states; Auto Pay has no handler. No finance writes or new account operations. Independent review DEFERRED. No physical screen-reader, keyboard or navigation QA performed. [Android #91](https://github.com/im-tnyx/Tio-Money/issues/91) remains separate.
+- Tested source tree before this checkpoint `c6b7e475f9735110b42a3a5f42e1b0cf808b0c1f`. `npm run check` passed typecheck, ESLint, Prettier, 143 app tests and 66 preview tests. One CI-only signature test skipped locally. `node --import tsx --test --test-isolation=none tests/accounts/accounts-preview.test.ts` passed all 11 Accounts tests.
+- `CI=1 EXPO_OFFLINE=1 EXPO_NO_TELEMETRY=1 npx --no-install expo export --platform android --platform ios --output-dir /tmp/tio-account-correction-native --max-workers 2` exported both bundles. `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/governance` passed 29 tests. `python3 scripts/ai_context.py check-links` and `git diff --check` passed. Exact published HEAD and CI are recorded in RFC #96. Draft status retained and owner merge authorization NOT_GRANTED.
+- Changed paths in addition to this task and the index:
+  - `docs/product/ACCOUNT-GROUPS-SPEC.md`
+  - `src/features/accounts/account-form-contract.ts`
+  - `src/features/accounts/add-account-route.tsx`
+  - `src/features/accounts/add-account-screen.tsx`
+  - `src/shared/i18n/strings.ts`
+  - `tests/accounts/accounts-preview.test.ts`
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

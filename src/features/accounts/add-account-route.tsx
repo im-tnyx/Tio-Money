@@ -5,9 +5,11 @@ import { useCurrencySettings } from '@/shared/currency/currency-provider';
 import { useReducedMotion } from '@/shared/navigation/reduced-motion-provider';
 
 import {
+  accountCurrencyChoices,
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
+  reconcileAccountDraftCurrency,
   updateAccountDraft,
   type AccountDraft,
   type PreviewGroup,
@@ -39,17 +41,18 @@ function AccountDraftController({
   const [edit, setEdit] = useState(() => newAccountDraft(group, preferences.mainCode));
 
   function withConfiguredCurrency(previous: AccountDraft) {
-    return currencies.includes(previous.currency)
-      ? previous
-      : updateAccountDraft(previous, { type: 'currency', value: preferences.mainCode }, currencies);
+    return reconcileAccountDraftCurrency(previous, preferences.mainCode, currencies);
   }
 
   const draft = withConfiguredCurrency(edit);
+  // Keep the reconciled draft so re-adding a removed currency cannot revive old amounts.
+  if (draft !== edit) setEdit(draft);
+
   return (
     <AddAccountScreen
       form={{
         draft,
-        currencies,
+        currencyChoices: accountCurrencyChoices(draft, currencies),
         showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
         canApplyMode: draft.group === 'bank' && Boolean(draft.modeEditor?.name.trim()),
         animateSheet: !reduceMotion,
