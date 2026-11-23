@@ -14,7 +14,6 @@ const screenRoutes = [
   'src/app/(tabs)/index.tsx',
   'src/app/(tabs)/transactions.tsx',
   'src/app/(tabs)/reports.tsx',
-  'src/app/(tabs)/accounts.tsx',
 ];
 
 test('exactly five English bottom tabs remain', () => {
@@ -31,13 +30,15 @@ test('exactly five English bottom tabs remain', () => {
   );
 });
 
-test('the four unchanged Phase 0 tabs remain blank, while More composes its feature Route', () => {
+test('the three unchanged tabs remain blank, while Accounts and More compose feature routes', () => {
   for (const path of screenRoutes) {
     const source = readFileSync(path, 'utf8');
     assert.match(source, /import \{ BlankScreen \}/);
     assert.match(source, /export default BlankScreen/);
     assert.doesNotMatch(source, /ScreenHeader|StatePanel|TextField|SectionCard/);
   }
+  const accounts = readFileSync('src/app/(tabs)/accounts.tsx', 'utf8');
+  assert.match(accounts, /AccountsRoute as default/);
   const more = readFileSync('src/app/(tabs)/more.tsx', 'utf8');
   assert.match(more, /MoreRoute/);
   assert.doesNotMatch(more, /useState|useEffect|Sqlite|SQLite|fetch\(/);
@@ -48,7 +49,12 @@ test('the four unchanged Phase 0 tabs remain blank, while More composes its feat
   const files = readdirSync('src/app/(tabs)').filter((name) => name.endsWith('.tsx'));
   assert.deepEqual(
     files.sort(),
-    [...screenRoutes.map((path) => path.split('/').at(-1)), 'more.tsx', '_layout.tsx'].sort(),
+    [
+      ...screenRoutes.map((path) => path.split('/').at(-1)),
+      'accounts.tsx',
+      'more.tsx',
+      '_layout.tsx',
+    ].sort(),
   );
 });
 

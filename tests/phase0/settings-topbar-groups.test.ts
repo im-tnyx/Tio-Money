@@ -51,7 +51,7 @@ test('Account Groups route is controller-driven and shows seven informational bu
   assert.match(route, /useAccountGroupsViewModel/);
   assert.match(route, /router\.back\(\)/);
   assert.match(vm, /router\.push\('\/account-groups'\)/);
-  assert.match(more, /onAction\(\{ type: 'account\.groups\.open' \}\)/);
+  assert.match(more, /action: 'account\.groups\.open', label: 'accountGroups'/);
   assert.match(screen, /<AppTopBar/);
   assert.match(screen, /BUILT_IN_ACCOUNT_GROUPS\.map/);
   assert.doesNotMatch(screen, /accountGroupsReadOnly|Built-in templates/);
