@@ -298,7 +298,7 @@ export interface AddAccountViewModel {
   readonly draft: AccountDraft;
   readonly currencySymbol: string;
   readonly currencyChoices:
-    | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol?: string }[]
+    | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol: string }[]
     | null;
   readonly showWalletFunding: boolean;
   readonly canApplyMode: boolean;

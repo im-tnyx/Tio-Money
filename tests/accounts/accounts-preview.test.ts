@@ -181,7 +181,7 @@ test('every eligible form defaults to Main and only shows currency choices with 
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
-test('currency radio buttons render catalog symbols and codes in one scrollable row', () => {
+test('currency radio buttons show only symbols and fill the selected choice in one row', () => {
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
@@ -192,7 +192,14 @@ test('currency radio buttons render catalog symbols and codes in one scrollable 
   assert.match(currencyButtons, /value=\{draft.currency\}/);
   assert.match(route, /newAccountDraft\(group, preferences\.mainCode\)/);
   assert.match(route, /symbol: CURRENCY_OPTIONS\.find/);
-  assert.match(choices, /option\.symbol !== option\.label/);
+  assert.match(choices, /accessibilityLabel=\{option.label\}/);
+  assert.match(choices, /const filled = selected && symbolOnly/);
+  assert.match(
+    choices,
+    /backgroundColor:\s*filled\s*\? theme\.colors\.brand\s*:\s*symbolOnly\s*\? 'transparent'/,
+  );
+  assert.match(choices, /selected && !symbolOnly \?/);
+  assert.match(choices, /\{option.symbol \?\? option.label\}/);
   assert.match(choices, /flexWrap: singleRow \? 'nowrap' : 'wrap'/);
   assert.match(choices, /<ScrollView horizontal keyboardShouldPersistTaps="handled">/);
 });

@@ -158,4 +158,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/bank-payment-modes.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and results. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Symbol-only Currency choices
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099810331) records the owner’s filled-selection reference against Draft #97 head `b98a9c2f0a09876c1e6f77889116cb0320d80999`.
+- Currency choices show only their symbols. The selected option uses theme brand fill and contrasting text. The radio labels retain the codes and checked state. Main stays selected on new eligible drafts, and the existing visibility and amount-clearing rules are preserved. Other choices keep their existing label and checkmark treatment.
+- Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/add-account-route.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

@@ -89,6 +89,8 @@ export function AccountChoices<Value extends string>({
     >
       {options.map((option) => {
         const selected = value === option.value;
+        const symbolOnly = option.symbol !== undefined;
+        const filled = selected && symbolOnly;
         return (
           <Pressable
             key={option.value}
@@ -98,18 +100,24 @@ export function AccountChoices<Value extends string>({
             disabled={!onChange}
             onPress={onChange ? () => onChange(option.value) : undefined}
             style={{
+              minWidth: symbolOnly ? theme.buttons.minimumHeight : undefined,
               minHeight: theme.buttons.minimumHeight,
               borderWidth: theme.buttons.outlineWidth,
               borderColor: selected ? theme.colors.brand : theme.colors.border,
               borderRadius: theme.radius.sm,
-              backgroundColor: theme.colors.card,
-              paddingHorizontal: theme.space.md,
+              backgroundColor: filled
+                ? theme.colors.brand
+                : symbolOnly
+                  ? 'transparent'
+                  : theme.colors.card,
+              paddingHorizontal: symbolOnly ? theme.space.xs : theme.space.md,
               flexDirection: 'row',
               alignItems: 'center',
+              justifyContent: symbolOnly ? 'center' : undefined,
               gap: theme.space.xxs,
             }}
           >
-            {selected ? (
+            {selected && !symbolOnly ? (
               <Svg
                 width={theme.iconRoles.button}
                 height={theme.iconRoles.button}
@@ -127,12 +135,13 @@ export function AccountChoices<Value extends string>({
                 />
               </Svg>
             ) : null}
-            {option.symbol && option.symbol !== option.label ? (
-              <AppText variant="section" muted={!onChange}>
-                {option.symbol}
-              </AppText>
-            ) : null}
-            <AppText muted={!onChange}>{option.label}</AppText>
+            <AppText
+              variant={symbolOnly ? 'section' : 'body'}
+              muted={!onChange}
+              style={filled ? { color: theme.colors.brandText } : undefined}
+            >
+              {option.symbol ?? option.label}
+            </AppText>
           </Pressable>
         );
       })}
