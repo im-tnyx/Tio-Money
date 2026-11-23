@@ -33,6 +33,7 @@ export const navigationTokens = {
   selectedIconWeight: 300,
   unselectedIconWeight: 200,
   tabCrossfadeDurationMs: motion.tabCrossfadeDurationMs,
+  detailFadeDurationMs: motion.tabCrossfadeDurationMs,
   horizontalPadding: size.dp8,
   topPadding: size.dp1,
   minimumBottomPadding: size.dp0,

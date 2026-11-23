@@ -167,8 +167,8 @@ It hides the built-in navigator bar and retains the independently rendered, exis
 The same five route filenames/labels and current 300/200 icon SVG weights, 0dp
 icon-label gap, 50dp baseline, colors and safe areas remain authoritative.
 
-`src/shared/navigation/use-reduced-tab-motion.ts` reads platform Reduced Motion
-using `AccessibilityInfo` and subscribes to changes. Unknown/unavailable preference
+`src/shared/navigation/reduced-motion-provider.tsx` owns the platform Reduced Motion
+query and subscription once at the app root (tab hook remains a compatibility alias). Unknown/unavailable preference
 defaults to **no animation**; when Reduced Motion is enabled use `animation: 'none'`.
 A timing fade is applied only when the OS permits it. Route navigation stays in the
 existing controller and feature screens remain dumb. The tab host uses history-style
@@ -185,6 +185,54 @@ The JavaScript tab navigator also sets its `sceneStyle.backgroundColor` from
 `theme.colors.canvas` to prevent the transition host from showing an unrelated
 light/dark background when the user overrides the device appearance.
 
+## Reusable navigation motion — PR #80 / RFC #79 (2026-11-23)
+
+**Requirement:** The More tab scene crossfade and Account Groups detail-page fade
+share a theme-owned motion policy, rather than accidental per-screen/native defaults.
+The screen content remains dumb: only the router layout/controller selects motion.
+
+- `primitives.ts` keeps exactly one approved duration:
+  `motion.tabCrossfadeDurationMs = 160`. `component-tokens.ts` exposes semantic
+  `navigationTokens.tabCrossfadeDurationMs` and `detailFadeDurationMs` as aliases.
+  **Never add a literal `160` to a new route or introduce per-screen durations.**
+- `src/shared/navigation/navigation-motion.ts` is the pure reusable policy:
+  `getNavigationMotion(reduceMotion, theme.navigation)` returns `tab` and `detail`
+  navigator options; `use-navigation-motion.ts` connects it to theme and OS preference.
+  A new eligible detail route registers `motion.detail` on the **root navigator's**
+  `Stack.Screen` before first push; its controller separately preserves any
+  existing `gestureEnabled` rules. Tab layouts use `...motion.tab`.
+- `ReducedMotionProvider` lives at the app root, above both Tabs and detail Stack
+  routes; it owns the **single** `AccessibilityInfo` listener/query and starts with
+  animation **disabled** until the OS preference is known. The compatibility alias
+  `useReducedTabMotion` must not create a second listener. Always honor live
+  `reduceMotionChanged` notifications, including cleanup at unmount.
+- **Navigator API distinction:** Expo Router JS Tabs support `animation: 'fade'`
+  plus `transitionSpec` with an exact 160ms timing config. Expo Router native Stack
+  uses `animation: 'fade'` and an `animationDuration` set from the same token;
+  **native Stack `animationDuration` applies on iOS only**. Android uses native
+  fade timing; do **not** claim an exact Android 160ms transition. Do not pass
+  JS Tabs `transitionSpec` to native Stack or fake its fade with `Animated.View`.
+- The `AppBottomSheet` native modal keeps its existing `animationType="slide"`;
+  swipe-to-reveal Delete stays finger-driven. These interactions are **not**
+  replacements for navigation fade and should not be globally overwritten.
+- Never animate the bottom bar, FAB, safe area, financial data or splash while
+  implementing page transitions. Preserve the route controller's Back/swipe
+  gesture arbitration, the `theme.colors.canvas` scene background, and OS
+  appearance overrides. Other detail screens keep their existing transitions
+  unless separately included in an approved UI RFC.
+
+**Required tests/checks:** `tests/phase0/tab-crossfade.test.ts` must test both
+fade and Reduced Motion (initial unknown, on/off), compare both semantic
+duration aliases and prove the Account Groups Stack uses the reusable policy.
+Run exact-HEAD typecheck, ESLint, Prettier, Phase 0/preview tests and Android/iOS
+Metro. **Native acceptance still required:** tab switches, More→Account Groups
+open/Back, iOS interactive Back, Android hardware Back, swipe Delete, bottom
+sheet Save/keyboard, light/dark and Reduced Motion toggle during a session.
+No source-only test or Metro bundling proves visual timing on real devices.
+
+Source: [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141)
+and Expo Router SDK 58 native Stack documentation:
+https://docs.expo.dev/versions/v58.0.0/sdk/router/.
 ## Segmented control visual reference — 2026-11-21 (PR #53)
 
 A user-supplied dark segmented `Write | Preview` control is a **visual reference**, not literal labels. The shared `AppSegmentedControl` uses equal-width rounded options, a dark/light semantic track and contrasting selected pill, with a canonical 48dp minimum option touch height and existing 4dp inset/100dp pill-radius primitives. `CurrencyUnitPositionControl` maps this reusable component to `Front | End`; it does not own persisted state. Theme palette keys `segmentedTrack`, `segmentedSelected`, `segmentedText` and `segmentedSelectedText` are maintained centrally in `tokens.ts`. Neither currency bottom-sheet chrome nor global 24dp icon roles are changed by the selector. Real Android/iOS dark/light contrast and accessibility QA remain required; see [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54).

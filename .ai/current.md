@@ -1,5 +1,10 @@
 # 🧭 Current task index
 
+## 2026-11-23 — PR #80 reusable navigation motion + Account Groups fade
+
+- **Owner scope:** More crossfade and Account Groups detail fade share one theme motion contract; [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141), assigned `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **Implementation gate:** root single Reduced Motion provider, shared Tabs/Stack options, semantic 160ms aliases (Stack native duration iOS-only), theme README + Phase0 tests. Exact-HEAD CI, fresh review and device QA required. No merge permission; Issue #71 still OPEN.
+
 ## 2026-11-23 — PR #80 Codex P1 + Bugbot keyboard/input remediation
 
 - Owner “Sahi kre”, scoped PROCEED https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085443402. Route/controller owns Back/rename/delete; shared single-line Android input centers; keyboard-aware Bottom Sheet no longer reapplies the 90% collapsed cap, default Currency/Theme unchanged.
