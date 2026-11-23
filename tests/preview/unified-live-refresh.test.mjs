@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
-import { verifySourceMap } from '../../.github/scripts/verify-codespace-served-source.mjs';
+import { metroMapUrl, verifySourceMap } from '../../.github/scripts/verify-codespace-served-source.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -79,4 +79,12 @@ test('served source map is matched byte-for-byte against selected tracked Git so
   assert.match(source, /AbortSignal\.timeout\(120_000\)/);
   assert.match(source, /size > LIMIT/);
   assert.match(worker, /node --input-type=module - -- "\$TARGET_SHA" "\$TARGET_PLATFORM"/);
+  assert.equal(metroMapUrl({ launchAsset: {
+    url: 'https://signed.on.expo.app/node_modules/expo-router/entry.bundle?platform=ios&dev=true&transform.routerRoot=src%2Fapp',
+  } }, 'ios'), 'http://127.0.0.1:8081/node_modules/expo-router/entry.map?platform=ios&dev=true&transform.routerRoot=src%2Fapp');
+  for (const url of ['https://evil.example/private?platform=ios&dev=true',
+    'file:///etc/passwd', 'https://x/index.bundle?platform=android&dev=true',
+    'https://x/index.bundle?platform=ios&dev=false']) {
+    assert.throws(() => metroMapUrl({ launchAsset: { url } }, 'ios'), /Unexpected/);
+  }
 });
