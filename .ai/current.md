@@ -1,5 +1,9 @@
 # 🧭 Current task index
 
+## 2026-11-23 — PR #80 Settings detail animation parity (Currency + Account Groups)
+
+- Owner approved **scoped implementation in PR #80 only** after spotting inconsistent Currency transitions. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091695525) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack applies one `motion.detail` to Account Groups, Main Currency, Sub Currency, Sub Currency Detail; iOS native 160ms fade, Android slide with reverse Back, Reduced Motion respected. Tabs/bottom sheets and native swipe arbitration remain unchanged. Exact-new-HEAD CI, independent review disposition and device QA must be verified separately. No merge permission, protected-main or Issue #71 trust/security change.
+
 ## 2026-11-23 — PR #80 Android horizontal Stack slide + native Back
 
 - **Owner feedback:** Android Back appeared unanimated; prefers slide to fade-from-bottom. Technical PROCEED in [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091432351). Shared detail policy targets Android `slide_from_right` with inverse native pop, iOS 160ms fade and all five tab fades unchanged, OS Reduced Motion respected. Theme README/tests updated; real Android open/Back/gesture/Animator-scale QA pending. PR #80 only, no merge authorization or Issue #71 security waiver.

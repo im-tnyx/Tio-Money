@@ -17,13 +17,16 @@ function ThemedStatusBar() {
   return <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />;
 }
 
-/** Register native Stack fade before the detail screen is first pushed. */
+/** Pre-register one shared native transition for every Settings detail page before first push. */
 function AppNavigationStack() {
   const motion = useNavigationMotion();
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="account-groups" options={motion.detail} />
+      <Stack.Screen name="currency/main" options={motion.detail} />
+      <Stack.Screen name="currency/sub" options={motion.detail} />
+      <Stack.Screen name="currency/sub-detail" options={motion.detail} />
     </Stack>
   );
 }

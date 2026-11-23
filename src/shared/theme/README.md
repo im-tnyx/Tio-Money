@@ -187,8 +187,12 @@ light/dark background when the user overrides the device appearance.
 
 ## Reusable navigation motion — PR #80 / RFC #79 (2026-11-23)
 
-**Requirement:** The More tab scene crossfade and Account Groups detail-page fade
+**Requirement:** The More tab scene crossfade and all Settings detail-page transitions
 share a theme-owned motion policy, rather than accidental per-screen/native defaults.
+The root Stack preregisters `account-groups`, `currency/main`, `currency/sub`, and
+`currency/sub-detail` with identical `motion.detail` options **before first push**.
+This resolves a PR #80 audit showing Currency routes inherited native defaults while
+Account Groups already used the shared policy.
 Owner feedback for PR #80: iOS fade felt right, but the Android native fade did not.
 A subsequent Android test also found Back had no visible motion and preferred a slide.
 The detail motion therefore uses Android's native `slide_from_right` transition,
@@ -204,9 +208,11 @@ The screen content remains dumb: only the router layout/controller selects motio
   `getNavigationMotion(reduceMotion, theme.navigation, platform)` returns `tab` and
   `detail` navigator options; `use-navigation-motion.ts` supplies `Platform.OS`
   from React Native alongside theme and OS Reduced Motion preference.
-  A new eligible detail route registers `motion.detail` on the **root navigator's**
-  `Stack.Screen` before first push; its controller separately preserves any
-  existing `gestureEnabled` rules. Tab layouts use `...motion.tab`.
+  Every eligible Settings detail route registers `motion.detail` on its own
+  **root Stack** `Stack.Screen` before first push; its controller separately
+  preserves any existing `gestureEnabled` rules. Tab layouts use `...motion.tab`.
+  Main/Sub Currency and Sub Currency Detail must never silently inherit a
+  platform-default animation or introduce screen-owned animation literals.
 - `ReducedMotionProvider` lives at the app root, above both Tabs and detail Stack
   routes; it owns the **single** `AccessibilityInfo` listener/query and starts with
   animation **disabled** until the OS preference is known. The compatibility alias
@@ -229,21 +235,25 @@ The screen content remains dumb: only the router layout/controller selects motio
 - Never animate the bottom bar, FAB, safe area, financial data or splash while
   implementing page transitions. Preserve the route controller's Back/swipe
   gesture arbitration, the `theme.colors.canvas` scene background, and OS
-  appearance overrides. Other detail screens keep their existing transitions
-  unless separately included in an approved UI RFC.
+  appearance overrides. Unlisted future detail screens keep their existing transitions
+  until explicitly included in an approved UI RFC.
 
 **Required tests/checks:** `tests/phase0/tab-crossfade.test.ts` must test both
 fade and Reduced Motion (initial unknown, on/off) on **iOS and Android**,
-compare both semantic duration aliases and prove the Account Groups Stack uses
-the reusable policy. The policy must be platform-injected and pure.
+compare both semantic duration aliases and prove that Account Groups, Main Currency,
+Sub Currency and Sub Currency Detail use the **same root** Stack policy without
+per-route overrides; verify native push/pop and Sub Currency swipe arbitration.
+The policy must be platform-injected and pure.
 Run exact-HEAD typecheck, ESLint, Prettier, Phase 0/preview tests and Android/iOS
 Metro. **Native acceptance still required:** tab switches, More→Account Groups
-open and reverse Back slide, iOS interactive Back, Android hardware/gesture Back,
+open and reverse Back transitions for **all four detail routes**, iOS interactive
+Back, Android hardware/gesture Back,
 Android animator-duration scale and Reduced Motion ON/OFF, swipe Delete, bottom
 sheet Save/keyboard, light/dark and Reduced Motion toggle during a session.
 No source-only test or Metro bundling proves visual timing on real devices.
 
 Source: [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141)
+and [owner-directed Currency parity extension](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091695525)
 and Expo Router SDK 58 native Stack documentation:
 https://docs.expo.dev/versions/v58.0.0/sdk/router/.
 

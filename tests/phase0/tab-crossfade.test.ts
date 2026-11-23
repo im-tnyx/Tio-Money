@@ -68,6 +68,48 @@ test('Account Groups detail reuses fade with native gesture ownership', () => {
   assert.match(sheet, /animationType="slide"/);
 });
 
+test('all Settings detail routes preregister the same native Stack motion', () => {
+  const detailScreens = [
+    ...root.matchAll(/<Stack\.Screen name="([^"]+)" options=\{motion\.detail\} \/>/g),
+  ].map((match) => match[1]);
+  assert.deepEqual(detailScreens, [
+    'account-groups',
+    'currency/main',
+    'currency/sub',
+    'currency/sub-detail',
+  ]);
+  assert.doesNotMatch(root, /animation: ['"](?:fade|slide_from_right)['"]|animationDuration: \d+/);
+
+  const subRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
+  assert.match(
+    subRoute,
+    /<Stack\.Screen options=\{\{ gestureEnabled: !swipe\.cardTouchActive \}\} \/>/,
+  );
+  const detailRoutes = [
+    'src/features/settings/main-currency-route.tsx',
+    'src/features/settings/sub-currency-route.tsx',
+    'src/features/settings/sub-currency-detail-route.tsx',
+  ];
+  for (const path of detailRoutes) {
+    const route = readFileSync(path, 'utf8');
+    assert.doesNotMatch(route, /useNavigationMotion|animationDuration|slide_from_right/);
+  }
+});
+
+test('Currency details preserve native forward push and Back pop', () => {
+  const moreViewModel = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
+  const mainViewModel = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  const subViewModel = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
+  assert.match(moreViewModel, /router\.push\('\/currency\/main'\)/);
+  assert.match(moreViewModel, /router\.push\('\/currency\/sub'\)/);
+  assert.match(mainViewModel, /case 'back':\s*router\.back\(\)/);
+  assert.match(subViewModel, /case 'back':\s*router\.back\(\)/);
+  assert.match(subViewModel, /router\.push\(\{ pathname: '\/currency\/sub-detail'/);
+  assert.match(subViewModel, /case 'detail\.dismiss':\s*dismissDetail\(\);\s*router\.back\(\)/);
+  assert.doesNotMatch(moreViewModel, /router\.replace\('\/currency\//);
+  assert.doesNotMatch(subViewModel, /router\.replace\(/);
+});
+
 test('five original tab routes and splash ownership are unchanged', () => {
   const names = [...layout.matchAll(/<Tabs\.Screen name="([^"]+)" \/>/g)].map((match) => match[1]);
   assert.deepEqual(names, ['index', 'transactions', 'reports', 'accounts', 'more']);
