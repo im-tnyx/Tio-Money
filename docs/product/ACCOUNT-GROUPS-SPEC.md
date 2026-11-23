@@ -105,7 +105,7 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 | Statement date/cycle | Billing day or documented provider-specific cycle boundary; handle 28–31 day month and timezone |
 | Payment due date | Actual due-date rule/date (not always a fixed monthly day); weekends/holidays only if issuer rule is known |
 | Pay from account | Optional selection of an active, eligible Bank account for repayment tracking. Linking it does not move money or select a Debit Card, UPI, Cheque, or Internet Banking mode. |
-| Auto Pay | Tracking-only configuration for reminders and payment confirmation. Keep the control unavailable pending approval of Off / Full / Minimum / Fixed policy. Tio Money never initiates a bank debit. |
+| Auto Pay | One row below Description with an On/Off switch. The switch shows Off and is disabled pending approval of the tracking policy for reminders and payment confirmation. Tio Money never initiates a bank debit. |
 | Description | Optional |
 
 **Actions and accounting:** card purchase = Expense + Card liability; bank-to-card repayment = Bank asset decrease and Card liability decrease, **not a new expense**; refund reverses relevant original expense; interest/fees are expenses when posted. Handle refunds, prepayments, credit balances, overlimit and partial payments via explicitly tested journal rules. **No auto-posting on due date**: only user-confirmed payments or a future authorized, verified settlement integration post money.

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Switch, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
@@ -42,13 +42,6 @@ const investmentLabels = {
   ppf: 'accountInvestmentPpf',
   other: 'accountInvestmentOther',
 } as const;
-const autoPayLabels = [
-  'accountTrackingOff',
-  'accountTrackingFull',
-  'accountTrackingMinimum',
-  'accountTrackingFixed',
-] as const;
-
 const fieldSpecs = {
   name: { label: 'accountName' },
   description: { label: 'accountDescription' },
@@ -198,6 +191,28 @@ function AccountFields({
       />
       {draft.group === 'credit-card' ? null : currencyField}
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
+      {draft.group === 'credit-card' ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: theme.space.sm,
+          }}
+        >
+          <AppText>{t('accountAutoPay')}</AppText>
+          <Switch
+            accessibilityRole="switch"
+            accessibilityLabel={t('accountAutoPay')}
+            accessibilityHint={t('accountAutoPayUnavailable')}
+            accessibilityState={{ disabled: true, checked: false }}
+            trackColor={{ false: theme.colors.border }}
+            ios_backgroundColor={theme.colors.border}
+            value={false}
+            disabled
+          />
+        </View>
+      ) : null}
       {draft.group === 'bank' ? <BankPaymentModes draft={draft} onAction={onAction} /> : null}
       <View style={{ gap: theme.space.xxs }}>
         <AppText muted>{t('accountSaveUnavailable')}</AppText>
@@ -233,13 +248,6 @@ function GroupFields({
           <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
           <UnavailableAccountChoice label="accountPayFrom" detail="accountPayFromUnavailable" />
-          <AccountChoices
-            label="accountAutoPay"
-            options={autoPayLabels.map((value) => ({ value, label: t(value) }))}
-          />
-          <AppText variant="caption" muted>
-            {t('accountAutoPayUnavailable')}
-          </AppText>
         </>
       );
     case 'wallet':
