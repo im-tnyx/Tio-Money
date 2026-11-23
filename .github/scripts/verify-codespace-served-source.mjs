@@ -15,11 +15,12 @@ export function verifySourceMap(map, tracked) {
   const seen = new Set();
   for (let i = 0; i < map.sources.length; i++) {
     const source = String(map.sources[i]);
-    // Metro paths may be absolute, file URLs or workspace relative.
-    const match = source.match(/(?:^|\/)src\/[a-zA-Z0-9_./()-]+\.(?:js|jsx|ts|tsx)$/);
-    if (!match) continue;
-    const path = match[0].replace(/^\//, '');
-    if (!tracked.has(path)) continue;
+    // Limit this comparison to the known checkout, not dependency packages
+    // that also happen to have a node_modules/.../src directory.
+    const path = source.replace(/^file:\/\/\/workspaces\/Tio-Money\//, '')
+      .replace(/^\/workspaces\/Tio-Money\//, '');
+    if (!/^src\/[a-zA-Z0-9_./()-]+\.(?:js|jsx|ts|tsx)$/.test(path)) continue;
+    if (!tracked.has(path)) throw Error('Metro contains source outside selected Git revision.');
     if (seen.has(path) || map.sourcesContent[i] !== tracked.get(path)) {
       throw Error('Metro source does not match the selected Git revision.');
     }
@@ -48,14 +49,14 @@ export function metroMapUrl(manifest, platform) {
   return url.toString();
 }
 
-async function readBounded(url) {
-  const response = await fetch(url, { signal: AbortSignal.timeout(120_000) });
+async function readBounded(url, limit = LIMIT, headers = {}) {
+  const response = await fetch(url, { headers, signal: AbortSignal.timeout(120_000) });
   if (!response.ok || !response.body) throw Error('Metro source-map request failed.');
   let size = 0;
   const chunks = [];
   for await (const chunk of response.body) {
     size += chunk.length;
-    if (size > LIMIT) throw Error('Metro source map exceeds the safe limit.');
+    if (size > limit) throw Error('Metro response exceeds the safe limit.');
     chunks.push(chunk);
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
@@ -79,13 +80,8 @@ async function main() {
   const tracked = new Map(files.filter((f) => /^src\/[a-zA-Z0-9_./()-]+\.(?:js|jsx|ts|tsx)$/.test(f))
     .map((f) => [f, git('show', `HEAD:${f}`)]));
   for (const p of platform === 'all' ? ['android', 'ios'] : [platform]) {
-    const manifestResponse = await fetch('http://127.0.0.1:8081/', {
-      headers: { 'expo-platform': p }, signal: AbortSignal.timeout(20_000),
-    });
-    if (!manifestResponse.ok) throw Error('Local Expo Go manifest unavailable.');
-    const manifestText = await manifestResponse.text();
-    if (manifestText.length > 65536) throw Error('Expo Go manifest exceeds the safe limit.');
-    const count = verifySourceMap(await readBounded(metroMapUrl(JSON.parse(manifestText), p)), tracked);
+    const manifest = await readBounded('http://127.0.0.1:8081/', 65536, { 'expo-platform': p });
+    const count = verifySourceMap(await readBounded(metroMapUrl(manifest, p)), tracked);
     console.log(`Metro ${p} source verified against selected Git HEAD (${count} app modules).`);
   }
   if (git('rev-parse', 'HEAD').trim() !== sha || git('status', '--porcelain=v1', '--untracked-files=normal').trim()) {
