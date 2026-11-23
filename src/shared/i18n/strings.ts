@@ -34,6 +34,8 @@ export const en = {
   accountModeName: 'Payment mode name',
   accountModeType: 'Payment mode type',
   accountModeApply: 'Apply to draft',
+  accountModeLimitReached: 'Payment mode limit reached.',
+  accountModeTypeLimitReached: 'This payment type has reached its limit.',
   accountCancel: 'Cancel',
   accountCardName: 'Card Name',
   accountCardOutstanding: 'Opening Outstanding',

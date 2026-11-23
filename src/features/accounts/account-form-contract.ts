@@ -23,6 +23,13 @@ export const investmentKinds = [
 ] as const;
 
 type PaymentModeType = (typeof paymentModeTypes)[number];
+const paymentModeLimits = {
+  debitCard: 3,
+  upi: 3,
+  cheque: 1,
+  internetBanking: 1,
+} satisfies Record<PaymentModeType, number>;
+
 type WalletKind = (typeof walletKinds)[number];
 type LoanDirection = (typeof loanDirections)[number];
 type InvestmentKind = (typeof investmentKinds)[number];
@@ -220,6 +227,30 @@ export function reconcileAccountDraftCurrency(
     : changeCurrency(draft, mainCurrency);
 }
 
+function canUsePaymentMode(
+  draft: Extract<AccountDraft, { group: 'bank' }>,
+  kind: PaymentModeType,
+  editingId: number | null,
+): boolean {
+  return (
+    draft.modes.some((mode) => mode.id === editingId && mode.kind === kind) ||
+    draft.modes.filter((mode) => mode.kind === kind).length < paymentModeLimits[kind]
+  );
+}
+
+export function paymentModeAvailability(draft: Extract<AccountDraft, { group: 'bank' }>) {
+  const editor = draft.modeEditor;
+  const availableTypes = paymentModeTypes.filter((kind) =>
+    canUsePaymentMode(draft, kind, editor?.id ?? null),
+  );
+  return {
+    availableTypes,
+    canAdd: paymentModeTypes.some((kind) => canUsePaymentMode(draft, kind, null)),
+    canApply:
+      editor !== null && Boolean(editor.name.trim()) && availableTypes.includes(editor.kind),
+  };
+}
+
 function updateModes(
   draft: Extract<AccountDraft, { group: 'bank' }>,
   action: PaymentModeAction,
@@ -229,7 +260,8 @@ function updateModes(
     case 'mode.open': {
       if (editor) return draft;
       if (action.id === undefined) {
-        return { ...draft, modeEditor: { id: null, name: '', kind: 'debitCard' } };
+        const kind = paymentModeTypes.find((type) => canUsePaymentMode(draft, type, null));
+        return kind ? { ...draft, modeEditor: { id: null, name: '', kind } } : draft;
       }
       const existing = draft.modes.find(({ id }) => id === action.id);
       return existing ? { ...draft, modeEditor: existing } : draft;
@@ -237,14 +269,16 @@ function updateModes(
     case 'mode.name':
       return editor ? { ...draft, modeEditor: { ...editor, name: action.value } } : draft;
     case 'mode.kind':
-      return editor ? { ...draft, modeEditor: { ...editor, kind: action.value } } : draft;
+      return editor && canUsePaymentMode(draft, action.value, editor.id)
+        ? { ...draft, modeEditor: { ...editor, kind: action.value } }
+        : draft;
     case 'mode.cancel':
       return { ...draft, modeEditor: null };
     case 'mode.remove':
       return editor ? draft : { ...draft, modes: draft.modes.filter(({ id }) => id !== action.id) };
     case 'mode.apply': {
       const name = editor?.name.trim();
-      if (!editor || !name) return draft;
+      if (!editor || !name || !canUsePaymentMode(draft, editor.kind, editor.id)) return draft;
       if (editor.id === null) {
         return {
           ...draft,
@@ -297,7 +331,9 @@ export interface AddAccountViewModel {
     | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol: string }[]
     | null;
   readonly showWalletFunding: boolean;
+  readonly canAddMode: boolean;
   readonly canApplyMode: boolean;
+  readonly availableModeTypes: readonly PaymentModeType[];
   readonly animateSheet: boolean;
   readonly onAction: (action: AccountFormAction) => void;
 }

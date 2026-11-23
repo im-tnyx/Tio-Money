@@ -84,6 +84,7 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 The owner’s 2026-11-23 Codex messages and screenshots specify this flow. The requirement is transcribed in the [Accounts RFC](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096773353). Use the screenshots as functional references.
 
 - **Add Bank Account** includes an optional **Linked Payment Modes** section in the form. **Add** opens an editor for a payment mode name and one type from **Debit Card**, **UPI**, **Cheque**, or **Internet Banking**. The list shows the label and type for each linked mode and offers **Edit** and **Remove** for each entry. Cancelling the editor keeps the previous draft. Cancelling account creation discards the draft modes.
+- Per Bank account, the setup draft allows up to **3 Debit Cards, 3 UPI modes, 1 Cheque and 1 Internet Banking mode**. Editing an existing name keeps its slot, changing the type requires room in the destination type, and removing an entry frees its slot.
 - Each entry describes how the same Bank account can be used. Adding or removing a mode does not create or archive an account, change a balance, or post a transaction. Names are display labels. The editor does not collect full card numbers, bank credentials, cheque numbers, UPI PINs, CVV or OTPs.
 - The same section can be enabled for other eligible account groups once supported modes are agreed for those groups. Keep it separate from Credit Card’s **Payment** row, which links an eligible Bank account for repayment tracking.
 

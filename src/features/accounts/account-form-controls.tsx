@@ -157,6 +157,8 @@ export function AccountChoices<Value extends string>({
   readonly options: readonly {
     readonly value: Value;
     readonly label: string;
+    readonly disabled?: boolean;
+    readonly accessibilityHint?: string;
   }[];
   readonly value?: Value;
   readonly onChange?: (value: Value) => void;
@@ -165,14 +167,16 @@ export function AccountChoices<Value extends string>({
   const theme = useAppTheme();
   const choices = options.map((option) => {
     const selected = value === option.value;
+    const disabled = !onChange || option.disabled === true;
     return (
       <Pressable
         key={option.value}
         accessibilityRole="radio"
         accessibilityLabel={option.label}
-        accessibilityState={{ checked: selected, disabled: !onChange }}
-        disabled={!onChange}
-        onPress={onChange ? () => onChange(option.value) : undefined}
+        accessibilityState={{ checked: selected, disabled }}
+        accessibilityHint={option.accessibilityHint}
+        disabled={disabled}
+        onPress={onChange && !disabled ? () => onChange(option.value) : undefined}
         style={{
           minWidth: compact ? theme.buttons.minimumHeight : undefined,
           minHeight: theme.buttons.minimumHeight,
@@ -184,6 +188,7 @@ export function AccountChoices<Value extends string>({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: compact ? 'center' : undefined,
+          opacity: option.disabled ? theme.buttons.disabledOpacity : undefined,
           gap: theme.space.xxs,
         }}
       >
@@ -217,12 +222,12 @@ export function AccountChoices<Value extends string>({
               justifyContent: 'center',
             }}
           >
-            <AppText variant="caption" muted={!selected} numberOfLines={1}>
+            <AppText variant="caption" muted={disabled || !selected} numberOfLines={1}>
               {option.label}
             </AppText>
           </View>
         ) : (
-          <AppText muted={!onChange}>{option.label}</AppText>
+          <AppText muted={disabled}>{option.label}</AppText>
         )}
       </Pressable>
     );

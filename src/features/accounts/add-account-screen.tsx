@@ -187,6 +187,7 @@ function AccountFields({
   currencySymbol,
   currencyChoices,
   showWalletFunding,
+  canAddMode,
   onAction,
   onBack,
 }: AddAccountViewModel & { readonly onBack: () => void }) {
@@ -225,7 +226,9 @@ function AccountFields({
           />
         </View>
       ) : null}
-      {draft.group === 'bank' ? <BankPaymentModes draft={draft} onAction={onAction} /> : null}
+      {draft.group === 'bank' ? (
+        <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
+      ) : null}
       <View style={{ gap: theme.space.xxs }}>
         <AppText muted>{t('accountSaveUnavailable')}</AppText>
         <ActionButton label={t('save')} disabled />

@@ -10,6 +10,7 @@ import {
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
+  paymentModeAvailability,
   reconcileAccountDraftCurrency,
   updateAccountDraft,
   type AccountDraft,
@@ -46,6 +47,7 @@ function AccountDraftController({
   }
 
   const draft = withConfiguredCurrency(edit);
+  const modeAvailability = draft.group === 'bank' ? paymentModeAvailability(draft) : null;
   // Keep the reconciled draft so re-adding a removed currency cannot revive old amounts.
   if (draft !== edit) setEdit(draft);
 
@@ -62,7 +64,9 @@ function AccountDraftController({
             symbol: CURRENCY_OPTIONS.find(({ code }) => code === value)?.symbol ?? value,
           })) ?? null,
         showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
-        canApplyMode: draft.group === 'bank' && Boolean(draft.modeEditor?.name.trim()),
+        canAddMode: modeAvailability?.canAdd ?? false,
+        canApplyMode: modeAvailability?.canApply ?? false,
+        availableModeTypes: modeAvailability?.availableTypes ?? [],
         animateSheet: !reduceMotion,
         onAction: (action) =>
           setEdit((previous) =>
