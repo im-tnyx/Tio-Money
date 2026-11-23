@@ -18,7 +18,7 @@
 
 ## Accepted RFC scope and non-goals
 
-Fix false current-state claims in `README.md` (PR #1 already merged; four blank finance screens plus More Appearance; 300/200 weights, 0dp gap and 160ms motion). Add [readiness register](../../../docs/13-DOCUMENTATION-READINESS.md) distinguishing already documented financial designs from pending owner/ADR release gates; link from [docs hub](../../../docs/00-INDEX.md); preserve historical checkpoint evidence. Source `src/`, ledger/SQLite, product choices, auth/backup/cloud, tests, workflows, protected bottom-nav visuals and `main` are **excluded**.
+Fix false current-state claims in `README.md` (PR #1 already merged; four blank finance screens plus More Appearance; 300/200 weights, 0dp gap and 160ms motion). Add [readiness register](../../../docs/governance/DOCUMENTATION-READINESS.md) distinguishing already documented financial designs from pending owner/ADR release gates; link from [docs hub](../../../docs/00-INDEX.md); preserve historical checkpoint evidence. Source `src/`, ledger/SQLite, product choices, auth/backup/cloud, tests, workflows, protected bottom-nav visuals and `main` are **excluded**.
 
 **Threat/alternatives:** Leaving the README stale confuses review. Updating it and recording follow-up gates is lower-risk than attempting to settle finance/provider/identity decisions or alter app code. Do not infer test PASS from planned test cases. Any unknown branch/CI/review rule or newly found blocking issue stops merge readiness.
 
