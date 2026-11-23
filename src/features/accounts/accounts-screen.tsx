@@ -5,12 +5,15 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
 
+import type { PreviewGroup } from './account-form-contract';
+import { AccountGroupIcon } from './account-group-icon';
 import { AccountPage } from './account-page';
 
 export interface AccountGroupChoice {
-  readonly id: string;
+  readonly id: PreviewGroup | 'insurance';
   readonly label: TranslationKey;
-  readonly detail?: TranslationKey;
+  readonly detail: TranslationKey;
+  readonly status?: TranslationKey;
   readonly onSelect?: () => void;
 }
 
@@ -50,11 +53,14 @@ export function AccountsScreen({
         onDismissed={onPickerDismissed}
         animate={animatePicker}
       >
-        {choices.map(({ id, label, detail, onSelect }) => (
+        {choices.map(({ id, label, detail, status, onSelect }) => (
           <Pressable
             key={id}
             accessible
             accessibilityRole="button"
+            accessibilityLabel={[t(label), t(detail), status ? t(status) : null]
+              .filter(Boolean)
+              .join('. ')}
             accessibilityState={{ disabled: !onSelect }}
             disabled={!onSelect}
             onPress={onSelect}
@@ -62,17 +68,21 @@ export function AccountsScreen({
               minHeight: theme.buttons.minimumHeight,
               paddingHorizontal: theme.space.lg,
               paddingVertical: theme.space.sm,
-              gap: theme.space.xxs,
+              gap: theme.space.md,
+              flexDirection: 'row',
+              alignItems: 'center',
               borderBottomColor: theme.colors.border,
               borderBottomWidth: theme.navigation.borderWidth,
             }}
           >
-            <AppText muted={!onSelect}>{t(label)}</AppText>
-            {detail ? (
+            <AccountGroupIcon group={id} />
+            <View style={{ flex: 1, gap: theme.space.xxs }}>
+              <AppText muted={!onSelect}>{t(label)}</AppText>
               <AppText variant="caption" muted>
                 {t(detail)}
               </AppText>
-            ) : null}
+              {status ? <AppText variant="caption">{t(status)}</AppText> : null}
+            </View>
           </Pressable>
         ))}
       </AppBottomSheet>

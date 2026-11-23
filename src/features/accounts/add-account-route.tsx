@@ -2,12 +2,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
+import { useReducedMotion } from '@/shared/navigation/reduced-motion-provider';
 
 import {
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
   updateAccountDraft,
+  type AccountDraft,
   type PreviewGroup,
 } from './account-form-contract';
 import { AddAccountScreen } from './add-account-screen';
@@ -32,17 +34,29 @@ function AccountDraftController({
   readonly onBack: () => void;
 }) {
   const { preferences } = useCurrencySettings();
+  const reduceMotion = useReducedMotion();
   const currencies = draftCurrencies(preferences);
   const [edit, setEdit] = useState(() => newAccountDraft(group, preferences.mainCode));
-  const draft = currencies.includes(edit.currency)
-    ? edit
-    : updateAccountDraft(edit, { type: 'currency', value: preferences.mainCode }, currencies);
+
+  function withConfiguredCurrency(previous: AccountDraft) {
+    return currencies.includes(previous.currency)
+      ? previous
+      : updateAccountDraft(previous, { type: 'currency', value: preferences.mainCode }, currencies);
+  }
+
+  const draft = withConfiguredCurrency(edit);
   return (
     <AddAccountScreen
       form={{
         draft,
         currencies,
-        onAction: (action) => setEdit(updateAccountDraft(draft, action, currencies)),
+        showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
+        canApplyMode: draft.group === 'bank' && Boolean(draft.modeEditor?.name.trim()),
+        animateSheet: !reduceMotion,
+        onAction: (action) =>
+          setEdit((previous) =>
+            updateAccountDraft(withConfiguredCurrency(previous), action, currencies),
+          ),
       }}
       onBack={onBack}
     />

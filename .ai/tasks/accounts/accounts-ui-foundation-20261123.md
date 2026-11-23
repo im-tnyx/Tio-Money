@@ -79,4 +79,25 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Verify modal handoff on physical devices: iOS uses the dismissal callback, Android hides the nonanimated sheet and schedules navigation one frame later. Source inspection does not prove focus, keyboard, gesture Back, double-tap or white-flash behavior. [#91](https://github.com/im-tnyx/Tio-Money/issues/91) remains open and separate.
 - [Technical decision and review](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096975333) authorizes only appending this checkpoint and the current index entry. [Finance RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98) is DECISION_PENDING. Schema, migration, posting runtime, Default Cash and restore remain BLOCKED_PENDING_DECISION. Separate smallest next PR candidate is pure monetary parsing and opening-journal domain logic with test fixtures and no runtime wiring. It needs its own scoped PROCEED. Merge authorization NOT_GRANTED.
 
+### 2026-11-23T10:12:25Z — Complete Add Account UI previews
+
+- [Owner direction transcribed in RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097489587) and [separate technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097494971). Verified clean branch `feat/accounts-ui-foundation-20261123` at starting HEAD `3d3b9bd61f56e24af376c6aa2afb5099172e1c80`, live main `f865969d200d70fbc8e84dd6a48d8020a155e42c`, Draft #97 ownership. PR #100 overlaps this task index only; preserved all existing entries.
+- Accounts picker renders all seven built-ins with shared icon tokens. Cash, Bank, Credit Card, Wallet, Loan and Investment open typed previews. Insurance is informational. Custom groups remain display-only. Bank payment modes are in-memory named draft rows. Card repayment-account and payment tracking controls, and Bank-linked Wallet's Bank selector, are unavailable. Loan and dated investment fields collect reference text only. Save is visibly disabled and Cancel discards the form. No database, new permissions, balance projection, or management mutation is in this change. [RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98) remains DECISION_PENDING.
+- Source review PERFORMED by Codex. The currency selector now has a visible checkmark plus accessible checked state. Functional state updates preserve consecutive edits and Wallet section values. The picker locks choice across dismissal and the route transition. Shared detail motion, themed surfaces, safe area and keyboard-aware Bank mode sheet are wired. Independent review DEFERRED. Device interaction, screen-reader focus, keyboard and transition behavior remain unverified. [Issue #91](https://github.com/im-tnyx/Tio-Money/issues/91) remains separate.
+- Tested source tree before this documentation checkpoint: `d196a189514f705a4657def67f919552156278d3`. Node 24.22.3 and npm 11.19.1. `npm run check` passed typecheck, ESLint, Prettier, 139 application tests (including 7 Accounts tests), and 66 preview tests. One CI-only signature check skipped locally. Also ran `node --import tsx --test --test-isolation=none tests/accounts/accounts-preview.test.ts` (7 passed).
+- `CI=1 __UNSAFE_EXPO_HOME_DIRECTORY=/tmp/tio-ui-expo-cache EXPO_NO_TELEMETRY=1 npx --no-install expo install --check` and `CI=1 EXPO_NO_TELEMETRY=1 npx --no-install expo config --type public` passed. `CI=1 EXPO_OFFLINE=1 EXPO_NO_TELEMETRY=1 npx --no-install expo export --platform android --platform ios --output-dir /tmp/tio-add-account-native --max-workers 2` passed for both platforms.
+- `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/governance` (29 passed), `python3 scripts/ai_context.py check-links` and `git diff --check` passed. Exact published HEAD, attribution and GitHub CI are recorded in the RFC handoff. Draft #97 remains open; owner merge authorization NOT_GRANTED.
+- Files in this slice, in addition to this task and the current index:
+  - `src/features/accounts/account-form-contract.ts`
+  - `src/features/accounts/account-form-controls.tsx`
+  - `src/features/accounts/account-group-icon.tsx`
+  - `src/features/accounts/account-picker.ts`
+  - `src/features/accounts/accounts-route.tsx`
+  - `src/features/accounts/accounts-screen.tsx`
+  - `src/features/accounts/add-account-route.tsx`
+  - `src/features/accounts/add-account-screen.tsx`
+  - `src/features/accounts/bank-payment-modes.tsx`
+  - `src/shared/i18n/strings.ts`
+  - `tests/accounts/accounts-preview.test.ts`
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

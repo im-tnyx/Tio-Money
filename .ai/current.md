@@ -4,6 +4,8 @@
 
 - Draft #97 source audit recorded at `7042a1ba8ac78b6fd1b7a347666212cd1630a7f6`. Exact reviewed HEAD CI passed; independent and device review pending. [Audit and technical decision](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096975333) · [Finance RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98), DECISION_PENDING.
 
+- [Add Account UI technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097494971) extends Draft #97 to six transient forms, named Bank payment modes, accessible currency selection and draft/navigation regression fixes. Insurance stays informational. Save, account linking, and financial behavior remain gated in [RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98).
+
 ## 2026-11-23 — Unified Expo preview Actions follow-up
 
 - [RFC #87 technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7095354699) tracks [Draft PR #95](https://github.com/im-tnyx/Tio-Money/pull/95). The unified workflow contains the manual choices and the automatic Codespaces job. The separate push signal stays secretless. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--consolidate-the-preview-actions-entry). Live acceptance remains NOT_VERIFIED.

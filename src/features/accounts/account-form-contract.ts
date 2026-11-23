@@ -1,27 +1,106 @@
 import type { CurrencyCode, CurrencyPreferences } from '@/shared/currency/currency-preference';
 
-export type PreviewGroup = 'cash' | 'bank';
+export const previewGroups = [
+  'cash',
+  'bank',
+  'credit-card',
+  'wallet',
+  'loan',
+  'investment',
+] as const;
+export type PreviewGroup = (typeof previewGroups)[number];
 
-export const bankCapabilities = ['upi', 'debitCard', 'cheque', 'internetBanking'] as const;
-export type BankCapability = (typeof bankCapabilities)[number];
+export const paymentModeTypes = ['debitCard', 'upi', 'cheque', 'internetBanking'] as const;
+export const walletKinds = ['funded', 'bank-linked'] as const;
+export const loanDirections = ['borrowed', 'given'] as const;
+export const investmentKinds = [
+  'stocks',
+  'mutualFunds',
+  'fixedDeposit',
+  'gold',
+  'ppf',
+  'other',
+] as const;
 
-interface CommonDraft {
+type PaymentModeType = (typeof paymentModeTypes)[number];
+type WalletKind = (typeof walletKinds)[number];
+type LoanDirection = (typeof loanDirections)[number];
+type InvestmentKind = (typeof investmentKinds)[number];
+
+export interface PaymentModeDraft {
+  readonly id: number;
   readonly name: string;
-  readonly openingAmount: string;
-  readonly currency: CurrencyCode;
+  readonly kind: PaymentModeType;
+}
+
+interface ModeEditor {
+  readonly id: number | null;
+  readonly name: string;
+  readonly kind: PaymentModeType;
+}
+
+interface CommonFields {
+  readonly name: string;
   readonly description: string;
 }
 
+interface OpeningAmountFields extends CommonFields {
+  readonly openingAmount: string;
+}
+
+interface BankFields extends OpeningAmountFields {
+  readonly bankName: string;
+}
+
+interface CardFields extends CommonFields {
+  readonly outstanding: string;
+  readonly creditLimit: string;
+  readonly statementDate: string;
+  readonly dueDate: string;
+}
+
+interface WalletFields extends OpeningAmountFields {
+  readonly provider: string;
+}
+
+interface LoanFields extends CommonFields {
+  readonly originalPrincipal: string;
+  readonly outstandingPrincipal: string;
+  readonly startDate: string;
+  readonly nextDueDate: string;
+}
+
+interface InvestmentFields extends CommonFields {
+  readonly investedCost: string;
+  readonly valuation: string;
+  readonly valuationDate: string;
+}
+
+interface Draft<Group extends PreviewGroup, Fields extends CommonFields> {
+  readonly group: Group;
+  readonly currency: CurrencyCode;
+  readonly fields: Fields;
+}
+
 export type AccountDraft =
-  | (CommonDraft & { readonly group: 'cash' })
-  | (CommonDraft & {
-      readonly group: 'bank';
-      readonly bankName: string;
-      readonly capabilities: Readonly<Record<BankCapability, boolean>>;
-    });
+  | Draft<'cash', OpeningAmountFields>
+  | (Draft<'bank', BankFields> & {
+      readonly modes: readonly PaymentModeDraft[];
+      readonly nextModeId: number;
+      readonly modeEditor: ModeEditor | null;
+    })
+  | Draft<'credit-card', CardFields>
+  | (Draft<'wallet', WalletFields> & { readonly walletKind: WalletKind })
+  | (Draft<'loan', LoanFields> & { readonly direction: LoanDirection })
+  | (Draft<'investment', InvestmentFields> & { readonly investmentKind: InvestmentKind });
+
+type GroupFields<Group extends PreviewGroup> = Extract<AccountDraft, { group: Group }>['fields'];
+export type DraftField = {
+  [Group in PreviewGroup]: keyof GroupFields<Group>;
+}[PreviewGroup];
 
 export function isPreviewGroup(value: unknown): value is PreviewGroup {
-  return value === 'cash' || value === 'bank';
+  return previewGroups.some((group) => group === value);
 }
 
 export function draftCurrencies(preferences: Pick<CurrencyPreferences, 'mainCode' | 'subCodes'>) {
@@ -29,24 +108,140 @@ export function draftCurrencies(preferences: Pick<CurrencyPreferences, 'mainCode
 }
 
 export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): AccountDraft {
-  const common = { name: '', openingAmount: '', currency, description: '' };
-  if (group === 'cash') return { ...common, group };
-  return {
-    ...common,
-    group,
-    bankName: '',
-    capabilities: { upi: false, debitCard: false, cheque: false, internetBanking: false },
-  };
+  const common = { name: '', description: '' };
+  switch (group) {
+    case 'cash':
+      return { group, currency, fields: { ...common, openingAmount: '' } };
+    case 'bank':
+      return {
+        group,
+        currency,
+        fields: { ...common, openingAmount: '', bankName: '' },
+        modes: [],
+        modeEditor: null,
+        nextModeId: 1,
+      };
+    case 'credit-card':
+      return {
+        group,
+        currency,
+        fields: { ...common, outstanding: '', creditLimit: '', statementDate: '', dueDate: '' },
+      };
+    case 'wallet':
+      return {
+        group,
+        currency,
+        fields: { ...common, openingAmount: '', provider: '' },
+        walletKind: 'funded',
+      };
+    case 'loan':
+      return {
+        group,
+        currency,
+        fields: {
+          ...common,
+          originalPrincipal: '',
+          outstandingPrincipal: '',
+          startDate: '',
+          nextDueDate: '',
+        },
+        direction: 'borrowed',
+      };
+    case 'investment':
+      return {
+        group,
+        currency,
+        fields: { ...common, investedCost: '', valuation: '', valuationDate: '' },
+        investmentKind: 'stocks',
+      };
+  }
 }
 
+type PaymentModeAction =
+  | { readonly type: 'mode.open'; readonly id?: number }
+  | { readonly type: 'mode.name'; readonly value: string }
+  | { readonly type: 'mode.kind'; readonly value: PaymentModeType }
+  | { readonly type: 'mode.apply' | 'mode.cancel' }
+  | { readonly type: 'mode.remove'; readonly id: number };
+
 export type AccountFormAction =
-  | {
-      readonly type: 'text';
-      readonly field: 'name' | 'openingAmount' | 'description' | 'bankName';
-      readonly value: string;
+  | { readonly type: 'text'; readonly field: DraftField; readonly value: string }
+  | { readonly type: 'currency'; readonly value: CurrencyCode }
+  | { readonly type: 'wallet.kind'; readonly value: WalletKind }
+  | { readonly type: 'loan.direction'; readonly value: LoanDirection }
+  | { readonly type: 'investment.kind'; readonly value: InvestmentKind }
+  | PaymentModeAction;
+
+/** Merge only string-valued fields while preserving the draft's discriminant. */
+function withDraftFields<Current extends AccountDraft>(
+  draft: Current,
+  fields: Partial<Record<DraftField, string>>,
+) {
+  return { ...draft, fields: { ...draft.fields, ...fields } };
+}
+
+function changeCurrency(draft: AccountDraft, currency: CurrencyCode): AccountDraft {
+  switch (draft.group) {
+    case 'cash':
+    case 'bank':
+    case 'wallet':
+      return { ...withDraftFields(draft, { openingAmount: '' }), currency };
+    case 'credit-card':
+      return { ...draft, currency, fields: { ...draft.fields, outstanding: '', creditLimit: '' } };
+    case 'loan':
+      return {
+        ...draft,
+        currency,
+        fields: { ...draft.fields, originalPrincipal: '', outstandingPrincipal: '' },
+      };
+    case 'investment':
+      return { ...draft, currency, fields: { ...draft.fields, investedCost: '', valuation: '' } };
+  }
+}
+
+function updateModes(
+  draft: Extract<AccountDraft, { group: 'bank' }>,
+  action: PaymentModeAction,
+): AccountDraft {
+  const editor = draft.modeEditor;
+  switch (action.type) {
+    case 'mode.open': {
+      if (editor) return draft;
+      if (action.id === undefined) {
+        return { ...draft, modeEditor: { id: null, name: '', kind: 'debitCard' } };
+      }
+      const existing = draft.modes.find(({ id }) => id === action.id);
+      return existing ? { ...draft, modeEditor: existing } : draft;
     }
-  | { readonly type: 'capability'; readonly capability: BankCapability; readonly value: boolean }
-  | { readonly type: 'currency'; readonly value: CurrencyCode };
+    case 'mode.name':
+      return editor ? { ...draft, modeEditor: { ...editor, name: action.value } } : draft;
+    case 'mode.kind':
+      return editor ? { ...draft, modeEditor: { ...editor, kind: action.value } } : draft;
+    case 'mode.cancel':
+      return { ...draft, modeEditor: null };
+    case 'mode.remove':
+      return editor ? draft : { ...draft, modes: draft.modes.filter(({ id }) => id !== action.id) };
+    case 'mode.apply': {
+      const name = editor?.name.trim();
+      if (!editor || !name) return draft;
+      if (editor.id === null) {
+        return {
+          ...draft,
+          modeEditor: null,
+          nextModeId: draft.nextModeId + 1,
+          modes: [...draft.modes, { id: draft.nextModeId, name, kind: editor.kind }],
+        };
+      }
+      return {
+        ...draft,
+        modeEditor: null,
+        modes: draft.modes.map((mode) =>
+          mode.id === editor.id ? { ...mode, name, kind: editor.kind } : mode,
+        ),
+      };
+    }
+  }
+}
 
 export function updateAccountDraft(
   draft: AccountDraft,
@@ -55,17 +250,29 @@ export function updateAccountDraft(
 ): AccountDraft {
   switch (action.type) {
     case 'text':
-      if (action.field === 'bankName') {
-        return draft.group === 'bank' ? { ...draft, bankName: action.value } : draft;
-      }
-      return { ...draft, [action.field]: action.value };
-    case 'capability':
-      return draft.group === 'bank'
-        ? { ...draft, capabilities: { ...draft.capabilities, [action.capability]: action.value } }
+      return Object.hasOwn(draft.fields, action.field)
+        ? withDraftFields(draft, { [action.field]: action.value })
         : draft;
     case 'currency':
       return allowedCurrencies.includes(action.value) && draft.currency !== action.value
-        ? { ...draft, currency: action.value, openingAmount: '' }
+        ? changeCurrency(draft, action.value)
         : draft;
+    case 'wallet.kind':
+      return draft.group === 'wallet' ? { ...draft, walletKind: action.value } : draft;
+    case 'loan.direction':
+      return draft.group === 'loan' ? { ...draft, direction: action.value } : draft;
+    case 'investment.kind':
+      return draft.group === 'investment' ? { ...draft, investmentKind: action.value } : draft;
+    default:
+      return draft.group === 'bank' ? updateModes(draft, action) : draft;
   }
+}
+
+export interface AddAccountViewModel {
+  readonly draft: AccountDraft;
+  readonly currencies: readonly CurrencyCode[];
+  readonly showWalletFunding: boolean;
+  readonly canApplyMode: boolean;
+  readonly animateSheet: boolean;
+  readonly onAction: (action: AccountFormAction) => void;
 }
