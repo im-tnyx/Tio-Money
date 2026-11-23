@@ -12,15 +12,17 @@ case "$origin" in
   "$expected_remote"|git@github.com:im-tnyx/Tio-Money|ssh://git@github.com/im-tnyx/Tio-Money) ;;
   *) echo 'Refusing preview: unexpected repository origin.' >&2; exit 1 ;;
 esac
-[[ -z "$(git status --porcelain=v1 --untracked-files=normal)" ]] || {
+if ! worktree="$(git status --porcelain=v1 --untracked-files=normal)"; then
+  echo 'Refusing preview: unable to verify worktree status.' >&2
+  exit 1
+fi
+[[ -z "$worktree" ]] || {
   echo 'Refusing preview: Codespace has unsaved work.' >&2
   exit 1
 }
-# Trusted main preflight already checked managed PID ownership and port state.
-# This script accepts older source-only PRs whose starter lacks --preflight.
-if [[ "$(git rev-parse HEAD)" == "$expected_sha" ]] &&
-   node scripts/start-codespace-expo.mjs --status; then
-  echo 'NO_OP_HEALTHY'
+current_sha="$(git rev-parse HEAD)"
+if [[ "$current_sha" == "$expected_sha" ]]; then
+  echo 'EXACT_SHA'
 else
   echo 'REFRESH_REQUIRED'
 fi

@@ -103,6 +103,10 @@ jobs:
             echo "::error::Selected PR SHA malformed"
             exit 1
           fi
+          if [[ ! "$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Selected base SHA malformed"
+            exit 1
+          fi
           echo "head_sha=$selected_sha" >> "$GITHUB_OUTPUT"
           echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
 
@@ -121,6 +125,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
           SELECTED_SHA: ${{ needs.select.outputs.head_sha }}
+          SELECTED_BASE: ${{ needs.select.outputs.base_sha }}
           TARGET_OPERATION: ${{ inputs.operation }}
           TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
@@ -154,7 +159,8 @@ jobs:
             fi
             exit 1
           fi
-          if [[ "$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_SHA" ]]; then
+          if [[ "$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_SHA" ||
+                "$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_BASE" ]]; then
             echo "::error::PR advanced since trusted selection; refusing unvalidated source"
             exit 1
           fi
@@ -196,19 +202,10 @@ jobs:
           # records. These paths do not change the Expo runtime or build config.
           # Native/tooling/dependency/signing changes must land in a separately
           # reviewed PR before executing any source with an Expo token here.
-          native_change=0
-          while IFS= read -r -d '' path; do
-            case "$path" in
-              src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;
-              *)
-                native_change=1
-                ;;
-            esac
-          done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
-          if [[ "$native_change" -ne 0 ]]; then
-            echo "::error title=Preview change scope::EAS permits app source/assets, tests and Markdown documentation/AI task records only. Native, tooling, dependency and other config changes require separate review and merge before OTA/build."
-            exit 1
-          fi
+          scope="$RUNNER_TEMP/verify-eas-preview-scope.mjs"
+          # GITHUB_SHA is the trusted main dispatch revision, separate from the PR checkout.
+          git show "${GITHUB_SHA}:.github/scripts/verify-eas-preview-scope.mjs" > "$scope"
+          node "$scope" "$PR_BASE_SHA" "$PR_SHA"
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
@@ -270,6 +267,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
           VALIDATED_SHA: ${{ needs.select.outputs.head_sha }}
+          SELECTED_BASE: ${{ needs.select.outputs.base_sha }}
           TARGET_OPERATION: ${{ inputs.operation }}
           TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
@@ -304,7 +302,8 @@ jobs:
             exit 1
           fi
           selected_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")"
-          if [[ "$selected_sha" != "$VALIDATED_SHA" ]]; then
+          if [[ "$selected_sha" != "$VALIDATED_SHA" ||
+                "$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_BASE" ]]; then
             echo "::error::PR advanced since secretless validation; refusing stale EAS operation"
             exit 1
           fi
@@ -346,19 +345,10 @@ jobs:
           # records. These paths do not change the Expo runtime or build config.
           # Native/tooling/dependency/signing changes must land in a separately
           # reviewed PR before executing any source with an Expo token here.
-          native_change=0
-          while IFS= read -r -d '' path; do
-            case "$path" in
-              src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;
-              *)
-                native_change=1
-                ;;
-            esac
-          done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
-          if [[ "$native_change" -ne 0 ]]; then
-            echo "::error title=Preview change scope::EAS permits app source/assets, tests and Markdown documentation/AI task records only. Native, tooling, dependency and other config changes require separate review and merge before OTA/build."
-            exit 1
-          fi
+          scope="$RUNNER_TEMP/verify-eas-preview-scope.mjs"
+          # GITHUB_SHA is the trusted main dispatch revision, separate from the PR checkout.
+          git show "${GITHUB_SHA}:.github/scripts/verify-eas-preview-scope.mjs" > "$scope"
+          node "$scope" "$PR_BASE_SHA" "$PR_SHA"
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
@@ -436,6 +426,25 @@ jobs:
           if (require(file).version !== approved) throw Error('Installed EAS CLI version mismatch');
           NODE
           "$EAS_CLI_ROOT/node_modules/.bin/eas" --version
+
+      - name: Revalidate immutable PR and source scope before EAS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$PR_SHA"
+          worktree="$(git status --porcelain=v1 --untracked-files=normal)"
+          test -z "$worktree"
+          node "$RUNNER_TEMP/verify-eas-preview-scope.mjs" "$PR_BASE_SHA" "$PR_SHA"
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
+            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$PR_SHA" --arg base "$PR_BASE_SHA" '
+              .state == "open" and .draft == false and .user.login == "im-tnyx" and
+              .head.repo.full_name == $repo and .base.repo.full_name == $repo and
+              .base.ref == "main" and .head.sha == $head and .base.sha == $base
+            ' >/dev/null
 
       - name: Publish OTA or queue internal preview build (owner dispatch only)
         env:

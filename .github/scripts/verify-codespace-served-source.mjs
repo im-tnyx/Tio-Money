@@ -3,32 +3,37 @@
 import { Buffer } from 'node:buffer';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { requirePreviewListener } from './preflight-pr-codespaces-preview.mjs';
 
 const ROOT = '/workspaces/Tio-Money';
 const LIMIT = 96 * 1024 * 1024;
+const MODULE = /^src\/(?:[^/\x00-\x1f]+\/)*[^/\x00-\x1f]+\.(?:[cm]?js|jsx|ts|tsx|json)$/u;
 const PROJECT_ID = '722e6857-1159-4414-a024-6a4351e7d3e1';
-const [sha, platform] = process.argv.slice(3);
+const [sha, platform, mergeBase] = process.argv.slice(3);
 
-export function verifySourceMap(map, tracked) {
+export function verifySourceMap(map, tracked, affected) {
   if (!map || !Array.isArray(map.sources) || !Array.isArray(map.sourcesContent) ||
       map.sources.length !== map.sourcesContent.length) throw Error('Invalid Metro source map.');
   let matched = 0;
   const seen = new Set();
   for (let i = 0; i < map.sources.length; i++) {
-    const source = String(map.sources[i]);
+    const source = map.sources[i];
+    if (typeof source !== 'string') throw Error('Malformed Metro source path.');
     // Limit this comparison to the known checkout, not dependency packages
     // that also happen to have a node_modules/.../src directory.
     const path = source.replace(/^file:\/\/\/workspaces\/Tio-Money\//, '')
       .replace(/^\/workspaces\/Tio-Money\//, '');
-    if (!/^src\/[a-zA-Z0-9_./()-]+\.(?:js|jsx|ts|tsx)$/.test(path)) continue;
+    if (!MODULE.test(path)) continue;
+    if (path.split('/').some((part) => part === '.' || part === '..')) {
+      throw Error('Noncanonical Metro source path.');
+    }
     if (!tracked.has(path)) throw Error('Metro contains source outside selected Git revision.');
     if (seen.has(path) || map.sourcesContent[i] !== tracked.get(path)) {
       throw Error('Metro source does not match the selected Git revision.');
     }
     seen.add(path);
-    matched++;
+    if (affected.has(path)) matched++;
   }
-  if (matched === 0) throw Error('Metro did not attest any tracked application source.');
   return matched;
 }
 
@@ -50,9 +55,10 @@ export function metroMapUrl(manifest, platform) {
   return url.toString();
 }
 
-async function readBounded(url, limit = LIMIT, headers = {}) {
-  const response = await fetch(url, { headers, signal: AbortSignal.timeout(120_000) });
-  if (!response.ok || !response.body) throw Error('Metro source-map request failed.');
+export async function readBounded(url, limit = LIMIT, headers = {}) {
+  if (new URL(url).origin !== 'http://127.0.0.1:8081') throw Error('Unexpected Metro probe endpoint.');
+  const response = await fetch(url, { headers, redirect: 'error', signal: AbortSignal.timeout(120_000) });
+  if (response.status !== 200 || response.redirected || !response.body) throw Error('Metro source-map request failed.');
   let size = 0;
   const chunks = [];
   for await (const chunk of response.body) {
@@ -64,7 +70,7 @@ async function readBounded(url, limit = LIMIT, headers = {}) {
 }
 
 async function main() {
-  if (!/^[0-9a-f]{40}$/.test(sha) || !['android', 'ios', 'all'].includes(platform)) {
+  if (!/^[0-9a-f]{40}$/.test(sha) || !/^[0-9a-f]{40}$/.test(mergeBase) || !['android', 'ios', 'all'].includes(platform)) {
     throw Error('Invalid immutable source selection.');
   }
   const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
@@ -78,16 +84,30 @@ async function main() {
     throw Error('Expo project identity changed.');
   }
   const files = git('ls-files', '-z', 'src').split('\0').filter(Boolean);
-  const tracked = new Map(files.filter((f) => /^src\/[a-zA-Z0-9_./()-]+\.(?:js|jsx|ts|tsx)$/.test(f))
+  const tracked = new Map(files.filter((f) => MODULE.test(f))
     .map((f) => [f, git('show', `HEAD:${f}`)]));
+  const affected = new Set(git('diff', '--no-ext-diff', '--no-renames', '--name-only', '-z',
+    mergeBase, sha, '--', 'src').split('\0').filter(Boolean));
+  const outcomes = [];
   for (const p of platform === 'all' ? ['android', 'ios'] : [platform]) {
-    const manifest = await readBounded('http://127.0.0.1:8081/', 65536, { 'expo-platform': p });
-    const count = verifySourceMap(await readBounded(metroMapUrl(manifest, p)), tracked);
-    console.log(`Metro ${p} source verified against selected Git HEAD (${count} app modules).`);
+    try {
+      requirePreviewListener();
+      const manifest = await readBounded('http://127.0.0.1:8081/', 65536, { 'expo-platform': p });
+      requirePreviewListener();
+      const count = verifySourceMap(await readBounded(metroMapUrl(manifest, p)), tracked, affected);
+      requirePreviewListener();
+      outcomes.push({ platform: p, status: count ? 'PASS' : 'UNVERIFIED', count });
+    } catch {
+      outcomes.push({ platform: p, status: 'FAILED', count: 0 });
+    }
   }
   if (git('rev-parse', 'HEAD').trim() !== sha || git('status', '--porcelain=v1', '--untracked-files=normal').trim()) {
     throw Error('Codespace source changed during verification.');
   }
+  for (const result of outcomes) {
+    console.log(`Metro ${result.platform}: ${result.status} (${result.count} affected app modules verified).`);
+  }
+  if (outcomes.some(({ status }) => status !== 'PASS')) process.exitCode = 1;
 }
 
 if (process.argv[1] === '-') {
