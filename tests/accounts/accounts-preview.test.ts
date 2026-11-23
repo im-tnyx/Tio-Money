@@ -137,7 +137,7 @@ test('linked payment modes show a compact header action and named icon rows with
   assert.ok(rows >= 0);
   assert.match(
     list.slice(0, rows),
-    /accessibilityRole="header"[\s\S]*?<ActionButton\s+compact[\s\S]*?accountModeAdd[\s\S]*?type: 'mode\.open'/,
+    /accessibilityRole="header"[\s\S]*?<ActionButton\s+compact\s+size="small"[\s\S]*?accountModeAdd[\s\S]*?type: 'mode\.open'/,
   );
   assert.match(
     list.slice(rows),

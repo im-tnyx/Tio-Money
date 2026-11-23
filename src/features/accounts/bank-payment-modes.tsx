@@ -117,6 +117,7 @@ export function BankPaymentModes({ draft, onAction }: Pick<BankModesProps, 'draf
         </View>
         <ActionButton
           compact
+          size="small"
           label={'+ ' + t('add')}
           accessibilityLabel={t('accountModeAdd')}
           variant="secondary"

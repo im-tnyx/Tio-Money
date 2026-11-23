@@ -15,6 +15,7 @@
 - [Linked Payment Modes list PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099730686) places compact Add in the heading and shows named draft rows with payment type, Edit and Remove icons. Exact HEAD and checks are recorded in RFC #96.
 - [Symbol-only Currency PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099810331) uses outlined currency symbols and a filled selected state in the existing single row. Exact HEAD and checks are recorded in RFC #96.
 - [Compact Currency and Description PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099965028) puts the selected tint-filled currency at the right edge of the label row and uses an inline Description placeholder with native wrapping. Exact HEAD and checks are recorded in RFC #96.
+- [Shorter Linked Payment Modes Add PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100100853) applies a 32dp painted minimum height with the shared 48dp touch target. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
