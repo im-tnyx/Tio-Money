@@ -79,6 +79,14 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 
 **Examples:** SBI account can be used for UPI, Debit Card and Internet Banking; all three spend from the **same bank asset account**. A prepaid, independently funded wallet is a separate asset account. Bank-linked UPI app is **not** an additional balance. Avoid complete account numbers and never store net-banking passwords, card PIN/CVV, OTP or UPI PIN.
 
+#### Linked Payment Modes during account setup
+
+The owner’s 2026-11-23 Codex messages and screenshots specify this flow. The requirement is transcribed in the [Accounts RFC](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096773353). Use the screenshots as functional references.
+
+- **Add Bank Account** includes an optional **Linked Payment Modes** section in the form. **Add** opens an editor for a payment mode name and one type from **Debit Card**, **UPI**, **Cheque**, or **Internet Banking**. The list shows the label and type for each linked mode and offers **Edit** and **Remove** for each entry. Cancelling the editor keeps the previous draft. Cancelling account creation discards the draft modes.
+- Each entry describes how the same Bank account can be used. Adding or removing a mode does not create or archive an account, change a balance, or post a transaction. Names are display labels. The editor does not collect full card numbers, bank credentials, cheque numbers, UPI PINs, CVV or OTPs.
+- The same section can be enabled for other eligible account groups once supported modes are agreed for those groups. Keep it separate from Credit Card’s **Pay from account**, which links an eligible Bank account for repayment tracking.
+
 ### 3.3 Wallet — asset when independently funded
 
 **Fields:** `name`, `currency`, `description`, optional `provider`, required `wallet_kind` (`funded` / `bank_linked_reference`). A **funded** wallet requires `opening_amount >= 0` and creates a distinct asset opening only when positive. A **bank-linked reference** requires an eligible `linked_bank_account_id`, derives its currency from that bank, and **does not show an independent opening_amount input**.
@@ -91,13 +99,13 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 | :--- | :--- |
 | Card name | Required; display nickname, optional masked last four digits |
 | Opening outstanding | Required, `>= 0`; **liability**, not spendable cash |
-| Currency | Required; do not silently convert liabilities |
+| Currency | Required. Main Currency is the default. Show configured Sub Currencies as selectable choices. Selecting a currency sets the draft denomination and does not convert an existing liability. |
 | Total credit limit | Required positive amount; card limit is **not an asset** |
 | Current available credit | Read-only **estimate**: limit − posted outstanding − known pending holds + applicable adjustments; unknown issuer holds can cause mismatch |
 | Statement date/cycle | Billing day or documented provider-specific cycle boundary; handle 28–31 day month and timezone |
 | Payment due date | Actual due-date rule/date (not always a fixed monthly day); weekends/holidays only if issuer rule is known |
-| Pay from account | Optional eligible linked Bank account ID; no money movement on link alone |
-| Automatic Payment | **Configuration + reminders/confirmation tracking only**, with Off / Full / Minimum / Fixed (future policies); real bank debit not supported |
+| Pay from account | Optional selection of an active, eligible Bank account for repayment tracking. Linking it does not move money or select a Debit Card, UPI, Cheque, or Internet Banking mode. |
+| Payment tracking | Configuration for reminders and payment confirmation. Off / Full / Minimum / Fixed remain subject to billing policy. The form cannot trigger a real debit. |
 | Description | Optional |
 
 **Actions and accounting:** card purchase = Expense + Card liability; bank-to-card repayment = Bank asset decrease and Card liability decrease, **not a new expense**; refund reverses relevant original expense; interest/fees are expenses when posted. Handle refunds, prepayments, credit balances, overlimit and partial payments via explicitly tested journal rules. **No auto-posting on due date**: only user-confirmed payments or a future authorized, verified settlement integration post money.
@@ -144,7 +152,7 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 | ID | Expected behavior |
 | :--- | :--- |
 | `TM-AG-001` | Cash form displays 4 core fields and posts opening asset without income |
-| `TM-AG-002` | Bank payment-mode flags do not create new wallet/bank balances |
+| `TM-AG-002` | Add, edit and remove a named mode in the Bank draft. Verify the selected type and label, cancel without applying edits, and confirm the mode has no independent account, balance or journal. Credit Card repayment-account selection remains separate. |
 | `TM-AG-003` | Bank-linked UPI reference does not inflate Net Worth |
 | `TM-AG-004` | Credit card purchase/repayment uses liability-aware ledger and no duplicate expense |
 | `TM-AG-005` | Statement day 31 and short-month due date never create impossible calendar dates |
