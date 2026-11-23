@@ -33,6 +33,7 @@ export const navigationTokens = {
   selectedIconWeight: 300,
   unselectedIconWeight: 200,
   tabCrossfadeDurationMs: motion.tabCrossfadeDurationMs,
+  detailFadeDurationMs: motion.tabCrossfadeDurationMs,
   horizontalPadding: size.dp8,
   topPadding: size.dp1,
   minimumBottomPadding: size.dp0,
@@ -42,6 +43,8 @@ export const navigationTokens = {
 } as const;
 
 export const buttonTokens = {
+  /** Painted ActionButton surface; independent of its accessible touch region. */
+  actionHeight: size.dp42,
   minimumHeight: size.dp48,
   noBorder: size.dp0,
   enabledOpacity: opacity.enabled,

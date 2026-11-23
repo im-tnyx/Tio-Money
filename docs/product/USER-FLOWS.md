@@ -7,7 +7,7 @@
 ![Status](https://img.shields.io/badge/STATUS-DRAFT%20FOR%20REVIEW-7357E8?style=flat-square)
 ![Priority](https://img.shields.io/badge/CORE-P0-118C84?style=flat-square)
 
-[🏠 Home](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🎯 Requirements](01-PRD.md) · [✍️ Standards](90-DOCS-STYLE-GUIDE.md)
+[🏠 Home](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🎯 Requirements](PRD.md) · [✍️ Standards](../governance/DOCS-STYLE-GUIDE.md)
 
 </div>
 
@@ -20,7 +20,7 @@
 ## 00 · Stage 1 owner-direction overlay — account groups and currency (2026-11-20)
 
 > [!IMPORTANT]
-> **Design review only; not shipped.** Owner product decisions [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) govern these **future** flows. **Current Phase 0 remains splash → five blank selectable tabs and one disabled floating +** (no Settings, editor or onboarding route). Earlier P0 onboarding and four-group diagrams below are **future examples**, not today's app. English-only initial app copy remains. Stage 2 backup and Stage 3 Supabase/Auth are separate later flows, **not part of Stage 1**.
+> **Design review only; not shipped.** Owner product decisions [TM-DEC-006–009](../governance/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) govern these **future** flows. **Current Phase 0 remains splash → five blank selectable tabs and one disabled floating +** (no Settings, editor or onboarding route). Earlier P0 onboarding and four-group diagrams below are **future examples**, not today's app. English-only initial app copy remains. Stage 2 backup and Stage 3 Supabase/Auth are separate later flows, **not part of Stage 1**.
 
 ### 00.1 Account groups — dynamic create, edit and archive
 
@@ -89,11 +89,11 @@ flowchart TD
 
 **Stage 1:** local SQLite financial data, offline-first manual features, limited network for public FX pair metadata. **No app signup**; do not block normal data entry when rate fetch fails. **Stage 2:** encrypted, optional, user-initiated Google Drive/iCloud-compatible backup & restore; this is a **file-provider flow**, not app login or a live ledger. **Stage 3:** user explicitly opts into Supabase sync, then sees app signup/signin and consent before initial upload. Supabase RLS, conflicts, sessions, cloud deletion and sign-out semantics need separate reviewed technical design; **none** are implemented here.
 
-**Unresolved implementation blockers:** multi-currency balanced postings, investment cost-basis/value, loan accrual/schedule, card issuer due-date and minimum-due rules, backup keys, tenant isolation. See [Account Groups](08-ACCOUNT-GROUPS-SPEC.md), [Currency](10-CURRENCY-SPEC.md), [Ledger](04-DATABASE-DESIGN.md).
+**Unresolved implementation blockers:** multi-currency balanced postings, investment cost-basis/value, loan accrual/schedule, card issuer due-date and minimum-due rules, backup keys, tenant isolation. See [Account Groups](ACCOUNT-GROUPS-SPEC.md), [Currency](CURRENCY-SPEC.md), [Ledger](../architecture/DATABASE-DESIGN.md).
 
 ## 01 · The navigation promise
 
-**Initial onboarding is English-only:** no language picker in the MVP; future locales remain a separate enhancement ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
+**Initial onboarding is English-only:** no language picker in the MVP; future locales remain a separate enhancement ([TM-DEC-001](../governance/DECISIONS.md#tm-dec-001--english-only-initial-app)).
 
 **Home stays clean:** one `+` (Add) control opens one unified transaction editor. The Home screen does **not** show three Income / Expense / Transfer shortcut tiles.
 
@@ -265,11 +265,11 @@ flowchart TD
 
 ## 08 · Related specifications
 
-- [🎯 Product Requirements](01-PRD.md) — normative product scope and business rules.
-- [✍️ Documentation Style](90-DOCS-STYLE-GUIDE.md) — document quality and visual language.
-- [🎨 Screen design specification](03-SCREEN-SPEC.md) — original visual patterns, accessibility and field-state definitions.
+- [🎯 Product Requirements](PRD.md) — normative product scope and business rules.
+- [✍️ Documentation Style](../governance/DOCS-STYLE-GUIDE.md) — document quality and visual language.
+- [🎨 Screen design specification](../design/SCREEN-SPEC.md) — original visual patterns, accessibility and field-state definitions.
 - **Next:** Database design — signed journal / accounting invariant and SQLite schema.
 
 ---
 
-[← Documentation Hub](00-INDEX.md) · [Review PRD →](01-PRD.md)
+[← Documentation Hub](../00-INDEX.md) · [Review PRD →](PRD.md)

@@ -6,14 +6,14 @@
 
 ![Status](https://img.shields.io/badge/STATUS-DRAFT%20FOR%20REVIEW-7357E8?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md) · [📌 Owner Decisions](DECISIONS.md)
+[🏠 Project](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🎯 PRD](PRD.md) · [📌 Owner Decisions](../governance/DECISIONS.md)
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Future Stage 1 product requirements, NOT implemented Phase 0 UI or approved SQLite DDL.** Current Phase 0 remains five blank tabs and a disabled floating +. The existing `04-DATABASE-DESIGN.md` currently allows only Cash/Bank/Wallet/Credit Card and INR; this proposed expansion **must not be coded** until a ledger/schema ADR resolves the gaps. Owner direction: [TM-DEC-007](DECISIONS.md#tm-dec-007--account-group-driven-setup) · [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13).
+> **Future Stage 1 product requirements, NOT implemented Phase 0 UI or approved SQLite DDL.** Current Phase 0 remains five blank tabs and a disabled floating +. The existing `04-DATABASE-DESIGN.md` currently allows only Cash/Bank/Wallet/Credit Card and INR; this proposed expansion **must not be coded** until a ledger/schema ADR resolves the gaps. Owner direction: [TM-DEC-007](../governance/DECISIONS.md#tm-dec-007--account-group-driven-setup) · [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13).
 
 ## 01 · Product contract and terminology
 
@@ -27,7 +27,7 @@
 | Archive Account | Hide from ordinary pickers, retain historical ledger and backup/sync identity; reactivation explicit |
 | Group customization | **Future gated design**; free-form custom groups must not invent unsupported ledger semantics |
 
-One user can have many accounts in a group. Local data is primary; no Tio Money signup required. Currency choice must follow [Currency & FX](10-CURRENCY-SPEC.md); never silently mix minor units.
+One user can have many accounts in a group. Local data is primary; no Tio Money signup required. Currency choice must follow [Currency & FX](CURRENCY-SPEC.md); never silently mix minor units.
 
 ## 02 · Shared create/edit rules
 
@@ -162,8 +162,8 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 
 ## 07 · Architecture gate / unresolved decisions
 
-**Not yet approved SQL:** `account_groups` or typed group metadata, subtype classifications, linked accounts, card billing cycles, loan amortization, holdings and valuations need a reviewed ADR + migrations. Do **not** add unrestricted EAV fields as ledger authority; validate typed money and dates. Currency/account limits and posting policies must align with [10 — Currency](10-CURRENCY-SPEC.md) and [04 — Ledger Draft](04-DATABASE-DESIGN.md).
+**Not yet approved SQL:** `account_groups` or typed group metadata, subtype classifications, linked accounts, card billing cycles, loan amortization, holdings and valuations need a reviewed ADR + migrations. Do **not** add unrestricted EAV fields as ledger authority; validate typed money and dates. Currency/account limits and posting policies must align with [10 — Currency](CURRENCY-SPEC.md) and [04 — Ledger Draft](../architecture/DATABASE-DESIGN.md).
 
 **Open decisions:** fixed six default groups vs future custom groups; cross-group conversions; **investment cost basis versus mark-to-market Net Worth and as-of-date reconciliation**; loan accrual and original-versus-outstanding history; real card available-credit inputs; issuer-specific due day and reminders; whether minimum/fixed autopay is display-only or simulated. **None of these ambiguities authorizes moving funds.** Follow-up architecture PR must define formal SQL, flows, mobile UI, and tests. The group-specific opening rules above are a **proposed testable product contract**, not approval of executable investment/loan or multi-currency journal migrations.
 
-[← Docs Hub](00-INDEX.md) · [Currency & FX →](10-CURRENCY-SPEC.md)
+[← Docs Hub](../00-INDEX.md) · [Currency & FX →](CURRENCY-SPEC.md)

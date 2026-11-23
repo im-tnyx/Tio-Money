@@ -4,7 +4,7 @@
 
 > **Stage A only (stacked draft PR). Owner confirmed one Tio Money Expo Go Development Servers entry opens from the real Codespace; Expo Go grey Projects tile / both-device QA / Fast Refresh remain unverified. Stage B privileged automatic sync: NOT IMPLEMENTED.** This is a developer Metro session, not an installed release, permanent tunnel or always-on backend.
 
-[Technical RFC and agent PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3) · [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · [Phase 0 physical-device QA](07-PHASE-0-FOUNDATION-NOTES.md#manual-expo-go-and-real-sqlite-acceptance--not_verified)
+[Technical RFC and agent PROCEED](https://github.com/im-tnyx/Tio-Money/issues/3) · [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · [Phase 0 physical-device QA](history/phase-0/FOUNDATION-NOTES.md#manual-expo-go-and-real-sqlite-acceptance--not_verified)
 
 ## Architecture and scope
 

@@ -35,7 +35,7 @@ Own only `.devcontainer/devcontainer.json`, `scripts/start-codespace-expo.mjs`, 
 - **Rollback:** stop managed Metro, stop one Codespace, close preview PR; never overwrite Phase 0, hard reset or force-push.
 - **Exact next safe action:** open stacked **draft** PR and observe head CI results; owner tests actual SDK-compatible Expo Go on Android/iPhone and records acceptance separately. Stage B remains disabled pending owner/security gates.
 
-[Task lifecycle](../README.md) · [Agent contract](../../../AGENTS.md) · [Owner decisions](../../../docs/DECISIONS.md) · [Preview operating guide](../../../docs/CODESPACES-LIVE-PREVIEW.md)
+[Task lifecycle](../README.md) · [Agent contract](../../../AGENTS.md) · [Owner decisions](../../../docs/governance/DECISIONS.md) · [Preview operating guide](../../../docs/CODESPACES-LIVE-PREVIEW.md)
 
 ## 2026-11-19 add-on — existing Expo Go project owner identity
 

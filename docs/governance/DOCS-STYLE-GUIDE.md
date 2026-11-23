@@ -6,7 +6,7 @@
 
 ![Status](https://img.shields.io/badge/DOC%20STANDARD-V1%20DRAFT-7357E8?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Documentation Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md)
+[🏠 Project](../../README.md) · [📚 Documentation Hub](../00-INDEX.md) · [🎯 PRD](../product/PRD.md)
 
 </div>
 
@@ -39,7 +39,7 @@ Each major document follows this reusable structure:
 
 ![Status](https://img.shields.io/badge/STATUS-DRAFT-7357E8?style=flat-square)
 
-[🏠 Home](../README.md) · [📚 Docs Hub](00-INDEX.md)
+[🏠 Home](../../README.md) · [📚 Docs Hub](../00-INDEX.md)
 
 </div>
 
@@ -57,7 +57,7 @@ Each major document follows this reusable structure:
 
 ---
 
-[← Docs Hub](00-INDEX.md)
+[← Docs Hub](../00-INDEX.md)
 ```
 
 **Do not turn an entire document into decorated Markdown:** put the most useful information within the first screenful.
@@ -131,9 +131,9 @@ A product rule should connect to:
 
 | ID | Requirement | User flow | Verification |
 | :--- | :--- | :--- | :--- |
-| `TM-NAV-001` | One `+` entry | [Unified editor](02-USER-FLOWS.md#01--the-navigation-promise) | One action on Home, three form tabs |
-| `TM-TR-004` | Fee becomes expense | [Transfer fees](02-USER-FLOWS.md#03--transfer-fees--important-money-rule) | ₹5,000 + ₹50 → ₹50 expense |
-| `TM-IMP-002` | No duplicates | [Import review](02-USER-FLOWS.md#05--transaction-review-and-import-flows) | Same alert cannot create duplicate posting |
+| `TM-NAV-001` | One `+` entry | [Unified editor](../product/USER-FLOWS.md#01--the-navigation-promise) | One action on Home, three form tabs |
+| `TM-TR-004` | Fee becomes expense | [Transfer fees](../product/USER-FLOWS.md#03--transfer-fees--important-money-rule) | ₹5,000 + ₹50 → ₹50 expense |
+| `TM-IMP-002` | No duplicates | [Import review](../product/USER-FLOWS.md#05--transaction-review-and-import-flows) | Same alert cannot create duplicate posting |
 
 ## 7 · Publishing quality gate
 
@@ -149,7 +149,7 @@ A product rule should connect to:
 - [ ] Requirements and acceptance cases use consistent terminology.
 - [ ] No duplicate source-of-truth conflict between PRD, flows and tests.
 - [ ] Screenshots from other apps are documented as references, not embedded as owned designs.
-- [ ] New docs appear in the [hub](00-INDEX.md).
+- [ ] New docs appear in the [hub](../00-INDEX.md).
 - [ ] Changes affecting security or bank imports include relevant platform caveats.
 
 ## 8 · What's next
@@ -158,4 +158,4 @@ Follow this standard for the **Screen Specification**, **Data Model & Ledger**, 
 
 ---
 
-[← Docs Hub](00-INDEX.md) · [User Flows →](02-USER-FLOWS.md)
+[← Docs Hub](../00-INDEX.md) · [User Flows →](../product/USER-FLOWS.md)

@@ -20,7 +20,7 @@ Re-check GitHub immediately before any merge or settings change.
 | Code scanning findings or Dependabot vulnerabilities | **Not verified** | Connector cannot read alert endpoints; do not claim zero findings |
 | Legacy branch-protection endpoint | Integration returns HTTP 403 | No claim about hidden additional legacy settings |
 
-The new [Dependabot policy](../.github/dependabot.yml) proposes weekly **version-update PRs** for
+The new [Dependabot policy](../../.github/dependabot.yml) proposes weekly **version-update PRs** for
 the root npm manifest and GitHub Actions, with at most two open PRs in each category.
 Nothing auto-merges; sensitive isolated `.github/preview-eas-cli` dependencies are outside
 the root npm directory scope. Proposals that change trusted EAS preview actions must
@@ -71,7 +71,7 @@ GitHub guidance: [CodeQL default setup](https://docs.github.com/en/code-security
 - Check exact PR HEAD, all CI/job conclusions, full diff, PR findings and formal review
   requirements. Independent security review is recommended and must not be faked.
 - A new PR requires **separate PR-specific owner merge authorization** under
-  [AGENTS.md](../AGENTS.md). The owner authorization given for currency PR #53 does
+  [AGENTS.md](../../AGENTS.md). The owner authorization given for currency PR #53 does
   not authorize merging a new security PR. No auto-merge or branch deletion.
 - Currency PR #53 is a separate merge gate. Its device QA acceptance does not prove
   repository-wide vulnerability clearance or enable any security setting.

@@ -35,7 +35,7 @@
 - Module ownership, public/private interfaces, architecture contracts, reuse and dependencies:
 - Security/privacy, applicable platform policies, alternatives, risks and rollback:
 - Acceptance tests **defined before coding**:
-- Canonical [decision register](../../docs/DECISIONS.md), RFC/proceed decision maker, source and conditions (plus optional owner signoff):
+- Canonical [decision register](../../docs/governance/DECISIONS.md), RFC/proceed decision maker, source and conditions (plus optional owner signoff):
 - Proceed gate: move from `DECISION_PENDING` to `APPROVED` after a durable, bounded `PROCEED` technical decision (owner implementation signoff optional); unresolved high-risk/restricted decisions block.
 - Independent **review** is optional by default; strongly recommend for financial/security/privacy/auth/migration/platform changes. Record review status and never bypass unresolved blocking findings or required GitHub review settings.
 - **Separate owner merge authorization:** `NOT_GRANTED` unless source confirms repo, PR number, permission to merge and conditions. Agent merge is permitted only after explicit instruction and current-HEAD/protection revalidation. This template is not authorization.
