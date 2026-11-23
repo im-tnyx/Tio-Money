@@ -4,6 +4,7 @@
 
 - **Owner direction:** Start a tracked .ai task and reorganize the flat docs folder into coherent product, design, architecture, engineering, security, governance and history categories; keep historical audit/CI evidence outside README. **RFC:** [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89); [agent-recorded technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/89#issuecomment-7091498129).
 - **Task:** [TM-DOC-IA-20261123-001](tasks/governance/documentation-information-architecture-20261123.md); scoped branch `docs/information-architecture-20261123` at main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`. Docs-only, canonical decisions and history preserved, verify all moved-file links and actual CI. **PR #88/#80 touch shared documentation/index; avoid overwriting concurrent changes.**
+- **Draft PR:** [#90 — category docs + product-first README](https://github.com/im-tnyx/Tio-Money/pull/90) opened on scoped branch; 18 canonical docs moved, Phase 0 historical checkpoint archived. 3 in-flight preview docs deliberately deferred for PR #88; exact-head CI and PR overlap reconciliation pending. No owner merge authorization.
 - **Permissions:** Owner instructed work to start; no PR-specific merge authorization, no main modification, force push, security waiver or policy change. Independent review DEFERRED at task opening; current CI NOT_RUN.
 
 
