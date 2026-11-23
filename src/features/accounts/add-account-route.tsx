@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 
+import { CURRENCY_OPTIONS } from '@/shared/currency/currency-preference';
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
 import { useReducedMotion } from '@/shared/navigation/reduced-motion-provider';
 
@@ -52,7 +53,12 @@ function AccountDraftController({
     <AddAccountScreen
       form={{
         draft,
-        currencyChoices: accountCurrencyChoices(draft, currencies),
+        currencyChoices:
+          accountCurrencyChoices(draft, currencies)?.map((value) => ({
+            value,
+            label: value,
+            symbol: CURRENCY_OPTIONS.find(({ code }) => code === value)?.symbol,
+          })) ?? null,
         showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
         canApplyMode: draft.group === 'bank' && Boolean(draft.modeEditor?.name.trim()),
         animateSheet: !reduceMotion,

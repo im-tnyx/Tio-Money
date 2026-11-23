@@ -296,7 +296,9 @@ export function updateAccountDraft(
 
 export interface AddAccountViewModel {
   readonly draft: AccountDraft;
-  readonly currencyChoices: readonly CurrencyCode[] | null;
+  readonly currencyChoices:
+    | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol?: string }[]
+    | null;
   readonly showWalletFunding: boolean;
   readonly canApplyMode: boolean;
   readonly animateSheet: boolean;

@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
@@ -24,66 +24,86 @@ export function AccountChoices<Value extends string>({
   options,
   value,
   onChange,
+  singleRow = false,
 }: {
   readonly label: TranslationKey;
-  readonly options: readonly { readonly value: Value; readonly label: string }[];
+  readonly options: readonly {
+    readonly value: Value;
+    readonly label: string;
+    readonly symbol?: string;
+  }[];
   readonly value?: Value;
   readonly onChange?: (value: Value) => void;
+  readonly singleRow?: boolean;
 }) {
   const theme = useAppTheme();
+  const choices = (
+    <View
+      accessibilityRole="radiogroup"
+      accessibilityLabel={t(label)}
+      style={{ flexDirection: 'row', flexWrap: singleRow ? 'nowrap' : 'wrap', gap: theme.space.sm }}
+    >
+      {options.map((option) => {
+        const selected = value === option.value;
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ checked: selected, disabled: !onChange }}
+            disabled={!onChange}
+            onPress={onChange ? () => onChange(option.value) : undefined}
+            style={{
+              minHeight: theme.buttons.minimumHeight,
+              borderWidth: theme.buttons.outlineWidth,
+              borderColor: selected ? theme.colors.brand : theme.colors.border,
+              borderRadius: theme.radius.sm,
+              backgroundColor: theme.colors.card,
+              paddingHorizontal: theme.space.md,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.space.xxs,
+            }}
+          >
+            {selected ? (
+              <Svg
+                width={theme.iconRoles.button}
+                height={theme.iconRoles.button}
+                viewBox="0 0 24 24"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Path
+                  d="m5 12 4 4 10-10"
+                  fill="none"
+                  stroke={theme.colors.primaryText}
+                  strokeWidth={theme.icons.stroke}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            ) : null}
+            {option.symbol && option.symbol !== option.label ? (
+              <AppText variant="section" muted={!onChange}>
+                {option.symbol}
+              </AppText>
+            ) : null}
+            <AppText muted={!onChange}>{option.label}</AppText>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
   return (
     <View style={{ gap: theme.space.xxs }}>
       <AppText>{t(label)}</AppText>
-      <View
-        accessibilityRole="radiogroup"
-        accessibilityLabel={t(label)}
-        style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.sm }}
-      >
-        {options.map((option) => {
-          const selected = value === option.value;
-          return (
-            <Pressable
-              key={option.value}
-              accessibilityRole="radio"
-              accessibilityLabel={option.label}
-              accessibilityState={{ checked: selected, disabled: !onChange }}
-              disabled={!onChange}
-              onPress={onChange ? () => onChange(option.value) : undefined}
-              style={{
-                minHeight: theme.buttons.minimumHeight,
-                borderWidth: theme.buttons.outlineWidth,
-                borderColor: selected ? theme.colors.brand : theme.colors.border,
-                borderRadius: theme.radius.sm,
-                backgroundColor: theme.colors.card,
-                paddingHorizontal: theme.space.md,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: theme.space.xxs,
-              }}
-            >
-              {selected ? (
-                <Svg
-                  width={theme.iconRoles.button}
-                  height={theme.iconRoles.button}
-                  viewBox="0 0 24 24"
-                  accessibilityElementsHidden
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  <Path
-                    d="m5 12 4 4 10-10"
-                    fill="none"
-                    stroke={theme.colors.primaryText}
-                    strokeWidth={theme.icons.stroke}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </Svg>
-              ) : null}
-              <AppText muted={!onChange}>{option.label}</AppText>
-            </Pressable>
-          );
-        })}
-      </View>
+      {singleRow ? (
+        <ScrollView horizontal keyboardShouldPersistTaps="handled">
+          {choices}
+        </ScrollView>
+      ) : (
+        choices
+      )}
     </View>
   );
 }
