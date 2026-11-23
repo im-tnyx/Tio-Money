@@ -275,6 +275,23 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(choices, /disabled=\{!onChange\}/);
 });
 
+test('main Add Account fields opt into borderless input and the Bank mode sheet stays outlined', () => {
+  const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
+  const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
+
+  const mainField = form.match(/<AccountField\s[\s\S]*?\/>/)?.[0];
+  const sheetField = bankModes.match(/<AccountField\s[\s\S]*?\/>/)?.[0];
+  assert.ok(mainField);
+  assert.ok(sheetField);
+  assert.match(mainField, /appearance="borderless"/);
+  assert.match(sheetField, /label="accountModeName"/);
+  assert.doesNotMatch(sheetField, /appearance=/);
+  assert.match(field, /appearance = 'outlined'/);
+  assert.match(field, /borderWidth: borderless \? 0 : theme\.navigation\.borderWidth/);
+  assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
+});
+
 test('settings routes are distinct and detail routes inherit shared theme motion', () => {
   const more = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
   const stack = readFileSync('src/app/_layout.tsx', 'utf8');

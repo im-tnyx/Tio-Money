@@ -83,6 +83,7 @@ function DraftInput({
   const spec = fieldSpecs[field];
   return (
     <AccountField
+      appearance="borderless"
       label={label ?? spec.label}
       value={value}
       keyboardType={'money' in spec ? 'decimal-pad' : undefined}
