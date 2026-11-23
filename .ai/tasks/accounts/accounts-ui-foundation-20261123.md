@@ -141,6 +141,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - The controller supplies currency symbols from the shared catalog. The main form reuses radio choices with a single scrollable row, codes and checked states. A new draft defaults to Main, and preference eligibility and guarded amount clearing are preserved.
 - Account Groups and Manage Accounts share the Currency card surface and divider styles. Each row continues to dispatch its existing action.
 - Changed paths besides this record and the index are `src/features/accounts/account-form-contract.ts`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/features/settings/more-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- The first full test run found that TM-CUR-025 expected inline styles. Updated `tests/phase0/more-currency-group.test.ts` to verify that Currency still uses one card and one inset divider through the shared styles.
 - Source self-review PERFORMED, independent review DEFERRED and device visual QA pending. Exact published HEAD and validation evidence are recorded in [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96). Save remains disabled and merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
