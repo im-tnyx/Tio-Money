@@ -156,6 +156,22 @@ test('every eligible form defaults to Main and only shows currency choices with 
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
+test('currency radio buttons render catalog symbols and codes in one scrollable row', () => {
+  const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+  const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+
+  const currencyButtons = screen.match(/<AccountChoices\s+label="currency"[\s\S]*?\/>/)?.[0];
+  assert.ok(currencyButtons);
+  assert.match(currencyButtons, /options=\{currencyChoices\}\s+singleRow/);
+  assert.match(currencyButtons, /value=\{draft.currency\}/);
+  assert.match(route, /newAccountDraft\(group, preferences\.mainCode\)/);
+  assert.match(route, /symbol: CURRENCY_OPTIONS\.find/);
+  assert.match(choices, /option\.symbol !== option\.label/);
+  assert.match(choices, /flexWrap: singleRow \? 'nowrap' : 'wrap'/);
+  assert.match(choices, /<ScrollView horizontal keyboardShouldPersistTaps="handled">/);
+});
+
 test('currency changes clear each group’s amounts while retaining all other draft data', () => {
   const monetaryFields = {
     cash: ['openingAmount'],
@@ -300,6 +316,28 @@ test('settings routes are distinct and detail routes inherit shared theme motion
   assert.match(stack, /name="add-account\/\[group\]" options=\{motion\.detail\}/);
   assert.match(stack, /name="manage-accounts" options=\{motion\.detail\}/);
   assert.match(stack, /contentStyle: \{ backgroundColor: theme\.colors\.canvas \}/);
+});
+
+test('Account Settings groups both destinations in one card styled like Currency', () => {
+  const settings = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
+  const accountStart = settings.indexOf("t('accountSettings')");
+  const appearanceStart = settings.indexOf("t('appearance')");
+  assert.ok(accountStart >= 0 && appearanceStart > accountStart);
+  const accounts = settings.slice(accountStart, appearanceStart);
+  const card = accounts.indexOf('<View style={settingsCardStyle}>');
+
+  assert.ok(card >= 0);
+  assert.ok(accounts.indexOf('accountSettingsRows.map') > card);
+  assert.match(
+    settings,
+    /const accountSettingsRows = \[[\s\S]*?action: 'account\.groups\.open'[\s\S]*?action: 'account\.manage\.open'[\s\S]*?\] as const/,
+  );
+  assert.match(accounts, /index > 0 \? <View accessible=\{false\} style=\{settingsDividerStyle\}/);
+  assert.match(accounts, /onPress=\{\(\) => onAction\(\{ type: action \}\)\}/);
+  assert.match(
+    settings.slice(appearanceStart),
+    /t\('currency'\)[\s\S]*?<View style=\{settingsCardStyle\}>/,
+  );
 });
 
 test('account screens forward presentation callbacks with disabled Save and no Manage add action', () => {

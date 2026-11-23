@@ -151,7 +151,8 @@ function AccountFields({
         <View style={{ gap: theme.space.xxs }}>
           <AccountChoices
             label="currency"
-            options={currencyChoices.map((value) => ({ value, label: value }))}
+            options={currencyChoices}
+            singleRow
             value={draft.currency}
             onChange={(value) => onAction({ type: 'currency', value })}
           />

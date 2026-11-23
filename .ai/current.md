@@ -10,6 +10,7 @@
 - [Owner correction follow-up PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098232880) verifies the six forms and guards against stale currency actions while the selector is hidden. Regression coverage checks amount reset and draft retention across all six groups. Exact published HEAD and observed check results are recorded in RFC #96.
 - [Branch reconciliation PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098601639) brings the five commits through main `6468b62786d56edb1a70b7a5c90146e17566e23b` into Draft #97. The shared index preserves both Accounts and Manual Expo preview recovery entries. Exact published HEAD and checks are recorded in RFC #96.
 - [Borderless Add Account fields PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098953741) removes the outlines from the six main forms’ text fields. The Bank Linked Payment Modes bottom sheet keeps its outlined input. Exact HEAD and validation evidence are recorded in RFC #96.
+- [Currency row PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099073273) adds catalog symbols and a single horizontal row with Main selected on new drafts. [Account Settings card PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099098074) groups Account Groups and Manage Accounts on a shared surface. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
