@@ -107,6 +107,20 @@ export function draftCurrencies(preferences: Pick<CurrencyPreferences, 'mainCode
   return [preferences.mainCode, ...preferences.subCodes];
 }
 
+function hasIndependentCurrency(draft: AccountDraft): boolean {
+  return draft.group !== 'wallet' || draft.walletKind === 'funded';
+}
+
+/** A missing choice list means the entire selector is hidden. */
+export function accountCurrencyChoices(
+  draft: AccountDraft,
+  configuredCurrencies: readonly CurrencyCode[],
+): readonly CurrencyCode[] | null {
+  return configuredCurrencies.length > 1 && hasIndependentCurrency(draft)
+    ? configuredCurrencies
+    : null;
+}
+
 export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): AccountDraft {
   const common = { name: '', description: '' };
   switch (group) {
@@ -199,6 +213,17 @@ function changeCurrency(draft: AccountDraft, currency: CurrencyCode): AccountDra
   }
 }
 
+/** Clear amounts before falling back from a currency removed in Settings. */
+export function reconcileAccountDraftCurrency(
+  draft: AccountDraft,
+  mainCurrency: CurrencyCode,
+  configuredCurrencies: readonly CurrencyCode[],
+): AccountDraft {
+  return configuredCurrencies.includes(draft.currency)
+    ? draft
+    : changeCurrency(draft, mainCurrency);
+}
+
 function updateModes(
   draft: Extract<AccountDraft, { group: 'bank' }>,
   action: PaymentModeAction,
@@ -254,7 +279,9 @@ export function updateAccountDraft(
         ? withDraftFields(draft, { [action.field]: action.value })
         : draft;
     case 'currency':
-      return allowedCurrencies.includes(action.value) && draft.currency !== action.value
+      return hasIndependentCurrency(draft) &&
+        allowedCurrencies.includes(action.value) &&
+        draft.currency !== action.value
         ? changeCurrency(draft, action.value)
         : draft;
     case 'wallet.kind':
@@ -270,7 +297,7 @@ export function updateAccountDraft(
 
 export interface AddAccountViewModel {
   readonly draft: AccountDraft;
-  readonly currencies: readonly CurrencyCode[];
+  readonly currencyChoices: readonly CurrencyCode[] | null;
   readonly showWalletFunding: boolean;
   readonly canApplyMode: boolean;
   readonly animateSheet: boolean;

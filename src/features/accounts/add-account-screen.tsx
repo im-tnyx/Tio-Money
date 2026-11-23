@@ -40,7 +40,7 @@ const investmentLabels = {
   ppf: 'accountInvestmentPpf',
   other: 'accountInvestmentOther',
 } as const;
-const trackingLabels = [
+const autoPayLabels = [
   'accountTrackingOff',
   'accountTrackingFull',
   'accountTrackingMinimum',
@@ -130,7 +130,7 @@ export function AddAccountScreen({
 
 function AccountFields({
   draft,
-  currencies,
+  currencyChoices,
   showWalletFunding,
   onAction,
   onBack,
@@ -146,19 +146,17 @@ function AccountFields({
         onAction={onAction}
       />
       <GroupFields draft={draft} showWalletFunding={showWalletFunding} onAction={onAction} />
-      {draft.group !== 'wallet' || showWalletFunding ? (
+      {currencyChoices ? (
         <View style={{ gap: theme.space.xxs }}>
           <AccountChoices
             label="currency"
-            options={currencies.map((value) => ({ value, label: value }))}
+            options={currencyChoices.map((value) => ({ value, label: value }))}
             value={draft.currency}
             onChange={(value) => onAction({ type: 'currency', value })}
           />
-          {currencies.length > 1 ? (
-            <AppText variant="caption" muted>
-              {t('accountCurrencyChangeHint')}
-            </AppText>
-          ) : null}
+          <AppText variant="caption" muted>
+            {t('accountCurrencyChangeHint')}
+          </AppText>
         </View>
       ) : null}
       <DraftInput field="description" value={draft.fields.description} onAction={onAction} />
@@ -206,11 +204,11 @@ function GroupFields({
           <DraftInput field="dueDate" value={draft.fields.dueDate} onAction={onAction} />
           <UnavailableAccountChoice label="accountPayFrom" detail="accountPayFromUnavailable" />
           <AccountChoices
-            label="accountTracking"
-            options={trackingLabels.map((value) => ({ value, label: t(value) }))}
+            label="accountAutoPay"
+            options={autoPayLabels.map((value) => ({ value, label: t(value) }))}
           />
           <AppText variant="caption" muted>
-            {t('accountTrackingUnavailable')}
+            {t('accountAutoPayUnavailable')}
           </AppText>
         </>
       );

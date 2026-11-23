@@ -3,9 +3,11 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import {
+  accountCurrencyChoices,
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
+  reconcileAccountDraftCurrency,
   updateAccountDraft,
   type AccountDraft,
   type AccountFormAction,
@@ -13,6 +15,7 @@ import {
 } from '../../src/features/accounts/account-form-contract';
 import { beginPickerClose, finishPickerClose } from '../../src/features/accounts/account-picker';
 import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-group-templates';
+import { en } from '../../src/shared/i18n/strings';
 
 const currencies = draftCurrencies({ mainCode: 'INR', subCodes: ['USD', 'JPY'] });
 
@@ -136,6 +139,103 @@ test('currency uses configured preferences, retains reference dates and never re
   const changed = updateAccountDraft(draft, { type: 'currency', value: 'JPY' }, currencies);
   assert.equal(changed.currency, 'JPY');
   assert.deepEqual(changed.fields, { ...draft.fields, investedCost: '', valuation: '' });
+});
+
+test('every eligible form defaults to Main and only shows currency choices with configured Subs', () => {
+  const mainOnly = draftCurrencies({ mainCode: 'INR', subCodes: [] });
+  for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
+    if (!isPreviewGroup(id)) continue;
+    const draft = newAccountDraft(id, 'INR');
+    assert.equal(draft.currency, 'INR', id);
+    assert.equal(accountCurrencyChoices(draft, mainOnly), null, id);
+    assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY'], id);
+  }
+  const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  assert.match(screen, /\{currencyChoices \? \([\s\S]*?label="currency"[\s\S]*?\) : null\}/);
+  assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
+});
+
+test('removing a chosen Sub or changing Main clears old monetary input and retains reference fields', () => {
+  const draft = replay('credit-card', [
+    { type: 'text', field: 'name', value: 'Personal' },
+    { type: 'currency', value: 'USD' },
+    { type: 'text', field: 'outstanding', value: '34.55' },
+    { type: 'text', field: 'creditLimit', value: '2000' },
+    { type: 'text', field: 'dueDate', value: '2026-11-23' },
+  ]);
+  assert.equal(reconcileAccountDraftCurrency(draft, 'INR', currencies), draft);
+  const mainOnly = draftCurrencies({ mainCode: 'JPY', subCodes: [] });
+  const reconciled = reconcileAccountDraftCurrency(draft, 'JPY', mainOnly);
+  assert.equal(accountCurrencyChoices(reconciled, mainOnly), null);
+  assert.equal(reconciled.currency, 'JPY');
+  assert.deepEqual(reconciled.fields, {
+    ...draft.fields,
+    outstanding: '',
+    creditLimit: '',
+  });
+  const readded = draftCurrencies({ mainCode: 'JPY', subCodes: ['USD'] });
+  assert.equal(reconcileAccountDraftCurrency(reconciled, 'JPY', readded), reconciled);
+  assert.deepEqual(accountCurrencyChoices(reconciled, readded), ['JPY', 'USD']);
+  const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+  assert.match(route, /if \(draft !== edit\) setEdit\(draft\)/);
+});
+
+test('a Bank-linked Wallet has no currency choice and retains the funded draft when toggled back', () => {
+  const funded = replay('wallet', [
+    { type: 'currency', value: 'USD' },
+    { type: 'text', field: 'openingAmount', value: '13.50' },
+  ]);
+  const linked = updateAccountDraft(
+    funded,
+    { type: 'wallet.kind', value: 'bank-linked' },
+    currencies,
+  );
+  assert.equal(accountCurrencyChoices(linked, currencies), null);
+  assert.equal(updateAccountDraft(linked, { type: 'currency', value: 'JPY' }, currencies), linked);
+  assert.deepEqual(
+    updateAccountDraft(linked, { type: 'wallet.kind', value: 'funded' }, currencies),
+    funded,
+  );
+});
+
+test('group fields render from the correct typed draft and Card keeps unavailable Auto Pay controls', () => {
+  const expectedFields = {
+    cash: ['openingAmount'],
+    bank: ['bankName', 'openingAmount'],
+    'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
+    wallet: ['provider', 'openingAmount'],
+    loan: ['originalPrincipal', 'outstandingPrincipal', 'startDate', 'nextDueDate'],
+    investment: ['investedCost', 'valuation', 'valuationDate'],
+  } satisfies Record<PreviewGroup, readonly string[]>;
+  const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const groupFields = screen.slice(screen.indexOf('function GroupFields'));
+  assert.match(screen, /field="name"[\s\S]*?accountCardName/);
+  assert.match(screen, /field="description"/);
+  assert.match(screen, /draft.group === 'bank' \? <BankPaymentModes/);
+  for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
+    if (!isPreviewGroup(id)) continue;
+    const [section] = groupFields.split("case '" + id + "':")[1]?.split(/case '/) ?? [];
+    assert.ok(section, id);
+    const rendered = [...section.matchAll(/<DraftInput\s+field="([^"]+)"/g)].map(
+      (match) => match[1],
+    );
+    assert.deepEqual(rendered, expectedFields[id], id);
+    assert.deepEqual(
+      Object.keys(newAccountDraft(id, 'INR').fields).sort(),
+      [...expectedFields[id], 'name', 'description'].sort(),
+    );
+  }
+  assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
+  assert.equal(en.accountCardDueDate, 'Due Date');
+  assert.equal(en.accountAutoPay, 'Auto Pay');
+  assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
+  const autoPay = screen.match(/<AccountChoices\s+label="accountAutoPay"[\s\S]*?\/>/)?.[0];
+  assert.ok(autoPay);
+  assert.doesNotMatch(autoPay, /onChange|value=\{/);
+  const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  assert.match(choices, /accessibilityRole="radio"/);
+  assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled: !onChange \}\}/);
+  assert.match(choices, /disabled=\{!onChange\}/);
 });
 
 test('settings routes are distinct and detail routes inherit shared theme motion', () => {
