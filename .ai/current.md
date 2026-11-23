@@ -1,5 +1,9 @@
 # 🧭 Current task index
 
+## 2026-11-23 — PR #80 Android horizontal Stack slide + native Back
+
+- **Owner feedback:** Android Back appeared unanimated; prefers slide to fade-from-bottom. Technical PROCEED in [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091432351). Shared detail policy targets Android `slide_from_right` with inverse native pop, iOS 160ms fade and all five tab fades unchanged, OS Reduced Motion respected. Theme README/tests updated; real Android open/Back/gesture/Animator-scale QA pending. PR #80 only, no merge authorization or Issue #71 security waiver.
+
 ## 2026-11-23 — PR #80 Android motion tweak `fade_from_bottom`
 
 - Owner requested Android smoothness correction, iOS unchanged; scoped PROCEED [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091210809). Shared policy now selects native Android `fade_from_bottom`, iOS native 160ms `fade`, JS Tabs unchanged, OS Reduced Motion respected. Theme README and Phase0 tests updated. Native on-device perceptual QA pending; no protected-main change or PR merge authorization. Issue #71 OPEN.

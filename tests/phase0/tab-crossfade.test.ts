@@ -27,7 +27,7 @@ test('one theme primitive owns both tab and detail fade intent', () => {
 
   const android = getNavigationMotion(false, navigationTokens, 'android');
   assert.deepEqual(android.tab, active.tab);
-  assert.deepEqual(android.detail, { animation: 'fade_from_bottom' });
+  assert.deepEqual(android.detail, { animation: 'slide_from_right' });
 
   const reduced = getNavigationMotion(true, navigationTokens, 'ios');
   assert.equal(reduced.tab.animation, 'none');
@@ -93,4 +93,17 @@ test('one root-owned Reduced Motion listener serves both navigator types', () =>
   assert.match(hook, /useReducedMotion\(\)/);
   assert.match(alias, /useReducedMotion as useReducedTabMotion/);
   assert.doesNotMatch(provider, /useRouter|Sqlite|SQLite|setInterval/);
+});
+
+test('Account Groups opens with native push and closes with native pop, not replace', () => {
+  const moreViewModel = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
+  const groupViewModel = readFileSync(
+    'src/features/settings/use-account-groups-view-model.ts',
+    'utf8',
+  );
+  assert.match(moreViewModel, /router\.push\('\/account-groups'\)/);
+  assert.match(groupRoute, /useAccountGroupsViewModel\(\(\) => router\.back\(\)\)/);
+  assert.match(groupViewModel, /case 'back':\s*onBack\(\)/);
+  assert.doesNotMatch(groupRoute, /router\.replace\(/);
+  assert.doesNotMatch(moreViewModel, /router\.replace\('\/account-groups'\)/);
 });

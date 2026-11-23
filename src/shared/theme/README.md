@@ -190,8 +190,10 @@ light/dark background when the user overrides the device appearance.
 **Requirement:** The More tab scene crossfade and Account Groups detail-page fade
 share a theme-owned motion policy, rather than accidental per-screen/native defaults.
 Owner feedback for PR #80: iOS fade felt right, but the Android native fade did not.
-The detail motion therefore uses Android's native `fade_from_bottom` transition,
-while keeping iOS's 160ms `fade` and all five tab fades unchanged.
+A subsequent Android test also found Back had no visible motion and preferred a slide.
+The detail motion therefore uses Android's native `slide_from_right` transition,
+for horizontal forward push and reverse Back pop, while preserving iOS's 160ms
+`fade` and all five tab fades unchanged.
 The screen content remains dumb: only the router layout/controller selects motion.
 
 - `primitives.ts` keeps exactly one approved duration:
@@ -213,11 +215,14 @@ The screen content remains dumb: only the router layout/controller selects motio
 - **Navigator API distinction:** Expo Router JS Tabs support `animation: 'fade'`
   plus `transitionSpec` with an exact 160ms timing config. Expo Router native Stack
   uses **iOS `animation: 'fade'` and `animationDuration=160ms`** (theme token);
-  **Android `animation: 'fade_from_bottom'`** with platform-native timing and
+  **Android `animation: 'slide_from_right'`** with platform-native timing and
   no `animationDuration` override. That duration API applies **on iOS only**;
   do **not** claim an exact Android 160ms transition, measured frame smoothness or
-  visual parity. Do not pass JS Tabs `transitionSpec` to native Stack or fake
-  its fade with `Animated.View`.
+  visual parity or guaranteed frame rate. Do not pass JS Tabs `transitionSpec` to
+  native Stack or fake its transition with `Animated.View`. A Stack `router.back()`
+  normally pops with the reverse native slide; `router.replace()` is not a
+  substitute. Android accessibility Reduced Motion, Developer Options animator
+  duration scale and OS behavior can remove visible motion.
 - The `AppBottomSheet` native modal keeps its existing `animationType="slide"`;
   swipe-to-reveal Delete stays finger-driven. These interactions are **not**
   replacements for navigation fade and should not be globally overwritten.
@@ -233,7 +238,8 @@ compare both semantic duration aliases and prove the Account Groups Stack uses
 the reusable policy. The policy must be platform-injected and pure.
 Run exact-HEAD typecheck, ESLint, Prettier, Phase 0/preview tests and Android/iOS
 Metro. **Native acceptance still required:** tab switches, More→Account Groups
-open/Back, iOS interactive Back, Android hardware Back, swipe Delete, bottom
+open and reverse Back slide, iOS interactive Back, Android hardware/gesture Back,
+Android animator-duration scale and Reduced Motion ON/OFF, swipe Delete, bottom
 sheet Save/keyboard, light/dark and Reduced Motion toggle during a session.
 No source-only test or Metro bundling proves visual timing on real devices.
 
