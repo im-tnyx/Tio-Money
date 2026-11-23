@@ -46,7 +46,6 @@ export const buttonTokens = {
   /** Painted ActionButton surface; independent of its accessible touch region. */
   actionHeight: size.dp42,
   smallActionHeight: size.dp32,
-  currencyChoiceSize: size.dp36,
   minimumHeight: size.dp48,
   noBorder: size.dp0,
   enabledOpacity: opacity.enabled,

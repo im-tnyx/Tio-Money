@@ -21,6 +21,7 @@
 - [Single Auto Pay row PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100361542) puts a disabled Off switch below Credit Card Description. The repayment-account row is labeled [Payment](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100426277). Exact HEAD and checks are recorded in RFC #96.
 - [Stable Currency selection PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100580606) keeps the configured symbol order and highlights the tapped box in place. This supersedes fixed right-side selection placement. Exact HEAD and checks are recorded in RFC #96.
 - [Add Account text hierarchy PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100690697) distinguishes muted labels, placeholders, prominent values and primary leading icons. Exact HEAD and checks are recorded in RFC #96.
+- [Amount symbol Currency picker PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100887525) replaces the inline boxes. Card symbols share one draft currency. Add Currency opens the existing Sub Currency setting. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

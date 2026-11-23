@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Switch, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -7,6 +6,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { ActionButton } from '@/shared/ui/action-button';
 import { AppText } from '@/shared/ui/app-text';
 
+import { AccountCurrencyPicker } from './account-currency-picker';
 import {
   investmentKinds,
   loanDirections,
@@ -16,7 +16,12 @@ import {
   type DraftField,
   type PreviewGroup,
 } from './account-form-contract';
-import { AccountChoices, AccountField, UnavailableAccountChoice } from './account-form-controls';
+import {
+  AccountChoices,
+  AccountField,
+  UnavailableAccountChoice,
+  type AccountFieldLeadingAction,
+} from './account-form-controls';
 import { AccountPage } from './account-page';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
 
@@ -71,12 +76,14 @@ function DraftInput({
   value,
   onAction,
   currencySymbol,
+  currencyAction,
   label,
 }: {
   readonly field: DraftField;
   readonly value: string;
   readonly onAction: (action: AccountFormAction) => void;
   readonly currencySymbol: string;
+  readonly currencyAction?: AccountFieldLeadingAction;
   readonly label?: TranslationKey;
 }) {
   const theme = useAppTheme();
@@ -108,6 +115,7 @@ function DraftInput({
       label={label ?? spec.label}
       labelAsPlaceholder={field === 'name' || description}
       leading={leading}
+      leadingAction={money ? currencyAction : undefined}
       value={value}
       keyboardType={money ? 'decimal-pad' : undefined}
       placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}
@@ -150,6 +158,13 @@ export function AddAccountScreen({
         </ScrollView>
       </KeyboardAvoidingView>
       {form?.draft.group === 'bank' ? <BankModeEditor {...form} draft={form.draft} /> : null}
+      {form?.currencyPicker ? (
+        <AccountCurrencyPicker
+          picker={form.currencyPicker}
+          value={form.draft.currency}
+          animate={Platform.OS === 'ios' && form.animateSheet}
+        />
+      ) : null}
     </AccountPage>
   );
 }
@@ -157,27 +172,20 @@ export function AddAccountScreen({
 function AccountFields({
   draft,
   currencySymbol,
-  currencyChoices,
+  currencyPicker,
   showWalletFunding,
   onAction,
   onBack,
 }: AddAccountViewModel & { readonly onBack: () => void }) {
   const theme = useAppTheme();
-  const inputProps = { currencySymbol, onAction };
-  const currencyField = currencyChoices ? (
-    <View style={{ gap: theme.space.xxs }}>
-      <AccountChoices
-        label="currency"
-        options={currencyChoices}
-        singleRow
-        value={draft.currency}
-        onChange={(value) => onAction({ type: 'currency', value })}
-      />
-      <AppText variant="caption" muted>
-        {t('accountCurrencyChangeHint')}
-      </AppText>
-    </View>
-  ) : null;
+  const currencyAction = currencyPicker
+    ? {
+        label: t('accountChooseCurrency') + ': ' + draft.currency,
+        expanded: currencyPicker.visible,
+        onPress: currencyPicker.onOpen,
+      }
+    : undefined;
+  const inputProps = { currencySymbol, currencyAction, onAction };
   return (
     <>
       <AppText muted>{t('accountFormPreview')}</AppText>
@@ -187,13 +195,7 @@ function AccountFields({
         value={draft.fields.name}
         {...inputProps}
       />
-      <GroupFields
-        draft={draft}
-        showWalletFunding={showWalletFunding}
-        currencyField={currencyField}
-        {...inputProps}
-      />
-      {draft.group === 'credit-card' ? null : currencyField}
+      <GroupFields draft={draft} showWalletFunding={showWalletFunding} {...inputProps} />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
       {draft.group === 'credit-card' ? (
         <View
@@ -230,13 +232,13 @@ function AccountFields({
 function GroupFields({
   draft,
   currencySymbol,
-  currencyField,
+  currencyAction,
   showWalletFunding,
   onAction,
 }: Pick<AddAccountViewModel, 'draft' | 'currencySymbol' | 'showWalletFunding' | 'onAction'> & {
-  readonly currencyField: ReactNode;
+  readonly currencyAction?: AccountFieldLeadingAction;
 }) {
-  const inputProps = { currencySymbol, onAction };
+  const inputProps = { currencySymbol, currencyAction, onAction };
   switch (draft.group) {
     case 'cash':
     case 'bank':
@@ -248,7 +250,6 @@ function GroupFields({
         <>
           <DraftInput field="outstanding" value={draft.fields.outstanding} {...inputProps} />
           <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...inputProps} />
-          {currencyField}
           <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
           <UnavailableAccountChoice label="accountPayFrom" detail="accountPayFromUnavailable" />

@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { SubCurrencyScreen } from './sub-currency-screen';
 import { useSubCurrencyViewModel } from './use-sub-currency-view-model';
@@ -11,7 +11,8 @@ import { useSubCurrencySwipeController } from './use-sub-currency-swipe-controll
  * of popping the route. This is scoped to the Sub Currency route only.
  */
 export function SubCurrencyRoute() {
-  const { state, onAction } = useSubCurrencyViewModel();
+  const { add } = useLocalSearchParams<{ add?: string }>();
+  const { state, onAction } = useSubCurrencyViewModel(null, add === '1');
   const swipe = useSubCurrencySwipeController();
 
   return (

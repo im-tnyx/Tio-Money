@@ -177,47 +177,73 @@ test('every eligible form defaults to Main and only shows currency choices with 
     assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY'], id);
   }
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  assert.match(
-    screen,
-    /const currencyField = currencyChoices \? \([\s\S]*?label="currency"[\s\S]*?\) : null/,
-  );
+  const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+  assert.match(route, /currencyPicker: currencyChoices\s*\?/);
+  assert.match(route, /if \(pickerVisible && !currencyChoices\) setPickerVisible\(false\)/);
+  assert.match(screen, /const currencyAction = currencyPicker\s*\?/);
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
-test('currency symbols stay in configured order and tint the tapped box in place', () => {
+test('both card amounts open one picker for the same selected draft currency', () => {
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  const picker = readFileSync('src/features/accounts/account-currency-picker.tsx', 'utf8');
+  const card = screen.slice(
+    screen.indexOf("case 'credit-card':"),
+    screen.indexOf("case 'wallet':"),
+  );
 
-  const currencyButtons = screen.match(/<AccountChoices\s+label="currency"[\s\S]*?\/>/)?.[0];
-  assert.ok(currencyButtons);
-  assert.match(currencyButtons, /options=\{currencyChoices\}\s+singleRow/);
-  assert.match(currencyButtons, /value=\{draft.currency\}/);
+  assert.match(card, /field="outstanding"[^>]*?\{\.\.\.inputProps\}/);
+  assert.match(card, /field="creditLimit"[^>]*?\{\.\.\.inputProps\}/);
+  assert.match(screen, /leadingAction=\{money \? currencyAction : undefined\}/);
+  assert.match(screen, /onPress: currencyPicker.onOpen/);
   assert.match(
-    currencyButtons,
-    /onChange=\{\(value\) => onAction\(\{ type: 'currency', value \}\)\}/,
+    screen,
+    /<AccountCurrencyPicker\s+picker=\{form.currencyPicker\}\s+value=\{form.draft.currency\}/,
   );
-  assert.match(route, /newAccountDraft\(group, preferences\.mainCode\)/);
-  assert.match(route, /symbol: CURRENCY_OPTIONS\.find/);
-  assert.match(choices, /accessibilityLabel=\{option.label\}/);
-  assert.match(choices, /minWidth: symbolOnly \? theme\.buttons\.minimumHeight/);
+  assert.equal(screen.match(/<AccountCurrencyPicker/g)?.length, 1);
+  assert.doesNotMatch(screen, /singleRow|currencyField/);
+  assert.match(controls, /onPress=\{leadingAction.onPress\}/);
+  assert.match(controls, /accessibilityState=\{\{ expanded: leadingAction.expanded \}\}/);
   assert.match(
-    choices,
-    /width: theme\.buttons\.currencyChoiceSize,\s+height: theme\.buttons\.currencyChoiceSize/,
+    route,
+    /CURRENCY_OPTIONS\.find\(\(\{ code \}\) => code === draft.currency\)\?\.symbol/,
   );
-  assert.match(choices, /const selected = value === option.value/);
-  assert.match(choices, /onPress=\{onChange \? \(\) => onChange\(option.value\) : undefined\}/);
-  assert.match(choices, /backgroundColor: selected \? theme\.colors\.brandTint : 'transparent'/);
-  assert.match(choices, /selected && !symbolOnly \?/);
-  assert.match(choices, /\{option.symbol \?\? option.label\}/);
-  const singleRow = choices.slice(choices.indexOf('if (singleRow)'));
+  assert.match(route, /onAction\(\{ type: 'currency', value \}\)/);
+  assert.match(picker, /label="currencyMain"\s+options=\{picker.options.slice\(0, 1\)\}/);
+  assert.match(picker, /label="currencySubCount"\s+options=\{picker.options.slice\(1\)\}/);
+  assert.equal(picker.match(/onChange=\{picker.onSelect\}/g)?.length, 2);
+  assert.match(picker, /accountCurrencyChangeHint/);
+});
+
+test('Add Currency waits for the picker to close and opens the existing Sub Currency add flow', () => {
+  const accountRoute = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+  const picker = readFileSync('src/features/accounts/account-currency-picker.tsx', 'utf8');
+  const settingsRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
+  const settingsViewModel = readFileSync(
+    'src/features/settings/use-sub-currency-view-model.ts',
+    'utf8',
+  );
+
+  assert.match(picker, /label=\{t\('accountAddCurrency'\)\}/);
+  assert.match(picker, /disabled=\{!picker.onAddCurrency\}/);
+  assert.match(picker, /onDismissed=\{picker.onDismissed\}/);
+  assert.match(accountRoute, /preferences.subCodes.length < MAX_SUB_CURRENCIES/);
+  assert.match(accountRoute, /addCurrencyPending.current = true;\s+setPickerVisible\(false\)/);
   assert.match(
-    singleRow,
-    /flexDirection: 'row'[\s\S]*?\{t\(label\)\}[\s\S]*?<ScrollView\s+horizontal/,
+    accountRoute,
+    /if \(pickerVisible \|\| Platform.OS === 'ios' \|\| !addCurrencyPending.current\) return/,
   );
-  assert.match(singleRow, /<ScrollView[\s\S]*?\{choices\}\s+<\/ScrollView>\s+<\/View>/);
-  assert.match(choices, /const choices = options\.map\(\(option\) =>/);
-  assert.doesNotMatch(singleRow, /choices\.(filter|sort)|choices\[/);
+  assert.match(
+    accountRoute,
+    /router.push\(\{ pathname: '\/currency\/sub', params: \{ add: '1' \} \}\)/,
+  );
+  assert.match(settingsRoute, /useSubCurrencyViewModel\(null, add === '1'\)/);
+  assert.match(
+    settingsViewModel,
+    /openAddOnMount &&\s+isCurrencyCode\(preferences.mainCode\) &&\s+preferences.subCodes.length < MAX_SUB_CURRENCIES/,
+  );
 });
 
 test('successive currency taps select the requested Sub or Main code', () => {
@@ -315,11 +341,6 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(screen, /field="name"[\s\S]*?accountCardName/);
   assert.match(screen, /field="description"/);
   assert.match(screen, /draft.group === 'bank' \? <BankPaymentModes/);
-  assert.match(screen, /draft.group === 'credit-card' \? null : currencyField/);
-  assert.match(
-    groupFields,
-    /case 'credit-card':[\s\S]*?field="creditLimit"[^>]*?\/>\s*\{currencyField\}\s*<DraftInput field="statementDate"/,
-  );
   assert.match(groupFields, /case 'cash':\s*case 'bank':/);
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
     if (!isPreviewGroup(id)) continue;
