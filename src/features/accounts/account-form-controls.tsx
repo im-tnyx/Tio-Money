@@ -157,7 +157,6 @@ export function AccountChoices<Value extends string>({
     );
   });
   if (singleRow) {
-    const selectedIndex = options.findIndex((option) => option.value === value);
     return (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
         <AppText style={{ maxWidth: '50%' }}>{t(label)}</AppText>
@@ -176,9 +175,8 @@ export function AccountChoices<Value extends string>({
             }}
           >
             <View style={{ flexGrow: 1 }} />
-            {choices.filter((_, index) => index !== selectedIndex)}
+            {choices}
           </ScrollView>
-          {choices[selectedIndex]}
         </View>
       </View>
     );
