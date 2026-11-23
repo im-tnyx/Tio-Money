@@ -212,20 +212,21 @@ export async function tunnelReady(port = PORT) {
 }
 
 async function ownedTunnel(record) {
-  if (!verifyListener(record) || !(await metroReady())) return null;
-  const url = await tunnelUrl(PORT);
+  const port = record.port ?? PORT;
+  if (!verifyListener(record) || !(await metroReady(port))) return null;
+  const url = await tunnelUrl(port);
   return verifyListener(record) ? url : null;
 }
 
-async function portIsFree() {
+async function portIsFree(port = PORT) {
   await new Promise((ok, fail) => {
     const server = createServer();
     server.once('error', (error) => {
       fail(error.code === 'EADDRINUSE'
-        ? new Error('Metro port 8081 is occupied; refusing to control an unowned process.')
+        ? new Error('Metro port is occupied; refusing to control an unowned process.')
         : error);
     });
-    server.listen(PORT, '127.0.0.1', () => {
+    server.listen(port, '127.0.0.1', () => {
       server.close((error) => error ? fail(error) : ok());
     });
   });
@@ -303,7 +304,7 @@ async function stopManaged() {
   const deadline = Date.now() + 10_000;
   while (Date.now() < deadline) {
     if (!recordMatches(record, identity(record.pid))) {
-      await portIsFree();
+      await portIsFree(record.port ?? PORT);
       rmSync(PID_FILE, { force: true });
       return;
     }
@@ -312,12 +313,46 @@ async function stopManaged() {
   throw new Error('Managed Metro did not stop within 10s; inspect the private Codespace log manually.');
 }
 
-async function startManaged(fingerprint) {
-  await portIsFree();
+export function candidatePorts(manual, preferredPort = PORT) {
+  if (!Number.isSafeInteger(preferredPort) || preferredPort < 8081 || preferredPort > 8085) {
+    throw Error('Unapproved managed preview port.');
+  }
+  return manual ? [8081, 8082, 8083, 8084, 8085] : [preferredPort];
+}
+
+export function startupFailureCategory(log) {
+  if (/EADDRINUSE|port (?:is )?in use/i.test(log)) return 'PORT_CONFLICT';
+  if (/not logged in|authentication failed|unauthorized/i.test(log)) return 'EXPO_AUTH';
+  if (/ENOTFOUND|ETIMEDOUT|ECONNREFUSED|network error/i.test(log)) return 'NETWORK';
+  if (/Cannot find module|MODULE_NOT_FOUND/i.test(log)) return 'DEPENDENCY';
+  return 'UNKNOWN';
+}
+
+function startupFailure() {
+  // Emit only a fixed code, never raw logs, credentials or signed tunnel URLs.
+  try {
+    const stat = lstatSync(LOG_FILE);
+    if (!stat.isFile() || stat.size > 2097152 || stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0) return 'UNKNOWN';
+    const fd = openSync(LOG_FILE, constants.O_RDONLY | constants.O_NOFOLLOW);
+    try { return startupFailureCategory(readFileSync(fd, 'utf8').slice(-65536)); }
+    finally { closeSync(fd); }
+  } catch { return 'UNKNOWN'; }
+}
+
+async function selectPort(manual, preferredPort) {
+  for (const port of candidatePorts(manual, preferredPort)) {
+    try { await portIsFree(port); return port; }
+    catch (error) { if (!manual || !error.message.includes('port is occupied')) throw error; }
+  }
+  throw Error('No free managed preview port in the approved range.');
+}
+
+async function startManaged(fingerprint, manual = false, preferredPort = PORT) {
+  const port = await selectPort(manual, preferredPort);
   const logFd = openSync(LOG_FILE, constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | constants.O_NOFOLLOW, 0o600);
   let child;
   try {
-    child = spawn('npm', ['run', 'mobile'], {
+    child = spawn('npm', ['run', 'mobile', '--', '--port', String(port)], {
       cwd: ROOT, detached: true, stdio: ['ignore', logFd, logFd],
       env: metroChildEnvironment(),
     });
@@ -339,17 +374,17 @@ async function startManaged(fingerprint) {
     child.kill('SIGTERM'); // This process was launched by this invocation.
     throw new Error('Launched process identity could not be verified.');
   }
-  const record = { pid: child.pid, startTicks: proc.startTicks, runtimeFingerprint: fingerprint };
+  const record = { pid: child.pid, startTicks: proc.startTicks, runtimeFingerprint: fingerprint, port };
   writeFileSync(PID_FILE, JSON.stringify(record), { mode: 0o600 });
   child.unref();
   const deadline = Date.now() + START_TIMEOUT_MS;
   while (Date.now() < deadline) {
     if (exited || !recordMatches(record, identity(record.pid))) {
       rmSync(PID_FILE, { force: true });
-      throw new Error('Expo exited before Metro and the tunnel were ready. Inspect the private log.');
+      throw new Error(`Expo exited before Metro/tunnel readiness (${startupFailure()}).`);
     }
-    if (verifyListener(record) && (await metroReady()) && (await tunnelReady()) && verifyListener(record)) {
-      console.log('Tio Money Expo Go tunnel ready; managed Metro serves port 8081.');
+    if (verifyListener(record) && (await metroReady(port)) && (await tunnelReady(port)) && verifyListener(record)) {
+      console.log(`Tio Money Expo Go tunnel ready; managed Metro serves port ${port}.`);
       return;
     }
     await wait(1000);
@@ -360,10 +395,10 @@ async function startManaged(fingerprint) {
       if (error.code !== 'ESRCH') throw error;
     }
   }
-  throw new Error('Metro and tunnel not ready within 180s. Inspect the private log and retry --restart.');
+  throw new Error(`Metro/tunnel readiness timed out (${startupFailure()}).`);
 }
 
-async function syncSelected(current, before, target) {
+async function syncSelected(current, before, target, manual = false) {
   if (!/^[0-9a-f]{40}$/.test(target) || gitOutput(ROOT, 'rev-parse', 'FETCH_HEAD^{commit}').trim() !== target) {
     throw Error('Prepared bundle commit no longer matches the selected revision.');
   }
@@ -375,7 +410,8 @@ async function syncSelected(current, before, target) {
   // Stop an incompatible owned process before changing the files it is using.
   // Hold the startup lock through source switch, install and managed restart.
   let managed = current;
-  if (current && !compatibleRuntime(current, fingerprint, dependenciesReady)) {
+  const recoveryPort = current?.port ?? PORT;
+  if (current && (manual || !compatibleRuntime(current, fingerprint, dependenciesReady))) {
     await stopManaged();
     managed = null;
   }
@@ -406,7 +442,7 @@ async function syncSelected(current, before, target) {
   }
   requireExpoAccount();
   if (managed) await stopManaged();
-  await startManaged(fingerprint);
+  await startManaged(fingerprint, manual, recoveryPort);
 }
 
 async function main() {
@@ -414,13 +450,14 @@ async function main() {
     throw new Error('This managed starter supports Linux Codespaces only.');
   }
   const flags = process.argv.slice(2);
-  if (streamed && flags.length === 3 && flags[0] === '--sync-selected') {
-    const [, before, target] = flags;
+  if (streamed && (flags.length === 3 || flags.length === 4) && flags[0] === '--sync-selected') {
+    const [, before, target, mode] = flags;
+    if (mode !== undefined && mode !== '' && mode !== '--manual') throw Error('Invalid sync mode.');
     await withLock(async () => {
       const current = checkedManagedRecord();
       if (current) verifyListener(current);
-      else await portIsFree();
-      await syncSelected(current, before, target);
+      else if (mode !== '--manual') await portIsFree();
+      await syncSelected(current, before, target, mode === '--manual');
     });
     return;
   }
@@ -444,10 +481,10 @@ async function main() {
     const fingerprint = runtimeFingerprint(revision);
     const compatible = compatibleRuntime(current, fingerprint, !streamed || dependenciesMatch(revision));
     if (flags.includes('--status')) {
-      if (!compatible || !listening || !(await metroReady()) || !(await tunnelReady()) || !verifyListener(current)) {
+      if (!compatible || !listening || !(await metroReady(current.port ?? PORT)) || !(await tunnelReady(current.port ?? PORT)) || !verifyListener(current)) {
         throw new Error('No healthy project-owned Metro and tunnel are running.');
       }
-      console.log('Tio Money Expo Go tunnel healthy on port 8081.');
+      console.log(`Tio Money Expo Go tunnel healthy on port ${current.port ?? PORT}.`);
       return;
     }
     if (flags.includes('--stop')) {
@@ -456,9 +493,10 @@ async function main() {
       return;
     }
     requireExpoAccount();
+    const recoveryPort = current?.port ?? PORT;
     if (flags.includes('--restart')) await stopManaged();
     else {
-      const action = previewAction(current, compatible && listening && await metroReady(), listening && await tunnelReady() && verifyListener(current));
+      const action = previewAction(current, compatible && listening && await metroReady(current.port ?? PORT), listening && await tunnelReady(current.port ?? PORT) && verifyListener(current));
       if (action === 'reuse') {
         console.log('Expo tunnel already healthy; no duplicate Metro started.');
         return;
@@ -468,7 +506,7 @@ async function main() {
         await stopManaged();
       }
     }
-    await startManaged(fingerprint);
+    await startManaged(fingerprint, false, recoveryPort);
   });
 }
 
