@@ -53,6 +53,8 @@ function AccountDraftController({
     <AddAccountScreen
       form={{
         draft,
+        currencySymbol:
+          CURRENCY_OPTIONS.find(({ code }) => code === draft.currency)?.symbol ?? draft.currency,
         currencyChoices:
           accountCurrencyChoices(draft, currencies)?.map((value) => ({
             value,

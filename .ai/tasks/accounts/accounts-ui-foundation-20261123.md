@@ -144,4 +144,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - The first full test run found that TM-CUR-025 expected inline styles. Updated `tests/phase0/more-currency-group.test.ts` to verify that Currency still uses one card and one inset divider through the shared styles.
 - Source self-review PERFORMED, independent review DEFERRED and device visual QA pending. Exact published HEAD and validation evidence are recorded in [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96). Save remains disabled and merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Leading icons for Add Account fields
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099510319) records the owner’s icon-and-name reference against Draft #97 head `bf88272dc8ab6d3edecd34612ef947c993082cfa`.
+- Main Add Account fields use an inset label and a themed leading icon column. Name uses the field label as its empty-input placeholder. Monetary fields use the chosen draft currency symbol and an empty-state zero. Date fields use a calendar and retain the reference-date format. Icons are hidden from assistive technology and fields keep their accessible names. The Linked Payment Modes sheet keeps its outlined field.
+- Changed paths besides this record and the index are `src/shared/ui/app-text-field.tsx`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and results. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

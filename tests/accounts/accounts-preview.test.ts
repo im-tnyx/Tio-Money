@@ -284,7 +284,7 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.ok(autoPay);
   assert.doesNotMatch(autoPay, /onChange|value=\{/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
-  assert.match(choices, /<AppTextField accessibilityLabel=\{t\(label\)\}/);
+  assert.match(choices, /<AppTextField\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radiogroup"\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radio"/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled: !onChange \}\}/);
@@ -306,6 +306,27 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.match(field, /appearance = 'outlined'/);
   assert.match(field, /borderWidth: borderless \? 0 : theme\.navigation\.borderWidth/);
   assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
+});
+
+test('main form aligns decorative icons with the inputs and uses the name label as a placeholder', () => {
+  const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
+
+  assert.match(form, /labelAsPlaceholder=\{field === 'name'\}\s+leading=\{leading\}/);
+  assert.match(form, /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<Svg/);
+  assert.match(form, /date \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/);
+  assert.match(
+    route,
+    /CURRENCY_OPTIONS\.find\(\(\{ code \}\) => code === draft.currency\)\?\.symbol/,
+  );
+  assert.match(controls, /placeholder=\{labelAsPlaceholder \? t\(label\) : props.placeholder\}/);
+  assert.match(
+    controls,
+    /flexDirection: 'row'[\s\S]*?importantForAccessibility="no-hide-descendants"[\s\S]*?\{leading\}[\s\S]*?\{input\}/,
+  );
+  assert.doesNotMatch(bankModes, /labelAsPlaceholder|leading=/);
 });
 
 test('settings routes are distinct and detail routes inherit shared theme motion', () => {

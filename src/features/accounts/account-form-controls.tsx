@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -8,13 +9,56 @@ import { AppTextField, type AppTextFieldProps } from '@/shared/ui/app-text-field
 
 export function AccountField({
   label,
+  leading,
+  labelAsPlaceholder = false,
   ...props
-}: AppTextFieldProps & { readonly label: TranslationKey }) {
+}: AppTextFieldProps & {
+  readonly label: TranslationKey;
+  readonly leading?: ReactNode;
+  readonly labelAsPlaceholder?: boolean;
+}) {
   const theme = useAppTheme();
+  const input = (
+    <AppTextField
+      accessibilityLabel={t(label)}
+      {...props}
+      placeholder={labelAsPlaceholder ? t(label) : props.placeholder}
+    />
+  );
+  if (leading) {
+    const iconColumnWidth = theme.iconRoles.textField + theme.space.sm;
+    const iconGap = theme.space.xs;
+    return (
+      <View style={{ gap: theme.space.xxs }}>
+        {labelAsPlaceholder ? null : (
+          <AppText variant="caption" muted style={{ marginLeft: iconColumnWidth + iconGap }}>
+            {t(label)}
+          </AppText>
+        )}
+        <View style={{ flexDirection: 'row', gap: iconGap }}>
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={{
+              width: iconColumnWidth,
+              minHeight: theme.buttons.minimumHeight,
+              alignSelf: 'flex-start',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {leading}
+          </View>
+          <View style={{ flex: 1 }}>{input}</View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={{ gap: theme.space.xxs }}>
       <AppText>{t(label)}</AppText>
-      <AppTextField accessibilityLabel={t(label)} {...props} />
+      {input}
     </View>
   );
 }

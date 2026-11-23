@@ -31,7 +31,7 @@ export function AppTextField({
         fontSize: theme.typeScale.body,
         // Center single-line Android input; leave multiline editing top aligned.
         textAlignVertical: props.multiline ? 'top' : 'center',
-        paddingHorizontal: theme.space.md,
+        paddingHorizontal: borderless ? 0 : theme.space.md,
       }}
     />
   );
