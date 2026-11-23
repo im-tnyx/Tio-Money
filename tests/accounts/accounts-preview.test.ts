@@ -597,6 +597,8 @@ test('account screens forward presentation callbacks with disabled Save and no M
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
   assert.match(form, /<ActionButton label=\{t\('save'\)\} disabled \/>/);
+  assert.match(form, /backLabel=\{t\('backToAccounts'\)\}\s+onBack=\{onBack\}/);
+  assert.doesNotMatch(form, /accountCancel/);
   assert.match(form, /accountSaveUnavailable/);
   assert.match(form, /label="accountWalletBank"/);
   assert.match(form, /label="accountPayFrom"/);
