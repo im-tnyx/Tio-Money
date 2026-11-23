@@ -177,7 +177,10 @@ test('every eligible form defaults to Main and only shows currency choices with 
     assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY'], id);
   }
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  assert.match(screen, /\{currencyChoices \? \([\s\S]*?label="currency"[\s\S]*?\) : null\}/);
+  assert.match(
+    screen,
+    /const currencyField = currencyChoices \? \([\s\S]*?label="currency"[\s\S]*?\) : null/,
+  );
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
@@ -190,11 +193,20 @@ test('currency symbols share the label row with a compact, tinted selected box o
   assert.ok(currencyButtons);
   assert.match(currencyButtons, /options=\{currencyChoices\}\s+singleRow/);
   assert.match(currencyButtons, /value=\{draft.currency\}/);
+  assert.match(
+    currencyButtons,
+    /onChange=\{\(value\) => onAction\(\{ type: 'currency', value \}\)\}/,
+  );
   assert.match(route, /newAccountDraft\(group, preferences\.mainCode\)/);
   assert.match(route, /symbol: CURRENCY_OPTIONS\.find/);
   assert.match(choices, /accessibilityLabel=\{option.label\}/);
   assert.match(choices, /minWidth: symbolOnly \? theme\.buttons\.minimumHeight/);
-  assert.match(choices, /minWidth: theme\.space\.xxl,\s+minHeight: theme\.space\.xxl/);
+  assert.match(
+    choices,
+    /width: theme\.buttons\.currencyChoiceSize,\s+height: theme\.buttons\.currencyChoiceSize/,
+  );
+  assert.match(choices, /const selected = value === option.value/);
+  assert.match(choices, /onPress=\{onChange \? \(\) => onChange\(option.value\) : undefined\}/);
   assert.match(choices, /backgroundColor: selected \? theme\.colors\.brandTint : 'transparent'/);
   assert.match(choices, /selected && !symbolOnly \?/);
   assert.match(choices, /\{option.symbol \?\? option.label\}/);
@@ -207,6 +219,14 @@ test('currency symbols share the label row with a compact, tinted selected box o
     singleRow,
     /\{choices.filter\(\(_, index\) => index !== selectedIndex\)\}\s+<\/ScrollView>\s+\{choices\[selectedIndex\]\}/,
   );
+});
+
+test('successive currency taps select the requested Sub or Main code', () => {
+  let draft = newAccountDraft('bank', currencies[0]);
+  for (const code of [currencies[1], currencies[2], currencies[0]]) {
+    draft = updateAccountDraft(draft, { type: 'currency', value: code }, currencies);
+    assert.equal(draft.currency, code);
+  }
 });
 
 test('currency changes clear each group’s amounts while retaining all other draft data', () => {
@@ -295,6 +315,11 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(screen, /field="name"[\s\S]*?accountCardName/);
   assert.match(screen, /field="description"/);
   assert.match(screen, /draft.group === 'bank' \? <BankPaymentModes/);
+  assert.match(screen, /draft.group === 'credit-card' \? null : currencyField/);
+  assert.match(
+    groupFields,
+    /case 'credit-card':[\s\S]*?field="creditLimit"[^>]*?\/>\s*\{currencyField\}\s*<DraftInput field="statementDate"/,
+  );
   assert.match(groupFields, /case 'cash':\s*case 'bank':/);
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
     if (!isPreviewGroup(id)) continue;
@@ -366,9 +391,11 @@ test('main form aligns icons and wraps Description from one line with its label 
     /multiline=\{description\}[\s\S]*?submitBehavior=\{description \? 'blurAndSubmit'/,
   );
   assert.match(input, /const growsWithText = borderless && props.multiline/);
+  assert.match(input, /const minHeight = theme\.textField\.minimumHeight\[appearance\]/);
+  assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);
   assert.match(
-    input,
-    /paddingVertical: growsWithText \? \(theme\.buttons\.minimumHeight - lineHeight\) \/ 2/,
+    controls,
+    /minHeight: theme\.textField\.minimumHeight\[props.appearance \?\? 'outlined'\]/,
   );
   assert.doesNotMatch(input, /numberOfLines|maxHeight/);
   assert.match(form, /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<Svg/);

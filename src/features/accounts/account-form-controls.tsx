@@ -41,7 +41,7 @@ export function AccountField({
             importantForAccessibility="no-hide-descendants"
             style={{
               width: iconColumnWidth,
-              minHeight: theme.buttons.minimumHeight,
+              minHeight: theme.textField.minimumHeight[props.appearance ?? 'outlined'],
               alignSelf: 'flex-start',
               alignItems: 'center',
               justifyContent: 'center',
@@ -88,6 +88,8 @@ export function AccountChoices<Value extends string>({
       <AppText
         variant={symbolOnly ? 'section' : 'body'}
         muted={!onChange}
+        numberOfLines={symbolOnly ? 1 : undefined}
+        adjustsFontSizeToFit={symbolOnly}
         style={selected && symbolOnly ? { color: theme.colors.brand } : undefined}
       >
         {option.symbol ?? option.label}
@@ -136,9 +138,8 @@ export function AccountChoices<Value extends string>({
         {symbolOnly ? (
           <View
             style={{
-              minWidth: theme.space.xxl,
-              minHeight: theme.space.xxl,
-              paddingHorizontal: theme.space.xxs,
+              width: theme.buttons.currencyChoiceSize,
+              height: theme.buttons.currencyChoiceSize,
               borderRadius: theme.radius.xs,
               borderWidth: theme.buttons.outlineWidth,
               borderColor: selected ? theme.colors.brand : theme.colors.border,
