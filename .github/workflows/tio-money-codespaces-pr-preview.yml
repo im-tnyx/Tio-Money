@@ -175,6 +175,7 @@ jobs:
           persist-credentials: false
 
       - name: Restrict exact captured PR revision to source-only UI changes
+        id: scope
         if: steps.pr.outputs.selected == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -190,30 +191,9 @@ jobs:
           gh api "repos/${GITHUB_REPOSITORY}/compare/${PR_BASE_SHA}...${PR_SHA}?per_page=100" \
             > "$RUNNER_TEMP/immutable-pr-compare.json"
           # A pushed revision or changed PR state after capture must fail.
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${TARGET_PR}" \
-            > "$RUNNER_TEMP/preview-pr-after-paths.json"
-          node .github/scripts/verify-pr-preview-pr-snapshot.mjs \
-            "$RUNNER_TEMP/preview-pr.json" \
-            "$RUNNER_TEMP/immutable-pr-compare.json" \
-            "$RUNNER_TEMP/preview-pr-after-paths.json" \
-            "$PR_SHA" "$PR_BASE_SHA" \
-            > "$RUNNER_TEMP/preview-pr-changed-paths.txt"
-          while IFS= read -r path; do
-            [[ -z "$path" ]] && continue
-            count=$((count + 1))
-            case "$path" in
-              src/*|assets/*|tests/*|docs/*|.ai/*|README.md|DESIGN.md|CHANGELOG.md)
-                ;;
-              *)
-                echo "::error::Unsafe or native/tooling-affecting preview path: $path"
-                rejected=1
-                ;;
-            esac
-          done < "$RUNNER_TEMP/preview-pr-changed-paths.txt"
-          if [[ "$count" -eq 0 || "$rejected" -ne 0 ]]; then
-            echo "::error::PR preview permits only app UI, tests and documentation; review native/tooling changes separately."
-            exit 1
-          fi
+          bash .github/scripts/recheck-codespaces-preview.sh
+          merge_base="$(jq -er '.merge_base_commit.sha | select(test("^[0-9a-f]{40}$"))' "$RUNNER_TEMP/immutable-pr-compare.json")"
+          echo "merge_base=$merge_base" >> "$GITHUB_OUTPUT"
 
       - name: Prepare exact immutable PR source bundle
         if: steps.pr.outputs.selected == 'true'
@@ -244,6 +224,16 @@ jobs:
             echo "::error::Immutable preview bundle exceeds the 128 MiB transfer limit."
             exit 1
           fi
+      - name: Prepare trusted Metro programs for SSH streaming
+        if: steps.pr.outputs.selected == 'true'
+        run: |
+          set -euo pipefail
+          ownership="$(base64 -w0 .github/scripts/preflight-pr-codespaces-preview.mjs)"
+          sed "s|../.github/scripts/preflight-pr-codespaces-preview.mjs|data:text/javascript;base64,$ownership|" \
+            scripts/start-codespace-expo.mjs > "$RUNNER_TEMP/trusted-metro-starter.mjs"
+          sed "s|\./preflight-pr-codespaces-preview.mjs|data:text/javascript;base64,$ownership|" \
+            .github/scripts/verify-codespace-served-source.mjs > "$RUNNER_TEMP/trusted-metro-source-probe.mjs"
+
       - name: Discover and start only the verified preview-only Codespace
         id: codespace
         if: steps.pr.outputs.selected == 'true'
@@ -251,6 +241,10 @@ jobs:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           PREFERRED_CODESPACE: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE }}
           PREFERRED_CODESPACE_ID: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE_ID }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
         run: |
           set -euo pipefail
           if [[ -z "$GH_TOKEN" ]]; then
@@ -283,6 +277,7 @@ jobs:
           codespace="$PREFERRED_CODESPACE"
           state="$(jq -r '.state // empty' "$selected_json")"
           if [[ "$state" != "Available" ]]; then
+            env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
             # GitHub Codespaces can transition to running after the initial GET
             # but before POST /start. Only the exact known already-running 409
             # is idempotent; every other API failure still aborts this job.
@@ -321,17 +316,29 @@ jobs:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
         run: |
           set -euo pipefail
           # Main-owned read-only gate also supports older approved PRs whose
           # starter predates --preflight. It never executes PR code here.
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             node --input-type=module - \
             < .github/scripts/preflight-pr-codespaces-preview.mjs
           result="$(gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             bash -s -- "$TARGET_SHA" < .github/scripts/check-pr-codespaces-preview.sh)"
           case "$result" in
-            *NO_OP_HEALTHY) echo 'no_op=true' >> "$GITHUB_OUTPUT" ;;
+            *EXACT_SHA)
+              if gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+                node --input-type=module - --status < "$RUNNER_TEMP/trusted-metro-starter.mjs"; then
+                echo 'no_op=true' >> "$GITHUB_OUTPUT"
+              else
+                echo 'no_op=false' >> "$GITHUB_OUTPUT"
+              fi
+              ;;
             *REFRESH_REQUIRED) echo 'no_op=false' >> "$GITHUB_OUTPUT" ;;
             *) echo '::error::Unexpected Codespace probe result.'; exit 1 ;;
           esac
@@ -343,6 +350,9 @@ jobs:
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
           TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
         run: |
           set -euo pipefail
           # The Codespaces credential only establishes SSH, never fetches Git
@@ -356,6 +366,7 @@ jobs:
           remote_dir="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}"
           remote_bundle="${remote_dir}/source.bundle"
           bundle_sha256="$(sha256sum -- "$bundle" | cut -d ' ' -f 1)"
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
           # Use a fresh private directory so SCP cannot follow an attacker-owned
           # pre-existing destination, and keep credentials on the trusted runner.
           printf -v remote_prepare_command \
@@ -390,11 +401,15 @@ jobs:
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             node --input-type=module - \
             < .github/scripts/preflight-pr-codespaces-preview.mjs
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
           # Trusted main script verifies private-dir ownership, file size,
           # permissions, SHA-256, Git bundle and exact selected PR commit.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" \
             < .github/scripts/sync-pr-codespaces-preview.sh
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - --start < "$RUNNER_TEMP/trusted-metro-starter.mjs"
 
       - name: Verify served Metro source and healthy tunnel
         if: steps.pr.outputs.selected == 'true'
@@ -404,14 +419,20 @@ jobs:
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
           TARGET_PLATFORM: ${{ inputs.platform }}
           EVENT_NAME: ${{ github.event_name }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          MERGE_BASE: ${{ steps.scope.outputs.merge_base }}
         run: |
           set -euo pipefail
           if [[ "$EVENT_NAME" == "workflow_run" ]]; then TARGET_PLATFORM=all; fi
           case "$TARGET_PLATFORM" in android|ios|all) ;; *) exit 1 ;; esac
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            node scripts/start-codespace-expo.mjs --status
+            node --input-type=module - --status < "$RUNNER_TEMP/trusted-metro-starter.mjs"
           # The probe is from trusted main and is streamed over SSH. No PR
           # script is executed on this privileged Actions runner.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            node --input-type=module - -- "$TARGET_SHA" "$TARGET_PLATFORM" \
-            < .github/scripts/verify-codespace-served-source.mjs
+            node --input-type=module - -- "$TARGET_SHA" "$TARGET_PLATFORM" "$MERGE_BASE" \
+            < "$RUNNER_TEMP/trusted-metro-source-probe.mjs"

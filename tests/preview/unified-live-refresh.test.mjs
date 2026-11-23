@@ -10,6 +10,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
 const manual = read('.github/workflows/tio-money-eas-pr-preview.yml');
 const worker = read('.github/workflows/tio-money-codespaces-pr-preview.yml');
+const recheck = read('.github/scripts/recheck-codespaces-preview.sh');
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const check = read('.github/scripts/check-pr-codespaces-preview.sh');
 const source = read('.github/scripts/verify-codespace-served-source.mjs');
@@ -61,7 +62,7 @@ test('push signal reaches Codespaces only; EAS safeguards and scope remain', () 
   assert.match(worker, /github\.run_attempt == '1'/);
   assert.match(worker, /Exactly one open PR may carry tio-preview/);
   assert.match(worker, /compare\/\$\{PR_BASE_SHA\}\.\.\.\$\{PR_SHA\}/);
-  assert.match(worker, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
+  assert.match(recheck, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
   assert.match(manual, /\.draft == false/);
   assert.match(manual, /Missing approved android\.package/);
   assert.match(manual, /Missing approved ios\.bundleIdentifier/);
@@ -73,15 +74,15 @@ test('push signal reaches Codespaces only; EAS safeguards and scope remain', () 
 test('same SHA is a healthy no-op; new SHA never stops a healthy Metro/tunnel', () => {
   assert.match(check, /git status --porcelain=v1 --untracked-files=normal/);
   assert.doesNotMatch(check, /start-codespace-expo\.mjs --preflight/);
-  assert.match(check, /start-codespace-expo\.mjs --status/);
+  assert.match(worker, /--status < "\$RUNNER_TEMP\/trusted-metro-starter\.mjs"/);
   assert.match(worker, /< \.github\/scripts\/preflight-pr-codespaces-preview\.mjs/g);
-  assert.match(check, /NO_OP_HEALTHY/);
+  assert.match(check, /EXACT_SHA/);
   assert.match(worker, /steps.existing.outputs.no_op != 'true'/);
   assert.match(worker, /Verify served Metro source and healthy tunnel/);
   assert.match(sync, /git fetch --no-tags "\$bundle_path" "refs\/tio-preview\/selected"/);
   assert.match(sync, /git -c advice\.detachedHead=false switch --detach "\$target_sha"/);
   assert.doesNotMatch(sync, /start-codespace-expo\.mjs --stop|git (?:reset|clean)|git pull/);
-  assert.match(sync, /node scripts\/start-codespace-expo\.mjs\nnode scripts\/start-codespace-expo\.mjs --status/);
+  assert.match(worker, /--start < "\$RUNNER_TEMP\/trusted-metro-starter\.mjs"/);
   assert.match(worker, /gh: The codespace is already running \(HTTP 409\)/);
   assert.match(worker, /for attempt in \$\(seq 1 120\); do/);
   assert.match(worker, /if \[\[ "\$state" != "Available" \]\]/);
@@ -106,13 +107,14 @@ test('trusted preflight supports old starters and refuses ambiguous Metro owners
 
 test('served source map is matched byte-for-byte against selected tracked Git source', () => {
   const files = new Map([['src/app/index.tsx', 'export default 1;']]);
+  const affected = new Set(files.keys());
   const good = { sources: ['file:///workspaces/Tio-Money/src/app/index.tsx'], sourcesContent: ['export default 1;'] };
-  assert.equal(verifySourceMap(good, files), 1);
-  assert.throws(() => verifySourceMap({ ...good, sourcesContent: ['old'] }, files), /does not match/);
-  assert.throws(() => verifySourceMap({ sources: ['other.tsx'], sourcesContent: ['test'] }, files), /did not attest/);
-  assert.throws(() => verifySourceMap({ sources: ['src/app/deleted.tsx', 'src/app/index.tsx'], sourcesContent: ['old', 'export default 1;'] }, files), /outside selected/);
-  assert.equal(verifySourceMap({ sources: ['node_modules/lib/src/other.ts', 'src/app/index.tsx'], sourcesContent: ['external', 'export default 1;'] }, files), 1);
-  assert.throws(() => verifySourceMap({ ...good, sources: [...good.sources, ...good.sources], sourcesContent: [...good.sourcesContent, ...good.sourcesContent] }, files), /does not match/);
+  assert.equal(verifySourceMap(good, files, affected), 1);
+  assert.throws(() => verifySourceMap({ ...good, sourcesContent: ['old'] }, files, affected), /does not match/);
+  assert.equal(verifySourceMap({ sources: ['other.tsx'], sourcesContent: ['test'] }, files, affected), 0);
+  assert.throws(() => verifySourceMap({ sources: ['src/app/deleted.tsx', 'src/app/index.tsx'], sourcesContent: ['old', 'export default 1;'] }, files, affected), /outside selected/);
+  assert.equal(verifySourceMap({ sources: ['node_modules/lib/src/other.ts', 'src/app/index.tsx'], sourcesContent: ['external', 'export default 1;'] }, files, affected), 1);
+  assert.throws(() => verifySourceMap({ ...good, sources: [...good.sources, ...good.sources], sourcesContent: [...good.sourcesContent, ...good.sourcesContent] }, files, affected), /does not match/);
   assert.match(source, /git\('rev-parse', 'HEAD'\)\.trim\(\) !== sha/);
   assert.match(source, /expo\.extra\?\.eas\?\.projectId !== PROJECT_ID/);
   assert.match(source, /AbortSignal\.timeout\(120_000\)/);

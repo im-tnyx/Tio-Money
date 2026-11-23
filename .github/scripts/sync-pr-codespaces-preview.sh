@@ -33,7 +33,11 @@ if [[ "$actual_remote" != "$expected_remote" &&
   exit 1
 fi
 
-if [[ -n "$(git status --porcelain=v1 --untracked-files=normal)" ]]; then
+if ! worktree="$(git status --porcelain=v1 --untracked-files=normal)"; then
+  echo 'Refusing preview: unable to verify worktree status.' >&2
+  exit 1
+fi
+if [[ -n "$worktree" ]]; then
   echo "Refusing preview: Codespace has unsaved work. Commit/push or save it safely first." >&2
   exit 1
 fi
@@ -99,6 +103,8 @@ if [[ "$before_sha" != "$target_sha" ]]; then
   # The trusted-main worker rechecked Metro ownership and port immediately
   # before this script. Old eligible PRs may not implement --preflight.
   # This is a preview-only checkout. No force, reset, stash, deletion or push.
+  worktree="$(git status --porcelain=v1 --untracked-files=normal)"
+  test -z "$worktree"
   git -c advice.detachedHead=false switch --detach "$target_sha"
 fi
 
@@ -115,9 +121,4 @@ if [[ "$current_hash" != "$stored_hash" || ! -f node_modules/.package-lock.json 
   printf '%s\n' "$current_hash" > "$dependency_marker"
 fi
 
-# The managed starter keeps a healthy process/tunnel, starts a stopped one,
-# or recovers only a verified owned unhealthy process under its startup lock.
-# It never outputs a signed Expo Go deep link.
-node scripts/start-codespace-expo.mjs
-node scripts/start-codespace-expo.mjs --status
-echo "Tio Money PR #${pr_number} preview serving exact source ${target_sha}."
+echo "Tio Money PR #${pr_number} checkout synchronized to ${target_sha}."

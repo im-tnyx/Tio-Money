@@ -44,6 +44,8 @@ test('trusted worker has exact owner, repo, main and successful push gates', () 
   assert.match(worker, /base_sha=\%s/);
 });
 
+const recheck = readFileSync(new URL('../../.github/scripts/recheck-codespaces-preview.sh', import.meta.url), 'utf8');
+
 test('trusted worker uses main-scoped Codespaces secret, owner-selected Codespace and source-only guard', () => {
   assert.match(worker, /environment: tio-money-codespaces-trusted/);
   assert.match(worker, /GH_TOKEN: \$\{\{ secrets\.CODESPACES_TOKEN \}\}/);
@@ -52,7 +54,7 @@ test('trusted worker uses main-scoped Codespaces secret, owner-selected Codespac
   assert.match(worker, /verify-pr-preview-codespace\.mjs/);
   assert.match(worker, /Editing Codespace is explicitly disallowed/);
   assert.match(worker, /Configure TIO_MONEY_PREVIEW_CODESPACE/);
-  assert.match(worker, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
+  assert.match(recheck, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
   assert.match(worker, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.match(worker, /ref: \$\{\{ github\.sha \}\}/);
   assert.match(worker, /persist-credentials: false/);
@@ -191,8 +193,8 @@ test('immutable preview scope rejects PR head race, altered compare, and native 
 test('trusted main snapshot validation precedes any Codespace start or SSH', () => {
   assert.match(worker, /compare\/\$\{PR_BASE_SHA\}\.\.\.\$\{PR_SHA\}/);
   assert.doesNotMatch(worker, /pulls\/\$\{TARGET_PR\}\/files/);
-  assert.match(worker, /verify-pr-preview-pr-snapshot\.mjs/);
-  const selected = worker.indexOf('node .github/scripts/verify-pr-preview-pr-snapshot.mjs');
+  assert.match(recheck, /verify-pr-preview-pr-snapshot\.mjs/);
+  const selected = worker.indexOf('bash .github/scripts/recheck-codespaces-preview.sh');
   const start = worker.indexOf('"/user/codespaces/${codespace}/start"');
   const ssh = worker.indexOf('gh codespace ssh --codespace');
   assert.ok(selected > 0 && selected < start && start < ssh);
@@ -267,7 +269,7 @@ test('remote trusted script verifies private path, mode, UID, SHA-256 and exact 
   assert.doesNotMatch(sync, /scripts\/start-codespace-expo\.mjs --preflight/);
   assert.match(worker, /< \.github\/scripts\/preflight-pr-codespaces-preview\.mjs/);
   assert.doesNotMatch(sync, /scripts\/start-codespace-expo\.mjs --stop/);
-  assert.match(sync, /scripts\/start-codespace-expo\.mjs --status/);
+  assert.match(worker, /--status < "\$RUNNER_TEMP\/trusted-metro-starter\.mjs"/);
   assert.doesNotMatch(sync, /git\s+(?:push|reset|clean|checkout\s+-f|switch\s+-C)/);
   assert.doesNotMatch(sync, /curl\s+[^\n]*\|\s*bash/);
 });
@@ -349,6 +351,8 @@ test('already-running Codespaces HTTP 409 is the only tolerated start API failur
     'set -euo pipefail',
     'codespace=dedicated-preview-only',
     'state="$INITIAL_STATE"',
+    'PR_READ_TOKEN=test-token',
+    'env() { [[ "$*" == *recheck-codespaces-preview.sh ]]; }',
     'gh() {',
     '  [[ "$1" == api && "$2" == --method && "$3" == POST ]] || return 89',
     '  [[ "$4" == "/user/codespaces/${codespace}/start" ]] || return 90',

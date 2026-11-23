@@ -1,3 +1,7 @@
+## 2026-11-23 — PR #88 security remediation (RFC #87)
+
+- [Owner-scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094088569) authorizes strict fail-closed per-platform verification and the four accompanying security fixes. [Remediation checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--security-remediation-decision-and-validation). Verify required CI at the resulting Draft PR HEAD. Independent human review DEFERRED and live Codespaces/EAS/device acceptance NOT_RUN.
+
 ## 2026-11-23 — PR #88 branch reconciliation with main
 
 - Owner requested branch alignment in project chat. [Draft PR #88](https://github.com/im-tnyx/Tio-Money/pull/88) integrates main `d8badc8bee842a20db9ea5c5866cb5db4b1e77a5` from prior PR HEAD `1b68936930ed0c627ca525ed6972885ba1336d5e`. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--branch-reconciliation). Security findings remain open. Verify required CI on the resulting HEAD.

@@ -73,3 +73,9 @@ After PR #12 was owner-merged into `main`, the existing PR #10 branch is being s
 The trusted-main Codespaces worker now streams a read-only ownership/port preflight over SSH before its same-SHA probe and again just before source sync. This gate does not call `--preflight` from the selected PR checkout, so an older eligible source-only PR whose starter predates that option can reuse a healthy owned Metro/tunnel. The preflight rejects a missing ownership record with an occupied port, malformed/stale/foreign PID records, symlinks and unsafe record ownership/mode. The clean worktree and exact bundle/SHA gates still apply. A source-only revision can retain the existing PID and tunnel URL; an old starter may fail closed on unhealthy Metro until a reviewed starter update is available. Never delete an uncertain PID record or terminate an unowned process to bypass this gate.
 
 This is a static review correction in Draft PR #88. Live Codespace execution, Android/iPhone Fast Refresh and tunnel continuity still require separately authorized manual acceptance.
+
+### Served revision verification
+
+Each requested platform receives its own result. PASS requires at least one affected application module in its served graph and a match for all application modules examined. An unchanged-only graph is UNVERIFIED. Lazy or platform-specific modules can be absent from a graph. A stale module, malformed reply, redirect, or unverifiable listener fails the probe. Inconclusive verification leaves the synchronized checkout and healthy Metro/tunnel session running.
+
+The trusted worker rechecks the selected PR and approved source scope before privileged work. GitHub eligibility and the downstream operation are separate requests. A later GitHub state change cannot replace the immutable SHA being used.
