@@ -6,15 +6,16 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Open non-Draft owner PR (src/assets, tests and Markdown docs)
+        description: Owner PR number (EAS requires non-Draft; Codespaces allows Draft)
         required: true
         type: string
       operation:
-        description: Publish an OTA update or queue an internal preview build
+        description: Live Expo Go, OTA update or internal preview build
         required: true
-        default: publish_update
+        default: codespaces_live
         type: choice
         options:
+          - codespaces_live
           - publish_update
           - build_preview
       platform:
@@ -30,14 +31,30 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
   group: tio-money-eas-pr-preview
   cancel-in-progress: false
 
 jobs:
+  codespaces_live:
+    if: ${{ inputs.operation == 'codespaces_live' && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    uses: ./.github/workflows/tio-money-codespaces-pr-preview.yml
+    with:
+      pr_number: ${{ inputs.pr_number }}
+      operation: codespaces_live
+      platform: ${{ inputs.platform }}
+
   preview:
-    if: ${{ github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    if: ${{ (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: tio-money-eas-preview-trusted

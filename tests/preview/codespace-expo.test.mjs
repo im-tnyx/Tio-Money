@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { test } from 'node:test';
 import {
-  isMobileCommand, metroChildEnvironment, metroReady, parseStartTicks, recordMatches,
+  isMobileCommand, metroChildEnvironment, metroReady, parseStartTicks, recordMatches, previewAction,
   tunnelReady, validExpoGoTunnel, validWhoami,
 } from '../../scripts/start-codespace-expo.mjs';
 
@@ -60,6 +60,20 @@ test('PID reuse, foreign cwd and unrelated Metro command are rejected', () => {
   assert.equal(isMobileCommand('npm-cli.js run mobile -- --tunnel'), true);
   assert.equal(isMobileCommand('node /tmp/npm-cli.js run mobile-other'), false);
   assert.equal(isMobileCommand('npm run mobile-other'), false);
+});
+
+test('managed process stays unchanged on healthy refresh and recovery requires ownership', () => {
+  const record = { pid: 1201, startTicks: '9001' };
+  assert.equal(previewAction(record, true, true), 'reuse');
+  assert.deepEqual(record, { pid: 1201, startTicks: '9001' });
+  assert.equal(previewAction(record, true, false), 'recover');
+  assert.equal(previewAction(record, false, true), 'recover');
+  assert.equal(previewAction(null, false, false), 'start');
+  const starter = readFileSync(new URL('../../scripts/start-codespace-expo.mjs', import.meta.url), 'utf8');
+  assert.match(starter, /if \(existsSync\(PID_FILE\) && !managedRecord\(\)\)/);
+  assert.match(starter, /await stopManaged\(\);/);
+  assert.match(starter, /if \(action === 'reuse'\)/);
+  assert.match(starter, /if \(action === 'recover'\)/);
 });
 
 test('Linux /proc start tick parser handles malformed input', () => {

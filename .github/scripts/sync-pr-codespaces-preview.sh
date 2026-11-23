@@ -94,8 +94,9 @@ if [[ "$fetched_sha" != "$target_sha" ]]; then
 fi
 
 if [[ "$before_sha" != "$target_sha" ]]; then
-  # Stop only this project's verified managed Metro (never pkill other servers).
-  node scripts/start-codespace-expo.mjs --stop
+  # A healthy Metro continues watching this detached worktree. The managed
+  # helper refuses ambiguous ownership or a foreign server before mutation.
+  node scripts/start-codespace-expo.mjs --preflight
   # This is a preview-only checkout. No force, reset, stash, deletion or push.
   git -c advice.detachedHead=false switch --detach "$target_sha"
 fi
@@ -113,8 +114,9 @@ if [[ "$current_hash" != "$stored_hash" || ! -f node_modules/.package-lock.json 
   printf '%s\n' "$current_hash" > "$dependency_marker"
 fi
 
-# The current branch's managed starter checks the exact Expo CLI account and
-# the real signed tunnel. It never outputs a signed Expo Go deep link.
+# The managed starter keeps a healthy process/tunnel, starts a stopped one,
+# or recovers only a verified owned unhealthy process under its startup lock.
+# It never outputs a signed Expo Go deep link.
 node scripts/start-codespace-expo.mjs
 node scripts/start-codespace-expo.mjs --status
 echo "Tio Money PR #${pr_number} preview serving exact source ${target_sha}."
