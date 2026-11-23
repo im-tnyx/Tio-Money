@@ -200,6 +200,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100361542) records the owner’s request against Draft #97 head `ebc0a1aa3a4f44dd5a92378ae8053ca3ec7bdbb4`.
 - The Credit Card form shows a single Auto Pay row below Description. The native switch is Off and disabled, with the tracking-only policy available as an accessibility hint. The visible option list was removed.
 - Strict TypeScript at the preceding sizing commit rejected the test fixture’s unchecked array indexes. Explicit configured codes now drive the successive-selection regression.
+- Updated `tests/phase0/account-group-display-preferences.test.ts` to verify that the Account Groups sheet still uses the default outlined field after sizing moved to dedicated field tokens.
 - Changed paths besides this record and the index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/add-account-screen.tsx`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
