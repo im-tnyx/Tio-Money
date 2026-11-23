@@ -88,11 +88,11 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.match(dispatchInputs, /      pr_number:\n        description: Open non-Draft owner PR \(src\/assets, tests and Markdown docs\)\n        required: true\n        type: string\n/);
+  assert.match(dispatchInputs, /      pr_number:\n        description: Owner PR number \(EAS requires non-Draft; Codespaces allows Draft\)\n        required: true\n        type: string\n/);
   assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
-    /      operation:\n        description: Publish an OTA update or queue an internal preview build\n        required: true\n        default: publish_update\n        type: choice\n        options:\n          - publish_update\n          - build_preview\n/,
+    /      operation:\n        description: Live Expo Go, OTA update or internal preview build\n        required: true\n        default: codespaces_live\n        type: choice\n        options:\n          - codespaces_live\n          - publish_update\n          - build_preview\n/,
   );
   assert.match(
     dispatchInputs,

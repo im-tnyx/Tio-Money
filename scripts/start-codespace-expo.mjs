@@ -73,6 +73,11 @@ export function recordMatches(record, proc, projectRoot = ROOT) {
     && proc.cwd === projectRoot && isMobileCommand(proc.command);
 }
 
+export function previewAction(current, metroHealthy, tunnelHealthy) {
+  if (!current) return 'start';
+  return metroHealthy && tunnelHealthy ? 'reuse' : 'recover';
+}
+
 function managedRecord() {
   if (!existsSync(PID_FILE)) return null;
   try {
@@ -81,6 +86,15 @@ function managedRecord() {
   } catch {
     return null;
   }
+}
+
+// A corrupt or stale ownership file is ambiguous. Never adopt a server or
+// replace its record automatically; the owner must inspect it privately.
+function checkedManagedRecord() {
+  if (existsSync(PID_FILE) && !managedRecord()) {
+    throw new Error('Managed Metro ownership record is invalid; refusing automatic recovery.');
+  }
+  return managedRecord();
 }
 
 async function request(path, json = false, port = PORT) {
@@ -253,11 +267,16 @@ async function main() {
     throw new Error('This managed starter supports Linux Codespaces only.');
   }
   const flags = process.argv.slice(2);
-  if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart', '--check-account'].includes(x))) {
-    throw new Error('Usage: node scripts/start-codespace-expo.mjs [--start|--status|--restart|--stop|--check-account]');
+  if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart', '--check-account', '--preflight'].includes(x))) {
+    throw new Error('Usage: node scripts/start-codespace-expo.mjs [--start|--status|--restart|--stop|--check-account|--preflight]');
   }
   await withLock(async () => {
-    const current = managedRecord();
+    const current = checkedManagedRecord();
+    if (flags.includes('--preflight')) {
+      if (!current) await portIsFree();
+      console.log(current ? 'Verified managed Metro ownership.' : 'No managed Metro occupies the preview port.');
+      return;
+    }
     if (flags.includes('--check-account')) {
       requireExpoAccount();
       console.log('Expo account verified for the configured Tio Money owner.');
@@ -277,12 +296,16 @@ async function main() {
     }
     requireExpoAccount();
     if (flags.includes('--restart')) await stopManaged();
-    else if (current) {
-      if ((await metroReady()) && (await tunnelReady())) {
+    else {
+      const action = previewAction(current, current && await metroReady(), current && await tunnelReady());
+      if (action === 'reuse') {
         console.log('Expo tunnel already healthy; no duplicate Metro started.');
         return;
       }
-      throw new Error('Managed Metro exists but is unhealthy; inspect the private log and use --restart.');
+      if (action === 'recover') {
+        // The lock is held throughout the ownership recheck and recovery.
+        await stopManaged();
+      }
     }
     await startManaged();
   });

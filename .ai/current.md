@@ -1,3 +1,8 @@
+
+## 2026-11-23 — Unified Expo PR Review and persistent Codespaces refresh (RFC #87)
+
+- **Technical PROCEED:** [Issue #87](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7090616033), owner-requested scoped branch `feat/unified-expo-preview-live-refresh` from verified main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`; active agent ChatGPT/GPT-6. Task [.ai/tasks/preview/unified-expo-live-refresh-20261123.md](tasks/preview/unified-expo-live-refresh-20261123.md). No merge, privileged dispatch, Codespace action, OTA/build or secrets/settings change authorized.
+- **Review gate:** Consolidated manual form, Codespaces-only push worker, immutable bundle, healthy Metro reuse and fail-closed source-map probe in scoped feature branch. Partial local targeted tests and YAML/shell syntax PASS; full `npm run check` and `npm run preview:test` not verified locally due missing dependencies/full checkout. Exact-HEAD CI, independent security review and physical Android/iPhone acceptance remain pending; review disposition DEFERRED. Issue #71 and PR #65 security hold remain separate.
 # 🧭 Current task index
 
 ## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction

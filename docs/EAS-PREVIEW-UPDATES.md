@@ -1,5 +1,11 @@
 # Tio Money — Expo PR review: OTA updates and internal builds
 
+## Proposed unified entry (RFC #87, feature PR unmerged)
+
+The existing **TIO MONEY EXPO PR REVIEW** workflow gains `codespaces_live` as its default operation alongside `publish_update` and `build_preview`, with `android`/`ios`/`all` platform choices. For Codespaces, the platform selects a Metro source-map probe on the existing Expo Go tunnel; it does not queue a build or publish an update. The form accepts a strict positive integer PR number. Codespaces permits the selected labeled owner PR to be Draft; EAS continues to require non-Draft, approved source-only paths, exact project identity, signing configuration and the locked EAS CLI signature audit. EAS is never reached by automatic pushes, and its `EXPO_TOKEN` stays confined to its existing separate Environment/job. See [Codespaces preview](PR-CODESPACES-PREVIEW.md) for automatic syncing, recovery, limitations and manual device verification. No live action is authorized by this documentation.
+
+### Historical 20 November checkpoint
+
 > **Current status: 20 November 2026.** This is the living guide for the **existing** Expo project `@tnyx-23/tio-money`, not Tio-Workspace. GitHub PRs [#4](https://github.com/im-tnyx/Tio-Money/pull/4), [#5](https://github.com/im-tnyx/Tio-Money/pull/5), and [#11](https://github.com/im-tnyx/Tio-Money/pull/11) are **MERGED** into `main`. [PR #12](https://github.com/im-tnyx/Tio-Money/pull/12) is **OPEN / NOT MERGED** and proposes the new operation/platform choices; [PR #10](https://github.com/im-tnyx/Tio-Money/pull/10) is **OPEN / NOT MERGED** and covers a separate privileged Codespaces preview worker. **No merge or EAS dispatch is authorized by this guide.** All of these are live GitHub states checked while updating this guide, not assertions that any build or OTA has been published.
 
 ## 1. What the Run workflow form will show
