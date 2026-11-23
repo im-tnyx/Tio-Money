@@ -47,7 +47,7 @@ test('five-tab scene host reuses policy without animating the tab bar or FAB', (
 });
 
 test('Account Groups detail reuses fade with native gesture ownership', () => {
-  assert.match(groupRoute, /useNavigationMotion\(\)/);
+  assert.match(root, /useNavigationMotion\(\)/);
   assert.match(root, /<Stack\.Screen name="account-groups" options=\{motion\.detail\} \/>/);
   assert.match(
     groupRoute,
