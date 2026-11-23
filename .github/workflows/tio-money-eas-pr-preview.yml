@@ -50,7 +50,7 @@ jobs:
       operation: codespaces_live
       platform: ${{ inputs.platform }}
 
-  validate:
+  select:
     if: ${{ (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
@@ -98,7 +98,67 @@ jobs:
             fi
             exit 1
           fi
-          echo "head_sha=$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+          selected_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")"
+          if [[ ! "$selected_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Selected PR SHA malformed"
+            exit 1
+          fi
+          echo "head_sha=$selected_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+
+  validate:
+    needs: select
+    if: ${{ (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Validate owner-authored PR and immutable source head
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          SELECTED_SHA: ${{ needs.select.outputs.head_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_OPERATION" in
+            publish_update|build_preview) ;;
+            *) echo "::error::Invalid preview operation"; exit 1 ;;
+          esac
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
+          esac
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::PR number must be a positive integer string"
+            exit 1
+          fi
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
+            .state == "open" and
+            .draft == false and
+            .user.login == "im-tnyx" and
+            .head.repo.full_name == $repo and
+            .base.repo.full_name == $repo and
+            .base.ref == "main" and
+            .head.sha != null and .base.sha != null
+          ' "$RUNNER_TEMP/pr.json" >/dev/null; then
+            if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
+              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+            else
+              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+            fi
+            exit 1
+          fi
+          if [[ "$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_SHA" ]]; then
+            echo "::error::PR advanced since trusted selection; refusing unvalidated source"
+            exit 1
+          fi
+          echo "head_sha=$SELECTED_SHA" >> "$GITHUB_OUTPUT"
           echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
 
       - name: Checkout immutable PR head
@@ -194,7 +254,7 @@ jobs:
           npx expo install --check
 
   preview:
-    needs: validate
+    needs: [select, validate]
     if: ${{ (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
@@ -209,7 +269,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
-          VALIDATED_SHA: ${{ needs.validate.outputs.head_sha }}
+          VALIDATED_SHA: ${{ needs.select.outputs.head_sha }}
           TARGET_OPERATION: ${{ inputs.operation }}
           TARGET_PLATFORM: ${{ inputs.platform }}
         run: |
