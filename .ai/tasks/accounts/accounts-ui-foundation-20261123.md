@@ -128,4 +128,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - The only conflict was in `.ai/current.md`. Both the Accounts and the merged PR #100 preview recovery records are preserved. The Accounts application source and tests match the prior Draft HEAD. The preview implementation matches main.
 - Source reconciliation reviewed by Codex Cloud. Independent review remains DEFERRED. Exact published HEAD and validation evidence are recorded in [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96). Draft status and finance gates remain in effect. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Borderless Add Account fields
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098953741) records the owner’s visual request on Draft #97 at starting HEAD `6c9b18972783ac6e35f81a454398e026b7b9d769`.
+- All main-form text inputs opt into the shared borderless appearance, including suppression of the Android native underline. The Linked Payment Modes sheet uses the default outlined input. Labels, dimensions, keyboard types and form behavior are preserved.
+- Changed paths besides this record and the index are `src/shared/ui/app-text-field.tsx`, `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`. The regression covers the main form and sheet appearance boundary.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and observed validation. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
