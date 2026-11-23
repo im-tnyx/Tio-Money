@@ -59,7 +59,7 @@ function AccountDraftController({
           accountCurrencyChoices(draft, currencies)?.map((value) => ({
             value,
             label: value,
-            symbol: CURRENCY_OPTIONS.find(({ code }) => code === value)?.symbol,
+            symbol: CURRENCY_OPTIONS.find(({ code }) => code === value)?.symbol ?? value,
           })) ?? null,
         showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
         canApplyMode: draft.group === 'bank' && Boolean(draft.modeEditor?.name.trim()),
