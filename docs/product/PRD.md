@@ -8,7 +8,7 @@
 ![Version](https://img.shields.io/badge/VERSION-0.1-596274?style=flat-square)
 ![Platform](https://img.shields.io/badge/PLATFORMS-ANDROID%20%2B%20IOS-118C84?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🧭 User Flows](02-USER-FLOWS.md) · [✍️ Docs Standard](90-DOCS-STYLE-GUIDE.md)
+[🏠 Project](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🧭 User Flows](USER-FLOWS.md) · [✍️ Docs Standard](../governance/DOCS-STYLE-GUIDE.md)
 
 </div>
 
@@ -20,7 +20,7 @@
 ## 0. Owner product-direction update · 2026-11-20
 
 > [!IMPORTANT]
-> **Future requirements only; none of the features below is shipped in Phase 0.** The current app is the five blank tabs and disabled Add described in [TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). This section records newer owner instructions that **supersede conflicting older P0/P1 scope wording below**; existing INR-only SQL remains a draft and must not be implemented unchanged for mixed currencies.
+> **Future requirements only; none of the features below is shipped in Phase 0.** The current app is the five blank tabs and disabled Add described in [TM-DEC-005](../governance/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). This section records newer owner instructions that **supersede conflicting older P0/P1 scope wording below**; existing INR-only SQL remains a draft and must not be implemented unchanged for mixed currencies.
 
 | Ordered stage | Scope | Identity / remote data |
 | :--- | :--- | :--- |
@@ -28,7 +28,7 @@
 | **Stage 2 — Backup/restore** | Optional encrypted user-directed backup to Google Drive/iCloud Drive/file provider; integrity and restore testing | No Tio Money login; file-provider accounts/permissions may apply; **not live sync** |
 | **Stage 3 — Optional Supabase** | User-selected cloud sync, migration, conflicts, multiple devices | Signup/signin only after opt-in; on-device SQLite remains working store |
 
-**Account-group contract:** [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md) defines fields, classification and testable flows. **Currency contract:** [10 — Currency](10-CURRENCY-SPEC.md) defines conditional Sub Currency, exchange-rate refresh at **every relevant use**, cached offline fallback and blocked finance decisions. **Identity:** [TM-DEC-009](DECISIONS.md#tm-dec-009--conditional-identity-only-for-opt-in-supabase). **Governance RFC:** [Issue #13](https://github.com/im-tnyx/Tio-Money/issues/13).
+**Account-group contract:** [08 — Account Groups](ACCOUNT-GROUPS-SPEC.md) defines fields, classification and testable flows. **Currency contract:** [10 — Currency](CURRENCY-SPEC.md) defines conditional Sub Currency, exchange-rate refresh at **every relevant use**, cached offline fallback and blocked finance decisions. **Identity:** [TM-DEC-009](../governance/DECISIONS.md#tm-dec-009--conditional-identity-only-for-opt-in-supabase). **Governance RFC:** [Issue #13](https://github.com/im-tnyx/Tio-Money/issues/13).
 
 **Existing planning labels:** P0/P1/P2 and Releases A–D below represent older feature-work packages, not permission to implement Stage 2 or 3 early. Detailed implementation milestone, SQL, user flows and screen-spec synchronization will follow in separately reviewed documentation PRs.
 
@@ -54,7 +54,7 @@ flowchart LR
   S --> R["📊 Balances + Reports"]
 ```
 
-**Where to go next:** [Full interaction & fee flows](02-USER-FLOWS.md) · [Documentation navigation](00-INDEX.md).
+**Where to go next:** [Full interaction & fee flows](USER-FLOWS.md) · [Documentation navigation](../00-INDEX.md).
 
 ---
 
@@ -102,7 +102,7 @@ Example needs:
 5. Suggested color semantics: Income = positive/blue-green, Expense = red, Transfer = neutral. Final visual theme will be decided in the screen specification.
 6. **Save** validates, stores and returns to previous screen; **Save & Add Another** (reference screenshot said “Continue”) stores and clears the form for another entry. Button labels may be optimized for clarity.
 7. Every save/edit/delete must keep balances, history and reports in agreement.
-8. All initial app text, validation errors and accessibility labels are **English only**; use centralized localization-ready strings, with INR formatting handled separately. [Owner decision TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app).
+8. All initial app text, validation errors and accessibility labels are **English only**; use centralized localization-ready strings, with INR formatting handled separately. [Owner decision TM-DEC-001](../governance/DECISIONS.md#tm-dec-001--english-only-initial-app).
 9. Mandatory data is clearly distinguished from optional note, description, merchant or attachment.
 
 ## 4. Main navigation and screen requirements
@@ -110,8 +110,8 @@ Example needs:
 ### 4.1 First-run setup (P0)
 
 - Initial onboarding has **no language selector**; use English UI copy and default INR currency.
-- Create a first **ledger-bearing financial account** using the applicable [Account Group](08-ACCOUNT-GROUPS-SPEC.md): Cash, Bank, independently funded Wallet, Credit Card, Investment or Loan. After an eligible Bank account exists, the user may additionally create a **bank-linked Wallet reference** via the Wallet group (`wallet_kind=bank_linked_reference`, required `linked_bank_account_id`). This is **reference metadata, not another owned-funds account**: it inherits Bank currency, uses the existing Bank balance and creates **no independent opening amount, ledger account, journal event or second Net Worth asset**. **Do not imply any of this is implemented in the current blank Phase 0 shell.**
-- Enter a **group-specific opening position**, never one mandatory universal amount: Cash/Bank/funded Wallet have an opening asset balance; Credit Card has opening outstanding **liability**; historical Investment uses cost basis plus optional separately dated valuation; historical Loan uses Given/Borrowed outstanding principal. A bank-linked Wallet reference has **no independent opening or funded balance**. Positive historical openings balance against opening equity, not Income/Expense; zero/reference openings do not write zero-value journal postings. See [group-specific opening contract](08-ACCOUNT-GROUPS-SPEC.md#21--group-specific-opening-contracts).
+- Create a first **ledger-bearing financial account** using the applicable [Account Group](ACCOUNT-GROUPS-SPEC.md): Cash, Bank, independently funded Wallet, Credit Card, Investment or Loan. After an eligible Bank account exists, the user may additionally create a **bank-linked Wallet reference** via the Wallet group (`wallet_kind=bank_linked_reference`, required `linked_bank_account_id`). This is **reference metadata, not another owned-funds account**: it inherits Bank currency, uses the existing Bank balance and creates **no independent opening amount, ledger account, journal event or second Net Worth asset**. **Do not imply any of this is implemented in the current blank Phase 0 shell.**
+- Enter a **group-specific opening position**, never one mandatory universal amount: Cash/Bank/funded Wallet have an opening asset balance; Credit Card has opening outstanding **liability**; historical Investment uses cost basis plus optional separately dated valuation; historical Loan uses Given/Borrowed outstanding principal. A bank-linked Wallet reference has **no independent opening or funded balance**. Positive historical openings balance against opening equity, not Income/Expense; zero/reference openings do not write zero-value journal postings. See [group-specific opening contract](ACCOUNT-GROUPS-SPEC.md#21--group-specific-opening-contracts).
 - App can be used without signup.
 - Request permissions only when a feature needs them, with clear privacy explanations.
 
@@ -159,7 +159,7 @@ Transfer tab:
 
 ### 4.5 Accounts (P0)
 
-- Add/edit/archive Cash, Bank, **funded Wallet and bank-linked Wallet references**, Credit Card, Investment and Loan in the complete local app. The Wallet group's `funded` path owns a distinct asset; its `bank_linked_reference` path creates/edits/archives **non-ledger metadata** linked to an eligible Bank, without duplicating balances. Deleting or archiving a reference must not delete, archive or change postings on the linked Bank. Use group-specific dynamic setup fields per [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); group names are **not** interchangeable with ledger account classes.
+- Add/edit/archive Cash, Bank, **funded Wallet and bank-linked Wallet references**, Credit Card, Investment and Loan in the complete local app. The Wallet group's `funded` path owns a distinct asset; its `bank_linked_reference` path creates/edits/archives **non-ledger metadata** linked to an eligible Bank, without duplicating balances. Deleting or archiving a reference must not delete, archive or change postings on the linked Bank. Use group-specific dynamic setup fields per [08 — Account Groups](ACCOUNT-GROUPS-SPEC.md); group names are **not** interchangeable with ledger account classes.
 - Display current balance or credit card outstanding, with correct sign conventions.
 - One UPI ID linked to a bank account must not create a second owned-funds balance unless it represents an actual separately funded wallet.
 - Transactions tied to archived accounts remain in history.
@@ -349,14 +349,14 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 
 ## 11. Documentation and build sequence
 
-1. **This file:** `docs/01-PRD.md` — product scope and acceptance criteria.
-2. `docs/02-USER-FLOWS.md` — navigation, validations, transfer fee, imports, errors.
-3. [`docs/03-SCREEN-SPEC.md`](03-SCREEN-SPEC.md) — unique design system and detailed screen specifications.
-4. `docs/04-DATABASE-DESIGN.md` — SQLite ledger schema, relationships, migration plan.
-5. `docs/05-TECH-ARCHITECTURE.md` — React Native / Expo Go boundary, modules and service layer.
-6. `docs/06-IMPLEMENTATION-TEST-PLAN.md` — milestones, test suites, performance and store release.
-7. [`docs/08-ACCOUNT-GROUPS-SPEC.md`](08-ACCOUNT-GROUPS-SPEC.md) — product-level account setup and group rules.
-8. [`docs/10-CURRENCY-SPEC.md`](10-CURRENCY-SPEC.md) — currency UX, FX refresh and unresolved accounting decisions.
+1. **This file:** `docs/product/PRD.md` — product scope and acceptance criteria.
+2. `docs/product/USER-FLOWS.md` — navigation, validations, transfer fee, imports, errors.
+3. [`docs/design/SCREEN-SPEC.md`](../design/SCREEN-SPEC.md) — unique design system and detailed screen specifications.
+4. `docs/architecture/DATABASE-DESIGN.md` — SQLite ledger schema, relationships, migration plan.
+5. `docs/architecture/TECH-ARCHITECTURE.md` — React Native / Expo Go boundary, modules and service layer.
+6. `docs/engineering/IMPLEMENTATION-TEST-PLAN.md` — milestones, test suites, performance and store release.
+7. [`docs/product/ACCOUNT-GROUPS-SPEC.md`](ACCOUNT-GROUPS-SPEC.md) — product-level account setup and group rules.
+8. [`docs/product/CURRENCY-SPEC.md`](CURRENCY-SPEC.md) — currency UX, FX refresh and unresolved accounting decisions.
 9. **Planned, not yet created:** Stage 2/3 backup-and-sync technical spec in a subsequent documentation PR.
 
 **Status:** Initial planning draft. UX specifics and implementation details can evolve, but money math and platform constraints should remain explicit and testable.
@@ -367,11 +367,11 @@ From account sends ₹5,000; destination receives ₹4,950 after ₹50 fee:
 
 | Document | Purpose | State |
 | :--- | :--- | :--- |
-| [📚 00 — Documentation Hub](00-INDEX.md) | Navigation and current state | Draft |
+| [📚 00 — Documentation Hub](../00-INDEX.md) | Navigation and current state | Draft |
 | **01 — Product Requirements** | Scope and acceptance contract | Draft |
-| [🧭 02 — User Flows](02-USER-FLOWS.md) | Precise interactions and alternate cases | Draft |
-| [✍️ 90 — Documentation Style Guide](90-DOCS-STYLE-GUIDE.md) | Visual style and truthfulness standard | Draft |
+| [🧭 02 — User Flows](USER-FLOWS.md) | Precise interactions and alternate cases | Draft |
+| [✍️ 90 — Documentation Style Guide](../governance/DOCS-STYLE-GUIDE.md) | Visual style and truthfulness standard | Draft |
 
-**Next documentation:** review the [original screen specification](03-SCREEN-SPEC.md), then define the canonical asset/liability ledger, architecture, and implementation/test strategy.
+**Next documentation:** review the [original screen specification](../design/SCREEN-SPEC.md), then define the canonical asset/liability ledger, architecture, and implementation/test strategy.
 
-[← Documentation Hub](00-INDEX.md) · [User Flows →](02-USER-FLOWS.md)
+[← Documentation Hub](../00-INDEX.md) · [User Flows →](USER-FLOWS.md)

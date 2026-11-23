@@ -6,14 +6,14 @@
 
 ![Status](https://img.shields.io/badge/STATUS-FUTURE%20DESIGN%20DRAFT-7357E8?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [📌 Decisions](DECISIONS.md)
+[🏠 Project](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🎯 PRD](PRD.md) · [🏗 Architecture](../architecture/TECH-ARCHITECTURE.md) · [📌 Decisions](../governance/DECISIONS.md)
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **This document designs future stages only. No backup, restore, encryption, Supabase project, cloud data transfer or app login currently exists.** Owner requires Stage 1 = complete local app (network **only for optional exchange-rate quotes**), Stage 2 = **optional encrypted backup/restore** through Google Drive/iCloud-compatible file providers, Stage 3 = **optional Supabase sync + conditional app login**. Local SQLite remains the primary on-device store. Source: [TM-DEC-006](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary), [TM-DEC-009](DECISIONS.md#tm-dec-009--conditional-identity-only-for-opt-in-supabase) and [RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20). No code or live provider setup is authorized by this specification.
+> **This document designs future stages only. No backup, restore, encryption, Supabase project, cloud data transfer or app login currently exists.** Owner requires Stage 1 = complete local app (network **only for optional exchange-rate quotes**), Stage 2 = **optional encrypted backup/restore** through Google Drive/iCloud-compatible file providers, Stage 3 = **optional Supabase sync + conditional app login**. Local SQLite remains the primary on-device store. Source: [TM-DEC-006](../governance/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary), [TM-DEC-009](../governance/DECISIONS.md#tm-dec-009--conditional-identity-only-for-opt-in-supabase) and [RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20). No code or live provider setup is authorized by this specification.
 
 ## 01 · Stage separation and trust boundaries
 
@@ -120,7 +120,7 @@ flowchart TD
 | `TM-SYNC-006` | Mobile bundle contains no privileged server secrets, no unapproved analytics/credential export |
 | `TM-SYNC-007` | Deletion/export, key rotation and lost-device/session revocation pass reviewed privacy/security test plan |
 
-**Release gate:** Stage 2 and Stage 3 remain blocked until the prior stage passes its acceptance, financial and device QA, a dedicated threat model/ADR is approved and current external provider/platform behavior is verified. Independent review is strongly recommended for encryption, finance-data restore, authentication and RLS. Real-world provider approvals/permissions and privacy terms are not guaranteed. No task or PR may merge without owner-specific [merge authorization](DECISIONS.md#tm-dec-003--owner-authorized-agent-merge).
+**Release gate:** Stage 2 and Stage 3 remain blocked until the prior stage passes its acceptance, financial and device QA, a dedicated threat model/ADR is approved and current external provider/platform behavior is verified. Independent review is strongly recommended for encryption, finance-data restore, authentication and RLS. Real-world provider approvals/permissions and privacy terms are not guaranteed. No task or PR may merge without owner-specific [merge authorization](../governance/DECISIONS.md#tm-dec-003--owner-authorized-agent-merge).
 
 ## 05 · Platform and architecture boundaries
 
@@ -128,7 +128,7 @@ flowchart TD
 - Stage 2 candidate ports: `BackupArchiveService`, `BackupFileProvider`, `BackupKeyProvider`, `RestoreValidator`. Stage 3 candidate ports: `SyncProvider`, `IdentityProvider`, `RemoteConflictResolver`. **These are conceptual interfaces; no files/modules/SDK dependencies have been added.**
 - The local ledger's stable IDs, reversals, idempotency, account classifications and schema versions should remain durable enough for later backup and optional sync. This is future compatibility planning, **not cloud code now**.
 - FX quote adapter and its network calls are **not backup/sync providers**. FX cache timestamps are estimates and must not be treated as transfer rates without a reviewed finance ADR.
-- Trace to [06 — Implementation & Test Plan](06-IMPLEMENTATION-TEST-PLAN.md), [05 — Architecture](05-TECH-ARCHITECTURE.md), [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md), and [10 — Currency](10-CURRENCY-SPEC.md).
+- Trace to [06 — Implementation & Test Plan](../engineering/IMPLEMENTATION-TEST-PLAN.md), [05 — Architecture](../architecture/TECH-ARCHITECTURE.md), [08 — Account Groups](ACCOUNT-GROUPS-SPEC.md), and [10 — Currency](CURRENCY-SPEC.md).
 
 ## 06 · Open decisions / signoff
 
@@ -140,4 +140,4 @@ flowchart TD
 
 ---
 
-[← Documentation Hub](00-INDEX.md) · [Implementation & Test Plan →](06-IMPLEMENTATION-TEST-PLAN.md)
+[← Documentation Hub](../00-INDEX.md) · [Implementation & Test Plan →](../engineering/IMPLEMENTATION-TEST-PLAN.md)

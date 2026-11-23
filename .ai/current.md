@@ -1,3 +1,6 @@
+## 2026-11-23 — PR #88 branch reconciliation with main
+
+- Owner requested branch alignment in project chat. [Draft PR #88](https://github.com/im-tnyx/Tio-Money/pull/88) integrates main `d8badc8bee842a20db9ea5c5866cb5db4b1e77a5` from prior PR HEAD `1b68936930ed0c627ca525ed6972885ba1336d5e`. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--branch-reconciliation). Security findings remain open. Verify required CI on the resulting HEAD.
 
 ## 2026-11-23 — PR #88 review correction (RFC #87 addendum)
 
@@ -7,7 +10,84 @@
 
 - **Technical PROCEED:** [Issue #87](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7090616033), owner-requested scoped branch `feat/unified-expo-preview-live-refresh` from verified main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`; active agent ChatGPT/GPT-6. Task [.ai/tasks/preview/unified-expo-live-refresh-20261123.md](tasks/preview/unified-expo-live-refresh-20261123.md). No merge, privileged dispatch, Codespace action, OTA/build or secrets/settings change authorized.
 - **Review gate:** Consolidated manual form, Codespaces-only push worker, immutable bundle, healthy Metro reuse and fail-closed source-map probe in scoped feature branch. Partial local targeted tests and YAML/shell syntax PASS; full `npm run check` and `npm run preview:test` not verified locally due missing dependencies/full checkout. Exact-HEAD CI, independent security review and physical Android/iPhone acceptance remain pending; review disposition DEFERRED. Issue #71 and PR #65 security hold remain separate.
+
+## 2026-11-23 — PR #90 Gate 3 documentation review passed (Issue #89)
+
+- **Task:** [TM-DOC-IA-20261123-001](tasks/governance/documentation-information-architecture-20261123.md), [Draft PR #90](https://github.com/im-tnyx/Tio-Money/pull/90). No blockers found in docs-only self-review: 74 core + 17 secondary + 27 governance/task docs-anchor references matched, repo CI markdown links PASS. Protected main ruleset requires static + Governance; both previously PASS at `1cdf32d6`. Exact HEAD must revalidate after this checkpoint.
+- **Concurrent #88:** Active Draft preview PR stays on its own branch (three files remain at docs root). Don't overwrite .ai/current.md additions if #88 lands. Independent GitHub reviewer not yet performed; RFR transition/review feedback pending; no PR #90 merge permission.
+  
+## 2026-11-23 — PR #80 latest owner choice: Android fade-only (slide removed)
+
+- Owner superseded Android slide/slide+fade request due to right-edge white flash. [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091987225), [assigned task](tasks/ui/settings-topbar-account-groups-20261122.md). Four detail routes share native `fade` on Android/iOS (iOS 160ms, Android OS-native duration); keep theme underlay, tabs fade, Reduced Motion and bottom sheet. Device QA required, PR #80 only, no merge or #71 trust approval. Exact new HEAD CI pending.
+
+## 2026-11-23 — PR #80 Android Back white-edge mitigation (combined fade requested)
+
+- Owner requests smooth Android Back, no white right-edge flash and a subtle fade along with slide. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091913435) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack native underlay now matches theme canvas like Tabs; existing native Android slide, iOS fade, Reduced Motion and gestures kept. Expo Router native Stack lacks one-option slide+fade composition, so combined effect is NOT claimed; device QA still required. PR #80 only, no merge authority, main untouched, Issue #71 OPEN. Exact new HEAD/CI pending.
+
 # 🧭 Current task index
+
+## 2026-11-23 — Gate 2: PR #90 reconciled with PR #80 merged main (Issue #89)
+
+- **Reconciliation:** Draft [PR #90](https://github.com/im-tnyx/Tio-Money/pull/90) safely integrated latest main `1d512cf4` (merged PR #80) using non-force two-parent docs-branch commit `bbecbcc1`. Retained PR #80 app/UI, eight task-index sections and Android fade-only documentation. Diff against main remains docs-only, 17 ahead / 0 behind.
+- **Concurrent PR #88:** Remains Draft/untouched; preview docs still at root; independent PR #88 conflict with newer main is separate. [Task checkpoint](tasks/governance/documentation-information-architecture-20261123.md), [RFC #89](https://github.com/im-tnyx/Tio-Money/issues/89). Governance CI PASS at reconciled head, static in progress; this index write requires new exact-HEAD CI. Review DEFERRED, owner PR #90 merge authorization NOT_GRANTED, no main changes.
+
+## 2026-11-23 — Documentation information architecture / Premium README (Issue #89)
+
+- **Owner direction:** Start a tracked .ai task and reorganize the flat docs folder into coherent product, design, architecture, engineering, security, governance and history categories; keep historical audit/CI evidence outside README. **RFC:** [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89); [agent-recorded technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/89#issuecomment-7091498129).
+- **Task:** [TM-DOC-IA-20261123-001](tasks/governance/documentation-information-architecture-20261123.md); scoped branch `docs/information-architecture-20261123` at main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`. Docs-only, canonical decisions and history preserved, verify all moved-file links and actual CI. **PR #88/#80 touch shared documentation/index; avoid overwriting concurrent changes.**
+- **Draft PR:** [#90 — category docs + product-first README](https://github.com/im-tnyx/Tio-Money/pull/90) opened on scoped branch; 18 canonical docs moved, Phase 0 historical checkpoint archived. 3 in-flight preview docs deliberately deferred for PR #88; exact-head CI and PR overlap reconciliation pending. No owner merge authorization.
+- **Permissions:** Owner instructed work to start; no PR-specific merge authorization, no main modification, force push, security waiver or policy change. Independent review DEFERRED at task opening; current CI NOT_RUN.
+
+
+
+## 2026-11-23 — PR #80 Settings detail animation parity (Currency + Account Groups)
+
+- Owner approved **scoped implementation in PR #80 only** after spotting inconsistent Currency transitions. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091695525) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack applies one `motion.detail` to Account Groups, Main Currency, Sub Currency, Sub Currency Detail; iOS native 160ms fade, Android slide with reverse Back, Reduced Motion respected. Tabs/bottom sheets and native swipe arbitration remain unchanged. Exact-new-HEAD CI, independent review disposition and device QA must be verified separately. No merge permission, protected-main or Issue #71 trust/security change.
+
+## 2026-11-23 — PR #80 Android horizontal Stack slide + native Back
+
+- **Owner feedback:** Android Back appeared unanimated; prefers slide to fade-from-bottom. Technical PROCEED in [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091432351). Shared detail policy targets Android `slide_from_right` with inverse native pop, iOS 160ms fade and all five tab fades unchanged, OS Reduced Motion respected. Theme README/tests updated; real Android open/Back/gesture/Animator-scale QA pending. PR #80 only, no merge authorization or Issue #71 security waiver.
+
+## 2026-11-23 — PR #80 Android motion tweak `fade_from_bottom`
+
+- Owner requested Android smoothness correction, iOS unchanged; scoped PROCEED [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091210809). Shared policy now selects native Android `fade_from_bottom`, iOS native 160ms `fade`, JS Tabs unchanged, OS Reduced Motion respected. Theme README and Phase0 tests updated. Native on-device perceptual QA pending; no protected-main change or PR merge authorization. Issue #71 OPEN.
+
+## 2026-11-23 — PR #80 reusable navigation motion + Account Groups fade
+
+- **Owner scope:** More crossfade and Account Groups detail fade share one theme motion contract; [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141), assigned `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **Implementation gate:** root single Reduced Motion provider, shared Tabs/Stack options, semantic 160ms aliases (Stack native duration iOS-only), theme README + Phase0 tests. Exact-HEAD CI, fresh review and device QA required. No merge permission; Issue #71 still OPEN.
+
+## 2026-11-23 — PR #80 Codex P1 + Bugbot keyboard/input remediation
+
+- Owner “Sahi kre”, scoped PROCEED https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085443402. Route/controller owns Back/rename/delete; shared single-line Android input centers; keyboard-aware Bottom Sheet no longer reapplies the 90% collapsed cap, default Currency/Theme unchanged.
+- Task: .ai/tasks/ui/settings-topbar-account-groups-20261122.md. Exact-HEAD checks and physical device QA pending; review threads not pre-emptively cleared; Issue #71 remains OPEN. No PR merge authorization or protected main modification.
+
+## 2026-11-23 — PR #80 owner-approved single-line 1–20 custom group names
+
+- **Source:** Owner final **Go**, [Issue #79 RFC](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085252621). Existing task \`.ai/tasks/ui/settings-topbar-account-groups-20261122.md\` remains assigned to GPT-6; PR #80 Ready for Review, source/input/domain tests scoped only.
+- **Gate:** New exact-HEAD CI and iPhone/Android manual UI acceptance pending; prior HEAD required \`static\` failed closed on npm attestation, Issue #71 OPEN. Diagnostic PR #84 cannot waive it. No main changes, no merge authorization.
+
+## 2026-11-23 — Draft PR #80 custom Account Group swipe Delete and tap Rename
+
+- **Owner direction / RFC #79:** custom display-only groups reveal Delete on left swipe, and open the existing one-Save, keyboard-aware bottom sheet with a prefilled name for Rename on tap. Built-in groups remain read-only. Technical decisions and acceptance: [swipe](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084481580), [rename](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084496503).
+- **Work in progress:** PR #80 branch `ui/settings-topbar-account-groups-20261122`, bounded local v1 preference edits and route-owned swipe controller; exact HEAD CI, independent device swipe/keyboard/a11y QA pending. No merge authorization, no main/security modifications; Issue #71 remains OPEN.
+- **Assigned task:** `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+
+## 2026-11-22 — PR #80 shared ActionButton visual 42dp, touch 48dp
+
+- **Owner request / RFC #79:** all shared ActionButtons painted 42dp from central theme primitives, retain accessible 48dp touch region, preserve variants and statuses. See active task `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **State:** Draft PR #80; exact-HEAD CI and owner preview needed; no merge/main/security changes. Separate Issue #71 remains OPEN and PR #65 remains HOLD.
+
+## 2026-11-22 — Draft PR #80 Account Groups control refinement
+
+- **Owner chat / RFC #79:** Eye action next to `+` with description visibility, max five persisted *display-only* user-defined names, remove introductory template banner; `home_storage` Google wght200 icon only Settings Account Groups row (not list). Controller/local non-finance preference, no ledger/account class schema. See `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **Merge:** PR #80 remains DRAFT/unmerged, no new owner permission; exact-HEAD CI and owner Codespaces/Expo Go UI inspection pending this refinement. PR #65 security HOLD and Issue #71 separate.
+
+## 2026-11-22 — Settings top bar and seven informational Account Groups (RFC #79)
+
+- **Technical PROCEED:** Owner requested a new branch and UI preview with AGENTS.md/theme README. RFC https://github.com/im-tnyx/Tio-Money/issues/79; this is agent-transcribed instruction, not owner PR merge approval.
+- **Branch:** `ui/settings-topbar-account-groups-20261122` from verified `main` `bb6638b56d2dea6d1e067806be009f500666e82c`; token-owned shared AppTopBar; Account Groups template-only seven entries; Theme copy; existing local persistence/finance unaffected.
+- **Task:** `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`; exact-HEAD CI and owner device preview **PENDING** until checked. Issue #71 remains separate and OPEN; PR #65 remains SECURITY HOLD. No main change, merge or privileged Codespaces run authorized.
 
 ## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction
 
@@ -141,7 +221,7 @@
 ## 2026-11-21 — PR #53 bounded Sub-only FX owner approval (latest checkpoint)
 
 - **Owner decision:** [PR #53 approval](https://github.com/im-tnyx/Tio-Money/pull/53#issuecomment-7066644805) — Frankfurter v2 blended **reference** rate for saved Sub Currency display/refresh **only**, under TM-ADR-023 controls. Never ledger/transaction/account conversion, user identifiers or paid services. Not live trading quotes.
-- **Scope:** PR #53 FX adapter/cache/controller now part of explicitly limited owner-approved feature; earlier no-network statements below are historical. Provider/network safeguards, source date/last-check disclosure and pair-only requests are in the [Currency Spec](../docs/10-CURRENCY-SPEC.md) and [ADR](../docs/11-STAGE-1-FINANCE-ADRS.md).
+- **Scope:** PR #53 FX adapter/cache/controller now part of explicitly limited owner-approved feature; earlier no-network statements below are historical. Provider/network safeguards, source date/last-check disclosure and pair-only requests are in the [Currency Spec](../docs/product/CURRENCY-SPEC.md) and [ADR](../docs/governance/STAGE-1-FINANCE-ADRS.md).
 - **Gate:** latest branch edits require exact-HEAD CI, physical iPhone/Android UX and trusted EAS preview scope resolution. No independent reviewer approval is assumed. **Owner PR #53 merge authorization NOT_GRANTED.**
 
 ## 2026-11-21 — More Currency preference foundation (RFC #52)
@@ -157,7 +237,7 @@
 ## 2026-11-22 — Verified security-baseline PR #58 merge terminal
 
 - **Actual GitHub state:** [PR #58](https://github.com/im-tnyx/Tio-Money/pull/58) **MERGED** through a protected, non-force squash at 2026-11-21T22:50:06Z (2026-11-22 04:20:06 IST); verified merged SHA **`7d595bf334a2fd81c4e9e220fda00226c38d6305`** equals protected `main` at inspection, source HEAD `d16b65aabef685a86c6fc616a4e0aae00b785e24`. Owner explicitly instructed “Go to merge 58” after exact-scope non-force main reconciliation; 3/3 exact-head CI SUCCESS, GitHub mergeability CLEAN, 0 unresolved review threads, no branch protection bypass. [Issue #57 terminal checkpoint](https://github.com/im-tnyx/Tio-Money/issues/57#issuecomment-7070466985).
-- **Exact merged scope:** `.github/dependabot.yml` (weekly bounded **non-auto-merging** root npm + GitHub Actions update PR proposals) and [security baseline guide](../docs/14-SECURITY-BASELINE-SETUP.md). No app/FX/ledger/auth code, EAS isolated dependencies, root package dependencies, EAS/Codespaces trusted workflows, Expo Go QR-free tunnel, security settings, CodeQL activation, credentials or required-check rules changed. Dependabot alerts, CodeQL entitlement/setup and branch legacy admin settings were **NOT independently accessible/verified**, not declared secure.
+- **Exact merged scope:** `.github/dependabot.yml` (weekly bounded **non-auto-merging** root npm + GitHub Actions update PR proposals) and [security baseline guide](../docs/security/SECURITY-BASELINE-SETUP.md). No app/FX/ledger/auth code, EAS isolated dependencies, root package dependencies, EAS/Codespaces trusted workflows, Expo Go QR-free tunnel, security settings, CodeQL activation, credentials or required-check rules changed. Dependabot alerts, CodeQL entitlement/setup and branch legacy admin settings were **NOT independently accessible/verified**, not declared secure.
 - **Updated merged-head signal (later verified):** `.github/dependabot.yml` validation **SUCCESS** and both post-merge Dependabot version-update jobs **SUCCESS** on PR #58 merge SHA. Four bot PRs [#64](https://github.com/im-tnyx/Tio-Money/pull/64), [#65](https://github.com/im-tnyx/Tio-Money/pull/65), [#66](https://github.com/im-tnyx/Tio-Money/pull/66), [#67](https://github.com/im-tnyx/Tio-Money/pull/67) were opened **without auto-merge**, but their exact-head `static` CI **FAILS**: #64/#65 changed immutable workflow Action SHAs and broke pinned-SHA security regression assertions; #66/#67 are incompatible with Expo SDK 58's expected `react-native-svg@15.16.0` and `react@19.3.0`. Do not bypass tests, auto-merge, or alter trusted QR-free preview. Owner reports **one Moderate and one Low Dependabot alert**, but this connector cannot read alert/advisory records: GHSA, affected package/manifest and remediation are **NOT VERIFIED**; alerts not dismissed. Android/iPhone physical-device QA not observed. [Issue #57](https://github.com/im-tnyx/Tio-Money/issues/57) remains OPEN; PR #53 is separately OPEN, green CI but device/source review pending. No merge permission inherited.
 - **Handoff:** Implementation in PR #58 **COMPLETED / MERGED**; administrative security setup verification and future bot-PR review **FOLLOW_UP_OPEN**. Current working agent ChatGPT (GPT-6), prior verified agent ChatGPT (GPT-6) from project task checkpoints; earlier provenance unknown. This record is staged in an **independent docs-only PR**, without independent authorization to merge that follow-up.
 
@@ -213,7 +293,7 @@
 
 - **Current live GitHub finding at source inspection:** PR #1 and PR #24 already **MERGED**, no open PRs at task creation; older "PR #24 NOT MERGED" entries below are *historical snapshots*, not live merge status. Baseline `main` `57e564af8f526f9de69eaaf61f2fbc0c72731188`.
 - **RFC / proceed:** [Issue #50](https://github.com/im-tnyx/Tio-Money/issues/50) and [agent technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/50#issuecomment-7061302891) authorize narrow factual docs reconciliation only. Owner requested progress to **merge gate**, **not merge authorization for an as-yet-unnumbered PR**.
-- **Scoped task:** [TM-DOC-GATE-20261121-001](tasks/product/documentation-readiness-gate-20261121.md); new branch `docs/documentation-readiness-gate-20261121`; README current/historical labels and [readiness gap register](../docs/13-DOCUMENTATION-READINESS.md), docs hub/index. Finance ADRs and Stage 2/3 security requirements remain BLOCKED and unimplemented.
+- **Scoped task:** [TM-DOC-GATE-20261121-001](tasks/product/documentation-readiness-gate-20261121.md); new branch `docs/documentation-readiness-gate-20261121`; README current/historical labels and [readiness gap register](../docs/governance/DOCUMENTATION-READINESS.md), docs hub/index. Finance ADRs and Stage 2/3 security requirements remain BLOCKED and unimplemented.
 - **PR:** [#51 — docs readiness](https://github.com/im-tnyx/Tio-Money/pull/51) opened non-draft at initial HEAD `0cee75263ada4acc1c38bdef366b9ee46f8a8820`; subsequent task/index checkpoint advances HEAD. Exact-new-HEAD CI/review checks required; do not reuse earlier green runs.
 - **Safety:** Markdown-only; no `src`, ledger/migrations, CI, secrets, cloud/Auth or UI changes. Fresh PR exact-head checks, review threads, commit attribution and branch requirements must be verified; no merge, auto-merge or owner approval inferred.
 
@@ -241,7 +321,7 @@
 
 - **Verified live GitHub baseline:** `im-tnyx/Tio-Money` `main` = `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) merged at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`, [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) at `6187b7a7e4c59949547c21655accf50dec8d0dfd`, [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) at `f4332eb338ca75e27a5b35ff57511f522a4bb96a`. Their three task **top lifecycle rows** were reconciled; all dated older Draft/unmerged sections are historical only. No claim of a local Codespace `git pull`, device QA, file archival or new executable ledger.
 - **Current scoped task:** [TM-FIN-ADR-20261121-001](tasks/product/post-merge-stage1-finance-adr-20261121.md) / [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23). Agent ChatGPT GPT-6 technical PROCEED **docs-only**. Branch `docs/postmerge-stage1-finance-adrs-20261121` created from verified main. Owner requested Stage 1 ADR clarification and confirmed **all screens must be dumb / no screen logic**.
-- **New canonical contracts:** [11 — Stage 1 Finance ADRs](../docs/11-STAGE-1-FINANCE-ADRS.md) maps TM-ADR-011–023 with settled technical invariants versus **explicit pending business/provider/security choices**. [12 — Dumb-Screen Boundaries](../docs/12-DUMB-SCREEN-BOUNDARIES.md) and owner [TM-DEC-011](../docs/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) forbid any logic, routing, SQL, finance math or side effects inside screens. Current five blank tab routes were **read-only inspected** on main and only export BlankScreen; route layouts compose separate controllers/providers.
+- **New canonical contracts:** [11 — Stage 1 Finance ADRs](../docs/governance/STAGE-1-FINANCE-ADRS.md) maps TM-ADR-011–023 with settled technical invariants versus **explicit pending business/provider/security choices**. [12 — Dumb-Screen Boundaries](../docs/architecture/DUMB-SCREEN-BOUNDARIES.md) and owner [TM-DEC-011](../docs/governance/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) forbid any logic, routing, SQL, finance math or side effects inside screens. Current five blank tab routes were **read-only inspected** on main and only export BlankScreen; route layouts compose separate controllers/providers.
 - **Scope:** Markdown only; do not alter Phase 0 source, bottom-navigation visual tokens/More-aligned disabled FAB, finance SQLite, cloud, auth or permissions. Finance ADR owner/provider/accounting choices remain **BLOCKED pending separate decisions**; source and negative CI enforcement are **NOT IMPLEMENTED** by these docs.
 - **Handoff:** validate exact PR branch HEAD, all Markdown paths/anchors, zero co-author trailers, current GitHub checks/review. Independent finance/security review strongly recommended. **Owner merge authorization for this new PR NOT GRANTED**; no direct `main` write or merge.
 
@@ -482,7 +562,7 @@
 
 - **Owner instruction:** safely reconcile [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22), rerun CI and review; **no merge permission for #22**. PR #14 and [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) have already merged under their respective explicit owner authorizations.
 - **Current `main` SHA:** `6187b7a7e4c59949547c21655accf50dec8d0dfd` (verified PR #16 squash merge). PR #22 historical head before non-force merge: `edf0aa8769dc93a8d6477ee60bd57e97d436d0f9`.
-- **Technical decision / scope:** non-force two-parent PR #22 branch merge preserving all merged `main` files except PR C's six Markdown-owned paths: `docs/00-INDEX.md`, `docs/06-IMPLEMENTATION-TEST-PLAN.md`, `docs/DECISIONS.md` (TM-DEC-010 bottom-tab freeze only), new `docs/09-BACKUP-SYNC-SPEC.md`, [Phase C task](tasks/product/local-first-delivery-gates-20261120.md) and this index. Retarget to `main` and run exact-head CI/review after verification.
+- **Technical decision / scope:** non-force two-parent PR #22 branch merge preserving all merged `main` files except PR C's six Markdown-owned paths: `docs/00-INDEX.md`, `docs/engineering/IMPLEMENTATION-TEST-PLAN.md`, `docs/governance/DECISIONS.md` (TM-DEC-010 bottom-tab freeze only), new `docs/product/BACKUP-SYNC-SPEC.md`, [Phase C task](tasks/product/local-first-delivery-gates-20261120.md) and this index. Retarget to `main` and run exact-head CI/review after verification.
 - **Protected UI:** existing five bottom tabs, 50dp nav baseline + OS inset, icons/weight/spacing and More-aligned disabled FAB unchanged; no source, SQL, cloud or provider changes.
 - **Review/merge gate:** financial, investment, encryption/backup and Supabase tenancy ADRs **not implemented**. No independent review or device tests claimed. **Owner PR #22 merge authorization NOT_GRANTED**.
 
@@ -501,7 +581,7 @@
 ## 2026-11-20 — PR #16 Codex P1 investment valuation review
 
 - Codex automated review of `0b80af9a6d959e682ec0ece3dc1ff45c59223957` reported **P1**: non-posting market valuation cannot silently change **canonical journal-derived Net Worth**. [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) remains Ready for Review, **not merged**.
-- Bounded docs correction in `docs/04-DATABASE-DESIGN.md` and `docs/05-TECH-ARCHITECTURE.md`: distinguish immutable posted Net Worth from a **separately labelled unposted portfolio valuation estimate**, ADR-gated balanced revaluation, tests `TM-DB-VAL-001` / `TM-ARCH-010`. No new tables/code/cloud/UI/nav.
+- Bounded docs correction in `docs/architecture/DATABASE-DESIGN.md` and `docs/architecture/TECH-ARCHITECTURE.md`: distinguish immutable posted Net Worth from a **separately labelled unposted portfolio valuation estimate**, ADR-gated balanced revaluation, tests `TM-DB-VAL-001` / `TM-ARCH-010`. No new tables/code/cloud/UI/nav.
 - The commit created by this checkpoint requires new exact-head CI and P1 thread response/disposition. **Owner merge authorization NOT_GRANTED** for PR #16; dependent PR #22 remains untouched.
 
 ---
@@ -510,7 +590,7 @@
 ## 2026-11-20 — PR #16 follow-up review consistency correction
 
 - Before this checkpoint: [PR #16](https://github.com/im-tnyx/Tio-Money/pull/16) was **OPEN / Ready for Review / main-based**, SHA `53886aed3e28c9402cfb8f9402e536c8f8f638af`, all three CI checks green. **Codex re-review requested**, but not yet finalized at observation.
-- Manual review found legacy **SCREEN 06** had funded-only Wallet and universal opening form wording inconsistent with the merged PR #14 Bank-linked Wallet reference; `docs/03-SCREEN-SPEC.md` corrected these conditions. Historical PR #1 merge-state blurbs in Screen/Architecture were also corrected, with device QA still unverified. **No app code, bottom navigation or PR #22 files touched.**
+- Manual review found legacy **SCREEN 06** had funded-only Wallet and universal opening form wording inconsistent with the merged PR #14 Bank-linked Wallet reference; `docs/design/SCREEN-SPEC.md` corrected these conditions. Historical PR #1 merge-state blurbs in Screen/Architecture were also corrected, with device QA still unverified. **No app code, bottom navigation or PR #22 files touched.**
 - This task checkpoint commit advances the branch HEAD; **do not reuse old CI/Codex results**. Re-check exact-new-head actions, review threads and link integrity. PR #16 **merge authorization NOT_GRANTED**.
 
 ---
@@ -533,7 +613,7 @@
 ## 2026-11-20 — PR #14 conditional merge authority / new Codex findings
 
 - **Owner authorized** merge of `im-tnyx/Tio-Money` **PR #14** into `main`, **only if all current checks, protections, applicable reviews and outstanding findings are verified satisfied**. No authority for auto-merge, force-push, deletion or PR #16/#22.
-- Latest reviewed `c6d9473d9fed0d83982e0cf4e93cb3e16626bfef` had three green GitHub check runs and `main` branch API showed `protected:false`, but **Codex added two unresolved P2** findings to `docs/01-PRD.md` after earlier preflight. Correct in original PR branch; verify exact new HEAD and review/comment status again.
+- Latest reviewed `c6d9473d9fed0d83982e0cf4e93cb3e16626bfef` had three green GitHub check runs and `main` branch API showed `protected:false`, but **Codex added two unresolved P2** findings to `docs/product/PRD.md` after earlier preflight. Correct in original PR branch; verify exact new HEAD and review/comment status again.
 - **Remediation:** add Bank-linked Wallet reference to first-run (after Bank exists) and Accounts add/edit/archive flows, without additional financial account/balance/postings. [Task](tasks/product/local-first-product-contract-20261120.md) records source and limitations. Current branch remains PR #14; dependent stacked PR #16/#22 require later reconciliation.
 - **Pending at this checkpoint:** final CI, PR review findings, protections preflight and actual GitHub merge result. No merge is claimed here.
 
@@ -597,7 +677,7 @@
 |---|---|---|---|
 | **TM-P0-ALIGN-20261119-001** | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · `feat/phase-0-expo-foundation` → `main` | Before this docs-only checkpoint, HEAD `c90d1c00462de5e4a5b007a87dade6641a106f40`. [App CI #44600432345](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432345) PASS; [Governance CI #44600432365](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432365) PASS. Five blank tabs + disabled Google FAB; 24dp icon, 50dp nav baseline/FAB, 1dp label gap, 16dp FAB clearance. **OPEN / NOT MERGED.** | **Owner-reported device UI/no-`ExpoSQLite`-error smoke PASS** (platform/version not specified). Full two-platform, a11y, SQLite PRAGMA/migration/restart **NOT_VERIFIED**. One Copilot Node thread outdated/unresolved, fix evidenced. Independent latest-head review **DEFERRED**. Owner **merge permission for current scope NOT_GRANTED**; fresh explicit authorization required, followed by current HEAD/protections checks. [Task evidence](tasks/phase0/phase0-alignment-20261119.md). |
 | **TM-GOV-20261118-001** | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) | **MERGED** into `main` at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` (2026-11-19); prior 6/6 threads resolved | Preserve verified governance history, no inherited PR #1 merge authority. |
-| **TM-GOV-CLEANUP-20261119-001** | [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) | **DRAFT / UNMERGED**, independent governance docs cleanup | PR #7 also edits `.ai/current.md` and `docs/DECISIONS.md`; reconcile conflicts manually if ever integrated; do not edit PR #7 from Phase 0. |
+| **TM-GOV-CLEANUP-20261119-001** | [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) | **DRAFT / UNMERGED**, independent governance docs cleanup | PR #7 also edits `.ai/current.md` and `docs/governance/DECISIONS.md`; reconcile conflicts manually if ever integrated; do not edit PR #7 from Phase 0. |
 
 Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assistant ChatGPT GPT-6 per conversation. Never infer agent identity, owner approval or physical QA from Git author. Source-sha results above are historical as soon as a doc-only commit advances the branch; rerun CI for the new HEAD. **Previous handoffs below are archived historical snapshots**, not latest merge authority.
 
@@ -609,7 +689,7 @@ Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assist
 |---|---|---|---|
 | **TM-P0-ALIGN-20261119-001** | [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) · `feat/phase-0-expo-foundation` | **READY FOR REVIEW / OPEN / NOT MERGED**. Five blank selectable tabs + disabled floating `+` over More; shared theme/icon-size tokens and automatic OS light/dark; screens presentation-only. **Owner merge authorization NOT_GRANTED.** | Before this docs-only update, source HEAD `aaa09ad88fdcb9efa032f0f9b3c5e83f72785738`; [app CI #44562328304](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328304) passed 24/24 tests and Android/iOS bundles; [governance CI #44562328037](https://github.com/im-tnyx/Tio-Money/actions/runs/44562328037) passed 29/29 tests. Recheck final docs HEAD. Physical QA of latest tokenized Android/iPhone, system light/dark and real-device SQLite **NOT_VERIFIED**; [Phase 0 task](tasks/phase0/phase0-alignment-20261119.md) and [doc-alignment RFC](https://github.com/im-tnyx/Tio-Money/pull/1#issuecomment-7015156188). |
 | **TM-GOV-20261118-001** | [PR #2](https://github.com/im-tnyx/Tio-Money/pull/2) · `chore/ai-context-governance` | **COMPLETED / MERGED**, not archived. Actual `main` merge SHA `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`, merged 2026-11-19 06:16:11 UTC; **6/6** review threads resolved when inspected. | Earlier no-permission/open-thread records below were correct only at their own timestamps. PR #2 had **separate owner authorization**; that authorization is **not transferable** to PR #1. [Governance task history](tasks/governance/ai-context-setup.md) remains unchanged. |
-| **TM-GOV-CLEANUP-20261119-001** | [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) · `docs/governance-post-merge-reconciliation-20261119` | **DRAFT / NOT MERGED**; separate documentation reconciliation. **Owner merge authorization NOT_GRANTED.** | PR #7 also edits `docs/DECISIONS.md` and `.ai/current.md`. Do not edit/merge PR #7 from Phase 0 work; eventual integration must reconcile its governance checkpoint with PR #1's later Ready-for-Review state without overwriting history. |
+| **TM-GOV-CLEANUP-20261119-001** | [Draft PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) · `docs/governance-post-merge-reconciliation-20261119` | **DRAFT / NOT MERGED**; separate documentation reconciliation. **Owner merge authorization NOT_GRANTED.** | PR #7 also edits `docs/governance/DECISIONS.md` and `.ai/current.md`. Do not edit/merge PR #7 from Phase 0 work; eventual integration must reconcile its governance checkpoint with PR #1's later Ready-for-Review state without overwriting history. |
 
 **Provenance and review:** Current documentation authoring agent ChatGPT GPT-6, verified from current session; prior Phase 0 working agent ChatGPT GPT-6 from recorded task, never inferred from Git author. Independent new-head review `DEFERRED` (optional policy); the original Node engine review thread on PR #1 remains **outdated but unresolved** in GitHub and requires a valid disposition. Live refs and actual configured GitHub checks/review protections always override this timestamped document. **No current PR #1 or PR #7 merge permission.**
 
@@ -630,7 +710,7 @@ Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assist
 |---|---|---|---|
 | [Phase 0 Expo PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) on `feat/phase-0-expo-foundation` | **Open draft**, not merged; observed head `1c0f3e21d3e7938c1af3d5003ae640cfcd1cfe8f` | Working agent/model `UNKNOWN_NOT_VERIFIED`; PR author is not proof of model; some CI claimed in PR body but not independently rerun here | Do not edit its branch, change app code, merge or rewrite history |
 
-**Latest owner policies:** [TM-DEC-002](../docs/DECISIONS.md#tm-dec-002--independent-review-optional-by-default) — independent review **optional by default** (strongly recommended for financial, migration, security, privacy, auth and sensitive-platform changes); record `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, preserve known blockers and actual required GitHub reviews/checks. [TM-DEC-003](../docs/DECISIONS.md#tm-dec-003--owner-authorized-agent-merge) — **agent merge permitted only after distinct owner authorization** explicitly naming repository, PR number, permission to merge and conditions, plus live-head/required-protection/blocker/scope verification. This connected-chat decision was [transcribed in PR #2](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-7000574123) by an agent, **not** an authenticated owner-authored merge approval. **PR #2 merge permission NOT GRANTED.** Strict no-`Co-authored-by:` policy, mandatory RFC/proceed and English-only MVP remain.
+**Latest owner policies:** [TM-DEC-002](../docs/governance/DECISIONS.md#tm-dec-002--independent-review-optional-by-default) — independent review **optional by default** (strongly recommended for financial, migration, security, privacy, auth and sensitive-platform changes); record `PERFORMED / SKIPPED / UNAVAILABLE / DEFERRED`, preserve known blockers and actual required GitHub reviews/checks. [TM-DEC-003](../docs/governance/DECISIONS.md#tm-dec-003--owner-authorized-agent-merge) — **agent merge permitted only after distinct owner authorization** explicitly naming repository, PR number, permission to merge and conditions, plus live-head/required-protection/blocker/scope verification. This connected-chat decision was [transcribed in PR #2](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-7000574123) by an agent, **not** an authenticated owner-authored merge approval. **PR #2 merge permission NOT GRANTED.** Strict no-`Co-authored-by:` policy, mandatory RFC/proceed and English-only MVP remain.
 
 **Latest validation at pre-checkpoint HEAD `cb9fa85ead7e0c0a509cd90b87d51f2d3950d9f7`:** [Actual GitHub Actions run #44465777121](https://github.com/im-tnyx/Tio-Money/actions/runs/44465777121) **SUCCESS**: Python `py_compile`, **29/29 governance unittest cases**, supported Markdown `check-links` on PR checkout, **20 actual commit messages/zero prohibited co-author trailers**. Earlier [run #44465201294](https://github.com/im-tnyx/Tio-Money/actions/runs/44465201294) also passed 29 tests on helper fix `e238b7d`. New helper fixture covers inline non-Markdown relocation safety and optional review state gates. Independent review not claimed; 6 open threads remain and configured protected-branch requirements were not independently verified. This handoff commit advances HEAD; recheck its new CI run.
 
@@ -638,7 +718,7 @@ Current working documentation agent ChatGPT GPT-6; prior verified Phase 0 assist
 
 **Before the next write:** fetch live `main`, both branch HEADs, both PR states and changed paths. If these conflict with this snapshot, update the task evidence rather than silently assuming continuity.
 
-[Agent contract](../AGENTS.md) · [Task protocol](tasks/README.md) · [Decisions](../docs/DECISIONS.md)
+[Agent contract](../AGENTS.md) · [Task protocol](tasks/README.md) · [Decisions](../docs/governance/DECISIONS.md)
 
 ## New preview task — additive checkpoint (2026-11-19)
 
