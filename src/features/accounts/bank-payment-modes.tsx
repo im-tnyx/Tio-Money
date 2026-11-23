@@ -173,11 +173,13 @@ export function BankModeEditor({ draft, canApplyMode, animateSheet, onAction }: 
         <View style={{ padding: theme.space.lg, gap: theme.space.md }}>
           <AccountField
             label="accountModeName"
+            labelAsPlaceholder
             value={editor.name}
             onChangeText={(value) => onAction({ type: 'mode.name', value })}
           />
           <AccountChoices
             label="accountModeType"
+            compact
             options={paymentModeTypes.map((value) => ({ value, label: t(modeLabels[value]) }))}
             value={editor.kind}
             onChange={(value) => onAction({ type: 'mode.kind', value })}

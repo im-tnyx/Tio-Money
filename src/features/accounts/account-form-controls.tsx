@@ -75,7 +75,7 @@ export function AccountField({
 
   return (
     <View style={{ gap: theme.space.xxs }}>
-      <AppText>{t(label)}</AppText>
+      {labelAsPlaceholder ? null : <AppText>{t(label)}</AppText>}
       {input}
     </View>
   );
@@ -157,6 +157,7 @@ export function AccountChoices<Value extends string>({
   options,
   value,
   onChange,
+  compact = false,
 }: {
   readonly label: TranslationKey;
   readonly options: readonly {
@@ -165,6 +166,7 @@ export function AccountChoices<Value extends string>({
   }[];
   readonly value?: Value;
   readonly onChange?: (value: Value) => void;
+  readonly compact?: boolean;
 }) {
   const theme = useAppTheme();
   const choices = options.map((option) => {
@@ -178,18 +180,20 @@ export function AccountChoices<Value extends string>({
         disabled={!onChange}
         onPress={onChange ? () => onChange(option.value) : undefined}
         style={{
+          minWidth: compact ? theme.buttons.minimumHeight : undefined,
           minHeight: theme.buttons.minimumHeight,
-          borderWidth: theme.buttons.outlineWidth,
+          borderWidth: compact ? theme.buttons.noBorder : theme.buttons.outlineWidth,
           borderColor: selected ? theme.colors.brand : theme.colors.border,
           borderRadius: theme.radius.sm,
-          backgroundColor: theme.colors.card,
-          paddingHorizontal: theme.space.md,
+          backgroundColor: compact ? 'transparent' : theme.colors.card,
+          paddingHorizontal: compact ? theme.space.xxs : theme.space.md,
           flexDirection: 'row',
           alignItems: 'center',
+          justifyContent: compact ? 'center' : undefined,
           gap: theme.space.xxs,
         }}
       >
-        {selected ? (
+        {selected && !compact ? (
           <Svg
             width={theme.iconRoles.button}
             height={theme.iconRoles.button}
@@ -207,10 +211,42 @@ export function AccountChoices<Value extends string>({
             />
           </Svg>
         ) : null}
-        <AppText muted={!onChange}>{option.label}</AppText>
+        {compact ? (
+          <View
+            style={{
+              minHeight: theme.segmentedControl.compactOptionHeight,
+              borderRadius: theme.segmentedControl.radius,
+              borderWidth: theme.buttons.outlineWidth,
+              borderColor: selected ? theme.colors.primaryText : theme.colors.border,
+              paddingHorizontal: theme.space.xs,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <AppText variant="caption" muted={!selected} numberOfLines={1}>
+              {option.label}
+            </AppText>
+          </View>
+        ) : (
+          <AppText muted={!onChange}>{option.label}</AppText>
+        )}
       </Pressable>
     );
   });
+  if (compact) {
+    return (
+      <ScrollView
+        horizontal
+        keyboardShouldPersistTaps="handled"
+        accessibilityRole="radiogroup"
+        accessibilityLabel={t(label)}
+        contentContainerStyle={{ alignItems: 'center' }}
+      >
+        {choices}
+      </ScrollView>
+    );
+  }
+
   return (
     <View style={{ gap: theme.space.xxs }}>
       <AppText>{t(label)}</AppText>

@@ -392,6 +392,7 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.ok(sheetField);
   assert.match(mainField, /appearance="borderless"/);
   assert.match(sheetField, /label="accountModeName"/);
+  assert.match(sheetField, /labelAsPlaceholder/);
   assert.doesNotMatch(sheetField, /appearance=/);
   assert.match(field, /appearance = 'outlined'/);
   assert.match(field, /borderWidth: borderless \? 0 : theme\.navigation\.borderWidth/);
@@ -439,7 +440,24 @@ test('main form aligns icons and wraps Description from one line with its label 
     controls,
     /flexDirection: 'row'[\s\S]*?importantForAccessibility="no-hide-descendants"[\s\S]*?\{leading\}[\s\S]*?\{input\}/,
   );
-  assert.doesNotMatch(bankModes, /labelAsPlaceholder|leading=/);
+  assert.doesNotMatch(bankModes, /leading=/);
+});
+
+test('payment mode editor uses compact outlined radios in one horizontal row', () => {
+  const editor = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
+  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  const choices = controls.slice(controls.indexOf('export function AccountChoices'));
+  const compactRow = choices.slice(choices.indexOf('if (compact)'));
+  assert.match(editor, /label="accountModeType"\s+compact/);
+  assert.match(editor, /value=\{editor.kind\}/);
+  assert.match(editor, /type: 'mode.kind', value/);
+  assert.match(choices, /selected && !compact \?/);
+  assert.match(choices, /compactOptionHeight/);
+  assert.match(choices, /borderColor: selected \? theme.colors.primaryText : theme.colors.border/);
+  assert.match(choices, /muted=\{!selected\}/);
+  assert.match(compactRow, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
+  assert.match(compactRow, /\{choices\}\s+<\/ScrollView>/);
+  assert.match(controls, /labelAsPlaceholder \? null : <AppText>\{t\(label\)\}<\/AppText>/);
 });
 
 test('settings routes are distinct and detail routes inherit shared theme motion', () => {

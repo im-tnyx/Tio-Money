@@ -242,4 +242,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths include `docs/product/ACCOUNT-GROUPS-SPEC.md`, the Accounts form contract, controls, route and screen, removal of `src/features/accounts/account-currency-picker.tsx`, the two existing Sub Currency settings files from the shortcut, centralized strings and theme files, and the Accounts and design-token regressions.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Compact payment type tabs
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111045650) records the owner’s request against Draft #97 head `02f02b1559043929f840eff9a8549f92e4735c45`.
+- Add/Edit Payment Mode shows the name prompt inside the outlined field and the type options in one scrollable row. Compact pill selection uses border and text contrast with accessible checked state and 48dp targets. Apply, Cancel and the existing draft actions remain available.
+- Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/bank-payment-modes.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
