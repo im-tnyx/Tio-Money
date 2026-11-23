@@ -20,6 +20,14 @@ test('manual selection uses a bounded alternate range without adopting a foreign
   assert.throws(() => preflightDecision(true, { pid: 77, startTicks: '2' }, null, false, 'FOREIGN', true), /ownership/);
 });
 
+test('every managed Metro port disables Codespaces auto-forwarding and stays private', () => {
+  const { portsAttributes } = JSON.parse(read('.devcontainer/devcontainer.json'));
+  for (const port of candidatePorts(true)) {
+    assert.equal(portsAttributes[port]?.onAutoForward, 'ignore', `auto-forwarding for port ${port}`);
+    assert.equal(portsAttributes[port]?.visibility, 'private', `visibility for port ${port}`);
+  }
+});
+
 test('manual dispatch forces sync and owned restart; automatic pushes preserve healthy Metro', () => {
   const workflow = read('.github/workflows/tio-money-eas-pr-preview.yml');
   const starter = read('scripts/start-codespace-expo.mjs');
