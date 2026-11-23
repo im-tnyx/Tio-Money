@@ -12,10 +12,15 @@ export function getBottomSheetHeightLimits(
   viewportHeight: number,
   topInset: number,
   geometry: BottomSheetGeometry,
+  keyboardAvoiding = false,
 ): { collapsedMax: number; expandedMax: number } {
   const available = Math.max(0, viewportHeight - Math.max(0, topInset) - geometry.topSafeGap);
   const expandedMax = Math.min(available, viewportHeight * geometry.expandedViewportFraction);
-  const collapsedMax = Math.min(expandedMax, viewportHeight * geometry.collapsedViewportFraction);
+  // KeyboardAvoidingView already reduces the measured viewport. Do not
+  // apply another 90% collapsed cap to keyboard-aware input sheets.
+  const collapsedMax = keyboardAvoiding
+    ? expandedMax
+    : Math.min(expandedMax, viewportHeight * geometry.collapsedViewportFraction);
   return { collapsedMax, expandedMax };
 }
 

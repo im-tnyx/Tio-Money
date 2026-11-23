@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, Text } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
@@ -38,14 +38,8 @@ export function ActionButton({
       disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => ({
+        // A 48dp accessible target wraps the compact 42dp visual button.
         minHeight: theme.buttons.minimumHeight,
-        paddingHorizontal: compact ? theme.space.sm : theme.space.lg,
-        paddingVertical: theme.space.sm,
-        borderRadius: theme.radius.sm,
-        backgroundColor,
-        borderWidth: variant === 'secondary' ? theme.buttons.outlineWidth : theme.buttons.noBorder,
-        borderColor: theme.colors.border,
-        alignItems: 'center',
         justifyContent: 'center',
         opacity: isDisabled
           ? theme.buttons.disabledOpacity
@@ -54,20 +48,36 @@ export function ActionButton({
             : theme.buttons.enabledOpacity,
       })}
     >
-      {loading ? (
-        <ActivityIndicator color={isPrimary ? theme.colors.brandText : theme.colors.primaryText} />
-      ) : (
-        <Text
-          style={{
-            color: isPrimary ? theme.colors.brandText : theme.colors.primaryText,
-            fontSize: theme.typeScale.body,
-            fontWeight: theme.typography.boldWeight,
-            textAlign: 'center',
-          }}
-        >
-          {label}
-        </Text>
-      )}
+      <View
+        style={{
+          minHeight: theme.buttons.actionHeight,
+          paddingHorizontal: compact ? theme.space.sm : theme.space.lg,
+          borderRadius: theme.radius.sm,
+          backgroundColor,
+          borderWidth:
+            variant === 'secondary' ? theme.buttons.outlineWidth : theme.buttons.noBorder,
+          borderColor: theme.colors.border,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {loading ? (
+          <ActivityIndicator
+            color={isPrimary ? theme.colors.brandText : theme.colors.primaryText}
+          />
+        ) : (
+          <Text
+            style={{
+              color: isPrimary ? theme.colors.brandText : theme.colors.primaryText,
+              fontSize: theme.typeScale.body,
+              fontWeight: theme.typography.boldWeight,
+              textAlign: 'center',
+            }}
+          >
+            {label}
+          </Text>
+        )}
+      </View>
     </Pressable>
   );
 }

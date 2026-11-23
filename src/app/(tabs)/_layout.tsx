@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 
-import { useReducedTabMotion } from '@/shared/navigation/use-reduced-tab-motion';
+import { useNavigationMotion } from '@/shared/navigation/use-navigation-motion';
 import { useRevealTabsOnLayout } from '@/shared/navigation/use-reveal-tabs-on-layout';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { FloatingAddButton } from '@/shared/ui/floating-add-button';
@@ -11,7 +11,7 @@ import { RootTabBar } from '@/shared/ui/root-tab-bar';
 export default function RootTabsLayout() {
   const theme = useAppTheme();
   const revealTabsOnLayout = useRevealTabsOnLayout();
-  const reduceMotion = useReducedTabMotion();
+  const motion = useNavigationMotion();
 
   return (
     <View onLayout={revealTabsOnLayout} style={{ flex: 1, backgroundColor: theme.colors.canvas }}>
@@ -22,11 +22,7 @@ export default function RootTabsLayout() {
           screenOptions={{
             headerShown: false,
             sceneStyle: { backgroundColor: theme.colors.canvas },
-            animation: reduceMotion ? 'none' : 'fade',
-            transitionSpec: {
-              animation: 'timing',
-              config: { duration: theme.navigation.tabCrossfadeDurationMs },
-            },
+            ...motion.tab,
           }}
         >
           <Tabs.Screen name="index" />
