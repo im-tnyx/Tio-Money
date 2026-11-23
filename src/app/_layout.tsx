@@ -19,9 +19,15 @@ function ThemedStatusBar() {
 
 /** Pre-register one shared native transition for every Settings detail page before first push. */
 function AppNavigationStack() {
+  const theme = useAppTheme();
   const motion = useNavigationMotion();
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: theme.colors.canvas },
+      }}
+    >
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="account-groups" options={motion.detail} />
       <Stack.Screen name="currency/main" options={motion.detail} />

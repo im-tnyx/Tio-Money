@@ -735,3 +735,33 @@ Existing primary/secondary/ghost, compact, disabled, loading and callbacks
 are unchanged. This is NOT a global shrink of top-bar icon touch targets,
 text fields, bottom sheet headers, navigation or the disabled FAB.
 Real-device touch and text scaling checks remain pending on PR #80.
+
+## Android white-flash and combined-motion decision — PR #80 (2026-11-23)
+
+The owner saw a white strip on the **right side during Android Back**. The root native
+`Stack` now sets `screenOptions.contentStyle.backgroundColor` to the existing
+`theme.colors.canvas` from `useAppTheme()`, the same semantic surface used by the
+five-tab scene host. This avoids relying on a navigator default white content surface
+when a detail page slides away in Dark or in-app appearance override mode.
+It is a source-level mitigation; a native window/Fragment background or system bar may
+still require separate device-level debugging if the white flash persists.
+
+The owner also prefers a **subtle fade together with the horizontal slide**. Expo Router
+SDK 58's native Stack has **one animation preset** per route: `slide_from_right`
+and `fade` cannot be composed through multiple `animation` options. Do **not**
+misrepresent the current Android detail transition as slide+fade. Keep the existing
+native horizontal slide with reverse Back and OS-native timing for this bounded fix;
+iOS 160ms fade and the five-tab 160ms JS crossfade are unchanged. Adding a custom
+JS opacity overlay or migrating to `expo-router/js-stack` solely for this request
+is not automatically an improvement: it adds gesture/state coordination and
+performance risk and needs a separate design/device-profiling decision. Do not
+invent Android `animationDuration` or alter Reduced Motion behavior.
+
+**Device gate:** On Android, test More → Account Groups → Back, Settings → Main
+Currency / Sub Currency → Detail → Back, both toolbar and hardware/gesture Back,
+fast repeated taps, Dark/Light/System and in-app appearance override, OS Reduced
+Motion and Developer Options animator scale. Confirm the right edge never reveals
+white. Compare animation smoothness on a physical device and iOS regression separately.
+Source tests/CI/Metro cannot certify perceived smoothness or absence of native flashes.
+Rollback: revert the root `contentStyle` change if it introduces a regression;
+keep product data, bottom sheet, tokens and all native gesture ownership intact.

@@ -68,6 +68,16 @@ test('Account Groups detail reuses fade with native gesture ownership', () => {
   assert.match(sheet, /animationType="slide"/);
 });
 
+test('native Stack uses theme canvas as opaque underlay for push and reverse Back', () => {
+  assert.match(root, /function AppNavigationStack\(\) \{\s+const theme = useAppTheme\(\)/);
+  assert.match(root, /contentStyle: \{ backgroundColor: theme\.colors\.canvas \}/);
+  assert.match(layout, /sceneStyle: \{ backgroundColor: theme\.colors\.canvas \}/);
+  assert.doesNotMatch(root, /backgroundColor: ['"](?:white|#fff(?:fff)?)['"]/i);
+  assert.match(root, /<Stack\.Screen name="\(tabs\)" \/>/);
+  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 4);
+  assert.doesNotMatch(root, /Animated\.View|cardStyleInterpolator/);
+});
+
 test('all Settings detail routes preregister the same native Stack motion', () => {
   assert.match(root, /<Stack\.Screen name="account-groups" options=\{motion\.detail\} \/>/);
   assert.match(root, /<Stack\.Screen name="currency\/main" options=\{motion\.detail\} \/>/);

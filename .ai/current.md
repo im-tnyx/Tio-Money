@@ -1,3 +1,7 @@
+## 2026-11-23 — PR #80 Android Back white-edge mitigation (combined fade requested)
+
+- Owner requests smooth Android Back, no white right-edge flash and a subtle fade along with slide. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091913435) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack native underlay now matches theme canvas like Tabs; existing native Android slide, iOS fade, Reduced Motion and gestures kept. Expo Router native Stack lacks one-option slide+fade composition, so combined effect is NOT claimed; device QA still required. PR #80 only, no merge authority, main untouched, Issue #71 OPEN. Exact new HEAD/CI pending.
+
 # 🧭 Current task index
 
 ## 2026-11-23 — PR #80 Settings detail animation parity (Currency + Account Groups)
