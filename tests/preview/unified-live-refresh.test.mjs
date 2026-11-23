@@ -148,7 +148,7 @@ test('controlled runtime recovery stops only owned Metro before detaching or ins
   const checkout = syncSelected.indexOf("'switch', '--detach', target");
   const install = syncSelected.indexOf("spawnSync('npm', ['ci'");
   const reuse = syncSelected.indexOf('compatible Metro PID and tunnel reused');
-  const startManaged = syncSelected.indexOf('await startManaged(fingerprint, manual)');
+  const startManaged = syncSelected.indexOf('await startManaged(fingerprint, manual, recoveryPort)');
   assert.ok(incompatible >= 0 && incompatible < stop && stop < checkout && checkout < install);
   assert.ok(install < reuse && reuse < startManaged);
   assert.match(syncSelected, /current && \(manual \|\| !compatibleRuntime/);

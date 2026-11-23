@@ -313,8 +313,11 @@ async function stopManaged() {
   throw new Error('Managed Metro did not stop within 10s; inspect the private Codespace log manually.');
 }
 
-export function candidatePorts(manual) {
-  return manual ? [8081, 8082, 8083, 8084, 8085] : [8081];
+export function candidatePorts(manual, preferredPort = PORT) {
+  if (!Number.isSafeInteger(preferredPort) || preferredPort < 8081 || preferredPort > 8085) {
+    throw Error('Unapproved managed preview port.');
+  }
+  return manual ? [8081, 8082, 8083, 8084, 8085] : [preferredPort];
 }
 
 export function startupFailureCategory(log) {
@@ -336,16 +339,16 @@ function startupFailure() {
   } catch { return 'UNKNOWN'; }
 }
 
-async function selectPort(manual) {
-  for (const port of candidatePorts(manual)) {
+async function selectPort(manual, preferredPort) {
+  for (const port of candidatePorts(manual, preferredPort)) {
     try { await portIsFree(port); return port; }
     catch (error) { if (!manual || !error.message.includes('port is occupied')) throw error; }
   }
   throw Error('No free managed preview port in the approved range.');
 }
 
-async function startManaged(fingerprint, manual = false) {
-  const port = await selectPort(manual);
+async function startManaged(fingerprint, manual = false, preferredPort = PORT) {
+  const port = await selectPort(manual, preferredPort);
   const logFd = openSync(LOG_FILE, constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | constants.O_NOFOLLOW, 0o600);
   let child;
   try {
@@ -407,6 +410,7 @@ async function syncSelected(current, before, target, manual = false) {
   // Stop an incompatible owned process before changing the files it is using.
   // Hold the startup lock through source switch, install and managed restart.
   let managed = current;
+  const recoveryPort = current?.port ?? PORT;
   if (current && (manual || !compatibleRuntime(current, fingerprint, dependenciesReady))) {
     await stopManaged();
     managed = null;
@@ -438,7 +442,7 @@ async function syncSelected(current, before, target, manual = false) {
   }
   requireExpoAccount();
   if (managed) await stopManaged();
-  await startManaged(fingerprint, manual);
+  await startManaged(fingerprint, manual, recoveryPort);
 }
 
 async function main() {
@@ -489,6 +493,7 @@ async function main() {
       return;
     }
     requireExpoAccount();
+    const recoveryPort = current?.port ?? PORT;
     if (flags.includes('--restart')) await stopManaged();
     else {
       const action = previewAction(current, compatible && listening && await metroReady(current.port ?? PORT), listening && await tunnelReady(current.port ?? PORT) && verifyListener(current));
@@ -501,7 +506,7 @@ async function main() {
         await stopManaged();
       }
     }
-    await startManaged(fingerprint);
+    await startManaged(fingerprint, false, recoveryPort);
   });
 }
 
