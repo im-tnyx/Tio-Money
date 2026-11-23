@@ -26,6 +26,7 @@
 - [Inline amount Currency PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7110102250) restores the symbol boxes at the right end of [one amount row per form](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7110155081) and removes the Currency sheet. Exact HEAD and checks are recorded in RFC #96.
 - [Compact payment type tabs PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111045650) adds one horizontal row of outlined choices in the existing Bank editor. Exact HEAD and checks are recorded in RFC #96.
 - [Payment row icon and sheet PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111219399) uses compact Edit/Delete, weight-200 payment symbols and Apply-only sheet actions. Exact HEAD and checks are recorded in RFC #96.
+- [Add Account gutter PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111341207) reduces the leading icon inset, aligns trailing Currency boxes and removes the visible amount-reset caption. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

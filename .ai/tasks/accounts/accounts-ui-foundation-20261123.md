@@ -256,4 +256,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides the task and index are `src/features/accounts/bank-payment-modes.tsx`, `src/shared/assets/google-material-icons/payment-mode-icons.json`, `src/shared/assets/google-material-icons/README.md`, `src/shared/theme/README.md`, `src/shared/theme/component-tokens.ts`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/design-tokens.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Add Account field and currency alignment
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111341207) records the owner’s visual report against Draft #97 head `22e5cb7c1a9b646d554343fd98bc22bd430cdc7e`.
+- The form uses symmetric outer padding. Decorative leading icons occupy the theme’s icon width, with the same offset for captions and values. Painted currency boxes sit closer to the right gutter and keep their 48dp press targets. The amount-reset warning is no longer shown visually and remains available to assistive technology.
+- Changed paths besides the task and index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

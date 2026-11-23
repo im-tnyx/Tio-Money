@@ -136,7 +136,6 @@ function DraftInput({
           />
         ) : undefined
       }
-      hint={showCurrency ? t('accountCurrencyChangeHint') : undefined}
       value={value}
       keyboardType={money ? 'decimal-pad' : undefined}
       placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}

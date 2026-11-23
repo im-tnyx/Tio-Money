@@ -14,14 +14,12 @@ export function AccountField({
   label,
   leading,
   trailing,
-  hint,
   labelAsPlaceholder = false,
   ...props
 }: AppTextFieldProps & {
   readonly label: TranslationKey;
   readonly leading?: ReactNode;
   readonly trailing?: ReactNode;
-  readonly hint?: string;
   readonly labelAsPlaceholder?: boolean;
 }) {
   const theme = useAppTheme();
@@ -33,8 +31,8 @@ export function AccountField({
     />
   );
   if (leading) {
-    const iconColumnWidth = theme.buttons.minimumHeight;
-    const iconGap = theme.space.xxs;
+    const iconColumnWidth = theme.iconRoles.textField;
+    const iconGap = theme.space.sm;
     return (
       <View style={{ gap: theme.space.xxs }}>
         {labelAsPlaceholder ? null : (
@@ -64,11 +62,6 @@ export function AccountField({
           <View style={{ flex: 1 }}>{input}</View>
           {trailing}
         </View>
-        {hint ? (
-          <AppText variant="caption" muted style={{ marginLeft: iconColumnWidth + iconGap }}>
-            {hint}
-          </AppText>
-        ) : null}
       </View>
     );
   }
@@ -120,7 +113,8 @@ export function AmountCurrencyChoices({
             style={{
               width: theme.buttons.minimumHeight,
               minHeight: theme.buttons.minimumHeight,
-              alignItems: 'center',
+              paddingEnd: theme.space.xxs,
+              alignItems: 'flex-end',
               justifyContent: 'center',
             }}
           >
