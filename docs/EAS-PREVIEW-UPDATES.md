@@ -67,3 +67,7 @@ The workflow retains owner-only GitHub `actor` and `triggering_actor` checks, `r
 - **Separate Codespaces track:** [PR #10](https://github.com/im-tnyx/Tio-Money/pull/10) is a different, privileged main-only preview worker with its own pending security and owner merge gates. It does not control OTA build/update release and must not be silently merged or activated as part of PR #12.
 
 **Rollback:** Keep the app/Expo identity and any production signing unchanged. If the new form/CI policy is incorrect, revert the PR #12 workflow changes through an authorized reviewed GitHub PR; do not force-push `main`, delete credentials, reset another Codespace, or modify Tio-Workspace.
+# PR #88 review correction — EAS runner isolation
+
+The unified manual entry routes EAS operations through a **secretless validation job** that checks the selected owner/non-Draft PR, immutable SHA, project identity, changed-path allowlist, signing conditions, dependency compatibility and tests. A separate fresh runner in `tio-money-eas-preview-trusted` then checks the current PR against the validated SHA and repeats the identity, source and signing gates before installing locked dependencies with lifecycle scripts disabled and verifying the committed EAS CLI. `EXPO_TOKEN` is passed only to the final EAS operation step on that runner. Codespaces remains in its own environment and automatic pushes cannot reach either EAS operation. The EAS publishing/building path itself has not been dispatched for this Draft PR; exact-HEAD CI checks workflow source and tests, not a live EAS operation.
+

@@ -50,15 +50,15 @@ jobs:
       operation: codespaces_live
       platform: ${{ inputs.platform }}
 
-  preview:
+  validate:
     if: ${{ (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
       pull-requests: read
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    environment: tio-money-eas-preview-trusted
-
+    outputs:
+      head_sha: ${{ steps.pr.outputs.head_sha }}
     steps:
       - name: Validate owner-authored PR and immutable source head
         id: pr
@@ -192,6 +192,152 @@ jobs:
         run: |
           npm run check
           npx expo install --check
+
+  preview:
+    needs: validate
+    if: ${{ (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: tio-money-eas-preview-trusted
+
+    steps:
+      - name: Validate owner-authored PR and immutable source head
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          VALIDATED_SHA: ${{ needs.validate.outputs.head_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_OPERATION" in
+            publish_update|build_preview) ;;
+            *) echo "::error::Invalid preview operation"; exit 1 ;;
+          esac
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
+          esac
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::PR number must be a positive integer string"
+            exit 1
+          fi
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
+            .state == "open" and
+            .draft == false and
+            .user.login == "im-tnyx" and
+            .head.repo.full_name == $repo and
+            .base.repo.full_name == $repo and
+            .base.ref == "main" and
+            .head.sha != null and .base.sha != null
+          ' "$RUNNER_TEMP/pr.json" >/dev/null; then
+            if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
+              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+            else
+              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+            fi
+            exit 1
+          fi
+          selected_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")"
+          if [[ "$selected_sha" != "$VALIDATED_SHA" ]]; then
+            echo "::error::PR advanced since secretless validation; refusing stale EAS operation"
+            exit 1
+          fi
+          echo "head_sha=$selected_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout immutable PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.pr.outputs.head_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate source, app identity and source-only preview scope
+        env:
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          if [[ "$(git rev-parse HEAD)" != "$PR_SHA" ]]; then
+            echo "::error::Checked-out source does not equal selected PR head"
+            exit 1
+          fi
+          if [[ ! "$PR_SHA" =~ ^[0-9a-f]{40}$ || ! "$PR_BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Selected PR SHA malformed"
+            exit 1
+          fi
+          node -e '
+            const c = require("./app.json").expo;
+            if (c.owner !== "tnyx-23" || c.slug !== "tio-money" ||
+                c.extra?.eas?.projectId !== "722e6857-1159-4414-a024-6a4351e7d3e1" ||
+                c.updates?.url !== "https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1") {
+              throw Error("Refusing to publish from a changed Expo project identity");
+            }
+          '
+          # Reviewed PRs may also carry tests and Markdown task/documentation
+          # records. These paths do not change the Expo runtime or build config.
+          # Native/tooling/dependency/signing changes must land in a separately
+          # reviewed PR before executing any source with an Expo token here.
+          native_change=0
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;
+              *)
+                native_change=1
+                ;;
+            esac
+          done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
+          if [[ "$native_change" -ne 0 ]]; then
+            echo "::error title=Preview change scope::EAS permits app source/assets, tests and Markdown documentation/AI task records only. Native, tooling, dependency and other config changes require separate review and merge before OTA/build."
+            exit 1
+          fi
+          # A preview build must not prompt CI to invent app identifiers or
+          # sign with undeclared credentials. No EXPO_TOKEN is available here.
+          if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
+            TARGET_PLATFORM="$TARGET_PLATFORM" node <<'NODE'
+          const expo = require('./app.json').expo;
+          const eas = require('./eas.json');
+          const profile = eas.build?.preview;
+          const onlyPreview = Object.keys(eas.build || {}).length === 1;
+          if (!profile || !onlyPreview ||
+              profile.distribution !== 'internal' ||
+              profile.channel !== 'pr-preview' ||
+              profile.android?.buildType !== 'apk' ||
+              !['remote', undefined].includes(profile.credentialsSource) ||
+              !['remote', undefined].includes(profile.android?.credentialsSource) ||
+              !['remote', undefined].includes(profile.ios?.credentialsSource) ||
+              eas.cli?.version !== '27.4.1') {
+            throw Error('Refusing non-internal, non-preview or unreviewed EAS build configuration');
+          }
+          const platform = process.env.TARGET_PLATFORM;
+          if (['android', 'all'].includes(platform) &&
+              !/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/.test(expo.android?.package || '')) {
+            throw Error('Missing approved android.package; configure it in a separately reviewed PR before building');
+          }
+          if (['ios', 'all'].includes(platform) &&
+              !/^[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z][A-Za-z0-9-]*)+$/.test(expo.ios?.bundleIdentifier || '')) {
+            throw Error('Missing approved ios.bundleIdentifier; configure it in a separately reviewed PR before building');
+          }
+          NODE
+          fi
+
+      - name: Setup Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.16.0
+          cache: npm
+
+      - name: Install locked project dependencies
+        # No dependency lifecycle hook may persist into the EXPO_TOKEN step.
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Install committed and verify EAS CLI without Expo credentials
         env:

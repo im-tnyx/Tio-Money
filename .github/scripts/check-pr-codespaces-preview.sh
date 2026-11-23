@@ -16,8 +16,8 @@ esac
   echo 'Refusing preview: Codespace has unsaved work.' >&2
   exit 1
 }
-# A missing/invalid PID record or occupied foreign port fails closed here.
-node scripts/start-codespace-expo.mjs --preflight
+# Trusted main preflight already checked managed PID ownership and port state.
+# This script accepts older source-only PRs whose starter lacks --preflight.
 if [[ "$(git rev-parse HEAD)" == "$expected_sha" ]] &&
    node scripts/start-codespace-expo.mjs --status; then
   echo 'NO_OP_HEALTHY'
