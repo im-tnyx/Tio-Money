@@ -184,7 +184,7 @@ test('every eligible form defaults to Main and only shows currency choices with 
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
-test('currency symbols share the label row with a compact, tinted selected box on the right', () => {
+test('currency symbols stay in configured order and tint the tapped box in place', () => {
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
@@ -215,10 +215,9 @@ test('currency symbols share the label row with a compact, tinted selected box o
     singleRow,
     /flexDirection: 'row'[\s\S]*?\{t\(label\)\}[\s\S]*?<ScrollView\s+horizontal/,
   );
-  assert.match(
-    singleRow,
-    /\{choices.filter\(\(_, index\) => index !== selectedIndex\)\}\s+<\/ScrollView>\s+\{choices\[selectedIndex\]\}/,
-  );
+  assert.match(singleRow, /<ScrollView[\s\S]*?\{choices\}\s+<\/ScrollView>\s+<\/View>/);
+  assert.match(choices, /const choices = options\.map\(\(option\) =>/);
+  assert.doesNotMatch(singleRow, /choices\.(filter|sort)|choices\[/);
 });
 
 test('successive currency taps select the requested Sub or Main code', () => {
@@ -226,6 +225,7 @@ test('successive currency taps select the requested Sub or Main code', () => {
   for (const code of ['USD', 'JPY', 'INR'] as const) {
     draft = updateAccountDraft(draft, { type: 'currency', value: code }, currencies);
     assert.equal(draft.currency, code);
+    assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY']);
   }
 });
 
