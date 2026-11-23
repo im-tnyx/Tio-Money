@@ -83,6 +83,10 @@ test('one root theme provider resolves the selected preference and system colors
   assert.doesNotMatch(provider, /AsyncStorage|setColorScheme/);
   assert.notEqual(palettes.light.canvas, palettes.dark.canvas);
   assert.notEqual(palettes.light.primaryText, palettes.dark.primaryText);
+  for (const palette of Object.values(palettes)) {
+    assert.notEqual(palette.inputPlaceholder, palette.primaryText);
+    assert.notEqual(palette.inputPlaceholder, palette.secondaryText);
+  }
   assert.equal(
     Object.keys(palettes.light).sort().join(','),
     Object.keys(palettes.dark).sort().join(','),

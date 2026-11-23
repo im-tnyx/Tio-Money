@@ -60,6 +60,12 @@ const fieldSpecs = {
   valuationDate: { label: 'accountInvestmentValuationDate', date: true },
 } satisfies Record<DraftField, { label: TranslationKey; money?: boolean; date?: boolean }>;
 
+const inputIcons = {
+  text: 'M5 17 12 4l7 13 M8 12h8 M5 21h14',
+  calendar: 'M4 6h16v14H4z M4 10h16 M8 4v4 M16 4v4 M8 14h1 M12 14h1 M16 14h1',
+  description: 'M4 6h16 M4 10h16 M4 14h16 M4 18h10',
+} as const;
+
 function DraftInput({
   field,
   value,
@@ -78,20 +84,17 @@ function DraftInput({
   const money = 'money' in spec;
   const date = 'date' in spec;
   const description = field === 'description';
+  const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
-    <AppText variant="section" numberOfLines={1} adjustsFontSizeToFit>
+    <AppText variant="title" numberOfLines={1} adjustsFontSizeToFit>
       {currencySymbol}
     </AppText>
   ) : (
     <Svg width={theme.iconRoles.textField} height={theme.iconRoles.textField} viewBox="0 0 24 24">
       <Path
-        d={
-          date
-            ? 'M4 6h16v14H4z M4 10h16 M8 4v4 M16 4v4 M8 14h1 M12 14h1 M16 14h1'
-            : 'M5 17 12 4l7 13 M8 12h8 M5 21h14'
-        }
+        d={inputIcons[icon]}
         fill="none"
-        stroke={theme.colors.secondaryText}
+        stroke={theme.colors.primaryText}
         strokeWidth={theme.icons.stroke}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -101,6 +104,7 @@ function DraftInput({
   return (
     <AccountField
       appearance="borderless"
+      textSize={field === 'name' || money || date ? 'title' : 'section'}
       label={label ?? spec.label}
       labelAsPlaceholder={field === 'name' || description}
       leading={leading}

@@ -5,24 +5,27 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 export type AppTextFieldProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
   readonly appearance?: 'outlined' | 'borderless';
   readonly invalid?: boolean;
+  readonly textSize?: 'body' | 'section' | 'title';
 };
 
 /** Shared theme-owned input chrome. Content/validation stays in caller's ViewModel. */
 export function AppTextField({
   appearance = 'outlined',
   invalid = false,
+  textSize = 'body',
   ...props
 }: AppTextFieldProps) {
   const theme = useAppTheme();
   const borderless = appearance === 'borderless';
   const minHeight = theme.textField.minimumHeight[appearance];
   const growsWithText = borderless && props.multiline;
-  const lineHeight = Math.ceil(theme.typeScale.body * theme.typography.relativeLineHeight);
+  const fontSize = theme.typeScale[textSize];
+  const lineHeight = Math.ceil(fontSize * theme.typography.relativeLineHeight);
 
   return (
     <TextInput
       {...props}
-      placeholderTextColor={theme.colors.secondaryText}
+      placeholderTextColor={borderless ? theme.colors.inputPlaceholder : theme.colors.secondaryText}
       underlineColorAndroid={borderless ? 'transparent' : props.underlineColorAndroid}
       style={{
         minHeight,
@@ -31,7 +34,8 @@ export function AppTextField({
         borderRadius: theme.radius.sm,
         color: theme.colors.primaryText,
         backgroundColor: theme.colors.canvas,
-        fontSize: theme.typeScale.body,
+        fontSize,
+        fontWeight: textSize === 'title' ? theme.typography.mediumWeight : undefined,
         lineHeight: growsWithText ? lineHeight : undefined,
         includeFontPadding: growsWithText ? false : undefined,
         // Align the initial height with single-line fields. Native wrapping adds height.

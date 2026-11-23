@@ -118,9 +118,14 @@ test('Add Account Group sheet has only Save; dismissal remains on shared shell',
   assert.match(field, /appearance = 'outlined'/);
   assert.match(field, /const minHeight = theme\.textField\.minimumHeight\[appearance\]/);
   assert.match(field, /style=\{\{\s+minHeight,/);
-  assert.match(field, /placeholderTextColor=\{theme\.colors\.secondaryText\}/);
+  assert.doesNotMatch(groupInput, /textSize=/);
+  assert.match(
+    field,
+    /placeholderTextColor=\{borderless \? theme\.colors\.inputPlaceholder : theme\.colors\.secondaryText\}/,
+  );
   assert.match(field, /borderColor: invalid \? theme\.colors\.expense : theme\.colors\.border/);
-  assert.match(field, /fontSize: theme\.typeScale\.body/);
+  assert.match(field, /textSize = 'body'/);
+  assert.match(field, /const fontSize = theme\.typeScale\[textSize\]/);
   assert.match(button, /export function ActionButton/);
   assert.match(modal, /export function AppBottomSheet/);
   assert.match(screen, /maxLength=\{MAX_CUSTOM_GROUP_NAME_LENGTH\}/);
