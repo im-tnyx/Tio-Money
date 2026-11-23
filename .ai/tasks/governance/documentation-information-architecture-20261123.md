@@ -8,7 +8,7 @@
 |---|---|
 | Task ID | TM-DOC-IA-20261123-001 |
 | Repository | `im-tnyx/Tio-Money` |
-| Lifecycle state | `IN_PROGRESS` (technical proceed recorded; implementation started) |
+| Lifecycle state | `VALIDATING` (non-force latest-main reconciliation completed; final CI/review pending) |
 | RFC / discussion | [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89) |
 | Proceed decision | `PROCEED` — [technical decision comment](https://github.com/im-tnyx/Tio-Money/issues/89#issuecomment-7091498129) |
 | Decision maker | ChatGPT GPT-6 (agent), 2026-11-23 UTC, based on owner chat request; not a GitHub-owner-authored approval |
@@ -66,3 +66,16 @@ Owner requested a task managed through `.ai` and docs restructuring into separat
 - **New commit history:** Created branch commits through GitHub with messages written without `Co-authored-by:`; exact GitHub commit-range audit pending. No local Git checkout/network, so local `npm run check` and `python3 scripts/ai_context.py check-links` NOT_RUN; use actual PR CI/logs and report exact results.
 - **Review and merge:** independent human review DEFERRED, no approval inferred; owner PR #90 merge authorization **NOT_GRANTED**. Draft PR; CI and scope review must be re-evaluated at final exact HEAD.
 - **Next:** Update PR/task index final HEAD, inspect Actions run status + governance link failures, fix only scoped broken docs paths, reconcile parallel PRs safely, never merge without separate permission.
+
+### 2026-11-23 UTC — Gate 2 latest-main reconciliation (ChatGPT GPT-6)
+
+- **Owner request / RFC:** User specifically authorized Gate 2: safely reconcile Draft PR #90 with latest main, preserve merged PR #80 and concurrent PR #88, follow AGENTS.md and .ai, verify links/history/CI, no protections bypass, **no merge to main**. Existing [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89) technical PROCEED and docs-only scope remain in effect; **no PR #90 merge authorization**.
+- **Read-only refs before update:** main `1d512cf4b75911cfe8c4a4f409768ca311b33c0d` (PR #80 merge commit); PR #90 prior HEAD `49151b09e211ee1a51ad8bf8ea200467e94eb8d6`; PR #88 Draft `1b68936930ed0c627ca525ed6972885ba1336d5e`. Original base `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`.
+- **Safe reconciliation:** Created and moved **PR #90 branch only** via non-force expected-SHA fast forward, two-parent commit [`bbecbcc1b84375da1d7dd3f1c1d8fff83d491d15`](https://github.com/im-tnyx/Tio-Money/commit/bbecbcc1b84375da1d7dd3f1c1d8fff83d491d15) with parents PR #90 old HEAD and current main; retained every PR #80 changed/app file from main. Only two overlapping paths required explicit content reconciliation: `.ai/current.md` and `src/shared/theme/README.md`. Verified all eight current PR #80 sections and Android native fade-only notes present; PR #90 document links remain categorized.
+- **Scope check:** Comparing current main to reconciled PR #90: 17 commits ahead / 0 behind, 58 changed files, all documentation/Markdown or doc-related templates; the only `src/` diff is `src/shared/theme/README.md` link correction. No runtime implementation, workflow, package, lock, permissions, migrations or secrets touched.
+- **PR #88 isolation:** Its branch/head not updated or merged. Existing three preview docs intentionally stay at `docs/` root; PR #88 adds prose to them and PR #90 only rebases one historical link in `docs/CODESPACES-LIVE-PREVIEW.md`. PR #88's current `mergeable_state=dirty` against new main is a separate PR88 issue, not permission to rewrite its feature branch. Its `.ai/current.md` additions must be incorporated if PR #88 later merges; rerun path/anchor/CI gates then.
+- **Docs/history validation:** Rechecked source SHA of archived README historical PR #1 paragraph is present verbatim, original commit link exists, historical hub/archive index linked, README contains no PR forensic block, docs hub links to history, AGENTS.md points at migrated canonical decisions. Earlier branch's manual 82-file Markdown target scan plus governance CI were passed; targeted recheck on reconciled HEAD also verified theme and current task history.
+- **Exact reconciled-HEAD checks at checkpoint:** Governance/Python/links/commit attribution `SUCCESS` at [run 45117262479](https://github.com/im-tnyx/Tio-Money/actions/runs/45117262479); static **IN_PROGRESS** at [run 45117262451](https://github.com/im-tnyx/Tio-Money/actions/runs/45117262451) and must not be called PASS until concluded. Push preview signal PASS is not an app quality gate. No local checkout: local tests/physical Android/iPhone QA NOT_RUN.
+- **Review status:** PR #90 has no submitted GitHub reviews and no inline threads at inspection. Independent review **DEFERRED**; full manual anchor check and concurrent-PR final reconciliation outstanding. Keep Draft. Owner action-specific merge authorization **NOT_GRANTED**; never bypass branch protections, do not alter `main`, auto-merge, or PR #88.
+- **Next:** This checkpoint write itself advances exact HEAD and triggers fresh CI; reverify new SHA/status and link-validation. Recheck main and PR #88 at review/merge gate. PR #90 remains Draft until all remaining gates are satisfied.
+

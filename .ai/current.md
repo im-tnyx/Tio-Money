@@ -8,6 +8,11 @@
 
 # 🧭 Current task index
 
+## 2026-11-23 — Gate 2: PR #90 reconciled with PR #80 merged main (Issue #89)
+
+- **Reconciliation:** Draft [PR #90](https://github.com/im-tnyx/Tio-Money/pull/90) safely integrated latest main `1d512cf4` (merged PR #80) using non-force two-parent docs-branch commit `bbecbcc1`. Retained PR #80 app/UI, eight task-index sections and Android fade-only documentation. Diff against main remains docs-only, 17 ahead / 0 behind.
+- **Concurrent PR #88:** Remains Draft/untouched; preview docs still at root; independent PR #88 conflict with newer main is separate. [Task checkpoint](tasks/governance/documentation-information-architecture-20261123.md), [RFC #89](https://github.com/im-tnyx/Tio-Money/issues/89). Governance CI PASS at reconciled head, static in progress; this index write requires new exact-HEAD CI. Review DEFERRED, owner PR #90 merge authorization NOT_GRANTED, no main changes.
+
 ## 2026-11-23 — Documentation information architecture / Premium README (Issue #89)
 
 - **Owner direction:** Start a tracked .ai task and reorganize the flat docs folder into coherent product, design, architecture, engineering, security, governance and history categories; keep historical audit/CI evidence outside README. **RFC:** [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89); [agent-recorded technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/89#issuecomment-7091498129).
