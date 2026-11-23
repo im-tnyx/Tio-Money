@@ -1,3 +1,7 @@
+## 2026-11-23 — Unified Expo preview Actions follow-up
+
+- [RFC #87 technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7095354699) tracks [Draft PR #95](https://github.com/im-tnyx/Tio-Money/pull/95). The unified workflow contains the manual choices and the automatic Codespaces job. The separate push signal stays secretless. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--consolidate-the-preview-actions-entry). Live acceptance remains NOT_VERIFIED.
+
 ## 2026-11-23 — PR #88 Gate 10 review fixes (RFC #87)
 
 - [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094686330) for EAS base SHA and Metro runtime compatibility. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--gate-10-automated-review-fixes). Keep Ready for Review and require exact-HEAD CI. Live Codespaces and physical Android/iOS Fast Refresh remain NOT_VERIFIED.
