@@ -15,6 +15,7 @@ export function AppTextField({
 }: AppTextFieldProps) {
   const theme = useAppTheme();
   const borderless = appearance === 'borderless';
+  const minHeight = theme.textField.minimumHeight[appearance];
   const growsWithText = borderless && props.multiline;
   const lineHeight = Math.ceil(theme.typeScale.body * theme.typography.relativeLineHeight);
 
@@ -24,7 +25,7 @@ export function AppTextField({
       placeholderTextColor={theme.colors.secondaryText}
       underlineColorAndroid={borderless ? 'transparent' : props.underlineColorAndroid}
       style={{
-        minHeight: theme.buttons.minimumHeight,
+        minHeight,
         borderWidth: borderless ? 0 : theme.navigation.borderWidth,
         borderColor: invalid ? theme.colors.expense : theme.colors.border,
         borderRadius: theme.radius.sm,
@@ -34,7 +35,7 @@ export function AppTextField({
         lineHeight: growsWithText ? lineHeight : undefined,
         includeFontPadding: growsWithText ? false : undefined,
         // Align the initial height with single-line fields. Native wrapping adds height.
-        paddingVertical: growsWithText ? (theme.buttons.minimumHeight - lineHeight) / 2 : undefined,
+        paddingVertical: growsWithText ? (minHeight - lineHeight) / 2 : undefined,
         // Center single-line Android input; leave multiline editing top aligned.
         textAlignVertical: props.multiline ? 'top' : 'center',
         paddingHorizontal: borderless ? 0 : theme.space.md,

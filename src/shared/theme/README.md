@@ -740,6 +740,11 @@ The Linked Payment Modes header in Draft PR #97 opts into `size="small"` for a
 **32dp painted surface**. Both sizes use the shared 48dp minimum touch target and
 can expand for text scaling.
 
+Draft PR #97 uses **36 × 36dp** painted Currency symbol boxes inside **48dp**
+minimum radio targets. Add Account borderless fields and their leading icon rows
+share a **46dp** minimum height. Description expands as text wraps. The outlined
+text field has a **48dp** minimum height.
+
 ## Android white-flash and combined-motion decision — PR #80 (2026-11-23)
 
 The owner saw a white strip on the **right side during Android Back**. The root native

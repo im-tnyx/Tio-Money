@@ -187,4 +187,12 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/add-account-screen.tsx`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Currency and input dimensions and Credit Card field order
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100290763) and [placement clarification](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100318699) record the owner’s requests against Draft #97 head `e3b53d35197d8090fd1d1a53cd603223b235538b`.
+- Currency boxes are 36 × 36dp with 48dp touch targets. Each radio dispatches its own code and the shared draft determines the checked state. The checked box remains at the right edge. Credit Card renders the row directly below Total Credit Limit.
+- Borderless fields and their leading icons align at a 46dp minimum height. Description expands with native wrapping. Outlined inputs retain the 48dp minimum.
+- Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/shared/theme/README.md`, `src/shared/theme/component-tokens.ts`, `src/shared/theme/primitives.ts`, `src/shared/theme/theme-provider.tsx`, `src/shared/ui/app-text-field.tsx`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/design-tokens.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
