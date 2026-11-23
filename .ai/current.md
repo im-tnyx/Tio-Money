@@ -14,6 +14,7 @@
 - [Leading field icon PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099510319) aligns the main Add Account inputs with decorative icons, a name placeholder and the selected draft currency symbol. Exact HEAD and checks are recorded in RFC #96.
 - [Linked Payment Modes list PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099730686) places compact Add in the heading and shows named draft rows with payment type, Edit and Remove icons. Exact HEAD and checks are recorded in RFC #96.
 - [Symbol-only Currency PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099810331) uses outlined currency symbols and a filled selected state in the existing single row. Exact HEAD and checks are recorded in RFC #96.
+- [Compact Currency and Description PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099965028) puts the selected tint-filled currency at the right edge of the label row and uses an inline Description placeholder with native wrapping. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

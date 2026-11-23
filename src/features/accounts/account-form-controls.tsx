@@ -81,82 +81,118 @@ export function AccountChoices<Value extends string>({
   readonly singleRow?: boolean;
 }) {
   const theme = useAppTheme();
-  const choices = (
-    <View
-      accessibilityRole="radiogroup"
-      accessibilityLabel={t(label)}
-      style={{ flexDirection: 'row', flexWrap: singleRow ? 'nowrap' : 'wrap', gap: theme.space.sm }}
-    >
-      {options.map((option) => {
-        const selected = value === option.value;
-        const symbolOnly = option.symbol !== undefined;
-        const filled = selected && symbolOnly;
-        return (
-          <Pressable
-            key={option.value}
-            accessibilityRole="radio"
-            accessibilityLabel={option.label}
-            accessibilityState={{ checked: selected, disabled: !onChange }}
-            disabled={!onChange}
-            onPress={onChange ? () => onChange(option.value) : undefined}
+  const choices = options.map((option) => {
+    const selected = value === option.value;
+    const symbolOnly = option.symbol !== undefined;
+    const text = (
+      <AppText
+        variant={symbolOnly ? 'section' : 'body'}
+        muted={!onChange}
+        style={selected && symbolOnly ? { color: theme.colors.brand } : undefined}
+      >
+        {option.symbol ?? option.label}
+      </AppText>
+    );
+    return (
+      <Pressable
+        key={option.value}
+        accessibilityRole="radio"
+        accessibilityLabel={option.label}
+        accessibilityState={{ checked: selected, disabled: !onChange }}
+        disabled={!onChange}
+        onPress={onChange ? () => onChange(option.value) : undefined}
+        style={{
+          minWidth: symbolOnly ? theme.buttons.minimumHeight : undefined,
+          minHeight: theme.buttons.minimumHeight,
+          borderWidth: symbolOnly ? theme.buttons.noBorder : theme.buttons.outlineWidth,
+          borderColor: selected ? theme.colors.brand : theme.colors.border,
+          borderRadius: theme.radius.sm,
+          backgroundColor: symbolOnly ? 'transparent' : theme.colors.card,
+          paddingHorizontal: symbolOnly ? 0 : theme.space.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: symbolOnly ? 'center' : undefined,
+          gap: theme.space.xxs,
+        }}
+      >
+        {selected && !symbolOnly ? (
+          <Svg
+            width={theme.iconRoles.button}
+            height={theme.iconRoles.button}
+            viewBox="0 0 24 24"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <Path
+              d="m5 12 4 4 10-10"
+              fill="none"
+              stroke={theme.colors.primaryText}
+              strokeWidth={theme.icons.stroke}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+        ) : null}
+        {symbolOnly ? (
+          <View
             style={{
-              minWidth: symbolOnly ? theme.buttons.minimumHeight : undefined,
-              minHeight: theme.buttons.minimumHeight,
+              minWidth: theme.space.xxl,
+              minHeight: theme.space.xxl,
+              paddingHorizontal: theme.space.xxs,
+              borderRadius: theme.radius.xs,
               borderWidth: theme.buttons.outlineWidth,
               borderColor: selected ? theme.colors.brand : theme.colors.border,
-              borderRadius: theme.radius.sm,
-              backgroundColor: filled
-                ? theme.colors.brand
-                : symbolOnly
-                  ? 'transparent'
-                  : theme.colors.card,
-              paddingHorizontal: symbolOnly ? theme.space.xs : theme.space.md,
-              flexDirection: 'row',
+              backgroundColor: selected ? theme.colors.brandTint : 'transparent',
               alignItems: 'center',
-              justifyContent: symbolOnly ? 'center' : undefined,
-              gap: theme.space.xxs,
+              justifyContent: 'center',
             }}
           >
-            {selected && !symbolOnly ? (
-              <Svg
-                width={theme.iconRoles.button}
-                height={theme.iconRoles.button}
-                viewBox="0 0 24 24"
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-              >
-                <Path
-                  d="m5 12 4 4 10-10"
-                  fill="none"
-                  stroke={theme.colors.primaryText}
-                  strokeWidth={theme.icons.stroke}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
-            ) : null}
-            <AppText
-              variant={symbolOnly ? 'section' : 'body'}
-              muted={!onChange}
-              style={filled ? { color: theme.colors.brandText } : undefined}
-            >
-              {option.symbol ?? option.label}
-            </AppText>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
+            {text}
+          </View>
+        ) : (
+          text
+        )}
+      </Pressable>
+    );
+  });
+  if (singleRow) {
+    const selectedIndex = options.findIndex((option) => option.value === value);
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}>
+        <AppText style={{ maxWidth: '50%' }}>{t(label)}</AppText>
+        <View
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t(label)}
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
+        >
+          <ScrollView
+            horizontal
+            keyboardShouldPersistTaps="handled"
+            style={{ flex: 1 }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              alignItems: 'center',
+            }}
+          >
+            <View style={{ flexGrow: 1 }} />
+            {choices.filter((_, index) => index !== selectedIndex)}
+          </ScrollView>
+          {choices[selectedIndex]}
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={{ gap: theme.space.xxs }}>
       <AppText>{t(label)}</AppText>
-      {singleRow ? (
-        <ScrollView horizontal keyboardShouldPersistTaps="handled">
-          {choices}
-        </ScrollView>
-      ) : (
-        choices
-      )}
+      <View
+        accessibilityRole="radiogroup"
+        accessibilityLabel={t(label)}
+        style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.sm }}
+      >
+        {choices}
+      </View>
     </View>
   );
 }

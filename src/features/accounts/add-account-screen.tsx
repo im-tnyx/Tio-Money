@@ -50,7 +50,7 @@ const autoPayLabels = [
 
 const fieldSpecs = {
   name: { label: 'accountName' },
-  description: { label: 'accountDescription', multiline: true },
+  description: { label: 'accountDescription' },
   openingAmount: { label: 'accountOpeningAmount', money: true },
   bankName: { label: 'accountBankName' },
   outstanding: { label: 'accountCardOutstanding', money: true },
@@ -65,10 +65,7 @@ const fieldSpecs = {
   investedCost: { label: 'accountInvestmentCost', money: true },
   valuation: { label: 'accountInvestmentValuation', money: true },
   valuationDate: { label: 'accountInvestmentValuationDate', date: true },
-} satisfies Record<
-  DraftField,
-  { label: TranslationKey; money?: boolean; date?: boolean; multiline?: boolean }
->;
+} satisfies Record<DraftField, { label: TranslationKey; money?: boolean; date?: boolean }>;
 
 function DraftInput({
   field,
@@ -87,6 +84,7 @@ function DraftInput({
   const spec = fieldSpecs[field];
   const money = 'money' in spec;
   const date = 'date' in spec;
+  const description = field === 'description';
   const leading = money ? (
     <AppText variant="section" numberOfLines={1} adjustsFontSizeToFit>
       {currencySymbol}
@@ -111,12 +109,14 @@ function DraftInput({
     <AccountField
       appearance="borderless"
       label={label ?? spec.label}
-      labelAsPlaceholder={field === 'name'}
+      labelAsPlaceholder={field === 'name' || description}
       leading={leading}
       value={value}
       keyboardType={money ? 'decimal-pad' : undefined}
       placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}
-      multiline={'multiline' in spec}
+      multiline={description}
+      returnKeyType={description ? 'done' : undefined}
+      submitBehavior={description ? 'blurAndSubmit' : undefined}
       onChangeText={(next) => onAction({ type: 'text', field, value: next })}
     />
   );

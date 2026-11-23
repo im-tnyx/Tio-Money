@@ -181,7 +181,7 @@ test('every eligible form defaults to Main and only shows currency choices with 
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
-test('currency radio buttons show only symbols and fill the selected choice in one row', () => {
+test('currency symbols share the label row with a compact, tinted selected box on the right', () => {
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
@@ -193,15 +193,20 @@ test('currency radio buttons show only symbols and fill the selected choice in o
   assert.match(route, /newAccountDraft\(group, preferences\.mainCode\)/);
   assert.match(route, /symbol: CURRENCY_OPTIONS\.find/);
   assert.match(choices, /accessibilityLabel=\{option.label\}/);
-  assert.match(choices, /const filled = selected && symbolOnly/);
-  assert.match(
-    choices,
-    /backgroundColor:\s*filled\s*\? theme\.colors\.brand\s*:\s*symbolOnly\s*\? 'transparent'/,
-  );
+  assert.match(choices, /minWidth: symbolOnly \? theme\.buttons\.minimumHeight/);
+  assert.match(choices, /minWidth: theme\.space\.xxl,\s+minHeight: theme\.space\.xxl/);
+  assert.match(choices, /backgroundColor: selected \? theme\.colors\.brandTint : 'transparent'/);
   assert.match(choices, /selected && !symbolOnly \?/);
   assert.match(choices, /\{option.symbol \?\? option.label\}/);
-  assert.match(choices, /flexWrap: singleRow \? 'nowrap' : 'wrap'/);
-  assert.match(choices, /<ScrollView horizontal keyboardShouldPersistTaps="handled">/);
+  const singleRow = choices.slice(choices.indexOf('if (singleRow)'));
+  assert.match(
+    singleRow,
+    /flexDirection: 'row'[\s\S]*?\{t\(label\)\}[\s\S]*?<ScrollView\s+horizontal/,
+  );
+  assert.match(
+    singleRow,
+    /\{choices.filter\(\(_, index\) => index !== selectedIndex\)\}\s+<\/ScrollView>\s+\{choices\[selectedIndex\]\}/,
+  );
 });
 
 test('currency changes clear each group’s amounts while retaining all other draft data', () => {
@@ -340,13 +345,29 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
 });
 
-test('main form aligns decorative icons with the inputs and uses the name label as a placeholder', () => {
+test('main form aligns icons and wraps Description from one line with its label inside', () => {
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
 
-  assert.match(form, /labelAsPlaceholder=\{field === 'name'\}\s+leading=\{leading\}/);
+  const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
+
+  assert.match(form, /const description = field === 'description'/);
+  assert.match(
+    form,
+    /labelAsPlaceholder=\{field === 'name' \|\| description\}\s+leading=\{leading\}/,
+  );
+  assert.match(
+    form,
+    /multiline=\{description\}[\s\S]*?submitBehavior=\{description \? 'blurAndSubmit'/,
+  );
+  assert.match(input, /const growsWithText = borderless && props.multiline/);
+  assert.match(
+    input,
+    /paddingVertical: growsWithText \? \(theme\.buttons\.minimumHeight - lineHeight\) \/ 2/,
+  );
+  assert.doesNotMatch(input, /numberOfLines|maxHeight/);
   assert.match(form, /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<Svg/);
   assert.match(form, /date \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/);
   assert.match(

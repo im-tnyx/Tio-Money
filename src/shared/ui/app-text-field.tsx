@@ -15,6 +15,8 @@ export function AppTextField({
 }: AppTextFieldProps) {
   const theme = useAppTheme();
   const borderless = appearance === 'borderless';
+  const growsWithText = borderless && props.multiline;
+  const lineHeight = Math.ceil(theme.typeScale.body * theme.typography.relativeLineHeight);
 
   return (
     <TextInput
@@ -29,6 +31,10 @@ export function AppTextField({
         color: theme.colors.primaryText,
         backgroundColor: theme.colors.canvas,
         fontSize: theme.typeScale.body,
+        lineHeight: growsWithText ? lineHeight : undefined,
+        includeFontPadding: growsWithText ? false : undefined,
+        // Align the initial height with single-line fields. Native wrapping adds height.
+        paddingVertical: growsWithText ? (theme.buttons.minimumHeight - lineHeight) / 2 : undefined,
         // Center single-line Android input; leave multiline editing top aligned.
         textAlignVertical: props.multiline ? 'top' : 'center',
         paddingHorizontal: borderless ? 0 : theme.space.md,
