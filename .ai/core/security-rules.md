@@ -1,6 +1,6 @@
 # 🔒 Privacy and security rules — quick route
 
-**Canonical:** [PRD](../../docs/01-PRD.md) · [Architecture `09](../../docs/05-TECH-ARCHITECTURE.md#09--privacy-security-and-backups) · [Import flow](../../docs/02-USER-FLOWS.md).
+**Canonical:** [PRD](../../docs/product/PRD.md) · [Architecture `09](../../docs/architecture/TECH-ARCHITECTURE.md#09--privacy-security-and-backups) · [Import flow](../../docs/product/USER-FLOWS.md).
 
 - The core product works offline without bank credentials, OTPs or a required cloud account.
 - Least data and least privilege: no unrelated raw SMS, OTPs, banking passwords, secrets, full account identifiers or finance payloads in logs/task notes.
