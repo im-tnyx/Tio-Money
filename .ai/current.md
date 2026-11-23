@@ -27,6 +27,7 @@
 - [Compact payment type tabs PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111045650) adds one horizontal row of outlined choices in the existing Bank editor. Exact HEAD and checks are recorded in RFC #96.
 - [Payment row icon and sheet PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111219399) uses compact Edit/Delete, weight-200 payment symbols and Apply-only sheet actions. Exact HEAD and checks are recorded in RFC #96.
 - [Add Account gutter PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111341207) reduces the leading icon inset, aligns trailing Currency boxes and removes the visible amount-reset caption. Exact HEAD and checks are recorded in RFC #96.
+- [Payment mode limits PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111930485) caps Bank draft modes by type and places Edit and Delete side by side. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

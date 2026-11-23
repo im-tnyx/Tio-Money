@@ -7,6 +7,7 @@ import {
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
+  paymentModeAvailability,
   paymentModeTypes,
   reconcileAccountDraftCurrency,
   updateAccountDraft,
@@ -129,6 +130,71 @@ test('Bank mode drafts add, edit, cancel and remove using the newest actions and
   );
 });
 
+test('Bank mode limits block new slots and full destinations while preserving existing edits', () => {
+  const kinds = [
+    'debitCard',
+    'debitCard',
+    'debitCard',
+    'upi',
+    'upi',
+    'upi',
+    'cheque',
+    'internetBanking',
+  ] as const;
+  const apply = (draft: AccountDraft, ...actions: AccountFormAction[]) =>
+    actions.reduce((current, action) => updateAccountDraft(current, action, currencies), draft);
+  const addActions = kinds.flatMap<AccountFormAction>((kind, index) => [
+    { type: 'mode.open' },
+    { type: 'mode.kind', value: kind },
+    { type: 'mode.name', value: 'Mode ' + (index + 1) },
+    { type: 'mode.apply' },
+  ]);
+  const debitCards = replay('bank', addActions.slice(0, 12));
+  const next = apply(debitCards, { type: 'mode.open' }, { type: 'mode.kind', value: 'debitCard' });
+  if (next.group !== 'bank') assert.fail();
+  assert.equal(next.modeEditor?.kind, 'upi');
+  assert.deepEqual(paymentModeAvailability(next).availableTypes, [
+    'upi',
+    'cheque',
+    'internetBanking',
+  ]);
+
+  const full = replay('bank', addActions);
+  if (full.group !== 'bank') assert.fail();
+  assert.deepEqual(
+    full.modes.map(({ kind }) => kind),
+    kinds,
+  );
+  assert.equal(paymentModeAvailability(full).canAdd, false);
+  assert.equal(apply(full, { type: 'mode.open' }), full);
+
+  const editing = apply(
+    full,
+    { type: 'mode.open', id: 1 },
+    { type: 'mode.name', value: 'Renamed card' },
+    { type: 'mode.kind', value: 'upi' },
+  );
+  if (editing.group !== 'bank') assert.fail();
+  assert.deepEqual(paymentModeAvailability(editing).availableTypes, ['debitCard']);
+  assert.equal(paymentModeAvailability(editing).canApply, true);
+  const renamed = apply(editing, { type: 'mode.apply' });
+  if (renamed.group !== 'bank') assert.fail();
+  assert.deepEqual(renamed.modes[0], { id: 1, name: 'Renamed card', kind: 'debitCard' });
+
+  const freed = apply(renamed, { type: 'mode.remove', id: 4 });
+  if (freed.group !== 'bank') assert.fail();
+  assert.equal(paymentModeAvailability(freed).canAdd, true);
+  const moved = apply(
+    freed,
+    { type: 'mode.open', id: 1 },
+    { type: 'mode.kind', value: 'upi' },
+    { type: 'mode.apply' },
+  );
+  if (moved.group !== 'bank') assert.fail();
+  assert.deepEqual(moved.modes[0], { id: 1, name: 'Renamed card', kind: 'upi' });
+  assert.deepEqual(paymentModeAvailability(moved).availableTypes, ['debitCard']);
+});
+
 test('linked payment modes show a compact header action and named icon rows with stable controls', () => {
   const source = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
   const list = source.slice(
@@ -148,6 +214,8 @@ test('linked payment modes show a compact header action and named icon rows with
   assert.match(list, /accessibilityLabel=\{mode.name \+ ', ' \+ t\(modeLabels\[mode.kind\]\)\}/);
   assert.match(list, /accessibilityLabel=\{t\('accountModeEdit'\) \+ ': ' \+ mode.name\}/);
   assert.match(list, /accessibilityLabel=\{t\('accountModeRemove'\) \+ ': ' \+ mode.name\}/);
+  assert.match(list, /disabled=\{!canAddMode\}/);
+  assert.match(list, /<View style=\{\{ flexDirection: 'row' \}\}>\s+<ModeRowAction/);
   assert.match(
     source,
     /width: theme.buttons.minimumHeight,\s+minHeight: theme.buttons.minimumHeight/,
@@ -354,7 +422,7 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(screen.match(/field="name"/g)?.length, 1);
   assert.match(screen, /field="name"[\s\S]*?accountCardName/);
   assert.match(screen, /field="description"/);
-  assert.match(screen, /draft.group === 'bank' \? <BankPaymentModes/);
+  assert.match(screen, /draft.group === 'bank' \? \(\s*<BankPaymentModes/);
   assert.match(groupFields, /case 'cash':\s*case 'bank':/);
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
     if (!isPreviewGroup(id)) continue;
@@ -394,8 +462,8 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(choices, /<AppTextField\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radiogroup"\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radio"/);
-  assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled: !onChange \}\}/);
-  assert.match(choices, /disabled=\{!onChange\}/);
+  assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled \}\}/);
+  assert.match(choices, /disabled=\{disabled\}/);
 });
 
 test('main Add Account fields opt into borderless input and the Bank mode sheet stays outlined', () => {
@@ -472,10 +540,11 @@ test('payment mode editor uses compact outlined radios in one horizontal row', (
   assert.match(editor, /label="accountModeType"\s+compact/);
   assert.match(editor, /value=\{editor.kind\}/);
   assert.match(editor, /type: 'mode.kind', value/);
+  assert.match(editor, /const disabled = !availableModeTypes.includes\(value\)/);
   assert.match(choices, /selected && !compact \?/);
   assert.match(choices, /compactOptionHeight/);
   assert.match(choices, /borderColor: selected \? theme.colors.primaryText : theme.colors.border/);
-  assert.match(choices, /muted=\{!selected\}/);
+  assert.match(choices, /muted=\{disabled \|\| !selected\}/);
   assert.match(compactRow, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
   assert.match(compactRow, /\{choices\}\s+<\/ScrollView>/);
   assert.match(controls, /labelAsPlaceholder \? null : <AppText>\{t\(label\)\}<\/AppText>/);

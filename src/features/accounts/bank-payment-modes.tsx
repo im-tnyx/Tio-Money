@@ -103,11 +103,18 @@ function ModeRowAction({
   );
 }
 
-type BankModesProps = Pick<AddAccountViewModel, 'canApplyMode' | 'animateSheet' | 'onAction'> & {
+type BankModesProps = Pick<
+  AddAccountViewModel,
+  'canAddMode' | 'canApplyMode' | 'availableModeTypes' | 'animateSheet' | 'onAction'
+> & {
   readonly draft: Extract<AccountDraft, { group: 'bank' }>;
 };
 
-export function BankPaymentModes({ draft, onAction }: Pick<BankModesProps, 'draft' | 'onAction'>) {
+export function BankPaymentModes({
+  draft,
+  canAddMode,
+  onAction,
+}: Pick<BankModesProps, 'draft' | 'canAddMode' | 'onAction'>) {
   const theme = useAppTheme();
   return (
     <View style={{ gap: theme.space.sm }}>
@@ -121,9 +128,15 @@ export function BankPaymentModes({ draft, onAction }: Pick<BankModesProps, 'draf
           label={'+ ' + t('add')}
           accessibilityLabel={t('accountModeAdd')}
           variant="secondary"
+          disabled={!canAddMode}
           onPress={() => onAction({ type: 'mode.open' })}
         />
       </View>
+      {!canAddMode ? (
+        <AppText variant="caption" muted>
+          {t('accountModeLimitReached')}
+        </AppText>
+      ) : null}
       {draft.modes.map((mode) => (
         <View
           key={mode.id}
@@ -141,23 +154,31 @@ export function BankPaymentModes({ draft, onAction }: Pick<BankModesProps, 'draf
             <ModeIcon name={mode.kind} color={theme.colors.transfer} />
             <AppText style={{ flex: 1 }}>{mode.name}</AppText>
           </View>
-          <ModeRowAction
-            icon="edit"
-            accessibilityLabel={t('accountModeEdit') + ': ' + mode.name}
-            onPress={() => onAction({ type: 'mode.open', id: mode.id })}
-          />
-          <ModeRowAction
-            icon="remove"
-            accessibilityLabel={t('accountModeRemove') + ': ' + mode.name}
-            onPress={() => onAction({ type: 'mode.remove', id: mode.id })}
-          />
+          <View style={{ flexDirection: 'row' }}>
+            <ModeRowAction
+              icon="edit"
+              accessibilityLabel={t('accountModeEdit') + ': ' + mode.name}
+              onPress={() => onAction({ type: 'mode.open', id: mode.id })}
+            />
+            <ModeRowAction
+              icon="remove"
+              accessibilityLabel={t('accountModeRemove') + ': ' + mode.name}
+              onPress={() => onAction({ type: 'mode.remove', id: mode.id })}
+            />
+          </View>
         </View>
       ))}
     </View>
   );
 }
 
-export function BankModeEditor({ draft, canApplyMode, animateSheet, onAction }: BankModesProps) {
+export function BankModeEditor({
+  draft,
+  canApplyMode,
+  availableModeTypes,
+  animateSheet,
+  onAction,
+}: Omit<BankModesProps, 'canAddMode'>) {
   const theme = useAppTheme();
   const editor = draft.modeEditor;
   return (
@@ -180,7 +201,15 @@ export function BankModeEditor({ draft, canApplyMode, animateSheet, onAction }: 
           <AccountChoices
             label="accountModeType"
             compact
-            options={paymentModeTypes.map((value) => ({ value, label: t(modeLabels[value]) }))}
+            options={paymentModeTypes.map((value) => {
+              const disabled = !availableModeTypes.includes(value);
+              return {
+                value,
+                label: t(modeLabels[value]),
+                disabled,
+                accessibilityHint: disabled ? t('accountModeTypeLimitReached') : undefined,
+              };
+            })}
             value={editor.kind}
             onChange={(value) => onAction({ type: 'mode.kind', value })}
           />

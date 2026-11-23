@@ -263,4 +263,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides the task and index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Linked Payment Mode limits and action spacing
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111930485) records the owner’s request against Draft #97 head `32ecd3f2975bd51c71a9c1b5b3c5e185b524682c`.
+- The Bank draft accepts at most three Debit Cards, three UPI modes, one Cheque and one Internet Banking mode. Full types cannot take a new mode or receive a type change. Rename stays available for existing entries, deletion frees capacity and Add is disabled at full capacity. Editor affordances use the same rules as the draft reducer.
+- Edit and Delete targets sit directly adjacent and retain their 48dp sizes. Changed paths besides the task and index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/features/accounts/bank-payment-modes.tsx`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
