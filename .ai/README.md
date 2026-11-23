@@ -12,7 +12,7 @@
 | [`agents/`](agents/README.md) | Identity and provenance rules |
 | [`archive/`](archive/README.md) | Verified completed history, never speculative work |
 | [GitHub governance](../.github/README.md) | Issue/RFC forms, PR evidence, read-only CI, independent review and manual post-merge guide |
-| [Decision register](../docs/DECISIONS.md) | Approved owner decisions / unresolved proposals |
+| [Decision register](../docs/governance/DECISIONS.md) | Approved owner decisions / unresolved proposals |
 
 ## One-task context path
 
@@ -37,4 +37,4 @@ flowchart LR
 - On handoff, record last verified state, discussion/approval, reviewed SHA and an exact next action, then let the next agent revalidate.
 - For safe nested task creation and archival, use the [stdlib link helper](../scripts/ai_context.py) with dry-run and fixture tests; it **does not verify** GitHub approvals.
 
-**Scope:** These documents define governance, not a blanket grant for restricted actions, financial semantics, deployment or merge. [Owner decisions TM-DEC-002/003](../docs/DECISIONS.md) govern optional independent review and expressly authorized agent merge. **No permission to merge PR #2 was granted by the earlier policy-document update itself**; the owner later gave separate authorization and PR #2 subsequently merged at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. New PRs still require their own explicit authorization.
+**Scope:** These documents define governance, not a blanket grant for restricted actions, financial semantics, deployment or merge. [Owner decisions TM-DEC-002/003](../docs/governance/DECISIONS.md) govern optional independent review and expressly authorized agent merge. **No permission to merge PR #2 was granted by the earlier policy-document update itself**; the owner later gave separate authorization and PR #2 subsequently merged at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. New PRs still require their own explicit authorization.
