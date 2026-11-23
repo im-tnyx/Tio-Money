@@ -1,6 +1,6 @@
 # Tio Money — Bugbot project rules
 
-Always-on review policy for `im-tnyx/Tio-Money`. Follow with `AGENTS.md`, `.github/REVIEW_GUIDE.md`, and `docs/DECISIONS.md`.
+Always-on review policy for `im-tnyx/Tio-Money`. Follow with `AGENTS.md`, `.github/REVIEW_GUIDE.md`, and `docs/governance/DECISIONS.md`.
 
 ## Prioritize
 

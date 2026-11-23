@@ -9,21 +9,21 @@
 ![Quality](https://img.shields.io/badge/QUALITY-LEDGER%20CORRECTNESS%20FIRST-118C84?style=flat-square)
 ![Platforms](https://img.shields.io/badge/TARGET-ANDROID%20%2B%20IPHONE-202A44?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md) · [🧭 Flows](02-USER-FLOWS.md) · [🎨 Screens](03-SCREEN-SPEC.md) · [🗄 Ledger](04-DATABASE-DESIGN.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [✍️ Standard](90-DOCS-STYLE-GUIDE.md)
+[🏠 Project](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🎯 PRD](../product/PRD.md) · [🧭 Flows](../product/USER-FLOWS.md) · [🎨 Screens](../design/SCREEN-SPEC.md) · [🗄 Ledger](../architecture/DATABASE-DESIGN.md) · [🏗 Architecture](../architecture/TECH-ARCHITECTURE.md) · [✍️ Standard](../governance/DOCS-STYLE-GUIDE.md)
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Planning artifact · original 2026-11-18 v0.1; updated status context 2026-11-20.** At the original planning date, Tio Money was documented but **not yet implemented or tested**. The original five-blank-tab Phase 0 shell was implemented in [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), with historical exact-head CI passes and an owner-reported device UI smoke pass; later separately merged UI work implemented More → Appearance, leaving only four finance tabs blank, and updated the approved navigation icon/motion values (see §0.1); this does **not** implement the financial MVP, ledger journal, SMS or the future screens below. Every task, file path, test and release gate below is a **proposed delivery contract**, not evidence of existing code, installed dependencies, passing tests, SMS access or store approval. The [PRD](01-PRD.md), [flows](02-USER-FLOWS.md), [screen specification](03-SCREEN-SPEC.md), [ledger](04-DATABASE-DESIGN.md) and [architecture](05-TECH-ARCHITECTURE.md) are drafts requiring owner review. Unresolved items are recorded in [`9](#9-owner-decisions-and-specification-gaps); this plan does not silently approve them.
+> **Planning artifact · original 2026-11-18 v0.1; updated status context 2026-11-20.** At the original planning date, Tio Money was documented but **not yet implemented or tested**. The original five-blank-tab Phase 0 shell was implemented in [PR #1](https://github.com/im-tnyx/Tio-Money/pull/1), with historical exact-head CI passes and an owner-reported device UI smoke pass; later separately merged UI work implemented More → Appearance, leaving only four finance tabs blank, and updated the approved navigation icon/motion values (see §0.1); this does **not** implement the financial MVP, ledger journal, SMS or the future screens below. Every task, file path, test and release gate below is a **proposed delivery contract**, not evidence of existing code, installed dependencies, passing tests, SMS access or store approval. The [PRD](../product/PRD.md), [flows](../product/USER-FLOWS.md), [screen specification](../design/SCREEN-SPEC.md), [ledger](../architecture/DATABASE-DESIGN.md) and [architecture](../architecture/TECH-ARCHITECTURE.md) are drafts requiring owner review. Unresolved items are recorded in [`9](#9-owner-decisions-and-specification-gaps); this plan does not silently approve them.
 
 **Release invariant:** **Internal transfer principal is neither income nor expense.** A real transfer fee is **an expense**, recorded once. Home, Accounts, History and Reports must reconcile to the **same balanced SQLite journal**, including credit-card liabilities.
 
 ## 0. Owner-approved stage sequence, delivery gates & protected navigation (2026-11-20)
 
 > [!IMPORTANT]
-> **Newer owner direction controls future implementation planning.** Stage 1 = **complete the local-first app**, Stage 2 = **optional encrypted Google Drive/iCloud-compatible backup/restore**, Stage 3 = **optional Supabase synchronization and conditional Tio Money signup/signin**. Stage 1 has **no financial-data cloud transport and no app login**; a limited, opt-in **currency-pair FX quote request** is the only planned online exception. This is a **documentation contract, not implemented functionality**. [Owner decisions TM-DEC-006–010](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) · [Delivery RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20) · [Future backup/sync spec](09-BACKUP-SYNC-SPEC.md).
+> **Newer owner direction controls future implementation planning.** Stage 1 = **complete the local-first app**, Stage 2 = **optional encrypted Google Drive/iCloud-compatible backup/restore**, Stage 3 = **optional Supabase synchronization and conditional Tio Money signup/signin**. Stage 1 has **no financial-data cloud transport and no app login**; a limited, opt-in **currency-pair FX quote request** is the only planned online exception. This is a **documentation contract, not implemented functionality**. [Owner decisions TM-DEC-006–010](../governance/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) · [Delivery RFC #20](https://github.com/im-tnyx/Tio-Money/issues/20) · [Future backup/sync spec](../product/BACKUP-SYNC-SPEC.md).
 
 ### 0.1 Protected UI baseline — owner says bottom tabs must NOT change
 
@@ -33,7 +33,7 @@
 
 ### 0.2 Mandatory strict dumb-screen and Stage 1 finance ADR gate (2026-11-21)
 
-The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Screen files render immutable typed ViewModels and forward callbacks; **no hooks for workflow state, navigation, SQL, asynchronous I/O, FX, domain math, account balance computation or permissions**. Controllers/hooks and application services own interactions; one domain ledger owns finance rules; SQLite adapters own persistence. See [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md). Current Phase 0 code is unchanged; guard implementation requires a separate scoped code/test PR.
+The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Screen files render immutable typed ViewModels and forward callbacks; **no hooks for workflow state, navigation, SQL, asynchronous I/O, FX, domain math, account balance computation or permissions**. Controllers/hooks and application services own interactions; one domain ledger owns finance rules; SQLite adapters own persistence. See [12 — Dumb-Screen Boundaries](../architecture/DUMB-SCREEN-BOUNDARIES.md) and [11 — Finance ADR Register](../governance/STAGE-1-FINANCE-ADRS.md). Current Phase 0 code is unchanged; guard implementation requires a separate scoped code/test PR.
 
 | Future gate | Required test / evidence |
 | :--- | :--- |
@@ -89,11 +89,11 @@ The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Scr
 | `TM-ST3-SEC-001` | Stage 3 | Cross-user reads/writes denied by tenant policies; service-role keys absent from mobile bundle; logout leaves local data unless explicitly removed |
 | `TM-ST3-SYNC-001` | Stage 3 | Offline conflict, duplicate upload/download, deletion tombstones, retry/resume and multi-device integrity reproduce a single reconciled journal |
 
-**Traceability:** Group acceptance [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md), FX acceptance [10 — Currency](10-CURRENCY-SPEC.md), conceptual ledger [04 — Database](04-DATABASE-DESIGN.md), security and phased export [09 — Backup/Sync](09-BACKUP-SYNC-SPEC.md). Each implementation PR must link applicable acceptance IDs, device/platform evidence and reviewed ADRs. No checkbox is considered passed by writing this plan.
+**Traceability:** Group acceptance [08 — Account Groups](../product/ACCOUNT-GROUPS-SPEC.md), FX acceptance [10 — Currency](../product/CURRENCY-SPEC.md), conceptual ledger [04 — Database](../architecture/DATABASE-DESIGN.md), security and phased export [09 — Backup/Sync](../product/BACKUP-SYNC-SPEC.md). Each implementation PR must link applicable acceptance IDs, device/platform evidence and reviewed ADRs. No checkbox is considered passed by writing this plan.
 
 ### 0.5 Finance, privacy, identity and milestone review gates
 
-- **Finance review strongly recommended** before ledger/FX/loan/investment changes; optional independent review policy still applies, but actual configured GitHub required checks/reviews and blocking findings are binding. Never fabricate an approval. Each merge needs specific owner permission per [TM-DEC-003](DECISIONS.md#tm-dec-003--owner-authorized-agent-merge).
+- **Finance review strongly recommended** before ledger/FX/loan/investment changes; optional independent review policy still applies, but actual configured GitHub required checks/reviews and blocking findings are binding. Never fabricate an approval. Each merge needs specific owner permission per [TM-DEC-003](../governance/DECISIONS.md#tm-dec-003--owner-authorized-agent-merge).
 - **Security review required by risk** before shipping backup encryption/key export or first Supabase finance-data sync. Refuse unencrypted "backup" labels and secret key embedding. A cloud service receiving finance data requires explicit consent and a future threat model.
 - **App lock ≠ database-at-rest encryption.** Google/Apple login for a file provider ≠ Tio Money signup; Supabase session ≠ on-device record identity.
 - **Release truth:** a built Metro bundle or passing governance CI is not proof of physical iPhone/Android SQLite persistence and accessible UI; record hardware, OS, installed client and exact tested commit whenever verified.
@@ -120,11 +120,11 @@ The owner confirmed **every screen is dumb/presentation-only** (TM-DEC-011). Scr
 
 **Status vocabulary:** `Planned` = design/task only; `Approved` = owner accepted a decision; `Implemented` = code exists; `Tested` = named evidence captured; `Verified` = tests **and** relevant device behavior signed off. No phase below is marked complete. Do not promote a status based on a mock screen, an AI-generated plan, or a checklist alone.
 
-**Owner decision (2026-11-18):** initial app UI/validation/accessibility language is **English only**, with no language picker and system fonts preferred; see [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app). This governs MVP language requirements, not permission to implement or merge.
+**Owner decision (2026-11-18):** initial app UI/validation/accessibility language is **English only**, with no language picker and system fonts preferred; see [TM-DEC-001](../governance/DECISIONS.md#tm-dec-001--english-only-initial-app). This governs MVP language requirements, not permission to implement or merge.
 
 ### 1.2 Source-of-truth and change control
 
-The [PRD](01-PRD.md) defines product behavior; [User Flows](02-USER-FLOWS.md) define interaction and error paths; [Screen Design](03-SCREEN-SPEC.md) specifies UI proposals; [Database Design](04-DATABASE-DESIGN.md) defines the journal proposal; [Technical Architecture](05-TECH-ARCHITECTURE.md) defines boundaries. This document **schedules and tests** those contracts. If two drafts differ, create an owner-visible `TM-ADR-###` decision, link both passages, and amend the owning specification in a **separate approved change**; do not retrofit a new business rule in tests.
+The [PRD](../product/PRD.md) defines product behavior; [User Flows](../product/USER-FLOWS.md) define interaction and error paths; [Screen Design](../design/SCREEN-SPEC.md) specifies UI proposals; [Database Design](../architecture/DATABASE-DESIGN.md) defines the journal proposal; [Technical Architecture](../architecture/TECH-ARCHITECTURE.md) defines boundaries. This document **schedules and tests** those contracts. If two drafts differ, create an owner-visible `TM-ADR-###` decision, link both passages, and amend the owning specification in a **separate approved change**; do not retrofit a new business rule in tests.
 
 ## 2. Implementation contract
 
@@ -145,7 +145,7 @@ flowchart TD
   DB -.-> BACKUP["Optional secure backup · future"]
 ```
 
-**Directional rule:** `src/domain` has no React, navigation, Expo, SQLite or native imports. Screens format typed outcomes and emit commands; they do **not** calculate fees, mutate balances or issue SQL. Repository adapters own bound SQL and atomic writes; read models derive from postings. `Zustand` is a proposed *ephemeral* UI-state option, never a mutable account-balance source. [Architecture `02–08](05-TECH-ARCHITECTURE.md#02--the-system-map).
+**Directional rule:** `src/domain` has no React, navigation, Expo, SQLite or native imports. Screens format typed outcomes and emit commands; they do **not** calculate fees, mutate balances or issue SQL. Repository adapters own bound SQL and atomic writes; read models derive from postings. `Zustand` is a proposed *ephemeral* UI-state option, never a mutable account-balance source. [Architecture `02–08](../architecture/TECH-ARCHITECTURE.md#02--the-system-map).
 
 ### 2.2 Engineering standards and constraints
 
@@ -164,7 +164,7 @@ flowchart TD
 | Privacy | Least privilege, masked account references, no bank login/OTP/full inbox retention; no database-encryption claim without verified encryption |
 | Build discipline | Pin mutually compatible Expo SDK/RN/Router/SQLite versions at kickoff; run typecheck, lint, format, unit, integration and applicable device QA before merge |
 
-**Financial sign convention:** ASSET/EXPENSE increase by **debit**; LIABILITY/INCOME/EQUITY increase by **credit**. `Net worth = sum(assets) − sum(liabilities)`. Opening balances post to EQUITY, **not income**. Only confirmed import candidates become posted events. [Ledger ``02–06](04-DATABASE-DESIGN.md#02--definitions-and-sign-conventions).
+**Financial sign convention:** ASSET/EXPENSE increase by **debit**; LIABILITY/INCOME/EQUITY increase by **credit**. `Net worth = sum(assets) − sum(liabilities)`. Opening balances post to EQUITY, **not income**. Only confirmed import candidates become posted events. [Ledger ``02–06](../architecture/DATABASE-DESIGN.md#02--definitions-and-sign-conventions).
 
 ### 2.3 Non-negotiable transfer examples (asset → asset)
 
@@ -191,7 +191,7 @@ tests/{domain,application,sqlite,ui,imports,e2e,fixtures}/
 modules/                       # Conditional Android native SMS only, not P0
 ```
 
-This follows the [proposed architecture tree](05-TECH-ARCHITECTURE.md#03--proposed-repository-structure); `tests/ui`, `tests/imports` and `tests/fixtures` are **additional proposed test locations**, not existing code. Prefer feature-local component tests where the runner requires them.
+This follows the [proposed architecture tree](../architecture/TECH-ARCHITECTURE.md#03--proposed-repository-structure); `tests/ui`, `tests/imports` and `tests/fixtures` are **additional proposed test locations**, not existing code. Prefer feature-local component tests where the runner requires them.
 
 ## 3. Milestones and release tracks
 
@@ -276,7 +276,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 
 | Required aspect | Implementation-ready gate |
 | :--- | :--- |
-| **Dependencies** | M0; [Screen Spec](03-SCREEN-SPEC.md) navigation and design review; approved semantics of Save & Add Another |
+| **Dependencies** | M0; [Screen Spec](../design/SCREEN-SPEC.md) navigation and design review; approved semantics of Save & Add Another |
 | **Files / modules** | `src/app/(setup)/*`, `src/app/(tabs)/*`, `src/app/transaction/*`, `src/app/settings.tsx`, `src/features/{onboarding,dashboard,transactions,accounts,reports,settings}/*`, `src/shared/ui/*` |
 | **Deliverables** | Navigable, original UI prototype; reusable design-system components; named screen states |
 | **Acceptance** | `TM-UX-001…008,012…015` UI behavior in mock mode; only one root `+`; all form fields reachable at 320–430 logical width |
@@ -299,7 +299,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 
 | Required aspect | Implementation-ready gate |
 | :--- | :--- |
-| **Dependencies** | M0; owner review of [DB design](04-DATABASE-DESIGN.md), correction/date policy and idempotency/migration ADR; Expo SQLite API validation |
+| **Dependencies** | M0; owner review of [DB design](../architecture/DATABASE-DESIGN.md), correction/date policy and idempotency/migration ADR; Expo SQLite API validation |
 | **Files / modules** | `src/domain/{money,ledger,contracts}/*`, `src/data/sqlite/{initialize.ts,migrations/*,repositories/*,queries/*}`, `src/data/projections/*`, `tests/{domain,sqlite}/*` |
 | **Deliverables** | Schema v1 migrations, typed ledger/use-case contracts, atomic repository, reusable real-SQLite fixture suite |
 | **Acceptance** | Every event balances; ₹0.01 exactness; card liability ≠ asset; fee is one expense posting; FK ON on write connection; bad writes reject and roll back; P0-relevant `TM-DB-001…014,017…022` reconciled; import-specific `TM-DB-015/016` deferred to M5 |
@@ -344,7 +344,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 
 | Required aspect | Implementation-ready gate |
 | :--- | :--- |
-| **Dependencies** | M2–M3; chosen refund/reversal period policy; [Screen Reports](03-SCREEN-SPEC.md#screen-07--reports-tm-s07--p0) |
+| **Dependencies** | M2–M3; chosen refund/reversal period policy; [Screen Reports](../design/SCREEN-SPEC.md#screen-07--reports-tm-s07--p0) |
 | **Files / modules** | `src/features/reports/*`, `src/data/sqlite/queries/reports*`, `src/data/projections/*`, `tests/{domain,sqlite,ui,e2e}/reports*` |
 | **Deliverables** | Daily/weekly/monthly/custom income, expense, transfer and category reports; card/liability views |
 | **Acceptance** | Total category expenses = expense postings; transfer principal excluded; linked fees included once; net worth = assets − liabilities; date and account filters agree with History |
@@ -426,7 +426,7 @@ Each phase is a **planned work package**. `TM-Px-yy` identifiers name backlog ta
 
 ## 5. Financial acceptance test catalogue
 
-All amounts below are **fictional INR examples**; persisted amounts are integer paise. Run each case against a **fresh seeded fixture or explicitly stated prior state**, never an accumulated mutable test database. Check **journal postings, account/liability deltas, History grouping, category reports and net worth** together. `TM-DB-001…022` refers to the [ledger specification's acceptance IDs](04-DATABASE-DESIGN.md#10--acceptance-and-reconciliation-test-matrix). The new `TM-FIN-*` IDs are test identifiers proposed by this plan, **not passing tests**.
+All amounts below are **fictional INR examples**; persisted amounts are integer paise. Run each case against a **fresh seeded fixture or explicitly stated prior state**, never an accumulated mutable test database. Check **journal postings, account/liability deltas, History grouping, category reports and net worth** together. `TM-DB-001…022` refers to the [ledger specification's acceptance IDs](../architecture/DATABASE-DESIGN.md#10--acceptance-and-reconciliation-test-matrix). The new `TM-FIN-*` IDs are test identifiers proposed by this plan, **not passing tests**.
 
 ### 5.1 Deterministic fixture set
 
@@ -521,7 +521,7 @@ For every seeded event `e`, use a shared test helper to assert **all** of the fo
 | `TM-DB-017…022` | `TM-FIN-014,016,022,024,026,029` | Money precision, validation, offline and reconciliation |
 | `TM-UX-001…015` | M1 mock checks → M3/M4 real E2E → M5/M6 applicable variants | Screen/navigation/permission states |
 
-**Traceability example:** `TM-TR-004` fee expense → [fee flow](02-USER-FLOWS.md#03--transfer-fees--important-money-rule) → [journal C/D](04-DATABASE-DESIGN.md#05--example-journals-exact-money-math) → `TM-FIN-010/011/015` → `TM-P2-03` / `TM-P3-02` → pull request and device evidence. Tests are references until executable test files exist.
+**Traceability example:** `TM-TR-004` fee expense → [fee flow](../product/USER-FLOWS.md#03--transfer-fees--important-money-rule) → [journal C/D](../architecture/DATABASE-DESIGN.md#05--example-journals-exact-money-math) → `TM-FIN-010/011/015` → `TM-P2-03` / `TM-P3-02` → pull request and device evidence. Tests are references until executable test files exist.
 
 ## 6. Test execution and evidence
 
@@ -660,7 +660,7 @@ flowchart LR
 
 ## 9. Owner decisions and specification gaps
 
-**These are review tasks, not silent implementation choices.** A blocking decision must be written as a dated ADR or approved change to its owning document, with a test consequence. Existing `TM-ADR-001…010` are listed in [Architecture `13](05-TECH-ARCHITECTURE.md#13--open-decisions--architecture-review). **The original subjects of `TM-ADR-011–017` below are preserved by the [canonical Stage 1 ADR register](11-STAGE-1-FINANCE-ADRS.md#1-decision-authority-and-interpretation), which assigns design statuses without reusing those IDs for different questions.** These remain proposals/blocked implementation items unless explicitly settled, not owner approvals.
+**These are review tasks, not silent implementation choices.** A blocking decision must be written as a dated ADR or approved change to its owning document, with a test consequence. Existing `TM-ADR-001…010` are listed in [Architecture `13](../architecture/TECH-ARCHITECTURE.md#13--open-decisions--architecture-review). **The original subjects of `TM-ADR-011–017` below are preserved by the [canonical Stage 1 ADR register](../governance/STAGE-1-FINANCE-ADRS.md#1-decision-authority-and-interpretation), which assigns design statuses without reusing those IDs for different questions.** These remain proposals/blocked implementation items unless explicitly settled, not owner approvals.
 
 | ID / priority | Unresolved question or source mismatch | Required owner/technical disposition |
 | :--- | :--- | :--- |
@@ -678,7 +678,7 @@ flowchart LR
 | `TM-ADR-008` · future/M7 messaging | Encryption, app lock, backup/sync are **not implemented** | Threat model and independently approve future milestone; accurate data-loss notice |
 | `TM-ADR-017` · M3 | Save & Add Another retaining last tab/account/category remains proposed; no auto-draft recovery promised | Specify reset/retention behavior, post-save focus and abandoned-draft policy |
 
-**Potential specification drift:** The [PRD `9](01-PRD.md#9-suggested-data-entities-detailed-schema-comes-next) describes simpler `transactions`/`transaction_links` entities; the later [Database `03–04](04-DATABASE-DESIGN.md#03--data-map) proposes `ledger_events` and `ledger_postings` instead. This is a **draft-to-detailed-design evolution**, not permission to implement both schemas. Record `TM-ADR-005` and update the PRD's conceptual wording upon approval.
+**Potential specification drift:** The [PRD `9](../product/PRD.md#9-suggested-data-entities-detailed-schema-comes-next) describes simpler `transactions`/`transaction_links` entities; the later [Database `03–04](../architecture/DATABASE-DESIGN.md#03--data-map) proposes `ledger_events` and `ledger_postings` instead. This is a **draft-to-detailed-design evolution**, not permission to implement both schemas. Record `TM-ADR-005` and update the PRD's conceptual wording upon approval.
 
 **Recommended decision order:** resolve M0/M1 UX and dependency choices, then **M2 finance schema/atomicity/idempotency/refund/date policies before real writes**, then M5 bank format/provenance, and finally conditional M6 Play eligibility. No calendar commitment or security guarantee follows from this recommendation.
 
@@ -686,8 +686,8 @@ flowchart LR
 
 ### 10.1 Publication checklist (documentation review, **not app QA**)
 
-- [ ] Source documents and [Tio Money documentation standard](90-DOCS-STYLE-GUIDE.md) checked; this plan does not overwrite their owner decisions.
-- [ ] All local links resolve relative to `docs/`; README and [Docs Hub](00-INDEX.md) link this page.
+- [ ] Source documents and [Tio Money documentation standard](../governance/DOCS-STYLE-GUIDE.md) checked; this plan does not overwrite their owner decisions.
+- [ ] All local links resolve relative to `docs/`; README and [Docs Hub](../00-INDEX.md) link this page.
 - [ ] Mermaid flowcharts parse in GitHub and have textual explanations; no stale source/project branding copied from Tio Workspace.
 - [ ] All rupee math and paise postings reconcile; source vs destination fees are distinct and **transfer principal never enters income/expense**.
 - [ ] Every Phase 0–7 includes objective, tasks, dependencies, modules, deliverables, acceptance, automated/manual tests, risks and Definition of Done.
@@ -697,14 +697,14 @@ flowchart LR
 
 ### 10.2 Next actions after this document is reviewed
 
-1. Owner and architect triage `TM-ADR-011…016` alongside [Architecture `13](05-TECH-ARCHITECTURE.md#13--open-decisions--architecture-review).
+1. Owner and architect triage `TM-ADR-011…016` alongside [Architecture `13](../architecture/TECH-ARCHITECTURE.md#13--open-decisions--architecture-review).
 2. Convert `TM-P0-*` into independently scoped issues; validate Expo versions, database SDK semantics and CI/tool choices.
 3. Create and approve real financial fixture tests **before** wiring financial UI. Use the `TM-FIN-*` tables as expected outputs, not assertions that already ran.
 4. Open a reviewable branch per milestone; attach finance, device, privacy and migration evidence as the feature actually ships.
 
 ---
 
-[← Technical Architecture](05-TECH-ARCHITECTURE.md) · [📚 Documentation Hub](00-INDEX.md) · [🏠 Project Home](../README.md) · [✍️ Documentation Standard](90-DOCS-STYLE-GUIDE.md)
+[← Technical Architecture](../architecture/TECH-ARCHITECTURE.md) · [📚 Documentation Hub](../00-INDEX.md) · [🏠 Project Home](../../README.md) · [✍️ Documentation Standard](../governance/DOCS-STYLE-GUIDE.md)
 
 <div align="center">
 

@@ -8,23 +8,23 @@
 ![Scope](https://img.shields.io/badge/RELEASE-EXPO%20GO%20CORE%20MVP-118C84?style=flat-square)
 ![Targets](https://img.shields.io/badge/TARGETS-ANDROID%20%2B%20IOS-596274?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🎯 Product Requirements](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [✍️ Documentation Style](90-DOCS-STYLE-GUIDE.md)
+[🏠 Project](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🎯 Product Requirements](../product/PRD.md) · [🧭 User Flows](../product/USER-FLOWS.md) · [✍️ Documentation Style](../governance/DOCS-STYLE-GUIDE.md)
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Current-versus-future contract (live main 2026-11-21):** Five root destinations and disabled Add remain unchanged; four finance routes export `BlankScreen`, while **More** composes [`MoreRoute`](../src/features/settings/more-route.tsx), `useMoreViewModel` and presentational [`MoreScreen`](../src/features/settings/more-screen.tsx) for persisted System/Light/Dark Appearance. Original 2026-11-19 five-blank copy below is **historical**, not current installed-app verification. No finance editor, onboarding, login or actual ledger UI.
+> **Current-versus-future contract (live main 2026-11-21):** Five root destinations and disabled Add remain unchanged; four finance routes export `BlankScreen`, while **More** composes [`MoreRoute`](../../src/features/settings/more-route.tsx), `useMoreViewModel` and presentational [`MoreScreen`](../../src/features/settings/more-screen.tsx) for persisted System/Light/Dark Appearance. Original 2026-11-19 five-blank copy below is **historical**, not current installed-app verification. No finance editor, onboarding, login or actual ledger UI.
 
 
 ## 00 · Future Stage 1 screen contract — 2026-11-20
 
-> **Mandatory newer owner rule (2026-11-21): every future screen is dumb/presentation-only.** Screens render immutable typed view-model props and forward injected callbacks; **no local workflow hooks, navigation commands, business calculations, SQL, I/O, permissions or side effects inside any screen**. Controllers/hooks own state/routing/async; application use cases own workflows; one pure domain ledger owns all financial math; repositories own SQL. See [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule), [12 — Dumb-Screen Contract](12-DUMB-SCREEN-BOUNDARIES.md) and future tests `TM-PRES-001–006`. This docs amendment does not enable a feature screen or change the already-correct five-tab shell.
+> **Mandatory newer owner rule (2026-11-21): every future screen is dumb/presentation-only.** Screens render immutable typed view-model props and forward injected callbacks; **no local workflow hooks, navigation commands, business calculations, SQL, I/O, permissions or side effects inside any screen**. Controllers/hooks own state/routing/async; application use cases own workflows; one pure domain ledger owns all financial math; repositories own SQL. See [TM-DEC-011](../governance/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule), [12 — Dumb-Screen Contract](../architecture/DUMB-SCREEN-BOUNDARIES.md) and future tests `TM-PRES-001–006`. This docs amendment does not enable a feature screen or change the already-correct five-tab shell.
 
 
 > [!IMPORTANT]
-> **UI spec and current-status separation:** Current source has **four blank finance tabs + More → Appearance**, all five destinations and a disabled floating Add. The following detailed finance screens remain **future proposals**, not an authorisation to implement financial logic or UI redesign. See [More](MORE-APPEARANCE.md) and [TM-DEC-011](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
+> **UI spec and current-status separation:** Current source has **four blank finance tabs + More → Appearance**, all five destinations and a disabled floating Add. The following detailed finance screens remain **future proposals**, not an authorisation to implement financial logic or UI redesign. See [More](MORE-APPEARANCE.md) and [TM-DEC-011](../governance/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule).
 
 ### SCREEN 11 · Accounts → Add Account · `TM-S11` · future local Stage 1
 
@@ -87,7 +87,7 @@
 | `TM-SCR-FX-002` | Stale quote has source/time; no quote shows unavailable, no fake rate |
 | `TM-SCR-STAGE-001` | Stage 1 no signup, backup or Supabase controls rendered |
 
-**Implementation/design gates:** dynamic input semantics and card due-date policy require accepted [08 — Account Groups](08-ACCOUNT-GROUPS-SPEC.md); FX refresh, precision and reporting require [10 — Currency](10-CURRENCY-SPEC.md); balance/transfer rules require [04 — Ledger](04-DATABASE-DESIGN.md). This section is not approved pixel-level UI or a claim that these routes exist.
+**Implementation/design gates:** dynamic input semantics and card due-date policy require accepted [08 — Account Groups](../product/ACCOUNT-GROUPS-SPEC.md); FX refresh, precision and reporting require [10 — Currency](../product/CURRENCY-SPEC.md); balance/transfer rules require [04 — Ledger](../architecture/DATABASE-DESIGN.md). This section is not approved pixel-level UI or a claim that these routes exist.
 
 ## 01 · Executive design direction
 
@@ -110,8 +110,8 @@
 - Exactly one **disabled** circular floating `+` placed right-above the **More** tab's center, outside the bottom bar, with no `onPress` or editor route.
 - Native splash is held during settings-only SQLite initialization; on success it reveals Home and the five-tab shell directly. Only a genuine startup failure may expose safe retry UI.
 - **Current Appearance and geometry:** More System/Light/Dark selection persists through its controller; 24dp SVG icons, 48dp tab hit area, 50dp bar/FAB baseline, 11sp labels, **0dp icon-label gap**, **selected 300/inactive 200**, separate disabled Add with **16dp** clearance, OS inset extra; **160ms theme-safe Reduced Motion-aware crossfade** in root tabs. Screen rendering never owns finance/SQL/navigation logic.
-- Route screens are **dumb/presentation-only**; navigation commands, safe-area/FAB positioning and splash lifecycle run in shared hooks/controllers; SQLite and accounting logic are not screen concerns. [Theme implementation](../src/shared/theme/README.md) specifies component-token ownership.
-- Owner reports a **physical-device current-UI smoke PASS** without the formerly observed `ExpoSQLite` error (platform and OS details not yet recorded). Full Android **and** iPhone matrix, system-appearance contrast, large fonts/screen reader, on-device SQLite PRAGMA/migration/restart and separate merge authorization remain **NOT_VERIFIED**. See [Phase 0 QA register](07-PHASE-0-FOUNDATION-NOTES.md).
+- Route screens are **dumb/presentation-only**; navigation commands, safe-area/FAB positioning and splash lifecycle run in shared hooks/controllers; SQLite and accounting logic are not screen concerns. [Theme implementation](../../src/shared/theme/README.md) specifies component-token ownership.
+- Owner reports a **physical-device current-UI smoke PASS** without the formerly observed `ExpoSQLite` error (platform and OS details not yet recorded). Full Android **and** iPhone matrix, system-appearance contrast, large fonts/screen reader, on-device SQLite PRAGMA/migration/restart and separate merge authorization remain **NOT_VERIFIED**. See [Phase 0 QA register](../history/phase-0/FOUNDATION-NOTES.md).
 
 ### 1.1 Scope boundaries
 
@@ -146,7 +146,7 @@ flowchart TD
 
 ### 2.1 Proposal: five positions, one action
 
-> **Historical future-state proposal, NOT the current Phase 0 navigation.** The four root destinations + active center Add flow below were superseded by [TM-DEC-004](DECISIONS.md#tm-dec-004--five-destinations-and-floating-add) and [TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). Keep this original layout only as archived product exploration; do not implement it without a new owner decision.
+> **Historical future-state proposal, NOT the current Phase 0 navigation.** The four root destinations + active center Add flow below were superseded by [TM-DEC-004](../governance/DECISIONS.md#tm-dec-004--five-destinations-and-floating-add) and [TM-DEC-005](../governance/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab). Keep this original layout only as archived product exploration; do not implement it without a new owner decision.
 
 Use a shared bottom bar with **four navigable destinations** and a **central action**:
 
@@ -193,7 +193,7 @@ flowchart TD
 
 ## 03 · Tio Money visual language — proposed tokens
 
-The future design uses a **warm neutral canvas, deep ink, subtle violet brand signal and restrained semantic colors**. Financial color meanings must remain clear. This section contains **candidate design values**, not a second implementation token source. Current UI owns physical values in [`primitives.ts`](../src/shared/theme/primitives.ts), spacing/radius/typography and system light/dark semantic colors in [`tokens.ts`](../src/shared/theme/tokens.ts), and shared **24dp icon roles** plus navigation/FAB/component dimensions in [`component-tokens.ts`](../src/shared/theme/component-tokens.ts). All future top bars, buttons, bottom sheets, cards and text fields must consume those shared roles, with no per-screen hardcoded visual sizes; see the [Core Theme README](../src/shared/theme/README.md).
+The future design uses a **warm neutral canvas, deep ink, subtle violet brand signal and restrained semantic colors**. Financial color meanings must remain clear. This section contains **candidate design values**, not a second implementation token source. Current UI owns physical values in [`primitives.ts`](../../src/shared/theme/primitives.ts), spacing/radius/typography and system light/dark semantic colors in [`tokens.ts`](../../src/shared/theme/tokens.ts), and shared **24dp icon roles** plus navigation/FAB/component dimensions in [`component-tokens.ts`](../../src/shared/theme/component-tokens.ts). All future top bars, buttons, bottom sheets, cards and text fields must consume those shared roles, with no per-screen hardcoded visual sizes; see the [Core Theme README](../../src/shared/theme/README.md).
 
 ### 3.1 Light & dark palette
 
@@ -496,7 +496,7 @@ flowchart TD
 ### SCREEN 09 · Settings, privacy, export `TM-S09` · P0 basic / P1 advanced
 
 - Appearance: **System / Light / Dark is already implemented in More**, with preference selection/persistence owned outside the presentation screen; other financial settings remain proposals.
-- **No MVP language selector**. Initial UI text and accessibility/validation copy are English, centralized in semantic resources; layouts remain future-translation-ready ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
+- **No MVP language selector**. Initial UI text and accessibility/validation copy are English, centralized in semantic resources; layouts remain future-translation-ready ([TM-DEC-001](../governance/DECISIONS.md#tm-dec-001--english-only-initial-app)).
 - Import settings: show platform-supported import methods; no misleading toggle to enable unavailable SMS reading.
 - Export: user-initiated CSV with clear file destination/share intent.
 - Data: privacy summary, export/delete options and an explanation that reinstall/device loss can erase local-only data without a completed backup.
@@ -600,11 +600,11 @@ src/
 | Receipt photo in MVP | Deferred | **Aligned with P2** |
 | Fees option | Collapsed by default, counts as expense | **Existing product rule** |
 
-**Do not label any proposed styling as approved until reviewed.** The confirmed business rules come from the [PRD](01-PRD.md) and [user-flow document](02-USER-FLOWS.md).
+**Do not label any proposed styling as approved until reviewed.** The confirmed business rules come from the [PRD](../product/PRD.md) and [user-flow document](../product/USER-FLOWS.md).
 
 ## 11 · Handoff to the data & architecture documents
 
-The [04 — Database Design & Financial Ledger](04-DATABASE-DESIGN.md) draft is now available and should encode the screen contract without duplicating accounting logic:
+The [04 — Database Design & Financial Ledger](../architecture/DATABASE-DESIGN.md) draft is now available and should encode the screen contract without duplicating accounting logic:
 
 1. Asset accounts and credit-card liabilities use distinct posting semantics.
 2. Transfer principal and fee expense are **linked and atomic**.
@@ -615,4 +615,4 @@ The [04 — Database Design & Financial Ledger](04-DATABASE-DESIGN.md) draft is 
 
 ---
 
-[← Documentation Hub](00-INDEX.md) · [Database & Financial Ledger →](04-DATABASE-DESIGN.md) · [Product Requirements](01-PRD.md)
+[← Documentation Hub](../00-INDEX.md) · [Database & Financial Ledger →](../architecture/DATABASE-DESIGN.md) · [Product Requirements](../product/PRD.md)

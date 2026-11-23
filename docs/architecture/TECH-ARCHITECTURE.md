@@ -9,7 +9,7 @@
 ![Storage](https://img.shields.io/badge/DATA-OFFLINE%20FIRST%20SQLITE-118C84?style=flat-square)
 ![Scope](https://img.shields.io/badge/PHASE-P0%20ARCHITECTURE-596274?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md) · [🎨 Screen Design](03-SCREEN-SPEC.md) · [🗄 Ledger Model](04-DATABASE-DESIGN.md)
+[🏠 Project](../../README.md) · [📚 Docs Hub](../00-INDEX.md) · [🎯 PRD](../product/PRD.md) · [🎨 Screen Design](../design/SCREEN-SPEC.md) · [🗄 Ledger Model](DATABASE-DESIGN.md)
 
 </div>
 
@@ -21,11 +21,11 @@
 
 ## 00 · Technical architecture alignment — 2026-11-20
 
-> **Owner directive TM-DEC-011 (2026-11-21): EVERY screen is strictly dumb.** A `src/app/` route only composes a container; `features/*/screens` render immutable typed ViewModels and injected callbacks. Screens **must not** use `useState`/`useEffect` for workflow, issue router commands, invoke services, perform I/O, SQL, finance math, FX, policy branching or permissions. Controllers/hooks manage screen state and navigation; application use cases orchestrate commands; domain is pure and balances the journal; adapters own SQLite and network. See [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and [finance ADRs](11-STAGE-1-FINANCE-ADRS.md). Current root layouts may compose existing providers/navigation hooks without moving their effects into feature screens. No runtime files are changed here.
+> **Owner directive TM-DEC-011 (2026-11-21): EVERY screen is strictly dumb.** A `src/app/` route only composes a container; `features/*/screens` render immutable typed ViewModels and injected callbacks. Screens **must not** use `useState`/`useEffect` for workflow, issue router commands, invoke services, perform I/O, SQL, finance math, FX, policy branching or permissions. Controllers/hooks manage screen state and navigation; application use cases orchestrate commands; domain is pure and balances the journal; adapters own SQLite and network. See [12 — Dumb-Screen Boundaries](DUMB-SCREEN-BOUNDARIES.md) and [finance ADRs](../governance/STAGE-1-FINANCE-ADRS.md). Current root layouts may compose existing providers/navigation hooks without moving their effects into feature screens. No runtime files are changed here.
 
 
 > [!IMPORTANT]
-> **Documentation-only future design.** [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) and [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) set this stage order: **Stage 1 complete local SQLite app with optional FX quote requests only → Stage 2 encrypted user-directed Drive/iCloud backup → Stage 3 optional Supabase sync with signup/signin only after explicit opt-in**. Current Phase 0 source has four blank finance tabs plus implemented More → Appearance, the disabled FAB and settings-only SQLite bootstrap; no financial journal, FX provider, backup, authentication or remote sync is implemented. Original "no P0 cloud/network" paragraphs below mean no **account data** networking; FX quotes are a narrowly scoped future **public pair-metadata exception**, not backend financial storage.
+> **Documentation-only future design.** [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15) and [TM-DEC-006–009](../governance/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) set this stage order: **Stage 1 complete local SQLite app with optional FX quote requests only → Stage 2 encrypted user-directed Drive/iCloud backup → Stage 3 optional Supabase sync with signup/signin only after explicit opt-in**. Current Phase 0 source has four blank finance tabs plus implemented More → Appearance, the disabled FAB and settings-only SQLite bootstrap; no financial journal, FX provider, backup, authentication or remote sync is implemented. Original "no P0 cloud/network" paragraphs below mean no **account data** networking; FX quotes are a narrowly scoped future **public pair-metadata exception**, not backend financial storage.
 
 ### 00.1 Stage 1 module ownership and data movement
 
@@ -87,7 +87,7 @@ flowchart TD
 - **Store** quote and metadata in SQLite as non-authoritative cache with last successful fetch and accepted provider timestamp. Distinguish provider-published vs locally-fetched freshness.
 - **Display** fresh latest-published quote when available; if offline/rate-limited use last valid cached quote with **stale badge/time**; if no quote exists mark estimated conversion **unavailable**. Local original-currency transactions must continue.
 - **Privacy:** HTTPS quote requests limited to pair; never send transaction amount, account ID, merchant, ledger rows, device contacts or email for pricing. Avoid embedding a secret API key in a publicly shipped mobile binary; cost/auth strategy requires prior provider ADR.
-- **Math:** no currency-specific journal engine is authorized by quote fetching alone. Currency-aware ledger, historic conversion methodology, rounding, holding valuation and FX gains require [04 — Ledger](04-DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) ADRs.
+- **Math:** no currency-specific journal engine is authorized by quote fetching alone. Currency-aware ledger, historic conversion methodology, rounding, holding valuation and FX gains require [04 — Ledger](DATABASE-DESIGN.md#00--finance-data-model-reconciliation--2026-11-20--documentation-only) ADRs.
 
 ### 00.4 Stage-gated backup, future authentication and threat model
 
@@ -114,7 +114,7 @@ flowchart TD
 | `TM-ARCH-009` | Bank-linked Wallet references create only typed link metadata and never duplicate a Bank asset; historical Investment/Loan openings are distinct from new funding/disbursement transactions |
 | `TM-ARCH-010` | Investment market quote changes only a **separate unposted portfolio estimate**; canonical journal-derived Net Worth remains unchanged until an approved balanced valuation event is explicitly posted |
 
-**Stage 1 finance ADRs triaged (2026-11-21):** [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) is now canonical for TM-ADR-011–023: shared finance invariants are accepted **for design**, while cross-currency posting, issuer-card rules, loan interest, investment realization, concrete FX provider and data migration remain explicitly **BLOCKED pending approvals/tests**. [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) has already merged (not an open separate PR C); its Stage 1/2/3 sequence remains authoritative. Stage 2 backup keys and Stage 3 sync identity/security require separate future ADRs.
+**Stage 1 finance ADRs triaged (2026-11-21):** [11 — Finance ADR Register](../governance/STAGE-1-FINANCE-ADRS.md) is now canonical for TM-ADR-011–023: shared finance invariants are accepted **for design**, while cross-currency posting, issuer-card rules, loan interest, investment realization, concrete FX provider and data migration remain explicitly **BLOCKED pending approvals/tests**. [PR #22](https://github.com/im-tnyx/Tio-Money/pull/22) has already merged (not an open separate PR C); its Stage 1/2/3 sequence remains authoritative. Stage 2 backup keys and Stage 3 sync identity/security require separate future ADRs.
 
 ## 01 · Executive architecture at a glance
 
@@ -214,9 +214,9 @@ src/
 └─ platform/sms/                # Disabled adapter; no default SMS permission
 ```
 
-**Current route ownership:** `index`, `transactions`, `reports` and `accounts` export `BlankScreen`; `more.tsx` exports [`MoreRoute`](../src/features/settings/more-route.tsx), composing a **controller** (`useMoreViewModel`) and dumb **presenter** (`MoreScreen`). [`use-root-tab-navigation.ts`](../src/shared/navigation/use-root-tab-navigation.ts) owns navigation, root layout delegates crossfade/Reduced Motion to shared hooks and the floating Add remains independent. No SQL or finance logic is in these screens.
+**Current route ownership:** `index`, `transactions`, `reports` and `accounts` export `BlankScreen`; `more.tsx` exports [`MoreRoute`](../../src/features/settings/more-route.tsx), composing a **controller** (`useMoreViewModel`) and dumb **presenter** (`MoreScreen`). [`use-root-tab-navigation.ts`](../../src/shared/navigation/use-root-tab-navigation.ts) owns navigation, root layout delegates crossfade/Reduced Motion to shared hooks and the floating Add remains independent. No SQL or finance logic is in these screens.
 
-**Central token ownership:** [`primitives.ts`](../src/shared/theme/primitives.ts) holds fixed physical sizes; [`tokens.ts`](../src/shared/theme/tokens.ts) defines semantic spacing, radii, type and light/dark palettes; [`component-tokens.ts`](../src/shared/theme/component-tokens.ts) defines one **24dp icon-size** token with aliases for navigation, future top bars, buttons, sheets, cards and text fields, plus current 50dp navigation baseline / 50dp FAB, **0dp icon-label spacing, selected icon weight 300 / inactive 200**, 16dp FAB-to-bar clearance, **160ms Reduced Motion-aware tab crossfade** and shadow contracts. The root theme provider defaults to **system** appearance, with implemented **More → Appearance (System/Light/Dark)** user override and local preference persistence. No unapproved financial features or per-screen hardcoded dimensions. See the [implementation ownership guide](../src/shared/theme/README.md) and [enforcement tests](../tests/phase0/design-tokens.test.ts). The future folder tree and proposed APIs below must follow these contracts.
+**Central token ownership:** [`primitives.ts`](../../src/shared/theme/primitives.ts) holds fixed physical sizes; [`tokens.ts`](../../src/shared/theme/tokens.ts) defines semantic spacing, radii, type and light/dark palettes; [`component-tokens.ts`](../../src/shared/theme/component-tokens.ts) defines one **24dp icon-size** token with aliases for navigation, future top bars, buttons, sheets, cards and text fields, plus current 50dp navigation baseline / 50dp FAB, **0dp icon-label spacing, selected icon weight 300 / inactive 200**, 16dp FAB-to-bar clearance, **160ms Reduced Motion-aware tab crossfade** and shadow contracts. The root theme provider defaults to **system** appearance, with implemented **More → Appearance (System/Light/Dark)** user override and local preference persistence. No unapproved financial features or per-screen hardcoded dimensions. See the [implementation ownership guide](../../src/shared/theme/README.md) and [enforcement tests](../../tests/phase0/design-tokens.test.ts). The future folder tree and proposed APIs below must follow these contracts.
 
 ### Future feature-oriented repository proposal (not implemented)
 
@@ -307,7 +307,7 @@ flowchart LR
   ROOT -. "Disabled icon only" .-> PLUS["Floating + over More"]
 ```
 
-**Historical future-state proposal only (superseded for current Phase 0):** The original [screen design proposal](03-SCREEN-SPEC.md#21-proposal-five-positions-one-action) described **four destinations + one active central Add**. The diagram and behavior below are preserved as future design exploration; they are **not present routes** and require a new owner-scoped decision before implementation:
+**Historical future-state proposal only (superseded for current Phase 0):** The original [screen design proposal](../design/SCREEN-SPEC.md#21-proposal-five-positions-one-action) described **four destinations + one active central Add**. The diagram and behavior below are preserved as future design exploration; they are **not present routes** and require a new owner-scoped decision before implementation:
 
 ```mermaid
 flowchart LR
@@ -335,7 +335,7 @@ flowchart LR
 
 ### 5.1 Canonical ledger contract
 
-The [Database & Financial Ledger](04-DATABASE-DESIGN.md) specifies:
+The [Database & Financial Ledger](DATABASE-DESIGN.md) specifies:
 `financial_accounts`, `categories`, `ledger_accounts`, `ledger_events`, `ledger_postings`, `transfer_details`, `import_candidates` and `app_settings`.
 
 An **event** is one user-visible financial action. It contains multiple postings that **must balance**. Transfer fees are an **expense posting in the same transfer event**, not a separately saved free-floating expense. Edits/deletes use reversals and, where needed, replacements, rather than mutating historical postings.
@@ -407,7 +407,7 @@ type JournalDraft = {
 // safe-integer overflow, reversal rules and strong input validation.
 ```
 
-**Legacy INR-only illustrative code above, NOT an approved Stage 1 multi-currency domain interface.** Production must use a branded/runtime-validated native minor-unit type **coupled to immutable ISO currency and exponent**, with versioned currency metadata. JavaScript `number` is acceptable only for **safe integers**; reject non-integers/overflow and currency-incompatible decimals. Parse `"5000.50"` by decimal-string decomposition, not floating-point multiplication. The old example's `currency: "INR"` cannot book mixed-currency transfers; see [TM-ADR-018](11-STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx). Current Phase 0 has **no posting engine**.
+**Legacy INR-only illustrative code above, NOT an approved Stage 1 multi-currency domain interface.** Production must use a branded/runtime-validated native minor-unit type **coupled to immutable ISO currency and exponent**, with versioned currency metadata. JavaScript `number` is acceptable only for **safe integers**; reject non-integers/overflow and currency-incompatible decimals. Parse `"5000.50"` by decimal-string decomposition, not floating-point multiplication. The old example's `currency: "INR"` cannot book mixed-currency transfers; see [TM-ADR-018](../governance/STAGE-1-FINANCE-ADRS.md#tm-adr-018--native-currency-accounting-and-fx). Current Phase 0 has **no posting engine**.
 
 ### 5.4 Core use cases
 
@@ -493,7 +493,7 @@ Use **Zustand selectively** for editor drafts or cross-screen presentation state
 - Use explicit `idle → validating → saving → success/error` state machine for Save.
 - Disable repeated submission while saving; still require idempotency at repository boundary for crash/retry.
 - Keep input responsive while large reports run; index/filter SQL rather than formatting every record on every render.
-- Include error/empty/loading/offline states from [Screen Design](03-SCREEN-SPEC.md).
+- Include error/empty/loading/offline states from [Screen Design](../design/SCREEN-SPEC.md).
 
 ## 08 · Import pipeline and platform adapters
 
@@ -583,10 +583,10 @@ Keep the candidate type separate from the `JournalDraft`. Parsers can fail, date
 
 ## 10 · Localization, appearance and accessibility
 
-- **MVP language decision:** English-only user-facing text, validation and accessibility labels; **no language selector**. Keep typed semantic string resources future-localization-ready; Hindi and other translations are later features ([TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app)).
+- **MVP language decision:** English-only user-facing text, validation and accessibility labels; **no language selector**. Keep typed semantic string resources future-localization-ready; Hindi and other translations are later features ([TM-DEC-001](../governance/DECISIONS.md#tm-dec-001--english-only-initial-app)).
 - **Numbers:** INR display examples use Indian grouping and rupee symbol, but future per-currency display must honor the immutable ISO currency/exponent and locale while journal amounts stay **native safe-integer minor units**. ViewModel mappers format values; **screens never compute currency/ledger math**.
 - **Dates:** Store timestamps consistently (UTC epoch milliseconds), render using chosen device locale/timezone; reports group by the user-selected local calendar period.
-- **Theme:** The current shared System/Light/Dark token resolver and More → Appearance preference are implemented. Any **future proposed** theme tokens or feature palettes beyond the approved current source still require owner approval and accessibility/contrast testing; existing device-wide accessibility QA is not claimed. See [Screen Design](03-SCREEN-SPEC.md) and [current theme tokens](../src/shared/theme/component-tokens.ts).
+- **Theme:** The current shared System/Light/Dark token resolver and More → Appearance preference are implemented. Any **future proposed** theme tokens or feature palettes beyond the approved current source still require owner approval and accessibility/contrast testing; existing device-wide accessibility QA is not claimed. See [Screen Design](../design/SCREEN-SPEC.md) and [current theme tokens](../../src/shared/theme/component-tokens.ts).
 - **Fonts:** prefer system fonts for MVP unless the owner specifically approves an alternative; keep number/date formatting separate from message translation.
 - **Tap targets:** minimum suggested 48dp Android and 44pt iOS, and test large-font layouts.
 - **Screen readers:** announce full amount, type and source/destination; don't convey debit/credit status with color alone.
@@ -675,11 +675,11 @@ flowchart LR
 
 **Internal product sources**
 
-- [🎯 01 — Product Requirements](01-PRD.md): goals, field contracts, fees, privacy.
-- [🧭 02 — User Flows](02-USER-FLOWS.md): editor, fee preview, import deduplication.
-- [🎨 03 — Screen Design](03-SCREEN-SPEC.md): navigation, UI tokens, screen states.
-- [🗄 04 — Database & Ledger](04-DATABASE-DESIGN.md): canonical journal schema and financial examples.
-- [✍️ Documentation Style](90-DOCS-STYLE-GUIDE.md): visual consistency and honest status labels.
+- [🎯 01 — Product Requirements](../product/PRD.md): goals, field contracts, fees, privacy.
+- [🧭 02 — User Flows](../product/USER-FLOWS.md): editor, fee preview, import deduplication.
+- [🎨 03 — Screen Design](../design/SCREEN-SPEC.md): navigation, UI tokens, screen states.
+- [🗄 04 — Database & Ledger](DATABASE-DESIGN.md): canonical journal schema and financial examples.
+- [✍️ Documentation Style](../governance/DOCS-STYLE-GUIDE.md): visual consistency and honest status labels.
 
 **External documentation — checked 2026-11-18; recheck at build time**
 
@@ -693,4 +693,4 @@ flowchart LR
 
 ---
 
-[← Documentation Hub](00-INDEX.md) · [Review Ledger Model](04-DATABASE-DESIGN.md) · **Next: Implementation & Test Plan**
+[← Documentation Hub](../00-INDEX.md) · [Review Ledger Model](DATABASE-DESIGN.md) · **Next: Implementation & Test Plan**

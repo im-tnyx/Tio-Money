@@ -1,6 +1,6 @@
 # Tio Money — verified post-merge sync (manual only)
 
-**Source of truth:** [root agent contract](../AGENTS.md), [active task index](../.ai/current.md), [owner decision register](../docs/DECISIONS.md) and live GitHub PR. This is a **manual, authorization-gated procedure**: the preflight is for a specifically authorized agent before merging, and the sync steps are for after GitHub confirms MERGED. This document itself grants no merge, deployment or branch-settings permission. **Historical distinction:** This procedure itself did not authorize PR #2; the owner later gave separate PR-specific permission and GitHub verifies PR #2 **MERGED** at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` on 2026-11-19. Every **new** PR still requires its own separate owner authorization.
+**Source of truth:** [root agent contract](../AGENTS.md), [active task index](../.ai/current.md), [owner decision register](../docs/governance/DECISIONS.md) and live GitHub PR. This is a **manual, authorization-gated procedure**: the preflight is for a specifically authorized agent before merging, and the sync steps are for after GitHub confirms MERGED. This document itself grants no merge, deployment or branch-settings permission. **Historical distinction:** This procedure itself did not authorize PR #2; the owner later gave separate PR-specific permission and GitHub verifies PR #2 **MERGED** at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90` on 2026-11-19. Every **new** PR still requires its own separate owner authorization.
 
 ## Authorized agent merge preflight (before any merge)
 

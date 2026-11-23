@@ -19,7 +19,7 @@
 
 ## Document scope
 
-Allowed: `docs/06-IMPLEMENTATION-TEST-PLAN.md`, new `docs/09-BACKUP-SYNC-SPEC.md`, `docs/DECISIONS.md` (TM-DEC-010 only), `docs/00-INDEX.md` and task/index handoff. No code, assets, bottom-nav visuals/layout, migrations, CI, dependency installs, provider account setup, encryption key provisioning, real Supabase project/Auth/RLS or network operations.
+Allowed: `docs/engineering/IMPLEMENTATION-TEST-PLAN.md`, new `docs/product/BACKUP-SYNC-SPEC.md`, `docs/governance/DECISIONS.md` (TM-DEC-010 only), `docs/00-INDEX.md` and task/index handoff. No code, assets, bottom-nav visuals/layout, migrations, CI, dependency installs, provider account setup, encryption key provisioning, real Supabase project/Auth/RLS or network operations.
 
 ## Protected UI and safety boundary
 

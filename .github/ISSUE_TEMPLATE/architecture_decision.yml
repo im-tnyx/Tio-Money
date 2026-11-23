@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Consult [docs/DECISIONS.md](https://github.com/im-tnyx/Tio-Money/blob/main/docs/DECISIONS.md) and [the architecture](https://github.com/im-tnyx/Tio-Money/blob/main/docs/05-TECH-ARCHITECTURE.md). Proposals do not supersede accepted decisions or authorize implementation, schema migration, or merge.
+        Consult [docs/governance/DECISIONS.md](https://github.com/im-tnyx/Tio-Money/blob/main/docs/governance/DECISIONS.md) and [the architecture](https://github.com/im-tnyx/Tio-Money/blob/main/docs/architecture/TECH-ARCHITECTURE.md). Proposals do not supersede accepted decisions or authorize implementation, schema migration, or merge.
   - type: input
     id: task_id
     attributes:

@@ -6,7 +6,7 @@
 
 ![Status](https://img.shields.io/badge/STATUS-IMPLEMENTED%20SOURCE%20%2F%20QA%20PENDING-7357E8?style=flat-square)
 
-[🏠 README](../README.md) · [📚 Docs Hub](00-INDEX.md) · [🏗 Architecture](05-TECH-ARCHITECTURE.md) · [🧪 Plan](06-IMPLEMENTATION-TEST-PLAN.md)
+[🏠 README](../../../README.md) · [📚 Docs Hub](../../00-INDEX.md) · [🏗 Architecture](../../architecture/TECH-ARCHITECTURE.md) · [🧪 Plan](../../engineering/IMPLEMENTATION-TEST-PLAN.md)
 
 </div>
 
@@ -25,14 +25,14 @@
 | Area | Scaffold choice | Why / remaining gate |
 | :--- | :--- | :--- |
 | Runtime | Expo SDK 58 / RN 0.88.1 / React + React DOM 19.3.0 / TS strict | Locked engines support **Node `^22.13.0 || ^24.3.0 || >=26.0.0`**; `.nvmrc` pins 22.16.0; `react-dom` occurs once and matches React; owner reports current-device UI smoke PASS, full QA still pending |
-| Routes | Expo Router `Stack` + `Slot`; **five blank tabs** with a **disabled floating `+` icon above More** | **Home · Trans. · Stats. · Account · More**; [TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), no extra app screen routes |
+| Routes | Expo Router `Stack` + `Slot`; **five blank tabs** with a **disabled floating `+` icon above More** | **Home · Trans. · Stats. · Account · More**; [TM-DEC-005](../../governance/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab), no extra app screen routes |
 | App status | **Native splash → Home's blank canvas + five bottom tabs + disabled FAB**; no app top bar, editor, Settings, Welcome, loading text, forms or cards | Splash remains during SQLite bootstrap on successful startup; only exceptional database failure may show safe retry recovery |
-| Theme and sizing | [Single-owner typed core theme](../src/shared/theme/README.md): `primitives.ts` → `tokens.ts` → `component-tokens.ts`; system `useColorScheme()` light/dark | Existing colors/sizes retained, visual token literals removed from presentation surfaces; global 24dp icon role aliases nav, future topbar/button/sheet/card/text field; **no manual theme selector**; physical theme/contrast QA pending |
+| Theme and sizing | [Single-owner typed core theme](../../../src/shared/theme/README.md): `primitives.ts` → `tokens.ts` → `component-tokens.ts`; system `useColorScheme()` light/dark | Existing colors/sizes retained, visual token literals removed from presentation surfaces; global 24dp icon role aliases nav, future topbar/button/sheet/card/text field; **no manual theme selector**; physical theme/contrast QA pending |
 | Persistence | `expo-sqlite` opens one local file; FK ON verified before/after versioned migration | Only `app_settings` table exists; no ledger/postings/mutable balance cache. Write-coordinator and real migration QA are Phase 2 |
 | Migration version | `PRAGMA user_version` (v1) + single bootstrap transaction | Future upgrades must be tested on actual on-disk DB; no silent deletion/reset |
 | Financial contracts | Pure typed `JournalDraft` and structural balance preflight only | Not a finance engine; account-class policies, idempotency, refund linkage and correction date still need ADRs |
 | Native integration | `disabledSmsAdapter` returns false; default manifest has no SMS permissions | Android policy/custom build is conditional P1+; iOS automatic inbox reading unsupported |
-| Language | **English-only initial UI** under [TM-DEC-001](DECISIONS.md#tm-dec-001--english-only-initial-app) | Typed message keys preserved; no Hindi dictionary, MVP language selector or bilingual acceptance promise |
+| Language | **English-only initial UI** under [TM-DEC-001](../../governance/DECISIONS.md#tm-dec-001--english-only-initial-app) | Typed message keys preserved; no Hindi dictionary, MVP language selector or bilingual acceptance promise |
 | Environment | No backend, secrets, tracking or account login in Phase 0 | `EXPO_PUBLIC_*` values are public; `.env.example` contains no credentials |
 
 ## Quality and verification register
@@ -53,13 +53,13 @@
 
 **Implemented source contract:** Native splash → five blank selectable tabs (**Home · Trans. · Stats. · Account · More**) with one disabled floating `+` aligned to More, no app topbar, feature routes, active form or manual theme selector. The OS system light/dark scheme automatically selects a typed palette. Unavailable SQLite may show minimal retry feedback, not a normal-path intermediate screen.
 
-**Token hierarchy:** [`primitives.ts`](../src/shared/theme/primitives.ts) owns numeric visual dimensions/opacities; [`tokens.ts`](../src/shared/theme/tokens.ts) aliases spacing, radius, typography and light/dark semantic colors; [`component-tokens.ts`](../src/shared/theme/component-tokens.ts) owns shared component sizes (nav/FAB/buttons/shadows), local Google Material Icons Outlined SVG assets rendered by `react-native-svg` and **single 24dp icon size** across current bottom nav and **future** top bar, button, sheet, card, text field. [Theme provider](../src/shared/theme/theme-provider.tsx) makes all roles available through `useAppTheme()`. Current bottom-tab row minimum **48dp**, tab-bar baseline **50dp excluding OS safe area** (1dp border + 1dp top pad + 48dp row), floating FAB diameter **50dp**, Google icons including `add` **24dp**, nav label **11sp**, icon-label gap **1dp** (latest owner clarification, down from 3dp); button keeps disabled behavior and dynamic alignment with More. These are owner-requested visual sizing refinements, not earlier unchanged dimensions. See [Core Theme README](../src/shared/theme/README.md).
+**Token hierarchy:** [`primitives.ts`](../../../src/shared/theme/primitives.ts) owns numeric visual dimensions/opacities; [`tokens.ts`](../../../src/shared/theme/tokens.ts) aliases spacing, radius, typography and light/dark semantic colors; [`component-tokens.ts`](../../../src/shared/theme/component-tokens.ts) owns shared component sizes (nav/FAB/buttons/shadows), local Google Material Icons Outlined SVG assets rendered by `react-native-svg` and **single 24dp icon size** across current bottom nav and **future** top bar, button, sheet, card, text field. [Theme provider](../../../src/shared/theme/theme-provider.tsx) makes all roles available through `useAppTheme()`. Current bottom-tab row minimum **48dp**, tab-bar baseline **50dp excluding OS safe area** (1dp border + 1dp top pad + 48dp row), floating FAB diameter **50dp**, Google icons including `add` **24dp**, nav label **11sp**, icon-label gap **1dp** (latest owner clarification, down from 3dp); button keeps disabled behavior and dynamic alignment with More. These are owner-requested visual sizing refinements, not earlier unchanged dimensions. See [Core Theme README](../../../src/shared/theme/README.md).
 
-**Presentation-only screens:** [five route files](../src/app/(tabs)/_layout.tsx) remain blank UI exports; the shell composes presentation components. [Router controller](../src/shared/navigation/use-root-tab-navigation.ts), [safe-area FAB controller](../src/shared/navigation/use-floating-add-position.ts), and [splash lifecycle controller](../src/shared/navigation/use-reveal-tabs-on-layout.ts) keep navigation/geometry/lifecycle outside route screens. Domain/SQLite remain separate. [Token regression tests](../tests/phase0/design-tokens.test.ts) scan all present/future route and reusable feature UI files for raw numeric visual sizes.
+**Presentation-only screens:** [five route files](<../../../src/app/(tabs)/_layout.tsx>) remain blank UI exports; the shell composes presentation components. [Router controller](../../../src/shared/navigation/use-root-tab-navigation.ts), [safe-area FAB controller](../../../src/shared/navigation/use-floating-add-position.ts), and [splash lifecycle controller](../../../src/shared/navigation/use-reveal-tabs-on-layout.ts) keep navigation/geometry/lifecycle outside route screens. Domain/SQLite remain separate. [Token regression tests](../../../tests/phase0/design-tokens.test.ts) scan all present/future route and reusable feature UI files for raw numeric visual sizes.
 
 **Current inspected implementation HEAD (before this docs-only reconciliation):** `c90d1c00462de5e4a5b007a87dade6641a106f40`. [App CI #44600432345](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432345) **SUCCESS** (including Android/iOS Metro), [Governance CI #44600432365](https://github.com/im-tnyx/Tio-Money/actions/runs/44600432365) **SUCCESS**. New documentation commit requires its own latest-head checks. Owner reports device UI looks correct and `ExpoSQLite` no longer errors; platform details/SQLite PRAGMA + migration/restart remain unverified. Independent new-head review DEFERRED; Copilot Node thread fixed in code but GitHub-unresolved/outdated. PR #1 OPEN, NOT MERGED; fresh specific owner merge permission required.
 
-**Separate parallel docs reconciliation:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) also changes `docs/DECISIONS.md` and `.ai/current.md`; it remains Draft and unmerged. Keep its documented governance post-merge checkpoint and current PR #1 review status when those branches are eventually integrated; no automatic merge/conflict resolution is authorized.
+**Separate parallel docs reconciliation:** [PR #7](https://github.com/im-tnyx/Tio-Money/pull/7) also changes `docs/governance/DECISIONS.md` and `.ai/current.md`; it remains Draft and unmerged. Keep its documented governance post-merge checkpoint and current PR #1 review status when those branches are eventually integrated; no automatic merge/conflict resolution is authorized.
 
 ## Manual Expo Go and real-SQLite acceptance — NOT_VERIFIED
 
@@ -79,11 +79,11 @@ These tests are a **manual QA contract**, not evidence that either device has be
 
 ## Phase 1 handoff
 
-1. Maintain the owner-approved **five empty tabs + disabled FAB** ([TM-DEC-005](DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab)); review final iconography, small screens, English contrast and screen-reader behavior.
+1. Maintain the owner-approved **five empty tabs + disabled FAB** ([TM-DEC-005](../../governance/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab)); review final iconography, small screens, English contrast and screen-reader behavior.
 2. Propose a **new scoped future task** before implementing account onboarding, Settings, a transaction editor or enabling the FAB; until then keep the Phase 0 surface blank. Future MVP copy remains English-only, with financial calculations kept in the canonical domain.
-3. Before connecting real Save, resolve [Document 06 finance blockers](06-IMPLEMENTATION-TEST-PLAN.md#9-owner-decisions-and-specification-gaps), then deliver Phase 2 balanced journal, migrations, idempotency and rollback evidence.
+3. Before connecting real Save, resolve [Document 06 finance blockers](../../engineering/IMPLEMENTATION-TEST-PLAN.md#9-owner-decisions-and-specification-gaps), then deliver Phase 2 balanced journal, migrations, idempotency and rollback evidence.
 4. Keep import and automatic SMS outside the Expo Go MVP. No bank credentials, OTPs or SMS permissions in baseline source.
 
 ---
 
-[← Docs Hub](00-INDEX.md) · [Implementation Plan →](06-IMPLEMENTATION-TEST-PLAN.md)
+[← Docs Hub](../../00-INDEX.md) · [Implementation Plan →](../../engineering/IMPLEMENTATION-TEST-PLAN.md)
