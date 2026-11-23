@@ -151,4 +151,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/shared/ui/app-text-field.tsx`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and results. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Linked Payment Modes list
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099730686) records the owner’s list and header reference against Draft #97 head `10b78812d43779df12caaa44cc5f15cfdba4608d`.
+- The existing compact button adds a draft mode from the header. Flat rows pair a themed type icon with the entered name, then show round Edit and Remove controls. Each action has a row-specific accessible name and a 48dp touch target. The outlined editor and stable-ID draft actions are preserved.
+- Changed paths besides this record and the index are `src/features/accounts/bank-payment-modes.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and results. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

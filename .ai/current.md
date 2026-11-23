@@ -12,6 +12,7 @@
 - [Borderless Add Account fields PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098953741) removes the outlines from the six main forms’ text fields. The Bank Linked Payment Modes bottom sheet keeps its outlined input. Exact HEAD and validation evidence are recorded in RFC #96.
 - [Currency row PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099073273) adds catalog symbols and a single horizontal row with Main selected on new drafts. [Account Settings card PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099098074) groups Account Groups and Manage Accounts on a shared surface. Exact HEAD and checks are recorded in RFC #96.
 - [Leading field icon PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099510319) aligns the main Add Account inputs with decorative icons, a name placeholder and the selected draft currency symbol. Exact HEAD and checks are recorded in RFC #96.
+- [Linked Payment Modes list PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099730686) places compact Add in the heading and shows named draft rows with payment type, Edit and Remove icons. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
