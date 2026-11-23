@@ -30,6 +30,7 @@ test('system mode tracks OS changes, manual modes ignore OS', () => {
 test('UI copy is centralized and English, with accessible radio choices', () => {
   assert.equal(en.settings, 'Settings');
   assert.equal(en.appearance, 'Appearance');
+  assert.equal(en.theme, 'Theme');
   const screen = readFileSync('src/features/settings/more-screen.tsx', 'utf8');
   const sheet = readFileSync('src/features/settings/appearance-sheet.tsx', 'utf8');
   assert.match(screen, /accessibilityRole="button"/);
@@ -62,7 +63,9 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
   const contract = readFileSync('src/features/settings/more-contract.ts', 'utf8');
   const route = readFileSync('src/features/settings/more-route.tsx', 'utf8');
 
-  assert.match(screen, /<AppText variant="section">\{t\('settings'\)\}<\/AppText>/);
+  assert.match(screen, /<AppTopBar title=\{t\('settings'\)\} \/>/);
+  assert.match(screen, /<AppText variant="section">\{t\('appearance'\)\}<\/AppText>/);
+  assert.match(screen, /<AppText>\{t\('theme'\)\}<\/AppText>/);
   assert.match(screen, /width: '100%'/);
   assert.match(screen, /borderRadius: theme\.navigation\.origin/);
   assert.match(screen, /paddingHorizontal: theme\.space\.lg/);
@@ -74,8 +77,8 @@ test('More uses a full-width Appearance row and ViewModel-owned accessible botto
 
   assert.match(sheet, /<AppBottomSheet/);
   assert.match(sheet, /visible=\{state\.appearanceSheetVisible\}/);
-  assert.match(sheet, /title=\{t\('appearance'\)\}/);
-  assert.match(sheet, /dismissAccessibilityLabel=\{t\('closeAppearance'\)\}/);
+  assert.match(sheet, /title=\{t\('theme'\)\}/);
+  assert.match(sheet, /dismissAccessibilityLabel=\{t\('closeTheme'\)\}/);
   assert.match(sheet, /onDismiss=\{dismiss\}/);
   assert.doesNotMatch(sheet, /<Modal|<SafeAreaView|StyleSheet\.absoluteFill/);
   assert.doesNotMatch(sheet, /borderTopLeftRadius|borderTopRightRadius/);

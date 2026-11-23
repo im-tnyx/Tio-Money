@@ -167,8 +167,8 @@ It hides the built-in navigator bar and retains the independently rendered, exis
 The same five route filenames/labels and current 300/200 icon SVG weights, 0dp
 icon-label gap, 50dp baseline, colors and safe areas remain authoritative.
 
-`src/shared/navigation/use-reduced-tab-motion.ts` reads platform Reduced Motion
-using `AccessibilityInfo` and subscribes to changes. Unknown/unavailable preference
+`src/shared/navigation/reduced-motion-provider.tsx` owns the platform Reduced Motion
+query and subscription once at the app root (tab hook remains a compatibility alias). Unknown/unavailable preference
 defaults to **no animation**; when Reduced Motion is enabled use `animation: 'none'`.
 A timing fade is applied only when the OS permits it. Route navigation stays in the
 existing controller and feature screens remain dumb. The tab host uses history-style
@@ -184,6 +184,78 @@ Android/iOS Metro checks are not substitutes for device evidence.
 The JavaScript tab navigator also sets its `sceneStyle.backgroundColor` from
 `theme.colors.canvas` to prevent the transition host from showing an unrelated
 light/dark background when the user overrides the device appearance.
+
+## Reusable navigation motion — PR #80 / RFC #79 (2026-11-23)
+
+**Requirement:** The More tab scene crossfade and all Settings detail-page transitions
+share a theme-owned motion policy, rather than accidental per-screen/native defaults.
+The root Stack preregisters `account-groups`, `currency/main`, `currency/sub`, and
+`currency/sub-detail` with identical `motion.detail` options **before first push**.
+This resolves a PR #80 audit showing Currency routes inherited native defaults while
+Account Groups already used the shared policy.
+Owner feedback for PR #80: iOS fade felt right, but the Android native fade did not.
+A subsequent Android test also found Back had no visible motion and preferred a slide.
+The detail motion therefore uses Android's native `slide_from_right` transition,
+for horizontal forward push and reverse Back pop, while preserving iOS's 160ms
+`fade` and all five tab fades unchanged.
+The screen content remains dumb: only the router layout/controller selects motion.
+
+- `primitives.ts` keeps exactly one approved duration:
+  `motion.tabCrossfadeDurationMs = 160`. `component-tokens.ts` exposes semantic
+  `navigationTokens.tabCrossfadeDurationMs` and `detailFadeDurationMs` as aliases.
+  **Never add a literal `160` to a new route or introduce per-screen durations.**
+- `src/shared/navigation/navigation-motion.ts` is the pure reusable policy:
+  `getNavigationMotion(reduceMotion, theme.navigation, platform)` returns `tab` and
+  `detail` navigator options; `use-navigation-motion.ts` supplies `Platform.OS`
+  from React Native alongside theme and OS Reduced Motion preference.
+  Every eligible Settings detail route registers `motion.detail` on its own
+  **root Stack** `Stack.Screen` before first push; its controller separately
+  preserves any existing `gestureEnabled` rules. Tab layouts use `...motion.tab`.
+  Main/Sub Currency and Sub Currency Detail must never silently inherit a
+  platform-default animation or introduce screen-owned animation literals.
+- `ReducedMotionProvider` lives at the app root, above both Tabs and detail Stack
+  routes; it owns the **single** `AccessibilityInfo` listener/query and starts with
+  animation **disabled** until the OS preference is known. The compatibility alias
+  `useReducedTabMotion` must not create a second listener. Always honor live
+  `reduceMotionChanged` notifications, including cleanup at unmount.
+- **Navigator API distinction:** Expo Router JS Tabs support `animation: 'fade'`
+  plus `transitionSpec` with an exact 160ms timing config. Expo Router native Stack
+  uses **iOS `animation: 'fade'` and `animationDuration=160ms`** (theme token);
+  **Android `animation: 'slide_from_right'`** with platform-native timing and
+  no `animationDuration` override. That duration API applies **on iOS only**;
+  do **not** claim an exact Android 160ms transition, measured frame smoothness or
+  visual parity or guaranteed frame rate. Do not pass JS Tabs `transitionSpec` to
+  native Stack or fake its transition with `Animated.View`. A Stack `router.back()`
+  normally pops with the reverse native slide; `router.replace()` is not a
+  substitute. Android accessibility Reduced Motion, Developer Options animator
+  duration scale and OS behavior can remove visible motion.
+- The `AppBottomSheet` native modal keeps its existing `animationType="slide"`;
+  swipe-to-reveal Delete stays finger-driven. These interactions are **not**
+  replacements for navigation fade and should not be globally overwritten.
+- Never animate the bottom bar, FAB, safe area, financial data or splash while
+  implementing page transitions. Preserve the route controller's Back/swipe
+  gesture arbitration, the `theme.colors.canvas` scene background, and OS
+  appearance overrides. Unlisted future detail screens keep their existing transitions
+  until explicitly included in an approved UI RFC.
+
+**Required tests/checks:** `tests/phase0/tab-crossfade.test.ts` must test both
+fade and Reduced Motion (initial unknown, on/off) on **iOS and Android**,
+compare both semantic duration aliases and prove that Account Groups, Main Currency,
+Sub Currency and Sub Currency Detail use the **same root** Stack policy without
+per-route overrides; verify native push/pop and Sub Currency swipe arbitration.
+The policy must be platform-injected and pure.
+Run exact-HEAD typecheck, ESLint, Prettier, Phase 0/preview tests and Android/iOS
+Metro. **Native acceptance still required:** tab switches, More→Account Groups
+open and reverse Back transitions for **all four detail routes**, iOS interactive
+Back, Android hardware/gesture Back,
+Android animator-duration scale and Reduced Motion ON/OFF, swipe Delete, bottom
+sheet Save/keyboard, light/dark and Reduced Motion toggle during a session.
+No source-only test or Metro bundling proves visual timing on real devices.
+
+Source: [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141)
+and [owner-directed Currency parity extension](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091695525)
+and Expo Router SDK 58 native Stack documentation:
+https://docs.expo.dev/versions/v58.0.0/sdk/router/.
 
 ## Segmented control visual reference — 2026-11-21 (PR #53)
 
@@ -597,3 +669,122 @@ dismissal is preserved, and the native gesture is not disabled for any
 other screen. Changes are scoped to gesture arbitration, not the stored
 currency or actual Delete handler. Real-device iPhone test remains required,
 especially for fast gestures beginning at the extreme left edge.
+
+
+## Shared Settings top bar and Account Groups catalogue — RFC #79 (2026-11-22)
+
+The **Settings** root content replaces the visible More heading with a centered
+50dp `AppTopBar` (the bottom destination remains `More`), with the OS top
+safe-area painted using `theme.colors.card`. The same reusable
+`src/shared/ui/app-top-bar.tsx` is consumed by the nested **Account Groups**
+catalogue, including its accessible Back icon. The header aliases existing
+`navigationTokens.topBarHeight`, `iconRoleSizes.topBar`, theme border,
+card and text roles, and symmetric side slots; no custom per-screen dimensions.
+Existing Main/Sub Currency headers already share the 50dp/card/safe-area
+visual contract, but their distinct action-heavy implementations are left
+unchanged in this limited slice; future header changes should migrate to the
+shared component after their current screen-specific regression tests.
+
+**Settings hierarchy:** Account Settings → Account Groups; Appearance →
+Theme; Currency → Main/Sub Currency. The Theme label and bottom-sheet title
+change only visible copy: System/Light/Dark state, local preference keys,
+storage and the shared modal shell are unchanged. The catalogue displays
+seven **informational** built-in labels including **Insurance**, without
+financial-class treatment, active account-creation controls, database writes,
+or invisible placeholders. Insurance data/claims/premiums require a separate
+approved product/ledger design before implementation.
+
+New feature routes compose presentation and controller callbacks, never
+router/database calls from screens. Owner-side Android/iPhone safe-area,
+dark/light, back navigation, text scaling and Codespaces preview are separate
+device acceptance evidence. No preview workflow/permissions were changed.
+
+## Account Groups compact header refinement — RFC #79 / Draft PR #80
+
+Account Groups uses the shared `AppTopBar` with two accessible actions on its
+right: **Eye** (show/hide built-in descriptions) followed by **Add**. Both use
+shared 24dp top-bar icon roles and 48dp touch targets, with symmetric left/right
+header slots preserving the centered 50dp title. Default rows show names only;
+Eye toggles optional caption descriptions. The introductory "Built-in templates"
+paragraph is removed entirely. A maximum of five locally persisted *display-only*
+custom names is implemented in a controller, not in presentational screens or
+finance schema; this is not approval of new ledger account classes. User-picked
+Google `home_storage` weight-200 artwork appears ONLY on the main Settings
+Account Groups entry, not beside list rows. See Google icon asset provenance.
+
+## Shared Account Group bottom-sheet field and actions — RFC #79
+
+The **Add Account Group** flow composes the existing `AppBottomSheet` shell,
+existing reusable `ActionButton` for Cancel/Save, and shared
+`src/shared/ui/app-text-field.tsx` for its input. The `AppTextField` owns
+standard padding, minimum 48dp touch size, typography, border, colors,
+placeholder role and invalid border through the existing theme; screens provide
+only values and intents. Caller domain validation owns the max 40-character
+limit and duplicate handling. No `TextInput`-specific visual constants or
+local modal/button code are allowed in this screen.
+
+## Shared ActionButton visual height — 2026-11-22 (owner RFC #79 refinement)
+
+Every app action rendered by the canonical `src/shared/ui/action-button.tsx`
+uses a **42dp painted surface** (`buttonTokens.actionHeight = size.dp42`).
+The interactive `Pressable` keeps **at least 48dp accessible touch height**
+(`buttonTokens.minimumHeight = size.dp48`), center-aligning the 42dp surface
+inside it. The visual surface may expand for text scaling; normal buttons
+are 42dp tall. Both are single-owner theme primitives, not local numbers.
+Existing primary/secondary/ghost, compact, disabled, loading and callbacks
+are unchanged. This is NOT a global shrink of top-bar icon touch targets,
+text fields, bottom sheet headers, navigation or the disabled FAB.
+Real-device touch and text scaling checks remain pending on PR #80.
+
+## Android white-flash and combined-motion decision — PR #80 (2026-11-23)
+
+The owner saw a white strip on the **right side during Android Back**. The root native
+`Stack` now sets `screenOptions.contentStyle.backgroundColor` to the existing
+`theme.colors.canvas` from `useAppTheme()`, the same semantic surface used by the
+five-tab scene host. This avoids relying on a navigator default white content surface
+when a detail page slides away in Dark or in-app appearance override mode.
+It is a source-level mitigation; a native window/Fragment background or system bar may
+still require separate device-level debugging if the white flash persists.
+
+The owner also prefers a **subtle fade together with the horizontal slide**. Expo Router
+SDK 58's native Stack has **one animation preset** per route: `slide_from_right`
+and `fade` cannot be composed through multiple `animation` options. Do **not**
+misrepresent the current Android detail transition as slide+fade. Keep the existing
+native horizontal slide with reverse Back and OS-native timing for this bounded fix;
+iOS 160ms fade and the five-tab 160ms JS crossfade are unchanged. Adding a custom
+JS opacity overlay or migrating to `expo-router/js-stack` solely for this request
+is not automatically an improvement: it adds gesture/state coordination and
+performance risk and needs a separate design/device-profiling decision. Do not
+invent Android `animationDuration` or alter Reduced Motion behavior.
+
+**Device gate:** On Android, test More → Account Groups → Back, Settings → Main
+Currency / Sub Currency → Detail → Back, both toolbar and hardware/gesture Back,
+fast repeated taps, Dark/Light/System and in-app appearance override, OS Reduced
+Motion and Developer Options animator scale. Confirm the right edge never reveals
+white. Compare animation smoothness on a physical device and iOS regression separately.
+Source tests/CI/Metro cannot certify perceived smoothness or absence of native flashes.
+Rollback: revert the root `contentStyle` change if it introduces a regression;
+keep product data, bottom sheet, tokens and all native gesture ownership intact.
+
+## Superseding Android detail transition — owner fade-only decision (2026-11-23)
+
+**The latest owner direction supersedes earlier Android slide/slide+fade proposals.**
+PR #80 detail navigation for Account Groups, Main Currency, Sub Currency and
+Sub Currency Detail must use **native Stack `animation: 'fade'`** on Android and iOS.
+Android uses OS-controlled native fade timing (no `animationDuration` override);
+iOS retains theme-owned 160ms native fade. Five-tab scene crossfade stays 160ms,
+and the shared native Bottom Sheet keeps its vertical slide. The native route
+push/pop, card swipe and gesture arbitration must not change. Do not reintroduce
+`slide_from_right` or `fade_from_bottom` for those four detail routes without a
+new owner decision. Reduced Motion true/unknown still selects `animation: 'none'`.
+
+The earlier theme-matched native Stack `contentStyle.backgroundColor` fix is
+preserved. Fade-only avoids deliberate horizontal edge exposure, but does **not**
+prove Android's right-side white flash is eliminated or native transitions feel
+smooth. On a physical Android device test toolbar, hardware and gesture Back
+under Light/Dark/System with app appearance override; test all four routes, fast
+taps, OS animator scale and Reduced Motion. Confirm iOS fade, Tab transitions,
+Bottom Sheet animation and swipe-to-Delete remain correct. If flash persists,
+investigate native window/fragment background and system bars, not a screen-level
+JS animation workaround. This section is authoritative over earlier Android
+slide statements retained above as a decision history.
