@@ -92,11 +92,12 @@ async function main() {
   const outcomes = [];
   for (const p of platform === 'all' ? ['android', 'ios'] : [platform]) {
     try {
-      const port = requirePreviewListener();
+      const listener = await requirePreviewListener();
+      const { port } = listener;
       const manifest = await readBounded(`http://127.0.0.1:${port}/`, 65536, { 'expo-platform': p }, port);
-      if (requirePreviewListener() !== port) throw Error('Metro port changed.');
+      await requirePreviewListener(listener);
       const count = verifySourceMap(await readBounded(metroMapUrl(manifest, p, port), LIMIT, {}, port), tracked, affected);
-      if (requirePreviewListener() !== port) throw Error('Metro port changed.');
+      await requirePreviewListener(listener);
       outcomes.push({ platform: p, status: count ? 'PASS' : 'UNVERIFIED', count });
     } catch {
       outcomes.push({ platform: p, status: 'FAILED', count: 0 });

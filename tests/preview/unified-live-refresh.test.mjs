@@ -17,11 +17,11 @@ const starter = read('scripts/start-codespace-expo.mjs');
 const source = read('.github/scripts/verify-codespace-served-source.mjs');
 const preflight = read('.github/scripts/preflight-pr-codespaces-preview.mjs');
 
-test('one manual entry routes three operations with isolated environments and secrets', () => {
-  assert.match(manual, /^name: TIO MONEY EXPO PR REVIEW$/m);
+test('one manual entry routes four operations with isolated environments and secrets', () => {
+  assert.match(manual, /^name: TIO MONEY EXPO PR PREVIEW$/m);
   assert.equal((manual.match(/^  workflow_dispatch:$/gm) || []).length, 1);
   assert.doesNotMatch(manual, /^  (?:workflow_call|push|pull_request_target):$/m);
-  assert.match(manual, /default: codespaces_live\s+type: choice\s+options:\s+- codespaces_live\s+- publish_update\s+- build_preview/);
+  assert.match(manual, /default: codespaces_live\s+type: choice\s+options:\s+- codespaces_live\s+- publish_update\s+- publish_draft_update\s+- build_preview/);
   assert.match(worker, /github.event_name == 'workflow_dispatch'\s*&&\s*inputs.operation == 'codespaces_live'/);
   assert.doesNotMatch(manual, /secrets: inherit/);
   assert.doesNotMatch(worker, /secrets\.EXPO_TOKEN/);
@@ -38,7 +38,7 @@ test('one manual entry routes three operations with isolated environments and se
   const publishing = manual.slice(manual.indexOf('  preview:'));
   for (const job of [selection, validation, publishing]) {
     assert.match(job, /if: .*github.event_name == 'workflow_dispatch'/);
-    assert.match(job, /inputs.operation == 'publish_update' \|\| inputs.operation == 'build_preview'/);
+    assert.match(job, /inputs.operation == 'publish_update' \|\| inputs.operation == 'publish_draft_update' \|\| inputs.operation == 'build_preview'/);
     assert.doesNotMatch(job, /secrets\.CODESPACES_TOKEN/);
   }
   assert.ok(selection.includes('base_sha: ${{ steps.pr.outputs.base_sha }}'));
@@ -51,7 +51,7 @@ test('one manual entry routes three operations with isolated environments and se
   assert.match(validation, /PR advanced since trusted selection/);
   assert.doesNotMatch(validation, /^    environment:|secrets\.EXPO_TOKEN|secrets\.CODESPACES_TOKEN/m);
   assert.match(validation, /npm run check/);
-  assert.doesNotMatch(validation, /^    outputs:/m);
+  assert.match(validation, /outputs:\n      draft_artifact_id: \$\{\{ steps\.draft_bundle\.outputs\.artifact-id \}\}\n    if:/);
   assert.match(publishing, /needs: \[select, validate\]/);
   assert.match(publishing, /VALIDATED_SHA: \$\{\{ needs\.select\.outputs\.head_sha \}\}/);
   assert.ok(publishing.includes('SELECTED_BASE: ${{ needs.select.outputs.base_sha }}'));
@@ -144,7 +144,7 @@ test('controlled runtime recovery stops only owned Metro before detaching or ins
   const end = starter.indexOf('async function main()', start);
   const syncSelected = starter.slice(start, end);
   const incompatible = syncSelected.indexOf('!compatibleRuntime(current, fingerprint, dependenciesReady)');
-  const stop = syncSelected.indexOf('await stopManaged();', incompatible);
+  const stop = syncSelected.indexOf('await stopManaged(current, manual);', incompatible);
   const checkout = syncSelected.indexOf("'switch', '--detach', target");
   const install = syncSelected.indexOf("spawnSync('npm', ['ci'");
   const reuse = syncSelected.indexOf('compatible Metro PID and tunnel reused');
@@ -152,8 +152,7 @@ test('controlled runtime recovery stops only owned Metro before detaching or ins
   assert.ok(incompatible >= 0 && incompatible < stop && stop < checkout && checkout < install);
   assert.ok(install < reuse && reuse < startManaged);
   assert.match(syncSelected, /current && \(manual \|\| !compatibleRuntime/);
-  assert.match(starter, /await withLock\(async \(\) => \{\n      const current = checkedManagedRecord\(\);\n      if \(current\) verifyListener\(current\);/);
-  assert.match(starter, /verifyListener\(record\);\n  if \(!recordMatches/);
+  assert.match(starter, /await withLock\(async \(\) => \{\n      const current = await checkedManagedRecord\(mode === '--manual'\);/);
   assert.match(syncSelected, /currentRecord.pid !== managed.pid/);
   assert.match(syncSelected, /await ownedTunnel\(currentRecord\) !== previousTunnel/);
   assert.match(starter, /requireSyncSnapshot\(before,/);
