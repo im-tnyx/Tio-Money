@@ -72,6 +72,8 @@ export const en = {
   accountInvestmentValuationHint: 'A dated estimate separate from booked cost.',
   accountReferenceDatePlaceholder: 'YYYY-MM-DD',
   accountCurrencyChangeHint: 'Changing currency clears entered amounts.',
+  accountChooseCurrency: 'Choose currency',
+  accountAddCurrency: 'Add Currency',
   accountName: 'Account Name',
   accountOpeningAmount: 'Opening Amount',
   accountDescription: 'Description',

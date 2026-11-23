@@ -219,4 +219,12 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/add-account-screen.tsx`, `src/shared/ui/app-text-field.tsx`, `src/shared/theme/tokens.ts`, `src/shared/theme/README.md`, `tests/accounts/accounts-preview.test.ts`, `tests/phase0/account-group-display-preferences.test.ts` and `tests/phase0/design-tokens.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Amount symbol Currency picker
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100887525) records the owner’s request against Draft #97 head `afb92d9d11576594380293531abd3a472aa769d1`.
+- When configured Sub Currencies exist, amount symbols open one shared sheet with Main, configured Subs, checked selection and an amount-reset hint. Both Card amounts use the same draft code. With Main alone the symbol is informational, and the linked Wallet remains ineligible.
+- Add Currency closes the picker before pushing Sub Currency settings with the existing Add sheet initially open. The Accounts draft stays on the stack. The existing settings cap and persistence rules apply.
+- Changed paths besides this record and the index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/account-currency-picker.tsx`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/features/settings/sub-currency-route.tsx`, `src/features/settings/use-sub-currency-view-model.ts`, `src/shared/i18n/strings.ts`, the shared theme README and chip tokens, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/design-tokens.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual, touch and navigation QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

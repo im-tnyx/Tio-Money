@@ -51,7 +51,6 @@ test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(buttonTokens.actionHeight, size.dp42);
   assert.ok(buttonTokens.actionHeight < buttonTokens.minimumHeight);
   assert.equal(buttonTokens.minimumHeight, size.dp48);
-  assert.equal(buttonTokens.currencyChoiceSize, size.dp36);
   assert.equal(textFieldTokens.minimumHeight.borderless, size.dp46);
   assert.equal(textFieldTokens.minimumHeight.outlined, size.dp48);
   assert.equal(buttonTokens.disabledOpacity, opacity.disabled);

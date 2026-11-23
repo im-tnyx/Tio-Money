@@ -1,8 +1,5 @@
 import { size } from './primitives';
 
-const lightBrand = '#6049CF';
-const darkBrand = '#A99BFF';
-
 /** Owner-approved existing UI scale: names are stable reusable roles. */
 export type ColorScheme = 'light' | 'dark';
 
@@ -55,8 +52,7 @@ const light = {
   segmentedSelected: '#FFFFFF',
   segmentedText: '#172033',
   segmentedSelectedText: '#172033',
-  brand: lightBrand,
-  brandTint: lightBrand + '29',
+  brand: '#6049CF',
   brandText: '#FFFFFF',
   shadow: '#000000',
   income: '#147D66',
@@ -79,8 +75,7 @@ const dark = {
   segmentedSelected: '#62666F',
   segmentedText: '#F6F8FC',
   segmentedSelectedText: '#FFFFFF',
-  brand: darkBrand,
-  brandTint: darkBrand + '29',
+  brand: '#A99BFF',
   brandText: '#0C1018',
   shadow: '#000000',
   income: '#5DE0B0',
