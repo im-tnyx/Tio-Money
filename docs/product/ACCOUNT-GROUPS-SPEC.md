@@ -75,7 +75,7 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 
 ### 3.2 Bank Account — asset
 
-**Fields:** Cash fields plus `bank_name` (recommended), optional account nickname, optional masked last four digits, optional payment capabilities: **UPI, debit card, cheque, internet banking**, plus extensible authorized payment-mode labels. A capability flag is not a transaction, credential, separate wallet balance or permission for direct banking.
+**Fields:** Cash fields, with **Account Name** as the single display name. Optional metadata includes masked last four digits and payment capabilities for **UPI, debit card, cheque and internet banking**, plus extensible authorized payment-mode labels. A capability flag is not a transaction, credential, separate wallet balance or permission for direct banking.
 
 **Examples:** SBI account can be used for UPI, Debit Card and Internet Banking; all three spend from the **same bank asset account**. A prepaid, independently funded wallet is a separate asset account. Bank-linked UPI app is **not** an additional balance. Avoid complete account numbers and never store net-banking passwords, card PIN/CVV, OTP or UPI PIN.
 

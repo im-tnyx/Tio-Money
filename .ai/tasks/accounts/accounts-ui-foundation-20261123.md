@@ -180,4 +180,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/bank-payment-modes.tsx`, `src/shared/theme/component-tokens.ts`, `src/shared/theme/README.md`, `src/shared/ui/action-button.tsx`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/shared-action-button-size.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Single Bank account name
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100148939) records the owner’s clarification against Draft #97 head `960a8df709b68ec17eabcc912c5c0e531a21bdeb` and supersedes the earlier two-name Bank form direction.
+- Bank shares the Account Name and opening input with Cash. The typed transient draft carries one name, which is retained while users edit linked payment modes. Currency and Description remain available under the existing form rules.
+- Changed paths besides this record and the index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/add-account-screen.tsx`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

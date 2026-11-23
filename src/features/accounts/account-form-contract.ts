@@ -48,10 +48,6 @@ interface OpeningAmountFields extends CommonFields {
   readonly openingAmount: string;
 }
 
-interface BankFields extends OpeningAmountFields {
-  readonly bankName: string;
-}
-
 interface CardFields extends CommonFields {
   readonly outstanding: string;
   readonly creditLimit: string;
@@ -84,7 +80,7 @@ interface Draft<Group extends PreviewGroup, Fields extends CommonFields> {
 
 export type AccountDraft =
   | Draft<'cash', OpeningAmountFields>
-  | (Draft<'bank', BankFields> & {
+  | (Draft<'bank', OpeningAmountFields> & {
       readonly modes: readonly PaymentModeDraft[];
       readonly nextModeId: number;
       readonly modeEditor: ModeEditor | null;
@@ -130,7 +126,7 @@ export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): Ac
       return {
         group,
         currency,
-        fields: { ...common, openingAmount: '', bankName: '' },
+        fields: { ...common, openingAmount: '' },
         modes: [],
         modeEditor: null,
         nextModeId: 1,
