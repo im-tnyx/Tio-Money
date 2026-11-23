@@ -1,5 +1,12 @@
 # 🧭 Current task index
 
+## 2026-11-23 — Documentation information architecture / Premium README (Issue #89)
+
+- **Owner direction:** Start a tracked .ai task and reorganize the flat docs folder into coherent product, design, architecture, engineering, security, governance and history categories; keep historical audit/CI evidence outside README. **RFC:** [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89); [agent-recorded technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/89#issuecomment-7091498129).
+- **Task:** [TM-DOC-IA-20261123-001](tasks/governance/documentation-information-architecture-20261123.md); scoped branch `docs/information-architecture-20261123` at main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`. Docs-only, canonical decisions and history preserved, verify all moved-file links and actual CI. **PR #88/#80 touch shared documentation/index; avoid overwriting concurrent changes.**
+- **Permissions:** Owner instructed work to start; no PR-specific merge authorization, no main modification, force push, security waiver or policy change. Independent review DEFERRED at task opening; current CI NOT_RUN.
+
+
 ## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction
 
 - **Observed red test:** Gate 5 initial HEAD `c0a0ae29` first HTTP-boundary job [137250698578](https://github.com/im-tnyx/Tio-Money/actions/runs/45036298022/job/137250698578) failed 2/11 synthetic checks (partial report order fixture and literal backslash-newline fixture source). This is diagnostic test code, **not** a new npm invalid attestation.
