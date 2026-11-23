@@ -35,6 +35,7 @@ export const size = {
   dp30: 30,
   dp32: 32,
   dp34: 34,
+  dp36: 36,
   dp40: 40,
   dp42: 42,
   dp46: 46,

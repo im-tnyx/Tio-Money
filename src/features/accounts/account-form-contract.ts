@@ -293,19 +293,11 @@ export function updateAccountDraft(
 export interface AddAccountViewModel {
   readonly draft: AccountDraft;
   readonly currencySymbol: string;
-  readonly currencyPicker: AccountCurrencyPickerViewModel | null;
+  readonly currencyChoices:
+    | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol: string }[]
+    | null;
   readonly showWalletFunding: boolean;
   readonly canApplyMode: boolean;
   readonly animateSheet: boolean;
   readonly onAction: (action: AccountFormAction) => void;
-}
-
-export interface AccountCurrencyPickerViewModel {
-  readonly options: readonly { readonly value: CurrencyCode; readonly label: string }[];
-  readonly visible: boolean;
-  readonly onOpen: () => void;
-  readonly onClose: () => void;
-  readonly onSelect: (currency: CurrencyCode) => void;
-  readonly onAddCurrency: (() => void) | null;
-  readonly onDismissed: () => void;
 }

@@ -178,71 +178,68 @@ test('every eligible form defaults to Main and only shows currency choices with 
   }
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
-  assert.match(route, /currencyPicker: currencyChoices\s*\?/);
-  assert.match(route, /if \(pickerVisible && !currencyChoices\) setPickerVisible\(false\)/);
-  assert.match(screen, /const currencyAction = currencyPicker\s*\?/);
+  assert.match(route, /currencyChoices:\s*accountCurrencyChoices\(draft, currencies\)\?\.map/);
+  assert.match(
+    screen,
+    /const showCurrency = 'currencyControl' in spec && currencyChoices !== null/,
+  );
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
-test('both card amounts open one picker for the same selected draft currency', () => {
-  const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+test('one amount row per form carries the inline currency selector and all amounts share its code', () => {
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
-  const picker = readFileSync('src/features/accounts/account-currency-picker.tsx', 'utf8');
+  const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
+  const specs = screen.slice(
+    screen.indexOf('const fieldSpecs'),
+    screen.indexOf('const inputIcons'),
+  );
   const card = screen.slice(
     screen.indexOf("case 'credit-card':"),
     screen.indexOf("case 'wallet':"),
   );
 
+  const controllingFields = [...specs.matchAll(/(\w+): \{[^}]*?currencyControl: true/g)].map(
+    ([, field]) => field,
+  );
+  assert.deepEqual(controllingFields, [
+    'openingAmount',
+    'creditLimit',
+    'outstandingPrincipal',
+    'investedCost',
+  ]);
   assert.match(card, /field="outstanding"[^>]*?\{\.\.\.inputProps\}/);
   assert.match(card, /field="creditLimit"[^>]*?\{\.\.\.inputProps\}/);
-  assert.match(screen, /leadingAction=\{money \? currencyAction : undefined\}/);
-  assert.match(screen, /onPress: currencyPicker.onOpen/);
+  assert.match(screen, /currency: draft.currency/);
+  assert.match(screen, /trailing=\{\s*showCurrency \? \(\s*<AmountCurrencyChoices/);
+  assert.match(screen, /hint=\{showCurrency \? t\('accountCurrencyChangeHint'\)/);
   assert.match(
     screen,
-    /<AccountCurrencyPicker\s+picker=\{form.currencyPicker\}\s+value=\{form.draft.currency\}/,
+    /value=\{currency\}\s+onChange=\{\(value\) => onAction\(\{ type: 'currency', value \}\)\}/,
   );
-  assert.equal(screen.match(/<AccountCurrencyPicker/g)?.length, 1);
-  assert.doesNotMatch(screen, /singleRow|currencyField/);
-  assert.match(controls, /onPress=\{leadingAction.onPress\}/);
-  assert.match(controls, /accessibilityState=\{\{ expanded: leadingAction.expanded \}\}/);
   assert.match(
     route,
     /CURRENCY_OPTIONS\.find\(\(\{ code \}\) => code === draft.currency\)\?\.symbol/,
   );
-  assert.match(route, /onAction\(\{ type: 'currency', value \}\)/);
-  assert.match(picker, /label="currencyMain"\s+options=\{picker.options.slice\(0, 1\)\}/);
-  assert.match(picker, /label="currencySubCount"\s+options=\{picker.options.slice\(1\)\}/);
-  assert.equal(picker.match(/onChange=\{picker.onSelect\}/g)?.length, 2);
-  assert.match(picker, /accountCurrencyChangeHint/);
+  assert.doesNotMatch(screen + route, /AccountCurrencyPicker|pickerVisible|addCurrencyPending/);
 });
 
-test('Add Currency waits for the picker to close and opens the existing Sub Currency add flow', () => {
-  const accountRoute = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
-  const picker = readFileSync('src/features/accounts/account-currency-picker.tsx', 'utf8');
-  const settingsRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
-  const settingsViewModel = readFileSync(
-    'src/features/settings/use-sub-currency-view-model.ts',
-    'utf8',
+test('inline currency boxes follow the input, scroll horizontally and keep checked state in place', () => {
+  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  const choices = controls.slice(
+    controls.indexOf('export function AmountCurrencyChoices'),
+    controls.indexOf('export function AccountChoices'),
   );
 
-  assert.match(picker, /label=\{t\('accountAddCurrency'\)\}/);
-  assert.match(picker, /disabled=\{!picker.onAddCurrency\}/);
-  assert.match(picker, /onDismissed=\{picker.onDismissed\}/);
-  assert.match(accountRoute, /preferences.subCodes.length < MAX_SUB_CURRENCIES/);
-  assert.match(accountRoute, /addCurrencyPending.current = true;\s+setPickerVisible\(false\)/);
+  assert.match(controls, /<View style=\{\{ flex: 1 \}\}>\{input\}<\/View>\s+\{trailing\}/);
+  assert.match(choices, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
+  assert.match(choices, /maxWidth: '50%'/);
+  assert.match(choices, /options\.map\(\(option\) =>/);
+  assert.match(choices, /accessibilityState=\{\{ checked: selected \}\}/);
+  assert.match(choices, /const selected = option.value === value/);
+  assert.match(choices, /onPress=\{\(\) => onChange\(option.value\)\}/);
   assert.match(
-    accountRoute,
-    /if \(pickerVisible \|\| Platform.OS === 'ios' \|\| !addCurrencyPending.current\) return/,
-  );
-  assert.match(
-    accountRoute,
-    /router.push\(\{ pathname: '\/currency\/sub', params: \{ add: '1' \} \}\)/,
-  );
-  assert.match(settingsRoute, /useSubCurrencyViewModel\(null, add === '1'\)/);
-  assert.match(
-    settingsViewModel,
-    /openAddOnMount &&\s+isCurrencyCode\(preferences.mainCode\) &&\s+preferences.subCodes.length < MAX_SUB_CURRENCIES/,
+    choices,
+    /width: theme.buttons.currencyChoiceSize,\s+height: theme.buttons.currencyChoiceSize/,
   );
 });
 

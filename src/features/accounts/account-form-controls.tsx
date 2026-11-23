@@ -1,28 +1,27 @@
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
+import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 import { AppTextField, type AppTextFieldProps } from '@/shared/ui/app-text-field';
 
-export interface AccountFieldLeadingAction {
-  readonly label: string;
-  readonly expanded: boolean;
-  readonly onPress: () => void;
-}
+import type { AddAccountViewModel } from './account-form-contract';
 
 export function AccountField({
   label,
   leading,
-  leadingAction,
+  trailing,
+  hint,
   labelAsPlaceholder = false,
   ...props
 }: AppTextFieldProps & {
   readonly label: TranslationKey;
   readonly leading?: ReactNode;
-  readonly leadingAction?: AccountFieldLeadingAction;
+  readonly trailing?: ReactNode;
+  readonly hint?: string;
   readonly labelAsPlaceholder?: boolean;
 }) {
   const theme = useAppTheme();
@@ -43,38 +42,33 @@ export function AccountField({
             {t(label)}
           </AppText>
         )}
-        <View style={{ flexDirection: 'row', gap: iconGap }}>
-          <View style={{ width: iconColumnWidth, alignSelf: 'flex-start' }}>
-            {leadingAction ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={leadingAction.label}
-                accessibilityState={{ expanded: leadingAction.expanded }}
-                onPress={leadingAction.onPress}
-                style={{
-                  minHeight: theme.buttons.minimumHeight,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {leading}
-              </Pressable>
-            ) : (
-              <View
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-                style={{
-                  minHeight: theme.textField.minimumHeight,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {leading}
-              </View>
-            )}
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: iconGap,
+            alignItems: trailing ? 'center' : 'flex-start',
+          }}
+        >
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={{
+              width: iconColumnWidth,
+              minHeight: theme.textField.minimumHeight,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {leading}
           </View>
           <View style={{ flex: 1 }}>{input}</View>
+          {trailing}
         </View>
+        {hint ? (
+          <AppText variant="caption" muted style={{ marginLeft: iconColumnWidth + iconGap }}>
+            {hint}
+          </AppText>
+        ) : null}
       </View>
     );
   }
@@ -87,12 +81,82 @@ export function AccountField({
   );
 }
 
+export function AmountCurrencyChoices({
+  fieldLabel,
+  options,
+  value,
+  onChange,
+}: {
+  readonly fieldLabel: TranslationKey;
+  readonly options: NonNullable<AddAccountViewModel['currencyChoices']>;
+  readonly value: CurrencyCode;
+  readonly onChange: (currency: CurrencyCode) => void;
+}) {
+  const theme = useAppTheme();
+  const amountResetHint = t('accountCurrencyChangeHint');
+
+  return (
+    <ScrollView
+      horizontal
+      keyboardShouldPersistTaps="handled"
+      accessibilityRole="radiogroup"
+      accessibilityLabel={t('currency') + ', ' + t(fieldLabel)}
+      style={{
+        flexGrow: 0,
+        width: options.length * theme.buttons.minimumHeight,
+        maxWidth: '50%',
+      }}
+    >
+      {options.map((option) => {
+        const selected = option.value === value;
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ checked: selected }}
+            accessibilityHint={selected ? undefined : amountResetHint}
+            onPress={() => onChange(option.value)}
+            style={{
+              width: theme.buttons.minimumHeight,
+              minHeight: theme.buttons.minimumHeight,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <View
+              style={{
+                width: theme.buttons.currencyChoiceSize,
+                height: theme.buttons.currencyChoiceSize,
+                borderRadius: theme.radius.xs,
+                borderWidth: theme.buttons.outlineWidth,
+                borderColor: selected ? theme.colors.brand : theme.colors.border,
+                backgroundColor: selected ? theme.colors.brandTint : 'transparent',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <AppText
+                variant="section"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={selected ? { color: theme.colors.brand } : undefined}
+              >
+                {option.symbol}
+              </AppText>
+            </View>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
 export function AccountChoices<Value extends string>({
   label,
   options,
   value,
   onChange,
-  list = false,
 }: {
   readonly label: TranslationKey;
   readonly options: readonly {
@@ -101,7 +165,6 @@ export function AccountChoices<Value extends string>({
   }[];
   readonly value?: Value;
   readonly onChange?: (value: Value) => void;
-  readonly list?: boolean;
 }) {
   const theme = useAppTheme();
   const choices = options.map((option) => {
@@ -154,11 +217,7 @@ export function AccountChoices<Value extends string>({
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel={t(label)}
-        style={{
-          flexDirection: list ? 'column' : 'row',
-          flexWrap: list ? 'nowrap' : 'wrap',
-          gap: theme.space.sm,
-        }}
+        style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.sm }}
       >
         {choices}
       </View>
