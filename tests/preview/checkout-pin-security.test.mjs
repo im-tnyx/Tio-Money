@@ -12,7 +12,6 @@ const APPROVED_CHECKOUT_SHA = '3d3c42e5aac5ba805825da76410c181273ba90b1';
 const WORKFLOWS = [
   '.github/workflows/ai-governance-checks.yml',
   '.github/workflows/phase-0-checks.yml',
-  '.github/workflows/tio-money-codespaces-pr-preview.yml',
   '.github/workflows/tio-money-eas-pr-preview.yml',
 ];
 
@@ -20,7 +19,7 @@ for (const path of WORKFLOWS) {
   test(path + ' uses exact reviewed checkout and no persisted credentials', () => {
     const workflow = readFileSync(join(ROOT, path), 'utf8');
     const matches = [...workflow.matchAll(/^\s*(?:-\s*)?uses:\s*actions\/checkout@([^\s#]+)/gm)];
-    const expected = path.endsWith('tio-money-eas-pr-preview.yml') ? 2 : 1;
+    const expected = path.endsWith('tio-money-eas-pr-preview.yml') ? 3 : 1;
     assert.equal(matches.length, expected, 'Expected reviewed checkout steps: ' + path);
     assert.doesNotMatch(workflow, /allow-unsafe-pr-checkout\s*:/,
       'Never bypass checkout v7 fork-PR restrictions: ' + path);
@@ -37,8 +36,10 @@ for (const path of WORKFLOWS) {
 
 test('trusted preview checkout refs and separate authorization remain intact', () => {
   const read = (path) => readFileSync(join(ROOT, path), 'utf8');
-  const codespaces = read(WORKFLOWS[2]);
-  const eas = read(WORKFLOWS[3]);
+  const workflow = read(WORKFLOWS[2]);
+  const selection = workflow.indexOf('  select:');
+  const codespaces = workflow.slice(workflow.indexOf('  codespaces_live:'), selection);
+  const eas = workflow.slice(selection);
   const governance = read(WORKFLOWS[0]);
 
   assert.ok(codespaces.includes('ref: ' + '$' + '{{ github.sha }}'));
