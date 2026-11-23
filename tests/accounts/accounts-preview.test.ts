@@ -127,6 +127,31 @@ test('Bank mode drafts add, edit, cancel and remove using the newest actions and
   );
 });
 
+test('linked payment modes show a compact header action and named icon rows with stable controls', () => {
+  const source = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
+  const list = source.slice(
+    source.indexOf('export function BankPaymentModes'),
+    source.indexOf('export function BankModeEditor'),
+  );
+  const rows = list.indexOf('draft.modes.map');
+  assert.ok(rows >= 0);
+  assert.match(
+    list.slice(0, rows),
+    /accessibilityRole="header"[\s\S]*?<ActionButton\s+compact[\s\S]*?accountModeAdd[\s\S]*?type: 'mode\.open'/,
+  );
+  assert.match(
+    list.slice(rows),
+    /<ModeIcon name=\{mode.kind\}[\s\S]*?\{mode.name\}[\s\S]*?icon="edit"[\s\S]*?type: 'mode.open', id: mode.id[\s\S]*?icon="remove"[\s\S]*?type: 'mode.remove', id: mode.id/,
+  );
+  assert.match(list, /accessibilityLabel=\{mode.name \+ ', ' \+ t\(modeLabels\[mode.kind\]\)\}/);
+  assert.match(list, /accessibilityLabel=\{t\('accountModeEdit'\) \+ ': ' \+ mode.name\}/);
+  assert.match(list, /accessibilityLabel=\{t\('accountModeRemove'\) \+ ': ' \+ mode.name\}/);
+  assert.match(
+    source,
+    /width: theme.buttons.minimumHeight,\s+minHeight: theme.buttons.minimumHeight/,
+  );
+});
+
 test('currency uses configured preferences, retains reference dates and never relabels amounts', () => {
   assert.deepEqual(currencies, ['INR', 'USD', 'JPY']);
   const draft = replay('investment', [
