@@ -125,6 +125,8 @@ test('served source map is matched byte-for-byte against selected tracked Git so
   } }, 'ios'), 'http://127.0.0.1:8081/node_modules/expo-router/entry.map?platform=ios&dev=true&transform.routerRoot=src%2Fapp');
   for (const url of ['https://evil.example/private?platform=ios&dev=true',
     'file:///etc/passwd', 'https://x/index.bundle?platform=android&dev=true',
+    'https://x/index.bundle?platform=ios&platform=android&dev=true',
+    'https://x/index.bundle?platform=ios&dev=true&dev=false',
     'https://x/index.bundle?platform=ios&dev=false']) {
     assert.throws(() => metroMapUrl({ launchAsset: { url } }, 'ios'), /Unexpected/);
   }

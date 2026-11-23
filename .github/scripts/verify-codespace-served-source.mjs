@@ -43,7 +43,8 @@ export function metroMapUrl(manifest, platform) {
   const url = new URL(raw, 'http://127.0.0.1:8081/');
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
       !/^\/(?:node_modules\/expo-router\/entry|\.expo\/\.virtual-metro-entry|index)\.bundle$/.test(url.pathname) ||
-      url.searchParams.get('platform') !== platform || url.searchParams.get('dev') !== 'true') {
+      url.searchParams.getAll('platform').join(',') !== platform ||
+      url.searchParams.getAll('dev').join(',') !== 'true') {
     throw Error('Unexpected Expo Go launch bundle.');
   }
   // Query the exact bundle parameters supplied by this local Metro manifest,
