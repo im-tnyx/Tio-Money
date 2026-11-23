@@ -270,4 +270,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Edit and Delete targets sit directly adjacent and retain their 48dp sizes. Changed paths besides the task and index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/features/accounts/bank-payment-modes.tsx`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Add Account footer
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7112024624) records the owner’s request against Draft #97 head `5761173f47f2e0ec5a84cd914fdf6e8523dc0f7e`.
+- Add Account’s footer shows disabled Save and its availability message. The header Back action and platform Back behavior still leave the transient draft. The Payment Mode sheet retains accessible dismissal.
+- Changed paths besides the task and index are `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual and navigation QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

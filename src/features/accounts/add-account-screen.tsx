@@ -170,11 +170,7 @@ export function AddAccountScreen({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: theme.space.lg, gap: theme.space.lg }}
         >
-          {form ? (
-            <AccountFields {...form} onBack={onBack} />
-          ) : (
-            <AppText>{t('accountGroupUnavailable')}</AppText>
-          )}
+          {form ? <AccountFields {...form} /> : <AppText>{t('accountGroupUnavailable')}</AppText>}
         </ScrollView>
       </KeyboardAvoidingView>
       {form?.draft.group === 'bank' ? <BankModeEditor {...form} draft={form.draft} /> : null}
@@ -189,8 +185,7 @@ function AccountFields({
   showWalletFunding,
   canAddMode,
   onAction,
-  onBack,
-}: AddAccountViewModel & { readonly onBack: () => void }) {
+}: AddAccountViewModel) {
   const theme = useAppTheme();
   const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   return (
@@ -232,7 +227,6 @@ function AccountFields({
       <View style={{ gap: theme.space.xxs }}>
         <AppText muted>{t('accountSaveUnavailable')}</AppText>
         <ActionButton label={t('save')} disabled />
-        <ActionButton label={t('accountCancel')} variant="ghost" onPress={onBack} />
       </View>
     </>
   );
