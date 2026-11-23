@@ -18,6 +18,9 @@ export function useMoreViewModel(): {
   const onAction = useCallback(
     (action: MoreAction) => {
       switch (action.type) {
+        case 'account.groups.open':
+          router.push('/account-groups');
+          break;
         case 'appearance.open':
           setAppearanceSheetVisible(true);
           break;
