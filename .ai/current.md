@@ -1,6 +1,6 @@
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
-- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/99#issuecomment-7097257109) scopes owner-requested fresh manual restart and safe alternate port on `feat/manual-expo-preview-recovery` from verified main `f865969d200d70fbc8e84dd6a48d8020a155e42c`. [Task record](tasks/preview/manual-recovery-20261123.md). Exact-HEAD CI and independent review pending; no live dispatch, EAS action, merge or main write authorized.
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/99#issuecomment-7097257109) scopes owner-requested fresh manual restart and safe alternate port on `feat/manual-expo-preview-recovery` from verified main `f865969d200d70fbc8e84dd6a48d8020a155e42c`. [Task record](tasks/preview/manual-recovery-20261123.md). The [PR #100](https://github.com/im-tnyx/Tio-Money/pull/100) follow-up applies the same private, no-auto-forward policy to all managed Metro ports. Follow-up CI and live verification are pending.
 
 ## 2026-11-23 — Unified Expo preview Actions follow-up
 

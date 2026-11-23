@@ -4,6 +4,8 @@
 
 A manual `codespaces_live` dispatch intentionally refreshes the selected exact PR source and restarts only a verified managed Metro process, even when the same SHA is already running. An automatic owner push still reuses a healthy managed PID and tunnel. If port 8081 belongs to an unowned process and no managed record exists, manual dispatch leaves it untouched and selects the first free port in 8082–8085. The selected port is stored with the managed PID/start ticks and used for listener, tunnel and source-map verification. An invalid record, foreign listener associated with a claimed managed process, dirty worktree or stale PR fails closed. A new port can create a new tunnel URL and may require reopening Expo Go; it does not cure a Codespace that never becomes Available or every Expo startup crash.
 
+The dev container disables Codespaces auto-forwarding and sets private visibility for every managed Metro port (8081–8085). Before enabling alternate-port recovery in an existing dedicated preview Codespace, rebuild it from the updated dev container configuration and verify in the Ports view that none of those Metro ports is already forwarded. Expo Go continues to use the account-signed Expo tunnel.
+
 On startup failure, Actions prints a fixed category (port conflict, authentication, network, dependency or unknown) from the private bounded Metro log. Raw log lines, signed tunnel URLs and credentials are never printed. These source changes are review-only until independently checked and separately merged; no live operation is implied.
 
 ## Unified manual entry and incremental refresh (RFC #87)
