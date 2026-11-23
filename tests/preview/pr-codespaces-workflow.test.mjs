@@ -15,7 +15,8 @@ import { requireImmutablePRChangedPaths } from '../../.github/scripts/verify-pr-
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
 const signal = read('.github/workflows/tio-money-preview-push-signal.yml');
-const worker = read('.github/workflows/tio-money-codespaces-pr-preview.yml');
+const workflow = read('.github/workflows/tio-money-eas-pr-preview.yml');
+const worker = workflow.slice(workflow.indexOf('  codespaces_live:'), workflow.indexOf('  select:'));
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const devcontainer = JSON.parse(read('.devcontainer/devcontainer.json'));
 
@@ -447,9 +448,9 @@ test('PR metadata HTTP diagnostic stays read-only, safe and before Codespace act
   assert.ok(!worker.includes('secrets.EXPO_TOKEN'));
 });
 
-test('reusable worker PR is a strict positive integer string without another manual dispatch', () => {
-  const inputDefinition = worker.match(/workflow_call:\s*\n\s*inputs:\s*\n\s*pr_number:\s*\n(?:\s{8}[^\n]+\n){3}/);
-  assert.ok(inputDefinition, 'workflow_call pr_number input must exist');
+test('unified manual PR input remains a strict positive integer string', () => {
+  const inputDefinition = workflow.match(/workflow_dispatch:\s*\n\s*inputs:\s*\n\s*pr_number:\s*\n(?:\s{8}[^\n]+\n){3}/);
+  assert.ok(inputDefinition, 'manual pr_number input must exist');
   assert.doesNotMatch(worker, /^  workflow_dispatch:/m);
   assert.match(inputDefinition[0], /^\s*type: string$/m);
   assert.doesNotMatch(inputDefinition[0], /^\s*type: number$/m);
@@ -465,7 +466,7 @@ test('reusable worker PR is a strict positive integer string without another man
 });
 
 test('trusted worker scopes issue-label enumeration to issues: read without write escalation', () => {
-  const permissionBlock = worker.match(/^permissions:\n((?:  [a-z-]+: (?:read|write)\n)+)/m);
+  const permissionBlock = workflow.match(/^permissions:\n((?:  [a-z-]+: (?:read|write)\n)+)/m);
   assert.ok(permissionBlock, 'top-level permissions block must exist');
   assert.deepEqual(
     permissionBlock[1].trim().split('\n').map((entry) => entry.trim()),

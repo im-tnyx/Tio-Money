@@ -83,7 +83,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   const text = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
   assert.match(text, /^name: TIO MONEY EXPO PR REVIEW$/m);
   assert.match(text, /workflow_dispatch:/);
-  const dispatchInputs = text.split('workflow_dispatch:')[1].split('\npermissions:')[0];
+  const dispatchInputs = text.split('workflow_dispatch:')[1].split('\n  workflow_run:')[0];
   assert.deepEqual(
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
@@ -119,7 +119,8 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.doesNotMatch(text, /--profile production|--auto-submit|\beas init\b/);
   assert.doesNotMatch(text, /^\s+push:\s*$/m);
   assert.doesNotMatch(text, /^\s+pull_request:\s*$/m);
-  assert.doesNotMatch(text, /workflow_run:/);
+  const easJobs = text.slice(text.indexOf('  select:'));
+  assert.doesNotMatch(easJobs, /workflow_run|secrets\.CODESPACES_TOKEN/);
   assert.match(text, /github\.actor == 'im-tnyx'/);
   assert.match(text, /github\.triggering_actor == 'im-tnyx'/);
   assert.match(text, /github\.run_attempt == '1'/);
@@ -147,7 +148,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
 
 test('manual EAS PR number stays a strict positive integer string without relaxing publish gates', () => {
   const workflow = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
-  const metadata = workflow.split('workflow_dispatch:')[1].split('\npermissions:')[0];
+  const metadata = workflow.split('workflow_dispatch:')[1].split('\n  workflow_run:')[0];
   assert.match(metadata, /      pr_number:\n(?:        [^\n]+\n){3}/);
   assert.match(metadata, /      pr_number:\n        description: [^\n]+\n        required: true\n        type: string\n/);
   assert.doesNotMatch(metadata, /^\s*type: number$/m);
