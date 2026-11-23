@@ -122,4 +122,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/account-form-contract.ts`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and physical screen-reader and navigation QA remain pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for exact published HEAD and validation results. Finance RFC #98 remains pending. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Reconcile Draft #97 with main
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098601639) records the owner’s branch alignment request. Draft HEAD `9dcb6e1bd53f09254f6b503bc443981924ccfa4e` was five commits behind main `6468b62786d56edb1a70b7a5c90146e17566e23b`.
+- The only conflict was in `.ai/current.md`. Both the Accounts and the merged PR #100 preview recovery records are preserved. The Accounts application source and tests match the prior Draft HEAD. The preview implementation matches main.
+- Source reconciliation reviewed by Codex Cloud. Independent review remains DEFERRED. Exact published HEAD and validation evidence are recorded in [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96). Draft status and finance gates remain in effect. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

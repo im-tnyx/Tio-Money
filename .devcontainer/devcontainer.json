@@ -8,6 +8,26 @@
       "label": "Expo Metro (account-signed Expo Go tunnel)",
       "onAutoForward": "ignore",
       "visibility": "private"
+    },
+    "8082": {
+      "label": "Expo Metro (account-signed Expo Go tunnel)",
+      "onAutoForward": "ignore",
+      "visibility": "private"
+    },
+    "8083": {
+      "label": "Expo Metro (account-signed Expo Go tunnel)",
+      "onAutoForward": "ignore",
+      "visibility": "private"
+    },
+    "8084": {
+      "label": "Expo Metro (account-signed Expo Go tunnel)",
+      "onAutoForward": "ignore",
+      "visibility": "private"
+    },
+    "8085": {
+      "label": "Expo Metro (account-signed Expo Go tunnel)",
+      "onAutoForward": "ignore",
+      "visibility": "private"
     }
   },
   "remoteUser": "node",

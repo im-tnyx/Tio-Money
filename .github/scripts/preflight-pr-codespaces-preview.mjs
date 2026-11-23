@@ -15,13 +15,16 @@ export function ownedMetro(record, proc) {
     && /(?:^|[\s/])npm(?:-cli)?(?:\.js)?\s+run\s+mobile(?:\s|$)/.test(proc.command);
 }
 
-export function preflightDecision(recordPresent, record, proc, portFree, listener = 'EMPTY') {
+export function preflightDecision(recordPresent, record, proc, portFree, listener = 'EMPTY', manual = false) {
   if (recordPresent) {
     if (!ownedMetro(record, proc)) throw Error('Managed Metro ownership is uncertain.');
     if (!['EMPTY', 'OWNED'].includes(listener)) throw Error('Metro listener ownership is uncertain.');
     return 'OWNED_METRO';
   }
-  if (!portFree) throw Error('Metro port is occupied without a managed ownership record.');
+  if (!portFree) {
+    if (manual) return 'FOREIGN_PORT';
+    throw Error('Metro port is occupied without a managed ownership record.');
+  }
   return 'EMPTY_PORT';
 }
 
@@ -49,13 +52,15 @@ export function listenerState(inodes, ownedInodes) {
   return 'FOREIGN';
 }
 
-function listeners() {
+function listeners(port = 8081) {
+  if (!Number.isSafeInteger(port) || port < 8081 || port > 8090) throw Error('Unsupported Metro port.');
+  const suffix = ':' + port.toString(16).toUpperCase().padStart(4, '0');
   const inodes = new Set();
   for (const name of ['tcp', 'tcp6']) {
     const rows = readFileSync(`/proc/net/${name}`, 'utf8').trim().split('\n').slice(1);
     for (const row of rows) {
       const fields = row.trim().split(/\s+/);
-      if (fields[1]?.endsWith(':1F91') && fields[3] === '0A') {
+      if (fields[1]?.endsWith(suffix) && fields[3] === '0A') {
         if (!/^[1-9][0-9]*$/.test(fields[9])) throw Error('Unverifiable Metro listener.');
         inodes.add(fields[9]);
       }
@@ -71,7 +76,8 @@ export function managedListener(record, projectRoot = root) {
       leader.startTicks !== startTicks || leader.cwd !== projectRoot) {
     throw Error('Managed Metro group identity changed.');
   }
-  const inodes = listeners();
+  const port = record.port ?? 8081;
+  const inodes = listeners(port);
   const owned = new Set();
   if (inodes.size) {
     for (const entry of readdirSync('/proc')) {
@@ -98,7 +104,7 @@ export function managedListener(record, projectRoot = root) {
       }
     }
   }
-  const current = listeners();
+  const current = listeners(port);
   if (current.size !== inodes.size || [...current].some((inode) => !inodes.has(inode)) ||
       processIdentity(pid)?.startTicks !== startTicks) {
     throw Error('Metro listener changed during ownership verification.');
@@ -106,11 +112,11 @@ export function managedListener(record, projectRoot = root) {
   return listenerState(current, owned);
 }
 
-async function freePort() {
+async function freePort(port = 8081) {
   return new Promise((done, fail) => {
     const server = createServer();
     server.once('error', (error) => error.code === 'EADDRINUSE' ? done(false) : fail(error));
-    server.listen(8081, '127.0.0.1', () => server.close((error) => error ? fail(error) : done(true)));
+    server.listen(port, '127.0.0.1', () => server.close((error) => error ? fail(error) : done(true)));
   });
 }
 
@@ -134,6 +140,7 @@ export function requirePreviewListener() {
   const { present, record } = previewRecord();
   if (!present || !ownedMetro(record, processIdentity(record?.pid)) ||
       managedListener(record) !== 'OWNED') throw Error('Metro listener ownership is uncertain.');
+  return record.port ?? 8081;
 }
 
 async function main() {
@@ -142,7 +149,7 @@ async function main() {
   if (present && !ownedMetro(record, proc)) throw Error('Managed Metro ownership is uncertain.');
   const listener = present ? managedListener(record) : 'EMPTY';
   const portFree = !present && await freePort() && listeners().size === 0;
-  console.log(preflightDecision(present, record, proc, portFree, listener));
+  console.log(preflightDecision(present, record, proc, portFree, listener, process.argv.includes('--manual')));
 }
 
 if (process.argv[1] === '-' && !import.meta.url.startsWith('data:')) {
