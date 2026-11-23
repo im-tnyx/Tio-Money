@@ -69,15 +69,11 @@ test('Account Groups detail reuses fade with native gesture ownership', () => {
 });
 
 test('all Settings detail routes preregister the same native Stack motion', () => {
-  const detailScreens = [
-    ...root.matchAll(/<Stack\.Screen name="([^"]+)" options=\{motion\.detail\} \/>/g),
-  ].map((match) => match[1]);
-  assert.deepEqual(detailScreens, [
-    'account-groups',
-    'currency/main',
-    'currency/sub',
-    'currency/sub-detail',
-  ]);
+  assert.match(root, /<Stack\.Screen name="account-groups" options=\{motion\.detail\} \/>/);
+  assert.match(root, /<Stack\.Screen name="currency\/main" options=\{motion\.detail\} \/>/);
+  assert.match(root, /<Stack\.Screen name="currency\/sub" options=\{motion\.detail\} \/>/);
+  assert.match(root, /<Stack\.Screen name="currency\/sub-detail" options=\{motion\.detail\} \/>/);
+  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 4);
   assert.doesNotMatch(root, /animation: ['"](?:fade|slide_from_right)['"]|animationDuration: \d+/);
 
   const subRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');
