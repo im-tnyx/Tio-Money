@@ -52,7 +52,6 @@ const fieldSpecs = {
   name: { label: 'accountName' },
   description: { label: 'accountDescription' },
   openingAmount: { label: 'accountOpeningAmount', money: true },
-  bankName: { label: 'accountBankName' },
   outstanding: { label: 'accountCardOutstanding', money: true },
   creditLimit: { label: 'accountCardCreditLimit', money: true },
   statementDate: { label: 'accountCardStatementDate', date: true },
@@ -211,15 +210,9 @@ function GroupFields({
   const inputProps = { currencySymbol, onAction };
   switch (draft.group) {
     case 'cash':
-      return (
-        <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
-      );
     case 'bank':
       return (
-        <>
-          <DraftInput field="bankName" value={draft.fields.bankName} {...inputProps} />
-          <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
-        </>
+        <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
       );
     case 'credit-card':
       return (

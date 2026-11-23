@@ -82,7 +82,7 @@ test('batched text inputs and Wallet kind toggles use the latest draft without l
 
 test('Bank mode drafts add, edit, cancel and remove using the newest actions and stable row IDs', () => {
   const bank = replay('bank', [
-    { type: 'text', field: 'bankName', value: 'Bank' },
+    { type: 'text', field: 'name', value: 'Everyday account' },
     { type: 'mode.open' },
     { type: 'mode.name', value: '   ' },
     { type: 'mode.apply' },
@@ -100,7 +100,6 @@ test('Bank mode drafts add, edit, cancel and remove using the newest actions and
   ]);
   assert.equal(bank.group, 'bank');
   if (bank.group !== 'bank') assert.fail();
-  assert.equal(bank.fields.bankName, 'Bank');
   assert.deepEqual(bank.modes, [
     { id: 1, name: 'Everyday', kind: 'upi' },
     { id: 2, name: 'Card', kind: 'debitCard' },
@@ -117,6 +116,7 @@ test('Bank mode drafts add, edit, cancel and remove using the newest actions and
     bank,
   );
   if (edited.group !== 'bank') assert.fail();
+  assert.equal(edited.fields.name, 'Everyday account');
   assert.deepEqual(edited.modes, [{ id: 1, name: 'Edited', kind: 'internetBanking' }]);
   assert.equal(edited.modeEditor, null);
   const cash = newAccountDraft('cash', 'INR');
@@ -283,7 +283,7 @@ test('a Bank-linked Wallet has no currency choice and retains the funded draft w
 test('group fields render from the correct typed draft and Card keeps unavailable Auto Pay controls', () => {
   const expectedFields = {
     cash: ['openingAmount'],
-    bank: ['bankName', 'openingAmount'],
+    bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
     wallet: ['provider', 'openingAmount'],
     loan: ['originalPrincipal', 'outstandingPrincipal', 'startDate', 'nextDueDate'],
@@ -291,12 +291,15 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   } satisfies Record<PreviewGroup, readonly string[]>;
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const groupFields = screen.slice(screen.indexOf('function GroupFields'));
+  assert.equal(screen.match(/field="name"/g)?.length, 1);
   assert.match(screen, /field="name"[\s\S]*?accountCardName/);
   assert.match(screen, /field="description"/);
   assert.match(screen, /draft.group === 'bank' \? <BankPaymentModes/);
+  assert.match(groupFields, /case 'cash':\s*case 'bank':/);
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
     if (!isPreviewGroup(id)) continue;
-    const [section] = groupFields.split("case '" + id + "':")[1]?.split(/case '/) ?? [];
+    const sectionGroup = id === 'cash' ? 'bank' : id;
+    const [section] = groupFields.split("case '" + sectionGroup + "':")[1]?.split(/case '/) ?? [];
     assert.ok(section, id);
     const rendered = [...section.matchAll(/<DraftInput\s+field="([^"]+)"/g)].map(
       (match) => match[1],

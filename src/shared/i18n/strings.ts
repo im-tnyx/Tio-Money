@@ -79,7 +79,6 @@ export const en = {
   accountName: 'Account Name',
   accountOpeningAmount: 'Opening Amount',
   accountDescription: 'Description',
-  accountBankName: 'Bank Name',
   accountPaymentCapabilities: 'Payment capabilities',
   accountCapabilityUpi: 'UPI',
   accountCapabilityDebitCard: 'Debit Card',
