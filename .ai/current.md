@@ -20,6 +20,7 @@
 - [Currency and field sizing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100290763) sets 36dp currency boxes, exact code selection and a 46dp borderless input baseline. [Credit Card placement](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100318699) puts Currency just below Total Credit Limit. Exact HEAD and checks are recorded in RFC #96.
 - [Single Auto Pay row PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100361542) puts a disabled Off switch below Credit Card Description. The repayment-account row is labeled [Payment](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100426277). Exact HEAD and checks are recorded in RFC #96.
 - [Stable Currency selection PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100580606) keeps the configured symbol order and highlights the tapped box in place. This supersedes fixed right-side selection placement. Exact HEAD and checks are recorded in RFC #96.
+- [Add Account text hierarchy PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100690697) distinguishes muted labels, placeholders, prominent values and primary leading icons. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

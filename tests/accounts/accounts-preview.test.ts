@@ -389,6 +389,14 @@ test('main form aligns icons and wraps Description from one line with its label 
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
 
   assert.match(form, /const description = field === 'description'/);
+  assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
+  assert.match(form, /d=\{inputIcons\[icon\]\}[\s\S]*?stroke=\{theme\.colors\.primaryText\}/);
+  assert.match(controls, /<AppText variant="caption" muted style=/);
+  assert.match(
+    input,
+    /placeholderTextColor=\{borderless \? theme\.colors\.inputPlaceholder : theme\.colors\.secondaryText\}/,
+  );
+  assert.match(input, /color: theme\.colors\.primaryText/);
   assert.match(
     form,
     /labelAsPlaceholder=\{field === 'name' \|\| description\}\s+leading=\{leading\}/,

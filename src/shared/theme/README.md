@@ -745,6 +745,11 @@ minimum radio targets. Add Account borderless fields and their leading icon rows
 share a **46dp** minimum height. Description expands as text wraps. The outlined
 text field has a **48dp** minimum height.
 
+Add Account uses muted caption labels and a separate placeholder color in the
+Light and Dark palettes. Entered values and leading field icons use the primary
+foreground. Name, amount and date values use the title size. Description and
+other text use the section size. Outlined fields default to body size.
+
 ## Android white-flash and combined-motion decision — PR #80 (2026-11-23)
 
 The owner saw a white strip on the **right side during Android Back**. The root native

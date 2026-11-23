@@ -212,4 +212,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Add Account text hierarchy
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100690697) records the owner’s reference against Draft #97 head `571a4bf367bd56d3c76abeae0ea03544278f60e4`.
+- Caption labels use secondary text. Borderless placeholders have a distinct theme color with calculated contrast against the canvas of 4.66:1 in Light and 5.67:1 in Dark. Entered values and leading icons use the primary foreground. Name, amount and date use title size. Other borderless text uses section size. Description has a distinct lines icon and still wraps.
+- Changed paths besides this record and the index are `src/features/accounts/add-account-screen.tsx`, `src/shared/ui/app-text-field.tsx`, `src/shared/theme/tokens.ts`, `src/shared/theme/README.md`, `tests/accounts/accounts-preview.test.ts`, `tests/phase0/account-group-display-preferences.test.ts` and `tests/phase0/design-tokens.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
