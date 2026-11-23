@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { metroMapUrl, verifySourceMap } from '../../.github/scripts/verify-codespace-served-source.mjs';
+import { ownedMetro, preflightDecision } from '../../.github/scripts/preflight-pr-codespaces-preview.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -12,6 +13,7 @@ const worker = read('.github/workflows/tio-money-codespaces-pr-preview.yml');
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const check = read('.github/scripts/check-pr-codespaces-preview.sh');
 const source = read('.github/scripts/verify-codespace-served-source.mjs');
+const preflight = read('.github/scripts/preflight-pr-codespaces-preview.mjs');
 
 test('one manual entry routes three operations with isolated environments and secrets', () => {
   assert.match(manual, /^name: TIO MONEY EXPO PR REVIEW$/m);
@@ -32,6 +34,17 @@ test('one manual entry routes three operations with isolated environments and se
   assert.match(worker, /if \[\[ ! "\$INPUT_PR" =~ \^\[1-9\]\[0-9\]\*\$ \]\]/);
   assert.match(manual, /android\|ios\|all/);
   assert.match(worker, /android\|ios\|all/);
+  const validation = manual.slice(manual.indexOf('  validate:'), manual.indexOf('  preview:'));
+  const publishing = manual.slice(manual.indexOf('  preview:'));
+  assert.doesNotMatch(validation, /^    environment:|secrets\.EXPO_TOKEN|secrets\.CODESPACES_TOKEN/m);
+  assert.match(validation, /npm run check/);
+  assert.match(validation, /head_sha: \$\{\{ steps\.pr\.outputs\.head_sha \}\}/);
+  assert.match(publishing, /needs: validate/);
+  assert.match(publishing, /VALIDATED_SHA: \$\{\{ needs\.validate\.outputs\.head_sha \}\}/);
+  assert.match(publishing, /PR advanced since secretless validation/);
+  assert.match(publishing, /npm ci --ignore-scripts/);
+  assert.doesNotMatch(publishing, /npm run check|npx expo install --check/);
+  assert.equal((publishing.match(/EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/g) || []).length, 1);
 });
 
 test('push signal reaches Codespaces only; EAS safeguards and scope remain', () => {
@@ -53,8 +66,9 @@ test('push signal reaches Codespaces only; EAS safeguards and scope remain', () 
 
 test('same SHA is a healthy no-op; new SHA never stops a healthy Metro/tunnel', () => {
   assert.match(check, /git status --porcelain=v1 --untracked-files=normal/);
-  assert.match(check, /start-codespace-expo\.mjs --preflight/);
+  assert.doesNotMatch(check, /start-codespace-expo\.mjs --preflight/);
   assert.match(check, /start-codespace-expo\.mjs --status/);
+  assert.match(worker, /< \.github\/scripts\/preflight-pr-codespaces-preview\.mjs/g);
   assert.match(check, /NO_OP_HEALTHY/);
   assert.match(worker, /steps.existing.outputs.no_op != 'true'/);
   assert.match(worker, /Verify served Metro source and healthy tunnel/);
@@ -65,6 +79,23 @@ test('same SHA is a healthy no-op; new SHA never stops a healthy Metro/tunnel', 
   assert.match(worker, /gh: The codespace is already running \(HTTP 409\)/);
   assert.match(worker, /for attempt in \$\(seq 1 120\); do/);
   assert.match(worker, /if \[\[ "\$state" != "Available" \]\]/);
+});
+
+test('trusted preflight supports old starters and refuses ambiguous Metro ownership', () => {
+  const record = { pid: 321, startTicks: '12345' };
+  const proc = { startTicks: '12345', cwd: '/workspaces/Tio-Money', command: 'node /usr/lib/node_modules/npm/bin/npm-cli.js run mobile' };
+  assert.equal(ownedMetro(record, proc), true);
+  assert.equal(preflightDecision(true, record, proc, false), 'OWNED_METRO');
+  assert.equal(preflightDecision(false, null, null, true), 'EMPTY_PORT');
+  for (const foreign of [null, { ...proc, cwd: '/workspaces/another' },
+    { ...proc, startTicks: 'changed' }, { ...proc, command: 'node unowned-metro.js' }]) {
+    assert.throws(() => preflightDecision(true, record, foreign, false), /ownership is uncertain/);
+  }
+  assert.throws(() => preflightDecision(false, null, null, false), /occupied without/);
+  assert.match(preflight, /lstatSync\(recordPath\)/);
+  assert.match(preflight, /stat\.uid !== process\.getuid\(\)/);
+  assert.doesNotMatch(preflight, /process\.kill|rmSync|child_process/);
+  assert.equal((worker.match(/< \.github\/scripts\/preflight-pr-codespaces-preview\.mjs/g) || []).length, 2);
 });
 
 test('served source map is matched byte-for-byte against selected tracked Git source', () => {

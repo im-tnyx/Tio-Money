@@ -323,6 +323,11 @@ jobs:
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
         run: |
           set -euo pipefail
+          # Main-owned read-only gate also supports older approved PRs whose
+          # starter predates --preflight. It never executes PR code here.
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - \
+            < .github/scripts/preflight-pr-codespaces-preview.mjs
           result="$(gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             bash -s -- "$TARGET_SHA" < .github/scripts/check-pr-codespaces-preview.sh)"
           case "$result" in
@@ -380,6 +385,11 @@ jobs:
             'set -eu; test -f %q; test ! -L %q; test "$(stat -c %%u -- %q)" = "$(id -u)"; chmod 600 -- %q' \
             "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
           gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_finalize_command"
+          # Recheck immediately before the worktree mutation. The remote sync
+          # script stays on trusted main and independently checks the worktree.
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - \
+            < .github/scripts/preflight-pr-codespaces-preview.mjs
           # Trusted main script verifies private-dir ownership, file size,
           # permissions, SHA-256, Git bundle and exact selected PR commit.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \

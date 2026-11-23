@@ -1,4 +1,8 @@
 
+## 2026-11-23 — PR #88 review correction (RFC #87 addendum)
+
+- Draft PR #88 self-audit at `53265db7a87a4a0a080c189107e45390048f0165` found old-starter `--preflight` incompatibility and PR-test/EAS-token same-runner exposure. [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/88#issuecomment-7091132864) bounds the fixes on `feat/unified-expo-preview-live-refresh`; task [record](tasks/preview/unified-expo-live-refresh-20261123.md). Trusted-main streamed preflight and a secretless EAS validation runner are implemented locally; exact new HEAD and CI still pending. Independent review DEFERRED; live Codespace/EAS/device NOT_RUN; merge prohibited without separate authorization.
+
 ## 2026-11-23 — Unified Expo PR Review and persistent Codespaces refresh (RFC #87)
 
 - **Technical PROCEED:** [Issue #87](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7090616033), owner-requested scoped branch `feat/unified-expo-preview-live-refresh` from verified main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`; active agent ChatGPT/GPT-6. Task [.ai/tasks/preview/unified-expo-live-refresh-20261123.md](tasks/preview/unified-expo-live-refresh-20261123.md). No merge, privileged dispatch, Codespace action, OTA/build or secrets/settings change authorized.

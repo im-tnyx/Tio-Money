@@ -96,7 +96,8 @@ fi
 if [[ "$before_sha" != "$target_sha" ]]; then
   # A healthy Metro continues watching this detached worktree. The managed
   # helper refuses ambiguous ownership or a foreign server before mutation.
-  node scripts/start-codespace-expo.mjs --preflight
+  # The trusted-main worker rechecked Metro ownership and port immediately
+  # before this script. Old eligible PRs may not implement --preflight.
   # This is a preview-only checkout. No force, reset, stash, deletion or push.
   git -c advice.detachedHead=false switch --detach "$target_sha"
 fi
