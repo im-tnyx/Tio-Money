@@ -282,9 +282,9 @@ test('first HTTP tap records only exact locked template responses', () => {
     writeFileSync(join(mod, 'index.js'), [
       "const { Readable } = require('node:stream');",
       "module.exports = async () => ({ status: 200,",
-      " body: Readable.from([Buffer.from('{\\\"private\\\":\\\"fixture-secret\\\"}')]),",
+      " body: Readable.from([Buffer.from('{\"private\":\"fixture-secret\"}')]),",
       " json: async () => ({}) });",
-    ].join('\\n'));
+    ].join('\n'));
     const cli = join(root, 'npm-cli.cjs');
     const urls = [
       'https://registry.npmjs.org/%40babel%2Ftemplate',
@@ -298,7 +298,7 @@ test('first HTTP tap records only exact locked template responses', () => {
       'const urls = ' + JSON.stringify(urls) + ';',
       '(async () => { for (const url of urls) await (await fetch(url)).json(); })()',
       '.catch(() => { process.exitCode = 1; });',
-    ].join('\\n'));
+    ].join('\n'));
     const bin = join(root, 'npm');
     symlinkSync(cli, bin);
     const tap = join(dirname(fileURLToPath(import.meta.url)),
