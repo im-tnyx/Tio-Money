@@ -1,3 +1,11 @@
+## 2026-11-23 — PR #80 latest owner choice: Android fade-only (slide removed)
+
+- Owner superseded Android slide/slide+fade request due to right-edge white flash. [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091987225), [assigned task](tasks/ui/settings-topbar-account-groups-20261122.md). Four detail routes share native `fade` on Android/iOS (iOS 160ms, Android OS-native duration); keep theme underlay, tabs fade, Reduced Motion and bottom sheet. Device QA required, PR #80 only, no merge or #71 trust approval. Exact new HEAD CI pending.
+
+## 2026-11-23 — PR #80 Android Back white-edge mitigation (combined fade requested)
+
+- Owner requests smooth Android Back, no white right-edge flash and a subtle fade along with slide. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091913435) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack native underlay now matches theme canvas like Tabs; existing native Android slide, iOS fade, Reduced Motion and gestures kept. Expo Router native Stack lacks one-option slide+fade composition, so combined effect is NOT claimed; device QA still required. PR #80 only, no merge authority, main untouched, Issue #71 OPEN. Exact new HEAD/CI pending.
+
 # 🧭 Current task index
 
 ## 2026-11-23 — Documentation information architecture / Premium README (Issue #89)
@@ -7,6 +15,56 @@
 - **Draft PR:** [#90 — category docs + product-first README](https://github.com/im-tnyx/Tio-Money/pull/90) opened on scoped branch; 18 canonical docs moved, Phase 0 historical checkpoint archived. 3 in-flight preview docs deliberately deferred for PR #88; exact-head CI and PR overlap reconciliation pending. No owner merge authorization.
 - **Permissions:** Owner instructed work to start; no PR-specific merge authorization, no main modification, force push, security waiver or policy change. Independent review DEFERRED at task opening; current CI NOT_RUN.
 
+
+
+## 2026-11-23 — PR #80 Settings detail animation parity (Currency + Account Groups)
+
+- Owner approved **scoped implementation in PR #80 only** after spotting inconsistent Currency transitions. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091695525) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack applies one `motion.detail` to Account Groups, Main Currency, Sub Currency, Sub Currency Detail; iOS native 160ms fade, Android slide with reverse Back, Reduced Motion respected. Tabs/bottom sheets and native swipe arbitration remain unchanged. Exact-new-HEAD CI, independent review disposition and device QA must be verified separately. No merge permission, protected-main or Issue #71 trust/security change.
+
+## 2026-11-23 — PR #80 Android horizontal Stack slide + native Back
+
+- **Owner feedback:** Android Back appeared unanimated; prefers slide to fade-from-bottom. Technical PROCEED in [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091432351). Shared detail policy targets Android `slide_from_right` with inverse native pop, iOS 160ms fade and all five tab fades unchanged, OS Reduced Motion respected. Theme README/tests updated; real Android open/Back/gesture/Animator-scale QA pending. PR #80 only, no merge authorization or Issue #71 security waiver.
+
+## 2026-11-23 — PR #80 Android motion tweak `fade_from_bottom`
+
+- Owner requested Android smoothness correction, iOS unchanged; scoped PROCEED [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091210809). Shared policy now selects native Android `fade_from_bottom`, iOS native 160ms `fade`, JS Tabs unchanged, OS Reduced Motion respected. Theme README and Phase0 tests updated. Native on-device perceptual QA pending; no protected-main change or PR merge authorization. Issue #71 OPEN.
+
+## 2026-11-23 — PR #80 reusable navigation motion + Account Groups fade
+
+- **Owner scope:** More crossfade and Account Groups detail fade share one theme motion contract; [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141), assigned `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **Implementation gate:** root single Reduced Motion provider, shared Tabs/Stack options, semantic 160ms aliases (Stack native duration iOS-only), theme README + Phase0 tests. Exact-HEAD CI, fresh review and device QA required. No merge permission; Issue #71 still OPEN.
+
+## 2026-11-23 — PR #80 Codex P1 + Bugbot keyboard/input remediation
+
+- Owner “Sahi kre”, scoped PROCEED https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085443402. Route/controller owns Back/rename/delete; shared single-line Android input centers; keyboard-aware Bottom Sheet no longer reapplies the 90% collapsed cap, default Currency/Theme unchanged.
+- Task: .ai/tasks/ui/settings-topbar-account-groups-20261122.md. Exact-HEAD checks and physical device QA pending; review threads not pre-emptively cleared; Issue #71 remains OPEN. No PR merge authorization or protected main modification.
+
+## 2026-11-23 — PR #80 owner-approved single-line 1–20 custom group names
+
+- **Source:** Owner final **Go**, [Issue #79 RFC](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7085252621). Existing task \`.ai/tasks/ui/settings-topbar-account-groups-20261122.md\` remains assigned to GPT-6; PR #80 Ready for Review, source/input/domain tests scoped only.
+- **Gate:** New exact-HEAD CI and iPhone/Android manual UI acceptance pending; prior HEAD required \`static\` failed closed on npm attestation, Issue #71 OPEN. Diagnostic PR #84 cannot waive it. No main changes, no merge authorization.
+
+## 2026-11-23 — Draft PR #80 custom Account Group swipe Delete and tap Rename
+
+- **Owner direction / RFC #79:** custom display-only groups reveal Delete on left swipe, and open the existing one-Save, keyboard-aware bottom sheet with a prefilled name for Rename on tap. Built-in groups remain read-only. Technical decisions and acceptance: [swipe](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084481580), [rename](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7084496503).
+- **Work in progress:** PR #80 branch `ui/settings-topbar-account-groups-20261122`, bounded local v1 preference edits and route-owned swipe controller; exact HEAD CI, independent device swipe/keyboard/a11y QA pending. No merge authorization, no main/security modifications; Issue #71 remains OPEN.
+- **Assigned task:** `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+
+## 2026-11-22 — PR #80 shared ActionButton visual 42dp, touch 48dp
+
+- **Owner request / RFC #79:** all shared ActionButtons painted 42dp from central theme primitives, retain accessible 48dp touch region, preserve variants and statuses. See active task `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **State:** Draft PR #80; exact-HEAD CI and owner preview needed; no merge/main/security changes. Separate Issue #71 remains OPEN and PR #65 remains HOLD.
+
+## 2026-11-22 — Draft PR #80 Account Groups control refinement
+
+- **Owner chat / RFC #79:** Eye action next to `+` with description visibility, max five persisted *display-only* user-defined names, remove introductory template banner; `home_storage` Google wght200 icon only Settings Account Groups row (not list). Controller/local non-finance preference, no ledger/account class schema. See `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.
+- **Merge:** PR #80 remains DRAFT/unmerged, no new owner permission; exact-HEAD CI and owner Codespaces/Expo Go UI inspection pending this refinement. PR #65 security HOLD and Issue #71 separate.
+
+## 2026-11-22 — Settings top bar and seven informational Account Groups (RFC #79)
+
+- **Technical PROCEED:** Owner requested a new branch and UI preview with AGENTS.md/theme README. RFC https://github.com/im-tnyx/Tio-Money/issues/79; this is agent-transcribed instruction, not owner PR merge approval.
+- **Branch:** `ui/settings-topbar-account-groups-20261122` from verified `main` `bb6638b56d2dea6d1e067806be009f500666e82c`; token-owned shared AppTopBar; Account Groups template-only seven entries; Theme copy; existing local persistence/finance unaffected.
+- **Task:** `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`; exact-HEAD CI and owner device preview **PENDING** until checked. Issue #71 remains separate and OPEN; PR #65 remains SECURITY HOLD. No main change, merge or privileged Codespaces run authorized.
 
 ## 2026-11-22 — Issue #71 Gate 5 synthetic test fixture correction
 
