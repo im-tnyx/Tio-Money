@@ -279,9 +279,8 @@ export function updateAccountDraft(
         ? withDraftFields(draft, { [action.field]: action.value })
         : draft;
     case 'currency':
-      return hasIndependentCurrency(draft) &&
-        allowedCurrencies.includes(action.value) &&
-        draft.currency !== action.value
+      return draft.currency !== action.value &&
+        accountCurrencyChoices(draft, allowedCurrencies)?.includes(action.value)
         ? changeCurrency(draft, action.value)
         : draft;
     case 'wallet.kind':

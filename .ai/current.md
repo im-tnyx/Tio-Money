@@ -7,6 +7,7 @@
 - [Add Account UI technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097494971) extends Draft #97 to six transient forms, named Bank payment modes, accessible currency selection and draft/navigation regression fixes. Insurance stays informational. Save, account linking, and financial behavior remain gated in [RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98).
 
 - [Currency and Credit Card correction PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097962644) hides Currency without configured Sub Currencies, retains the amount-reset guard and puts tracking-only Auto Pay in a disabled dedicated control. Draft #97 remains UI-only.
+- [Owner correction follow-up PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098232880) verifies the six forms and guards against stale currency actions while the selector is hidden. Regression coverage checks amount reset and draft retention across all six groups. Exact published HEAD and observed check results are recorded in RFC #96.
 
 ## 2026-11-23 — Unified Expo preview Actions follow-up
 

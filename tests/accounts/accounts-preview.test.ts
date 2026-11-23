@@ -11,6 +11,7 @@ import {
   updateAccountDraft,
   type AccountDraft,
   type AccountFormAction,
+  type DraftField,
   type PreviewGroup,
 } from '../../src/features/accounts/account-form-contract';
 import { beginPickerClose, finishPickerClose } from '../../src/features/accounts/account-picker';
@@ -155,27 +156,55 @@ test('every eligible form defaults to Main and only shows currency choices with 
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
 
-test('removing a chosen Sub or changing Main clears old monetary input and retains reference fields', () => {
-  const draft = replay('credit-card', [
-    { type: 'text', field: 'name', value: 'Personal' },
-    { type: 'currency', value: 'USD' },
-    { type: 'text', field: 'outstanding', value: '34.55' },
-    { type: 'text', field: 'creditLimit', value: '2000' },
-    { type: 'text', field: 'dueDate', value: '2026-11-23' },
-  ]);
-  assert.equal(reconcileAccountDraftCurrency(draft, 'INR', currencies), draft);
-  const mainOnly = draftCurrencies({ mainCode: 'JPY', subCodes: [] });
-  const reconciled = reconcileAccountDraftCurrency(draft, 'JPY', mainOnly);
-  assert.equal(accountCurrencyChoices(reconciled, mainOnly), null);
-  assert.equal(reconciled.currency, 'JPY');
-  assert.deepEqual(reconciled.fields, {
-    ...draft.fields,
-    outstanding: '',
-    creditLimit: '',
-  });
-  const readded = draftCurrencies({ mainCode: 'JPY', subCodes: ['USD'] });
-  assert.equal(reconcileAccountDraftCurrency(reconciled, 'JPY', readded), reconciled);
-  assert.deepEqual(accountCurrencyChoices(reconciled, readded), ['JPY', 'USD']);
+test('currency changes clear each group’s amounts while retaining all other draft data', () => {
+  const monetaryFields = {
+    cash: ['openingAmount'],
+    bank: ['openingAmount'],
+    'credit-card': ['outstanding', 'creditLimit'],
+    wallet: ['openingAmount'],
+    loan: ['originalPrincipal', 'outstandingPrincipal'],
+    investment: ['investedCost', 'valuation'],
+  } satisfies Record<PreviewGroup, readonly DraftField[]>;
+
+  for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
+    if (!isPreviewGroup(id)) continue;
+    const draft = replay(id, [
+      { type: 'currency', value: 'USD' },
+      ...Object.keys(newAccountDraft(id, 'USD').fields).map((field): AccountFormAction => ({
+        type: 'text',
+        field: field as DraftField,
+        value: '123',
+      })),
+      { type: 'mode.open' },
+      { type: 'mode.name', value: 'Everyday' },
+      { type: 'mode.apply' },
+      { type: 'mode.open', id: 1 },
+    ]);
+    const cleared = Object.fromEntries(monetaryFields[id].map((field) => [field, '']));
+    const expected = { ...draft, currency: 'JPY', fields: { ...draft.fields, ...cleared } };
+
+    assert.equal(reconcileAccountDraftCurrency(draft, 'INR', currencies), draft, id);
+    assert.deepEqual(
+      updateAccountDraft(draft, { type: 'currency', value: 'JPY' }, currencies),
+      expected,
+      id,
+    );
+
+    const mainOnly = draftCurrencies({ mainCode: 'JPY', subCodes: [] });
+    assert.equal(
+      updateAccountDraft(draft, { type: 'currency', value: 'JPY' }, mainOnly),
+      draft,
+      id,
+    );
+    const reconciled = reconcileAccountDraftCurrency(draft, 'JPY', mainOnly);
+    assert.deepEqual(reconciled, expected, id);
+    assert.equal(accountCurrencyChoices(reconciled, mainOnly), null, id);
+
+    const readded = draftCurrencies({ mainCode: 'JPY', subCodes: ['USD'] });
+    assert.equal(reconcileAccountDraftCurrency(reconciled, 'JPY', readded), reconciled, id);
+    assert.deepEqual(accountCurrencyChoices(reconciled, readded), ['JPY', 'USD'], id);
+  }
+
   const route = readFileSync('src/features/accounts/add-account-route.tsx', 'utf8');
   assert.match(route, /if \(draft !== edit\) setEdit\(draft\)/);
 });
@@ -225,6 +254,12 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
       [...expectedFields[id], 'name', 'description'].sort(),
     );
   }
+  assert.equal(en.accountName, 'Account Name');
+  assert.equal(en.accountCardName, 'Card Name');
+  assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
+  assert.equal(en.accountCardStatementDate, 'Statement Date');
+  assert.equal(en.accountPayFrom, 'Pay From Account');
+  assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
   assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
   assert.equal(en.accountCardDueDate, 'Due Date');
   assert.equal(en.accountAutoPay, 'Auto Pay');
@@ -233,6 +268,8 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.ok(autoPay);
   assert.doesNotMatch(autoPay, /onChange|value=\{/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  assert.match(choices, /<AppTextField accessibilityLabel=\{t\(label\)\}/);
+  assert.match(choices, /accessibilityRole="radiogroup"\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radio"/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled: !onChange \}\}/);
   assert.match(choices, /disabled=\{!onChange\}/);

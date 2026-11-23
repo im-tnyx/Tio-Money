@@ -51,7 +51,7 @@ export const en = {
   accountWalletProvider: 'Provider',
   accountWalletBank: 'Linked Bank',
   accountWalletBankUnavailable:
-    'Available when eligible Bank accounts exist. The linked wallet will use the Bank account’s currency.',
+    'Bank linking is unavailable. Once linked, the wallet inherits the Bank account’s currency.',
   accountLoanDirection: 'Loan Direction',
   accountLoanBorrowed: 'Borrowed',
   accountLoanGiven: 'Given',
