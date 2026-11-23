@@ -44,10 +44,7 @@ function currencyLabel(code: CurrencyCode): string {
   return formatSubCurrencyDetailCaption(code);
 }
 
-export function useSubCurrencyViewModel(
-  initialDetailCode: CurrencyCode | null = null,
-  openAddOnMount = false,
-): {
+export function useSubCurrencyViewModel(initialDetailCode: CurrencyCode | null = null): {
   state: SubCurrencyUiState;
   onAction: (action: SubCurrencyAction) => void;
 } {
@@ -55,12 +52,7 @@ export function useSubCurrencyViewModel(
   const { preferences, error, addSubCurrency, removeSubCurrency, updateSubDisplay } =
     useCurrencySettings();
   const { entries, refreshRate } = useFxRates();
-  const [sheetVisible, setSheetVisible] = useState(
-    () =>
-      openAddOnMount &&
-      isCurrencyCode(preferences.mainCode) &&
-      preferences.subCodes.length < MAX_SUB_CURRENCIES,
-  );
+  const [sheetVisible, setSheetVisible] = useState(false);
   const [freshnessNow, setFreshnessNow] = useState(() => Date.now());
   const [refreshingList, setRefreshingList] = useState(false);
   const [detailCode, setDetailCode] = useState<CurrencyCode | null>(initialDetailCode);

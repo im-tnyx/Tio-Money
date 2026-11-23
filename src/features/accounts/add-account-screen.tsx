@@ -6,12 +6,10 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { ActionButton } from '@/shared/ui/action-button';
 import { AppText } from '@/shared/ui/app-text';
 
-import { AccountCurrencyPicker } from './account-currency-picker';
 import {
   investmentKinds,
   loanDirections,
   walletKinds,
-  type AccountFormAction,
   type AddAccountViewModel,
   type DraftField,
   type PreviewGroup,
@@ -19,8 +17,8 @@ import {
 import {
   AccountChoices,
   AccountField,
+  AmountCurrencyChoices,
   UnavailableAccountChoice,
-  type AccountFieldLeadingAction,
 } from './account-form-controls';
 import { AccountPage } from './account-page';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
@@ -50,20 +48,27 @@ const investmentLabels = {
 const fieldSpecs = {
   name: { label: 'accountName' },
   description: { label: 'accountDescription' },
-  openingAmount: { label: 'accountOpeningAmount', money: true },
+  openingAmount: { label: 'accountOpeningAmount', money: true, currencyControl: true },
   outstanding: { label: 'accountCardOutstanding', money: true },
-  creditLimit: { label: 'accountCardCreditLimit', money: true },
+  creditLimit: { label: 'accountCardCreditLimit', money: true, currencyControl: true },
   statementDate: { label: 'accountCardStatementDate', date: true },
   dueDate: { label: 'accountCardDueDate', date: true },
   provider: { label: 'accountWalletProvider' },
   originalPrincipal: { label: 'accountLoanOriginalPrincipal', money: true },
-  outstandingPrincipal: { label: 'accountLoanOutstandingPrincipal', money: true },
+  outstandingPrincipal: {
+    label: 'accountLoanOutstandingPrincipal',
+    money: true,
+    currencyControl: true,
+  },
   startDate: { label: 'accountLoanStartDate', date: true },
   nextDueDate: { label: 'accountLoanNextDueDate', date: true },
-  investedCost: { label: 'accountInvestmentCost', money: true },
+  investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
   valuation: { label: 'accountInvestmentValuation', money: true },
   valuationDate: { label: 'accountInvestmentValuationDate', date: true },
-} satisfies Record<DraftField, { label: TranslationKey; money?: boolean; date?: boolean }>;
+} satisfies Record<
+  DraftField,
+  { label: TranslationKey; money?: boolean; date?: boolean; currencyControl?: boolean }
+>;
 
 const inputIcons = {
   text: 'M5 17 12 4l7 13 M8 12h8 M5 21h14',
@@ -71,24 +76,30 @@ const inputIcons = {
   description: 'M4 6h16 M4 10h16 M4 14h16 M4 18h10',
 } as const;
 
+type DraftInputControls = Pick<
+  AddAccountViewModel,
+  'currencySymbol' | 'currencyChoices' | 'onAction'
+> & {
+  readonly currency: AddAccountViewModel['draft']['currency'];
+};
+
 function DraftInput({
   field,
   value,
   onAction,
   currencySymbol,
-  currencyAction,
+  currencyChoices,
+  currency,
   label,
-}: {
+}: DraftInputControls & {
   readonly field: DraftField;
   readonly value: string;
-  readonly onAction: (action: AccountFormAction) => void;
-  readonly currencySymbol: string;
-  readonly currencyAction?: AccountFieldLeadingAction;
   readonly label?: TranslationKey;
 }) {
   const theme = useAppTheme();
   const spec = fieldSpecs[field];
   const money = 'money' in spec;
+  const showCurrency = 'currencyControl' in spec && currencyChoices !== null;
   const date = 'date' in spec;
   const description = field === 'description';
   const icon = date ? 'calendar' : description ? 'description' : 'text';
@@ -115,7 +126,17 @@ function DraftInput({
       label={label ?? spec.label}
       labelAsPlaceholder={field === 'name' || description}
       leading={leading}
-      leadingAction={money ? currencyAction : undefined}
+      trailing={
+        showCurrency ? (
+          <AmountCurrencyChoices
+            fieldLabel={label ?? spec.label}
+            options={currencyChoices}
+            value={currency}
+            onChange={(value) => onAction({ type: 'currency', value })}
+          />
+        ) : undefined
+      }
+      hint={showCurrency ? t('accountCurrencyChangeHint') : undefined}
       value={value}
       keyboardType={money ? 'decimal-pad' : undefined}
       placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}
@@ -158,13 +179,6 @@ export function AddAccountScreen({
         </ScrollView>
       </KeyboardAvoidingView>
       {form?.draft.group === 'bank' ? <BankModeEditor {...form} draft={form.draft} /> : null}
-      {form?.currencyPicker ? (
-        <AccountCurrencyPicker
-          picker={form.currencyPicker}
-          value={form.draft.currency}
-          animate={Platform.OS === 'ios' && form.animateSheet}
-        />
-      ) : null}
     </AccountPage>
   );
 }
@@ -172,20 +186,13 @@ export function AddAccountScreen({
 function AccountFields({
   draft,
   currencySymbol,
-  currencyPicker,
+  currencyChoices,
   showWalletFunding,
   onAction,
   onBack,
 }: AddAccountViewModel & { readonly onBack: () => void }) {
   const theme = useAppTheme();
-  const currencyAction = currencyPicker
-    ? {
-        label: t('accountChooseCurrency') + ': ' + draft.currency,
-        expanded: currencyPicker.visible,
-        onPress: currencyPicker.onOpen,
-      }
-    : undefined;
-  const inputProps = { currencySymbol, currencyAction, onAction };
+  const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   return (
     <>
       <AppText muted>{t('accountFormPreview')}</AppText>
@@ -232,13 +239,14 @@ function AccountFields({
 function GroupFields({
   draft,
   currencySymbol,
-  currencyAction,
+  currencyChoices,
   showWalletFunding,
   onAction,
-}: Pick<AddAccountViewModel, 'draft' | 'currencySymbol' | 'showWalletFunding' | 'onAction'> & {
-  readonly currencyAction?: AccountFieldLeadingAction;
-}) {
-  const inputProps = { currencySymbol, currencyAction, onAction };
+}: Pick<
+  AddAccountViewModel,
+  'draft' | 'currencySymbol' | 'currencyChoices' | 'showWalletFunding' | 'onAction'
+>) {
+  const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   switch (draft.group) {
     case 'cash':
     case 'bank':
