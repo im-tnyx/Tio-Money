@@ -17,7 +17,7 @@ export function AppTextField({
 }: AppTextFieldProps) {
   const theme = useAppTheme();
   const borderless = appearance === 'borderless';
-  const minHeight = theme.textField.minimumHeight[appearance];
+  const minHeight = theme.textField.minimumHeight;
   const growsWithText = borderless && props.multiline;
   const fontSize = theme.typeScale[textSize];
   const lineHeight = Math.ceil(fontSize * theme.typography.relativeLineHeight);

@@ -64,7 +64,7 @@ export function AccountField({
                 accessibilityElementsHidden
                 importantForAccessibility="no-hide-descendants"
                 style={{
-                  minHeight: theme.textField.minimumHeight[props.appearance ?? 'outlined'],
+                  minHeight: theme.textField.minimumHeight,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}

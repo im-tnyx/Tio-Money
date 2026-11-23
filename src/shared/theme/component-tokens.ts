@@ -55,10 +55,7 @@ export const buttonTokens = {
 } as const;
 
 export const textFieldTokens = {
-  minimumHeight: {
-    outlined: size.dp48,
-    borderless: size.dp46,
-  },
+  minimumHeight: size.dp46,
 } as const;
 
 /** Rounded segmented selectors use the shared button touch size and existing spacing scale. */
