@@ -62,7 +62,7 @@ The reporter and maintainer should agree privately on a reasonable disclosure pl
 
 ## Related governance
 
-- [Security baseline and operator verification](docs/14-SECURITY-BASELINE-SETUP.md)
+- [Security baseline and operator verification](docs/security/SECURITY-BASELINE-SETUP.md)
 - [Contributor and agent controls](AGENTS.md)
 - [Interim reporting policy decision and review](https://github.com/im-tnyx/Tio-Money/issues/75)
 - [Mandatory pre-external-release reporting gate](https://github.com/im-tnyx/Tio-Money/issues/77)

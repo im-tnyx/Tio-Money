@@ -98,7 +98,7 @@ is required.
 - `npm run check` and Android/iOS Metro export run in the Phase 0 workflow.
   These **do not replace physical Expo Go visual/touch/accessibility QA**.
 
-Historical Phase 0 decision [TM-DEC-005](../../../docs/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) remains the foundation; owner-requested More-only expansion is recorded in [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Separate owner PR merge authorization rules remain unchanged.
+Historical Phase 0 decision [TM-DEC-005](../../../docs/governance/DECISIONS.md#tm-dec-005--phase-0-empty-navigation-shell-and-disabled-fab) remains the foundation; owner-requested More-only expansion is recorded in [RFC #17](https://github.com/im-tnyx/Tio-Money/issues/17). Separate owner PR merge authorization rules remain unchanged.
 
 ## Shared bottom-sheet contract — Issue #42 (2026-11-21)
 
