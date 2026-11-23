@@ -427,12 +427,9 @@ test('main form aligns icons and wraps Description from one line with its label 
     /multiline=\{description\}[\s\S]*?submitBehavior=\{description \? 'blurAndSubmit'/,
   );
   assert.match(input, /const growsWithText = borderless && props.multiline/);
-  assert.match(input, /const minHeight = theme\.textField\.minimumHeight\[appearance\]/);
+  assert.match(input, /const minHeight = theme\.textField\.minimumHeight;/);
   assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);
-  assert.match(
-    controls,
-    /minHeight: theme\.textField\.minimumHeight\[props.appearance \?\? 'outlined'\]/,
-  );
+  assert.match(controls, /minHeight: theme\.textField\.minimumHeight,/);
   assert.doesNotMatch(input, /numberOfLines|maxHeight/);
   assert.match(form, /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<Svg/);
   assert.match(form, /date \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/);

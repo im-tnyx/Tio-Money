@@ -741,9 +741,9 @@ The Linked Payment Modes header in Draft PR #97 opts into `size="small"` for a
 can expand for text scaling.
 
 Draft PR #97 uses the leading amount symbols to open the Currency picker with
-**48dp** minimum press targets. Borderless fields and noninteractive leading
-icons have a **46dp** minimum height. Description expands as text wraps.
-The outlined text field has a **48dp** minimum height.
+**48dp** minimum press targets. Borderless fields, outlined fields and
+noninteractive leading icons share a **46dp** minimum height. Description
+expands as text wraps.
 
 Add Account uses muted caption labels and a separate placeholder color in the
 Light and Dark palettes. Entered values and leading field icons use the primary

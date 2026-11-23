@@ -227,4 +227,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/account-currency-picker.tsx`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-route.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/features/settings/sub-currency-route.tsx`, `src/features/settings/use-sub-currency-view-model.ts`, `src/shared/i18n/strings.ts`, the shared theme README and chip tokens, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/design-tokens.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual, touch and navigation QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Shared 46dp text field height
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7109719765) records the owner’s request against Draft #97 head `8e4404a452a5ed570b098c44db994f44ba36a9ac`.
+- Both appearances now use one 46dp minimum. Linked Payment Modes and Account Groups use the shared outlined field and receive the same height. Description still expands with wrapping. Buttons and interactive currency symbols keep their 48dp targets.
+- Changed paths besides this record and the index are `src/shared/theme/component-tokens.ts`, `src/shared/theme/README.md`, `src/shared/ui/app-text-field.tsx`, `src/features/accounts/account-form-controls.tsx`, `tests/accounts/accounts-preview.test.ts`, `tests/phase0/design-tokens.test.ts` and `tests/phase0/account-group-display-preferences.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

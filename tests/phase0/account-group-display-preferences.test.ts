@@ -116,7 +116,7 @@ test('Add Account Group sheet has only Save; dismissal remains on shared shell',
   assert.ok(groupInput);
   assert.doesNotMatch(groupInput, /appearance=/);
   assert.match(field, /appearance = 'outlined'/);
-  assert.match(field, /const minHeight = theme\.textField\.minimumHeight\[appearance\]/);
+  assert.match(field, /const minHeight = theme\.textField\.minimumHeight;/);
   assert.match(field, /style=\{\{\s+minHeight,/);
   assert.doesNotMatch(groupInput, /textSize=/);
   assert.match(
