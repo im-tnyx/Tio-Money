@@ -1,3 +1,7 @@
+## 2026-11-23 — PR #88 Gate 10 review fixes (RFC #87)
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094686330) for EAS base SHA and Metro runtime compatibility. [Task checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--gate-10-automated-review-fixes). Keep Ready for Review and require exact-HEAD CI. Live Codespaces and physical Android/iOS Fast Refresh remain NOT_VERIFIED.
+
 ## 2026-11-23 — PR #88 security remediation (RFC #87)
 
 - [Owner-scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094088569) authorizes strict fail-closed per-platform verification and the four accompanying security fixes. [Remediation checkpoint](tasks/preview/unified-expo-live-refresh-20261123.md#2026-11-23--security-remediation-decision-and-validation). Verify required CI at the resulting Draft PR HEAD. Independent human review DEFERRED and live Codespaces/EAS/device acceptance NOT_RUN.

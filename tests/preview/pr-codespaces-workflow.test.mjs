@@ -265,7 +265,7 @@ test('remote trusted script verifies private path, mode, UID, SHA-256 and exact 
   assert.ok(sync.includes('! -f "$path" || -L "$path"'));
   assert.ok(sync.includes('source\\.bundle'));
   assert.match(sync, /"\$fetched_sha" != "\$target_sha"/);
-  assert.match(sync, /git -c advice\.detachedHead=false switch --detach "\$target_sha"/);
+  assert.match(sync, /run_trusted_metro_sync "\$before_sha" "\$target_sha"/);
   assert.doesNotMatch(sync, /scripts\/start-codespace-expo\.mjs --preflight/);
   assert.match(worker, /< \.github\/scripts\/preflight-pr-codespaces-preview\.mjs/);
   assert.doesNotMatch(sync, /scripts\/start-codespace-expo\.mjs --stop/);
