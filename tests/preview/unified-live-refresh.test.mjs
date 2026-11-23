@@ -9,7 +9,7 @@ import { ownedMetro, preflightDecision } from '../../.github/scripts/preflight-p
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
 const manual = read('.github/workflows/tio-money-eas-pr-preview.yml');
-const worker = read('.github/workflows/tio-money-codespaces-pr-preview.yml');
+const worker = manual.slice(manual.indexOf('  codespaces_live:'), manual.indexOf('  select:'));
 const recheck = read('.github/scripts/recheck-codespaces-preview.sh');
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const check = read('.github/scripts/check-pr-codespaces-preview.sh');
@@ -20,13 +20,10 @@ const preflight = read('.github/scripts/preflight-pr-codespaces-preview.mjs');
 test('one manual entry routes three operations with isolated environments and secrets', () => {
   assert.match(manual, /^name: TIO MONEY EXPO PR REVIEW$/m);
   assert.equal((manual.match(/^  workflow_dispatch:$/gm) || []).length, 1);
-  assert.doesNotMatch(worker, /^  workflow_dispatch:$/m);
-  assert.match(worker, /^  workflow_call:$/m);
+  assert.doesNotMatch(manual, /^  (?:workflow_call|push|pull_request_target):$/m);
   assert.match(manual, /default: codespaces_live\s+type: choice\s+options:\s+- codespaces_live\s+- publish_update\s+- build_preview/);
-  assert.match(manual, /inputs.operation == 'codespaces_live'/);
-  assert.match(manual, /inputs.operation == 'publish_update' \|\| inputs.operation == 'build_preview'/);
-  assert.match(manual, /uses: \.\/\.github\/workflows\/tio-money-codespaces-pr-preview\.yml/);
-  assert.doesNotMatch(manual, /secrets: inherit|secrets\.CODESPACES_TOKEN/);
+  assert.match(worker, /github.event_name == 'workflow_dispatch'\s*&&\s*inputs.operation == 'codespaces_live'/);
+  assert.doesNotMatch(manual, /secrets: inherit/);
   assert.doesNotMatch(worker, /secrets\.EXPO_TOKEN/);
   assert.match(manual, /environment: tio-money-eas-preview-trusted/);
   assert.match(worker, /environment: tio-money-codespaces-trusted/);
@@ -39,6 +36,11 @@ test('one manual entry routes three operations with isolated environments and se
   const selection = manual.slice(manual.indexOf('  select:'), manual.indexOf('  validate:'));
   const validation = manual.slice(manual.indexOf('  validate:'), manual.indexOf('  preview:'));
   const publishing = manual.slice(manual.indexOf('  preview:'));
+  for (const job of [selection, validation, publishing]) {
+    assert.match(job, /if: .*github.event_name == 'workflow_dispatch'/);
+    assert.match(job, /inputs.operation == 'publish_update' \|\| inputs.operation == 'build_preview'/);
+    assert.doesNotMatch(job, /secrets\.CODESPACES_TOKEN/);
+  }
   assert.ok(selection.includes('base_sha: ${{ steps.pr.outputs.base_sha }}'));
   assert.match(selection, /head_sha: \$\{\{ steps\.pr\.outputs\.head_sha \}\}/);
   assert.doesNotMatch(selection, /checkout@|npm run check|environment:|secrets\./);
@@ -61,8 +63,7 @@ test('one manual entry routes three operations with isolated environments and se
 });
 
 test('push signal reaches Codespaces only; EAS safeguards and scope remain', () => {
-  assert.match(worker, /workflow_run:\s+workflows:/);
-  assert.doesNotMatch(manual, /^  workflow_run:$/m);
+  assert.match(manual, /workflow_run:\s+workflows:\s+- Tio Money preview push signal/);
   assert.match(worker, /workflow_run\.event == 'push'/);
   assert.match(worker, /workflow_run\.head_repository\.full_name == 'im-tnyx\/Tio-Money'/);
   assert.match(worker, /github\.run_attempt == '1'/);
