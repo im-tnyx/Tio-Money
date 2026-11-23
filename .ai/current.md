@@ -8,6 +8,11 @@
 
 - [Currency and Credit Card correction PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7097962644) hides Currency without configured Sub Currencies, retains the amount-reset guard and puts tracking-only Auto Pay in a disabled dedicated control. Draft #97 remains UI-only.
 - [Owner correction follow-up PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098232880) verifies the six forms and guards against stale currency actions while the selector is hidden. Regression coverage checks amount reset and draft retention across all six groups. Exact published HEAD and observed check results are recorded in RFC #96.
+- [Branch reconciliation PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7098601639) brings the five commits through main `6468b62786d56edb1a70b7a5c90146e17566e23b` into Draft #97. The shared index preserves both Accounts and Manual Expo preview recovery entries. Exact published HEAD and checks are recorded in RFC #96.
+
+## 2026-11-23 — Manual Expo preview recovery (RFC #99)
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/99#issuecomment-7097257109) scopes owner-requested fresh manual restart and safe alternate port on `feat/manual-expo-preview-recovery` from verified main `f865969d200d70fbc8e84dd6a48d8020a155e42c`. [Task record](tasks/preview/manual-recovery-20261123.md). The [PR #100](https://github.com/im-tnyx/Tio-Money/pull/100) follow-up applies the same private, no-auto-forward policy to all managed Metro ports. Follow-up CI and live verification are pending.
 
 ## 2026-11-23 — Unified Expo preview Actions follow-up
 
