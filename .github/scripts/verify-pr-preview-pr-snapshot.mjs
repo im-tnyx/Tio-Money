@@ -15,6 +15,8 @@ export function requireImmutablePRChangedPaths(captured, compare, current, headS
       captured.head?.sha !== headSha || current.head?.sha !== headSha ||
       captured.base?.sha !== baseSha || current.base?.sha !== baseSha ||
       captured.head?.ref !== current.head?.ref ||
+      captured.head?.ref === 'main' ||
+      captured.changed_files !== current.changed_files ||
       captured.user?.login !== 'im-tnyx' || current.user?.login !== 'im-tnyx' ||
       captured.base?.ref !== 'main' || current.base?.ref !== 'main' ||
       captured.head?.repo?.full_name !== 'im-tnyx/Tio-Money' ||
@@ -40,8 +42,12 @@ export function requireImmutablePRChangedPaths(captured, compare, current, headS
 
   const paths = [];
   for (const file of compare.files) {
+    if (!file || typeof file.filename !== 'string' ||
+        (['renamed', 'copied'].includes(file.status) && typeof file.previous_filename !== 'string')) {
+      throw new Error('Incomplete changed-file record.');
+    }
     for (const path of [file?.filename, file?.previous_filename].filter((x) => x != null)) {
-      if (typeof path !== 'string' || !path || /[\r\n]/.test(path)) {
+      if (typeof path !== 'string' || !path || /[\r\n]/.test(path) || path.split('/').some((part) => !part || part === '.' || part === '..')) {
         throw new Error('Invalid or ambiguous changed file path.');
       }
       paths.push(path);
