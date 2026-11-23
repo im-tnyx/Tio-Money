@@ -22,7 +22,8 @@ const PID_FILE = join(STATE, 'metro.json');
 const DEPENDENCY_MARKER = join(STATE, 'preview-dependency-manifests.sha256');
 const LOG_FILE = join(STATE, 'metro.log');
 const PORT = 8081;
-const START_TIMEOUT_MS = 90_000;
+const START_TIMEOUT_MS = 180_000;
+const MANUAL_START_TIMEOUT_MS = 90_000;
 const TERM_TIMEOUT_MS = 10_000;
 const KILL_TIMEOUT_MS = 5_000;
 
@@ -473,7 +474,7 @@ async function startAttempt(fingerprint, manual, preferredPort) {
     renameSync(pending, PID_FILE);
   } finally { rmSync(pending, { force: true }); }
   child.unref();
-  const deadline = Date.now() + START_TIMEOUT_MS;
+  const deadline = Date.now() + (manual ? MANUAL_START_TIMEOUT_MS : START_TIMEOUT_MS);
   let reason = 'START_TIMEOUT';
   while (Date.now() < deadline) {
     if (exited) {
@@ -621,7 +622,7 @@ async function main() {
         return;
       }
       if (action === 'recover') {
-        if (process.env.CODESPACES === 'true' && !flags.includes('--start')) {
+        if (process.env.CODESPACES === 'true') {
           throw Error('MANUAL_RECOVERY_REQUIRED: Use the trusted Live Expo Go Preview action for Codespace recovery.');
         }
         await stopManaged(current);
