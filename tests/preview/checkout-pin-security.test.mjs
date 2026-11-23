@@ -48,7 +48,7 @@ test('trusted preview checkout refs and separate authorization remain intact', (
   const publishing = eas.slice(eas.indexOf('  preview:'));
   assert.doesNotMatch(validation, /^    environment:|secrets\.EXPO_TOKEN/m);
   assert.match(validation, /npm run check/);
-  assert.match(publishing, /needs: validate/);
+  assert.match(publishing, /needs: \[select, validate\]/);
   assert.match(publishing, /PR advanced since secretless validation/);
   assert.doesNotMatch(publishing, /npm run check/);
   assert.ok(governance.includes('submodules: false'));
