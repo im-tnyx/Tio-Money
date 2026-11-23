@@ -18,6 +18,7 @@
 - [Shorter Linked Payment Modes Add PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100100853) applies a 32dp painted minimum height with the shared 48dp touch target. Exact HEAD and checks are recorded in RFC #96.
 - [Single Bank Account Name PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100148939) uses the shared Account Name and Cash opening input for Bank. Linked Payment Modes stays available in the draft. Exact HEAD and checks are recorded in RFC #96.
 - [Currency and field sizing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100290763) sets 36dp currency boxes, exact code selection and a 46dp borderless input baseline. [Credit Card placement](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100318699) puts Currency just below Total Credit Limit. Exact HEAD and checks are recorded in RFC #96.
+- [Single Auto Pay row PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100361542) puts a disabled Off switch below Credit Card Description. Exact HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

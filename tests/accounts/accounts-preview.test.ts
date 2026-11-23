@@ -222,8 +222,8 @@ test('currency symbols share the label row with a compact, tinted selected box o
 });
 
 test('successive currency taps select the requested Sub or Main code', () => {
-  let draft = newAccountDraft('bank', currencies[0]);
-  for (const code of [currencies[1], currencies[2], currencies[0]]) {
+  let draft = newAccountDraft('bank', 'INR');
+  for (const code of ['USD', 'JPY', 'INR'] as const) {
     draft = updateAccountDraft(draft, { type: 'currency', value: code }, currencies);
     assert.equal(draft.currency, code);
   }
@@ -345,9 +345,16 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(en.accountCardDueDate, 'Due Date');
   assert.equal(en.accountAutoPay, 'Auto Pay');
   assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
-  const autoPay = screen.match(/<AccountChoices\s+label="accountAutoPay"[\s\S]*?\/>/)?.[0];
+  assert.match(
+    screen,
+    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \? \([\s\S]*?\{t\('accountAutoPay'\)\}[\s\S]*?<Switch/,
+  );
+  const autoPay = screen.match(/<Switch\s[\s\S]*?\/>/)?.[0];
   assert.ok(autoPay);
-  assert.doesNotMatch(autoPay, /onChange|value=\{/);
+  assert.match(autoPay, /accessibilityHint=\{t\('accountAutoPayUnavailable'\)\}/);
+  assert.match(autoPay, /value=\{false\}\s+disabled\s*\/>/);
+  assert.doesNotMatch(autoPay, /onValueChange|onChange|onPress/);
+  assert.doesNotMatch(groupFields, /accountAutoPay|accountTracking/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   assert.match(choices, /<AppTextField\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radiogroup"\s+accessibilityLabel=\{t\(label\)\}/);

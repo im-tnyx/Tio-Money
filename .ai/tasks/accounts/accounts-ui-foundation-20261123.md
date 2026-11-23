@@ -195,4 +195,12 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/shared/theme/README.md`, `src/shared/theme/component-tokens.ts`, `src/shared/theme/primitives.ts`, `src/shared/theme/theme-provider.tsx`, `src/shared/ui/app-text-field.tsx`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/design-tokens.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Credit Card Auto Pay switch
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100361542) records the owner’s request against Draft #97 head `ebc0a1aa3a4f44dd5a92378ae8053ca3ec7bdbb4`.
+- The Credit Card form shows a single Auto Pay row below Description. The native switch is Off and disabled, with the tracking-only policy available as an accessibility hint. The visible option list was removed.
+- Strict TypeScript at the preceding sizing commit rejected the test fixture’s unchecked array indexes. Explicit configured codes now drive the successive-selection regression.
+- Changed paths besides this record and the index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/add-account-screen.tsx`, `src/shared/i18n/strings.ts` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
