@@ -226,7 +226,7 @@ test('one amount row per form carries the inline currency selector and all amoun
   assert.match(card, /field="creditLimit"[^>]*?\{\.\.\.inputProps\}/);
   assert.match(screen, /currency: draft.currency/);
   assert.match(screen, /trailing=\{\s*showCurrency \? \(\s*<AmountCurrencyChoices/);
-  assert.match(screen, /hint=\{showCurrency \? t\('accountCurrencyChangeHint'\)/);
+  assert.doesNotMatch(screen, /accountCurrencyChangeHint/);
   assert.match(
     screen,
     /value=\{currency\}\s+onChange=\{\(value\) => onAction\(\{ type: 'currency', value \}\)\}/,
@@ -251,6 +251,8 @@ test('inline currency boxes follow the input, scroll horizontally and keep check
   assert.match(choices, /options\.map\(\(option\) =>/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected \}\}/);
   assert.match(choices, /const selected = option.value === value/);
+  assert.match(choices, /accessibilityHint=\{selected \? undefined : amountResetHint\}/);
+  assert.match(choices, /paddingEnd: theme.space.xxs,\s+alignItems: 'flex-end'/);
   assert.match(choices, /onPress=\{\(\) => onChange\(option.value\)\}/);
   assert.match(
     choices,
@@ -423,6 +425,9 @@ test('main form aligns icons and wraps Description from one line with its label 
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
 
   assert.match(form, /const description = field === 'description'/);
+  assert.match(form, /contentContainerStyle=\{\{ padding: theme.space.lg,/);
+  assert.match(controls, /const iconColumnWidth = theme.iconRoles.textField/);
+  assert.match(controls, /marginLeft: iconColumnWidth \+ iconGap/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
   assert.match(form, /d=\{inputIcons\[icon\]\}[\s\S]*?stroke=\{theme\.colors\.primaryText\}/);
   assert.match(controls, /<AppText variant="caption" muted style=/);
