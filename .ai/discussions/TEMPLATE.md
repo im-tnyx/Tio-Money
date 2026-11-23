@@ -10,7 +10,7 @@
 | Participants and roles | Names/tools actually verified; agent vs owner separate |
 | Existing behavior / limitation | Verified code, docs, branch/PR state |
 | Proposed user behavior | Expected flows and affected screens/states |
-| Related canonical docs | [PRD](../../docs/01-PRD.md), [architecture](../../docs/05-TECH-ARCHITECTURE.md), [ledger](../../docs/04-DATABASE-DESIGN.md), relevant exact paths |
+| Related canonical docs | [PRD](../../docs/product/PRD.md), [architecture](../../docs/architecture/TECH-ARCHITECTURE.md), [ledger](../../docs/architecture/DATABASE-DESIGN.md), relevant exact paths |
 | Implementation status | Discussion + documented proceed decision required; owner implementation signoff optional |
 | Proceed decision | `PROCEED` with decision maker, source, date, scope and conditions; not necessarily an owner approval |
 | Optional owner implementation approval | Direct owner source/date/scope when given; otherwise `NOT_REQUIRED` for ordinary scope |

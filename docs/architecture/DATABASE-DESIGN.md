@@ -8,7 +8,7 @@
 ![Stack](https://img.shields.io/badge/DATA-EXPO%20SQLITE-003B57?style=flat-square)
 ![Priority](https://img.shields.io/badge/CORE-P0-118C84?style=flat-square)
 
-[🏠 Project](../README.md) · [📚 Documentation Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Spec](03-SCREEN-SPEC.md)
+[🏠 Project](../../README.md) · [📚 Documentation Hub](../00-INDEX.md) · [🎯 PRD](../product/PRD.md) · [🧭 User Flows](../product/USER-FLOWS.md) · [🎨 Screen Spec](../design/SCREEN-SPEC.md)
 
 </div>
 
@@ -21,7 +21,7 @@
 ## 00 · Finance data-model reconciliation — 2026-11-20 / documentation only
 
 > [!CAUTION]
-> **Do not implement the INR-only v1 SQL below for the newly requested multi-currency/loan/investment product without a reviewed ADR.** It is a historical **four-subtype, INR-only proposal**: `financial_accounts.subtype` permits only `cash/bank/funded_wallet/credit_card` and `CHECK(currency = 'INR')`; `ledger_postings.amount_minor` assumes paise. **No SQLite migrations, tables, live data or authoritative new schema are changed in this documentation PR.** Owner Stage 1 scope is defined in [TM-DEC-006–009](DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Existing current Phase 0 only has settings-only bootstrap, not a posted finance journal.
+> **Do not implement the INR-only v1 SQL below for the newly requested multi-currency/loan/investment product without a reviewed ADR.** It is a historical **four-subtype, INR-only proposal**: `financial_accounts.subtype` permits only `cash/bank/funded_wallet/credit_card` and `CHECK(currency = 'INR')`; `ledger_postings.amount_minor` assumes paise. **No SQLite migrations, tables, live data or authoritative new schema are changed in this documentation PR.** Owner Stage 1 scope is defined in [TM-DEC-006–009](../governance/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) and [RFC #15](https://github.com/im-tnyx/Tio-Money/issues/15). Existing current Phase 0 only has settings-only bootstrap, not a posted finance journal.
 
 ### 00.1 Canonical source of truth and new group mapping
 
@@ -72,7 +72,7 @@ Maintain the **single append-only, balanced journal** for Income, Expense, Trans
 
 ### 00.4 Safe migration and compatibility proposal — not approved
 
-**Proposed process:** first approve [Account Groups](08-ACCOUNT-GROUPS-SPEC.md), [Currency](10-CURRENCY-SPEC.md) and finance ADRs; then test migrations on copies of real/fixture databases (including existing settings-only `user_version=1`), with reversible application-level backup/recovery plan where feasible, startup integrity/FK checks, and no silent reset/data loss. SQLite migrations cannot be assumed rollbackable after shipping; define a tested forward recovery and explicit user messaging. Do **not** disable constraints to force a legacy subtype into a new one.
+**Proposed process:** first approve [Account Groups](../product/ACCOUNT-GROUPS-SPEC.md), [Currency](../product/CURRENCY-SPEC.md) and finance ADRs; then test migrations on copies of real/fixture databases (including existing settings-only `user_version=1`), with reversible application-level backup/recovery plan where feasible, startup integrity/FK checks, and no silent reset/data loss. SQLite migrations cannot be assumed rollbackable after shipping; define a tested forward recovery and explicit user messaging. Do **not** disable constraints to force a legacy subtype into a new one.
 
 If multi-currency ledger design is not approved before Stage 1 finance implementation, a valid *proposed fallback for explicit owner decision* is INR-only journal plus conversion **display-only**, with cross-currency account posting disabled. It is **not** automatically approved by this document.
 
@@ -92,11 +92,11 @@ If multi-currency ledger design is not approved before Stage 1 finance implement
 | `TM-DB-SAFE-001` | Opening write FK failure leaves no account or postings; double-tap is idempotent |
 | `TM-DB-SAFE-002` | Upgrade from settings-only schema does not silently reset data or break history |
 
-**Canonical Stage 1 ADR resolution (2026-11-21):** see [11 — Finance ADR Register](11-STAGE-1-FINANCE-ADRS.md) for **TM-ADR-011–023** with a verified split of **DESIGN ACCEPTED / PARTIAL / BLOCKED PENDING DECISION**. This resolves earlier *undifferentiated* backlog wording for design only: atomic append-only ledger, native integer money, linked refunds, reference-only Wallet and booked-cost vs unposted valuation are specified, while cross-currency clearing/gain/rounding, overdraft, card billing, loan schedules, investment disposals and concrete FX provider **remain blocked for implementation**. Legacy INR-only four-subtype SQL below is **not an accepted migration**; no finance runtime or schema was changed.
+**Canonical Stage 1 ADR resolution (2026-11-21):** see [11 — Finance ADR Register](../governance/STAGE-1-FINANCE-ADRS.md) for **TM-ADR-011–023** with a verified split of **DESIGN ACCEPTED / PARTIAL / BLOCKED PENDING DECISION**. This resolves earlier *undifferentiated* backlog wording for design only: atomic append-only ledger, native integer money, linked refunds, reference-only Wallet and booked-cost vs unposted valuation are specified, while cross-currency clearing/gain/rounding, overdraft, card billing, loan schedules, investment disposals and concrete FX provider **remain blocked for implementation**. Legacy INR-only four-subtype SQL below is **not an accepted migration**; no finance runtime or schema was changed.
 
 ### 00.6 · Stage 1 finance ADR and presentation safety handoff
 
-The authoritative [TM-ADR-011–023 matrix](11-STAGE-1-FINANCE-ADRS.md) requires per-ISO-currency balancing and exact integer minor units with explicit unapproved FX-clearing policy; it does **not** authorize mixed-currency postings. Product accounts/cards/investments/loans are projections of **one** immutable journal, never screen-owned ledgers or editable caches. Every account, transaction and report screen is strictly dumb and may only display a controller-provided ViewModel. Review [12 — Dumb-Screen Boundaries](12-DUMB-SCREEN-BOUNDARIES.md) and release gates [06 — Test Plan](06-IMPLEMENTATION-TEST-PLAN.md).
+The authoritative [TM-ADR-011–023 matrix](../governance/STAGE-1-FINANCE-ADRS.md) requires per-ISO-currency balancing and exact integer minor units with explicit unapproved FX-clearing policy; it does **not** authorize mixed-currency postings. Product accounts/cards/investments/loans are projections of **one** immutable journal, never screen-owned ledgers or editable caches. Every account, transaction and report screen is strictly dumb and may only display a controller-provided ViewModel. Review [12 — Dumb-Screen Boundaries](DUMB-SCREEN-BOUNDARIES.md) and release gates [06 — Test Plan](../engineering/IMPLEMENTATION-TEST-PLAN.md).
 
 ## 01 · Executive decision: use a balanced journal
 
@@ -104,7 +104,7 @@ The authoritative [TM-ADR-011–023 matrix](11-STAGE-1-FINANCE-ADRS.md) requires
 
 | Requirement | Ledger decision | Why |
 | :--- | :--- | :--- |
-| One Income / Expense / Transfer editor | One user-visible `ledger_event` with typed metadata | Matches the [single + flow](02-USER-FLOWS.md) |
+| One Income / Expense / Transfer editor | One user-visible `ledger_event` with typed metadata | Matches the [single + flow](../product/USER-FLOWS.md) |
 | Accounts can be bank, cash, wallet or credit card | User accounts mapped to `ASSET` or `LIABILITY` ledger accounts | Avoid treating card debt as cash |
 | Transfer principal is neither income nor expense | Post between tracked accounts only | Prevent fake salary/spending |
 | Transfer fees are expenses | Fee expense account gets its **own posting** inside same balanced transfer event | Exact expense without an orphan charge |
@@ -723,7 +723,7 @@ flowchart TD
 
 ## 12 · Handoff — Technical Architecture
 
-The [05 — Technical Architecture](05-TECH-ARCHITECTURE.md) draft specifies the implementation boundaries; verify these items during its review:
+The [05 — Technical Architecture](TECH-ARCHITECTURE.md) draft specifies the implementation boundaries; verify these items during its review:
 
 1. React Native + Expo Router navigation and feature module boundaries.
 2. Domain-owned journal builder that outputs balanced, typed postings.
@@ -736,6 +736,6 @@ The [05 — Technical Architecture](05-TECH-ARCHITECTURE.md) draft specifies the
 
 ---
 
-[← Documentation Hub](00-INDEX.md) · [🎯 PRD](01-PRD.md) · [🧭 User Flows](02-USER-FLOWS.md) · [🎨 Screen Spec](03-SCREEN-SPEC.md)
+[← Documentation Hub](../00-INDEX.md) · [🎯 PRD](../product/PRD.md) · [🧭 User Flows](../product/USER-FLOWS.md) · [🎨 Screen Spec](../design/SCREEN-SPEC.md)
 
 <sub>**Tio Money / Financial Ledger Draft · 2026-11-18** · Financial correctness is a release gate, not a visual feature.</sub>

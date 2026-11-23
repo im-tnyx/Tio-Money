@@ -1,6 +1,6 @@
 # 🏗 Architecture — quick route
 
-**Canonical:** [Technical architecture](../../docs/05-TECH-ARCHITECTURE.md) · [Data model](../../docs/04-DATABASE-DESIGN.md) · [Feature boundaries](feature-boundaries.md).
+**Canonical:** [Technical architecture](../../docs/architecture/TECH-ARCHITECTURE.md) · [Data model](../../docs/architecture/DATABASE-DESIGN.md) · [Feature boundaries](feature-boundaries.md).
 
 - Intended stack: React Native, Expo Router, strict TypeScript, offline-first Expo SQLite.
 - UI → feature application commands → pure shared financial domain → repository ports → SQLite adapters; view-model projections read canonical ledger postings.

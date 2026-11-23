@@ -1,8 +1,8 @@
 # 12 · Mandatory Dumb-Screen and Layer Separation Contract
 
-> **Owner decision TM-DEC-011 (2026-11-21): ALL screens are dumb/presentation-only; NO logic in screens.** Documented from the connected-chat instruction ("all screen dump screen rahega koi bhi logic screen m nahi rahega"). This is an **architecture contract** for existing More Appearance and all *future* Stage 1 code, **not authorization to alter the current four blank finance tabs, implemented More presentation/controller, disabled Add or latest owner-approved navigation**. [Decision register](DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) · [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23) · [Finance ADRs](11-STAGE-1-FINANCE-ADRS.md).
+> **Owner decision TM-DEC-011 (2026-11-21): ALL screens are dumb/presentation-only; NO logic in screens.** Documented from the connected-chat instruction ("all screen dump screen rahega koi bhi logic screen m nahi rahega"). This is an **architecture contract** for existing More Appearance and all *future* Stage 1 code, **not authorization to alter the current four blank finance tabs, implemented More presentation/controller, disabled Add or latest owner-approved navigation**. [Decision register](../governance/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule) · [RFC #23](https://github.com/im-tnyx/Tio-Money/issues/23) · [Finance ADRs](../governance/STAGE-1-FINANCE-ADRS.md).
 
-[Architecture](05-TECH-ARCHITECTURE.md) · [Features/layer map](../.ai/core/feature-boundaries.md) · [Tests](06-IMPLEMENTATION-TEST-PLAN.md) · [Screen UX](03-SCREEN-SPEC.md)
+[Architecture](TECH-ARCHITECTURE.md) · [Features/layer map](../../.ai/core/feature-boundaries.md) · [Tests](../engineering/IMPLEMENTATION-TEST-PLAN.md) · [Screen UX](../design/SCREEN-SPEC.md)
 
 ## 1. Strict definition
 
@@ -71,7 +71,7 @@ export function AccountScreen({ vm, onAddAccount }: AccountScreenProps) {
 - `src/app/(tabs)/transactions.tsx` → `BlankScreen` (Trans.)
 - `src/app/(tabs)/reports.tsx` → `BlankScreen` (Stats.)
 - `src/app/(tabs)/accounts.tsx` → `BlankScreen` (Account)
-- `src/app/(tabs)/more.tsx` → `MoreRoute`, which composes [`useMoreViewModel`](../src/features/settings/use-more-view-model.ts) and [dumb `MoreScreen`](../src/features/settings/more-screen.tsx) plus a presentational Appearance sheet.
+- `src/app/(tabs)/more.tsx` → `MoreRoute`, which composes [`useMoreViewModel`](../../src/features/settings/use-more-view-model.ts) and [dumb `MoreScreen`](../../src/features/settings/more-screen.tsx) plus a presentational Appearance sheet.
 
 The appearance controller owns **visibility, preference selection and persistence**, and the screen emits typed `MoreAction` callbacks. **Theme/translation hooks that only resolve rendering tokens/text**, like existing `useAppTheme()`, are presentation concerns and do not authorize workflow-state hooks, FX, domain calculations, routing decisions, network or database work inside screens. Root `_layout.tsx` composes existing tabs, shared motion hooks and independent disabled FAB.
 
