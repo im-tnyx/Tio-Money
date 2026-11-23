@@ -18,17 +18,25 @@ test('one theme primitive owns both tab and detail fade intent', () => {
   assert.equal(motion.tabCrossfadeDurationMs, 160);
   assert.equal(navigationTokens.tabCrossfadeDurationMs, motion.tabCrossfadeDurationMs);
   assert.equal(navigationTokens.detailFadeDurationMs, motion.tabCrossfadeDurationMs);
-  const active = getNavigationMotion(false, navigationTokens);
+  const active = getNavigationMotion(false, navigationTokens, 'ios');
   assert.deepEqual(active.tab, {
     animation: 'fade',
     transitionSpec: { animation: 'timing', config: { duration: 160 } },
   });
   assert.deepEqual(active.detail, { animation: 'fade', animationDuration: 160 });
 
-  const reduced = getNavigationMotion(true, navigationTokens);
+  const android = getNavigationMotion(false, navigationTokens, 'android');
+  assert.deepEqual(android.tab, active.tab);
+  assert.deepEqual(android.detail, { animation: 'fade_from_bottom' });
+
+  const reduced = getNavigationMotion(true, navigationTokens, 'ios');
   assert.equal(reduced.tab.animation, 'none');
   assert.equal(reduced.detail.animation, 'none');
   assert.equal(reduced.detail.animationDuration, navigationTokens.detailFadeDurationMs);
+
+  const androidReduced = getNavigationMotion(true, navigationTokens, 'android');
+  assert.deepEqual(androidReduced.tab, reduced.tab);
+  assert.deepEqual(androidReduced.detail, { animation: 'none' });
 });
 
 test('five-tab scene host reuses policy without animating the tab bar or FAB', () => {
@@ -80,7 +88,8 @@ test('one root-owned Reduced Motion listener serves both navigator types', () =>
   assert.match(provider, /subscription\.remove\(\)/);
   assert.match(provider, /mounted = false/);
   assert.match(provider, /useContext\(ReducedMotionContext\)/);
-  assert.match(hook, /getNavigationMotion\(reduceMotion, theme\.navigation\)/);
+  assert.match(hook, /getNavigationMotion\(reduceMotion, theme\.navigation, Platform\.OS\)/);
+  assert.match(hook, /import \{ Platform \} from 'react-native'/);
   assert.match(hook, /useReducedMotion\(\)/);
   assert.match(alias, /useReducedMotion as useReducedTabMotion/);
   assert.doesNotMatch(provider, /useRouter|Sqlite|SQLite|setInterval/);

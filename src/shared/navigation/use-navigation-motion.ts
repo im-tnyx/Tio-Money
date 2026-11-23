@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
 import { getNavigationMotion } from './navigation-motion';
@@ -7,5 +9,5 @@ import { useReducedMotion } from './reduced-motion-provider';
 export function useNavigationMotion() {
   const theme = useAppTheme();
   const reduceMotion = useReducedMotion();
-  return getNavigationMotion(reduceMotion, theme.navigation);
+  return getNavigationMotion(reduceMotion, theme.navigation, Platform.OS);
 }

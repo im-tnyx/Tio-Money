@@ -6,10 +6,15 @@ export interface NavigationMotionDurations {
 
 /**
  * JS Tabs and native Stack need different navigator APIs for the same fade intent.
- * Native Stack animationDuration is iOS-only; Android owns its native timing.
+ * Native Stack animationDuration is iOS-only; Android uses native fade-from-bottom timing.
  */
-export function getNavigationMotion(reduceMotion: boolean, durations: NavigationMotionDurations) {
+export function getNavigationMotion(
+  reduceMotion: boolean,
+  durations: NavigationMotionDurations,
+  platform: string,
+) {
   const animation = reduceMotion ? ('none' as const) : ('fade' as const);
+  const detailAnimation = !reduceMotion && platform === 'android' ? 'fade_from_bottom' : animation;
 
   return {
     tab: {
@@ -20,8 +25,8 @@ export function getNavigationMotion(reduceMotion: boolean, durations: Navigation
       },
     },
     detail: {
-      animation,
-      animationDuration: durations.detailFadeDurationMs,
+      animation: detailAnimation,
+      ...(platform === 'ios' ? { animationDuration: durations.detailFadeDurationMs } : {}),
     },
   };
 }

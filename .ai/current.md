@@ -1,5 +1,9 @@
 # 🧭 Current task index
 
+## 2026-11-23 — PR #80 Android motion tweak `fade_from_bottom`
+
+- Owner requested Android smoothness correction, iOS unchanged; scoped PROCEED [Issue #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091210809). Shared policy now selects native Android `fade_from_bottom`, iOS native 160ms `fade`, JS Tabs unchanged, OS Reduced Motion respected. Theme README and Phase0 tests updated. Native on-device perceptual QA pending; no protected-main change or PR merge authorization. Issue #71 OPEN.
+
 ## 2026-11-23 — PR #80 reusable navigation motion + Account Groups fade
 
 - **Owner scope:** More crossfade and Account Groups detail fade share one theme motion contract; [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141), assigned `.ai/tasks/ui/settings-topbar-account-groups-20261122.md`.

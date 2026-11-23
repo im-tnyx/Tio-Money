@@ -189,6 +189,9 @@ light/dark background when the user overrides the device appearance.
 
 **Requirement:** The More tab scene crossfade and Account Groups detail-page fade
 share a theme-owned motion policy, rather than accidental per-screen/native defaults.
+Owner feedback for PR #80: iOS fade felt right, but the Android native fade did not.
+The detail motion therefore uses Android's native `fade_from_bottom` transition,
+while keeping iOS's 160ms `fade` and all five tab fades unchanged.
 The screen content remains dumb: only the router layout/controller selects motion.
 
 - `primitives.ts` keeps exactly one approved duration:
@@ -196,8 +199,9 @@ The screen content remains dumb: only the router layout/controller selects motio
   `navigationTokens.tabCrossfadeDurationMs` and `detailFadeDurationMs` as aliases.
   **Never add a literal `160` to a new route or introduce per-screen durations.**
 - `src/shared/navigation/navigation-motion.ts` is the pure reusable policy:
-  `getNavigationMotion(reduceMotion, theme.navigation)` returns `tab` and `detail`
-  navigator options; `use-navigation-motion.ts` connects it to theme and OS preference.
+  `getNavigationMotion(reduceMotion, theme.navigation, platform)` returns `tab` and
+  `detail` navigator options; `use-navigation-motion.ts` supplies `Platform.OS`
+  from React Native alongside theme and OS Reduced Motion preference.
   A new eligible detail route registers `motion.detail` on the **root navigator's**
   `Stack.Screen` before first push; its controller separately preserves any
   existing `gestureEnabled` rules. Tab layouts use `...motion.tab`.
@@ -208,10 +212,12 @@ The screen content remains dumb: only the router layout/controller selects motio
   `reduceMotionChanged` notifications, including cleanup at unmount.
 - **Navigator API distinction:** Expo Router JS Tabs support `animation: 'fade'`
   plus `transitionSpec` with an exact 160ms timing config. Expo Router native Stack
-  uses `animation: 'fade'` and an `animationDuration` set from the same token;
-  **native Stack `animationDuration` applies on iOS only**. Android uses native
-  fade timing; do **not** claim an exact Android 160ms transition. Do not pass
-  JS Tabs `transitionSpec` to native Stack or fake its fade with `Animated.View`.
+  uses **iOS `animation: 'fade'` and `animationDuration=160ms`** (theme token);
+  **Android `animation: 'fade_from_bottom'`** with platform-native timing and
+  no `animationDuration` override. That duration API applies **on iOS only**;
+  do **not** claim an exact Android 160ms transition, measured frame smoothness or
+  visual parity. Do not pass JS Tabs `transitionSpec` to native Stack or fake
+  its fade with `Animated.View`.
 - The `AppBottomSheet` native modal keeps its existing `animationType="slide"`;
   swipe-to-reveal Delete stays finger-driven. These interactions are **not**
   replacements for navigation fade and should not be globally overwritten.
@@ -222,8 +228,9 @@ The screen content remains dumb: only the router layout/controller selects motio
   unless separately included in an approved UI RFC.
 
 **Required tests/checks:** `tests/phase0/tab-crossfade.test.ts` must test both
-fade and Reduced Motion (initial unknown, on/off), compare both semantic
-duration aliases and prove the Account Groups Stack uses the reusable policy.
+fade and Reduced Motion (initial unknown, on/off) on **iOS and Android**,
+compare both semantic duration aliases and prove the Account Groups Stack uses
+the reusable policy. The policy must be platform-injected and pure.
 Run exact-HEAD typecheck, ESLint, Prettier, Phase 0/preview tests and Android/iOS
 Metro. **Native acceptance still required:** tab switches, More→Account Groups
 open/Back, iOS interactive Back, Android hardware Back, swipe Delete, bottom
@@ -233,6 +240,7 @@ No source-only test or Metro bundling proves visual timing on real devices.
 Source: [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7090244141)
 and Expo Router SDK 58 native Stack documentation:
 https://docs.expo.dev/versions/v58.0.0/sdk/router/.
+
 ## Segmented control visual reference — 2026-11-21 (PR #53)
 
 A user-supplied dark segmented `Write | Preview` control is a **visual reference**, not literal labels. The shared `AppSegmentedControl` uses equal-width rounded options, a dark/light semantic track and contrasting selected pill, with a canonical 48dp minimum option touch height and existing 4dp inset/100dp pill-radius primitives. `CurrencyUnitPositionControl` maps this reusable component to `Front | End`; it does not own persisted state. Theme palette keys `segmentedTrack`, `segmentedSelected`, `segmentedText` and `segmentedSelectedText` are maintained centrally in `tokens.ts`. Neither currency bottom-sheet chrome nor global 24dp icon roles are changed by the selector. Real Android/iOS dark/light contrast and accessibility QA remain required; see [RFC #54](https://github.com/im-tnyx/Tio-Money/issues/54).
