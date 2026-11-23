@@ -73,11 +73,13 @@ test('served source map is matched byte-for-byte against selected tracked Git so
   assert.equal(verifySourceMap(good, files), 1);
   assert.throws(() => verifySourceMap({ ...good, sourcesContent: ['old'] }, files), /does not match/);
   assert.throws(() => verifySourceMap({ sources: ['other.tsx'], sourcesContent: ['test'] }, files), /did not attest/);
+  assert.throws(() => verifySourceMap({ sources: ['src/app/deleted.tsx', 'src/app/index.tsx'], sourcesContent: ['old', 'export default 1;'] }, files), /outside selected/);
+  assert.equal(verifySourceMap({ sources: ['node_modules/lib/src/other.ts', 'src/app/index.tsx'], sourcesContent: ['external', 'export default 1;'] }, files), 1);
   assert.throws(() => verifySourceMap({ ...good, sources: [...good.sources, ...good.sources], sourcesContent: [...good.sourcesContent, ...good.sourcesContent] }, files), /does not match/);
   assert.match(source, /git\('rev-parse', 'HEAD'\)\.trim\(\) !== sha/);
   assert.match(source, /expo\.extra\?\.eas\?\.projectId !== PROJECT_ID/);
   assert.match(source, /AbortSignal\.timeout\(120_000\)/);
-  assert.match(source, /size > LIMIT/);
+  assert.match(source, /size > limit/);
   assert.match(worker, /node --input-type=module - -- "\$TARGET_SHA" "\$TARGET_PLATFORM"/);
   assert.equal(metroMapUrl({ launchAsset: {
     url: 'https://signed.on.expo.app/node_modules/expo-router/entry.bundle?platform=ios&dev=true&transform.routerRoot=src%2Fapp',
