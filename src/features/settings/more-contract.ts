@@ -10,6 +10,7 @@ export interface MoreUiState {
 
 export type MoreAction =
   | { readonly type: 'account.groups.open' }
+  | { readonly type: 'account.manage.open' }
   | { readonly type: 'appearance.open' }
   | { readonly type: 'appearance.dismiss' }
   | { readonly type: 'appearance.select'; readonly preference: AppearancePreference }

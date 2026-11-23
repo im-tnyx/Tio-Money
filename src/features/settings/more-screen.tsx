@@ -39,48 +39,79 @@ export function MoreScreen({
           <View style={{ paddingHorizontal: theme.space.lg }}>
             <AppText variant="section">{t('accountSettings')}</AppText>
           </View>
-          <Pressable
-            onPress={() => onAction({ type: 'account.groups.open' })}
-            accessibilityRole="button"
-            accessibilityLabel={t('accountGroups')}
-            accessibilityHint={t('accountGroupsHint')}
-            style={{
-              width: '100%',
-              minHeight: theme.buttons.minimumHeight,
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.border,
-              borderTopWidth: theme.navigation.borderWidth,
-              borderBottomWidth: theme.navigation.borderWidth,
-              borderRadius: theme.navigation.origin,
-              paddingHorizontal: theme.space.lg,
-              paddingVertical: theme.space.md,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: theme.space.sm,
-            }}
-          >
-            <AccountGroupsSettingIcon color={theme.colors.secondaryText} />
-            <View style={{ flex: 1 }}>
-              <AppText>{t('accountGroups')}</AppText>
-            </View>
-            <Svg
-              width={theme.iconRoles.card}
-              height={theme.iconRoles.card}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
+          {(
+            [
+              { action: 'account.groups.open', label: 'accountGroups', hint: 'accountGroupsHint' },
+              {
+                action: 'account.manage.open',
+                label: 'manageAccounts',
+                hint: 'manageAccountsHint',
+              },
+            ] as const
+          ).map(({ action, label, hint }) => (
+            <Pressable
+              key={action}
+              onPress={() => onAction({ type: action })}
+              accessibilityRole="button"
+              accessibilityLabel={t(label)}
+              accessibilityHint={t(hint)}
+              style={{
+                width: '100%',
+                minHeight: theme.buttons.minimumHeight,
+                backgroundColor: theme.colors.card,
+                borderColor: theme.colors.border,
+                borderTopWidth: theme.navigation.borderWidth,
+                borderBottomWidth: theme.navigation.borderWidth,
+                borderRadius: theme.navigation.origin,
+                paddingHorizontal: theme.space.lg,
+                paddingVertical: theme.space.md,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: theme.space.sm,
+              }}
             >
-              <Path
-                d="m9 18 6-6-6-6"
-                stroke={theme.colors.secondaryText}
-                strokeWidth={theme.icons.stroke}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          </Pressable>
+              {action === 'account.groups.open' ? (
+                <AccountGroupsSettingIcon color={theme.colors.secondaryText} />
+              ) : (
+                <Svg
+                  width={theme.iconRoles.card}
+                  height={theme.iconRoles.card}
+                  viewBox="0 0 24 24"
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                >
+                  <Path
+                    d="M4 5h16v14H4z M4 10h16 M7 15h5"
+                    fill="none"
+                    stroke={theme.colors.secondaryText}
+                    strokeWidth={theme.icons.stroke}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                </Svg>
+              )}
+              <View style={{ flex: 1 }}>
+                <AppText>{t(label)}</AppText>
+              </View>
+              <Svg
+                width={theme.iconRoles.card}
+                height={theme.iconRoles.card}
+                viewBox="0 0 24 24"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Path
+                  d="m9 18 6-6-6-6"
+                  stroke={theme.colors.secondaryText}
+                  strokeWidth={theme.icons.stroke}
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            </Pressable>
+          ))}
         </View>
         <View style={{ width: '100%', gap: theme.space.sm }}>
           <View style={{ paddingHorizontal: theme.space.lg }}>

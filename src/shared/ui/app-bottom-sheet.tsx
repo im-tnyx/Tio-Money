@@ -29,6 +29,8 @@ export function AppBottomSheet({
   title,
   dismissAccessibilityLabel,
   onDismiss,
+  onDismissed,
+  animate = true,
   children,
   avoidKeyboard = false,
 }: {
@@ -36,6 +38,8 @@ export function AppBottomSheet({
   title: string;
   dismissAccessibilityLabel: string;
   onDismiss: () => void;
+  onDismissed?: () => void;
+  animate?: boolean;
   children: ReactNode;
   avoidKeyboard?: boolean;
 }) {
@@ -56,7 +60,8 @@ export function AppBottomSheet({
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType={animate ? 'slide' : 'none'}
+      onDismiss={onDismissed}
       onRequestClose={onDismiss}
       statusBarTranslucent
     >

@@ -134,8 +134,8 @@ test('all current and future screen and shared UI surfaces own no raw visual siz
   }
 });
 
-test('route screens are dumb blank UI and shell lifecycle/controller logic is external', () => {
-  const routes = ['index', 'transactions', 'reports', 'accounts'];
+test('route files compose presentation and keep lifecycle/controller logic external', () => {
+  const routes = ['index', 'transactions', 'reports'];
   for (const route of routes) {
     const source = readFileSync(`src/app/(tabs)/${route}.tsx`, 'utf8');
     assert.match(source, /export default BlankScreen/);

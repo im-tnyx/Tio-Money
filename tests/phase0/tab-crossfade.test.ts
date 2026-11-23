@@ -69,7 +69,7 @@ test('Account Groups detail reuses fade with native gesture ownership', () => {
   const screen = readFileSync('src/features/settings/account-groups-screen.tsx', 'utf8');
   assert.doesNotMatch(screen, /Animated\.View|useNavigationMotion|animationDuration|useRouter/);
   const sheet = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
-  assert.match(sheet, /animationType="slide"/);
+  assert.match(sheet, /animate = true/);
 });
 
 test('native Stack uses theme canvas as opaque underlay for push and reverse Back', () => {
@@ -78,16 +78,17 @@ test('native Stack uses theme canvas as opaque underlay for push and reverse Bac
   assert.match(layout, /sceneStyle: \{ backgroundColor: theme\.colors\.canvas \}/);
   assert.doesNotMatch(root, /backgroundColor: ['"](?:white|#fff(?:fff)?)['"]/i);
   assert.match(root, /<Stack\.Screen name="\(tabs\)" \/>/);
-  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 4);
   assert.doesNotMatch(root, /Animated\.View|cardStyleInterpolator/);
 });
 
-test('all Settings detail routes preregister the same native Stack motion', () => {
+test('Settings and Accounts detail routes preregister the same native Stack motion', () => {
   assert.match(root, /<Stack\.Screen name="account-groups" options=\{motion\.detail\} \/>/);
   assert.match(root, /<Stack\.Screen name="currency\/main" options=\{motion\.detail\} \/>/);
   assert.match(root, /<Stack\.Screen name="currency\/sub" options=\{motion\.detail\} \/>/);
   assert.match(root, /<Stack\.Screen name="currency\/sub-detail" options=\{motion\.detail\} \/>/);
-  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 4);
+  assert.match(root, /<Stack\.Screen name="manage-accounts" options=\{motion\.detail\} \/>/);
+  assert.match(root, /<Stack\.Screen name="add-account\/\[group\]" options=\{motion\.detail\} \/>/);
+  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 6);
   assert.doesNotMatch(root, /animation: ['"](?:fade|slide_from_right)['"]|animationDuration: \d+/);
 
   const subRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');

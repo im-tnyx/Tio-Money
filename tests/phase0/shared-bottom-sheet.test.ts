@@ -35,7 +35,8 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(shared, /onDismiss: \(\) => void/);
   assert.match(shared, /dismissAccessibilityLabel: string/);
   assert.match(shared, /<Modal/);
-  assert.match(shared, /animationType="slide"/);
+  assert.match(shared, /animate = true/);
+  assert.match(shared, /animationType=\{animate \? 'slide' : 'none'\}/);
   assert.match(shared, /onRequestClose=\{onDismiss\}/);
   assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
   assert.match(shared, /accessibilityViewIsModal/);

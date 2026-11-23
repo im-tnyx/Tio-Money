@@ -30,6 +30,8 @@ function AppNavigationStack() {
     >
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="account-groups" options={motion.detail} />
+      <Stack.Screen name="add-account/[group]" options={motion.detail} />
+      <Stack.Screen name="manage-accounts" options={motion.detail} />
       <Stack.Screen name="currency/main" options={motion.detail} />
       <Stack.Screen name="currency/sub" options={motion.detail} />
       <Stack.Screen name="currency/sub-detail" options={motion.detail} />
