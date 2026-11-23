@@ -9,6 +9,7 @@ export function ActionButton({
   onPress,
   variant = 'primary',
   compact = false,
+  size = 'default',
   disabled = false,
   loading = false,
   accessibilityLabel,
@@ -17,6 +18,7 @@ export function ActionButton({
   onPress?: () => void;
   variant?: ButtonVariant;
   compact?: boolean;
+  size?: 'default' | 'small';
   disabled?: boolean;
   loading?: boolean;
   accessibilityLabel?: string;
@@ -38,7 +40,7 @@ export function ActionButton({
       disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => ({
-        // A 48dp accessible target wraps the compact 42dp visual button.
+        // The accessible target stays 48dp across visual sizes.
         minHeight: theme.buttons.minimumHeight,
         justifyContent: 'center',
         opacity: isDisabled
@@ -50,7 +52,8 @@ export function ActionButton({
     >
       <View
         style={{
-          minHeight: theme.buttons.actionHeight,
+          minHeight:
+            size === 'small' ? theme.buttons.smallActionHeight : theme.buttons.actionHeight,
           paddingHorizontal: compact ? theme.space.sm : theme.space.lg,
           borderRadius: theme.radius.sm,
           backgroundColor,

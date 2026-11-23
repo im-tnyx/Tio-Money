@@ -173,4 +173,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/shared/theme/tokens.ts`, `src/shared/ui/app-text-field.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Shorter Linked Payment Modes Add button
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7100100853) records the owner’s request against Draft #97 head `cbb10ecf7cba30c710f7d0522f33058e18ae0d02`.
+- The header action opts into the shared 32dp minimum painted height. The 48dp press target, editor callback, accessibility label and expansion for font scaling are preserved. Other buttons use the default 42dp minimum painted height.
+- Changed paths besides this record and the index are `src/features/accounts/bank-payment-modes.tsx`, `src/shared/theme/component-tokens.ts`, `src/shared/theme/README.md`, `src/shared/ui/action-button.tsx`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/shared-action-button-size.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
