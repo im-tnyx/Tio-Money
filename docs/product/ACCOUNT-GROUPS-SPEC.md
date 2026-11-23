@@ -85,7 +85,7 @@ The owner’s 2026-11-23 Codex messages and screenshots specify this flow. The r
 
 - **Add Bank Account** includes an optional **Linked Payment Modes** section in the form. **Add** opens an editor for a payment mode name and one type from **Debit Card**, **UPI**, **Cheque**, or **Internet Banking**. The list shows the label and type for each linked mode and offers **Edit** and **Remove** for each entry. Cancelling the editor keeps the previous draft. Cancelling account creation discards the draft modes.
 - Each entry describes how the same Bank account can be used. Adding or removing a mode does not create or archive an account, change a balance, or post a transaction. Names are display labels. The editor does not collect full card numbers, bank credentials, cheque numbers, UPI PINs, CVV or OTPs.
-- The same section can be enabled for other eligible account groups once supported modes are agreed for those groups. Keep it separate from Credit Card’s **Pay from account**, which links an eligible Bank account for repayment tracking.
+- The same section can be enabled for other eligible account groups once supported modes are agreed for those groups. Keep it separate from Credit Card’s **Payment** row, which links an eligible Bank account for repayment tracking.
 
 ### 3.3 Wallet — asset when independently funded
 
@@ -104,7 +104,7 @@ A funded wallet has its own asset balance; a bank-linked reference points to its
 | Current available credit | Read-only **estimate**: limit − posted outstanding − known pending holds + applicable adjustments; unknown issuer holds can cause mismatch |
 | Statement date/cycle | Billing day or documented provider-specific cycle boundary; handle 28–31 day month and timezone |
 | Payment due date | Actual due-date rule/date (not always a fixed monthly day); weekends/holidays only if issuer rule is known |
-| Pay from account | Optional selection of an active, eligible Bank account for repayment tracking. Linking it does not move money or select a Debit Card, UPI, Cheque, or Internet Banking mode. |
+| Payment | Optional selection of an active, eligible Bank account for repayment tracking. Linking it does not move money or select a Debit Card, UPI, Cheque, or Internet Banking mode. |
 | Auto Pay | One row below Description with an On/Off switch. The switch shows Off and is disabled pending approval of the tracking policy for reminders and payment confirmation. Tio Money never initiates a bank debit. |
 | Description | Optional |
 

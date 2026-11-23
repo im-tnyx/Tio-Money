@@ -40,7 +40,7 @@ export const en = {
   accountCardCreditLimit: 'Total Credit Limit',
   accountCardStatementDate: 'Statement Date',
   accountCardDueDate: 'Due Date',
-  accountPayFrom: 'Pay From Account',
+  accountPayFrom: 'Payment',
   accountPayFromUnavailable: 'Available when eligible Bank accounts exist.',
   accountAutoPay: 'Auto Pay',
   accountAutoPayUnavailable:

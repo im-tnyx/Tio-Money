@@ -339,7 +339,7 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(en.accountCardName, 'Card Name');
   assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
   assert.equal(en.accountCardStatementDate, 'Statement Date');
-  assert.equal(en.accountPayFrom, 'Pay From Account');
+  assert.equal(en.accountPayFrom, 'Payment');
   assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
   assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
   assert.equal(en.accountCardDueDate, 'Due Date');
