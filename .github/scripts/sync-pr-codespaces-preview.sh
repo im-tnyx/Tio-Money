@@ -9,8 +9,6 @@ readonly target_sha="${1:-}"
 readonly pr_number="${2:-}"
 readonly bundle_path="${3:-}"
 readonly expected_bundle_sha256="${4:-}"
-readonly cache_dir="${HOME}/.cache/tio-money-expo-preview"
-readonly dependency_marker="${cache_dir}/preview-dependency-manifests.sha256"
 
 if [[ ! "$target_sha" =~ ^[0-9a-f]{40}$ || ! "$pr_number" =~ ^[1-9][0-9]*$ ||
       ! "$expected_bundle_sha256" =~ ^[0-9a-f]{64}$ ]]; then
@@ -97,28 +95,6 @@ if [[ "$fetched_sha" != "$target_sha" ]]; then
   exit 1
 fi
 
-if [[ "$before_sha" != "$target_sha" ]]; then
-  # A healthy Metro continues watching this detached worktree. The managed
-  # helper refuses ambiguous ownership or a foreign server before mutation.
-  # The trusted-main worker rechecked Metro ownership and port immediately
-  # before this script. Old eligible PRs may not implement --preflight.
-  # This is a preview-only checkout. No force, reset, stash, deletion or push.
-  worktree="$(git status --porcelain=v1 --untracked-files=normal)"
-  test -z "$worktree"
-  git -c advice.detachedHead=false switch --detach "$target_sha"
-fi
-
-# A preview may already contain dependencies from another branch. Reinstall
-# only when manifests differ, or when npm's lock state is absent.
-mkdir -p "$cache_dir"
-current_hash="$(sha256sum package.json package-lock.json | sha256sum | cut -d ' ' -f 1)"
-stored_hash=""
-if [[ -f "$dependency_marker" ]]; then stored_hash="$(cat "$dependency_marker")"; fi
-
-if [[ "$current_hash" != "$stored_hash" || ! -f node_modules/.package-lock.json ]]; then
-  echo "Installing preview dependencies from the committed lockfile."
-  npm ci --no-audit --no-fund
-  printf '%s\n' "$current_hash" > "$dependency_marker"
-fi
-
-echo "Tio Money PR #${pr_number} checkout synchronized to ${target_sha}."
+# Only the trusted streamed starter may mutate the checkout or managed Metro.
+# It rechecks FETCH_HEAD, HEAD, worktree and listener under its startup lock.
+run_trusted_metro_sync "$before_sha" "$target_sha"

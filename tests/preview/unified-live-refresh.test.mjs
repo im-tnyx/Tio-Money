@@ -13,6 +13,7 @@ const worker = read('.github/workflows/tio-money-codespaces-pr-preview.yml');
 const recheck = read('.github/scripts/recheck-codespaces-preview.sh');
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const check = read('.github/scripts/check-pr-codespaces-preview.sh');
+const starter = read('scripts/start-codespace-expo.mjs');
 const source = read('.github/scripts/verify-codespace-served-source.mjs');
 const preflight = read('.github/scripts/preflight-pr-codespaces-preview.mjs');
 
@@ -38,16 +39,21 @@ test('one manual entry routes three operations with isolated environments and se
   const selection = manual.slice(manual.indexOf('  select:'), manual.indexOf('  validate:'));
   const validation = manual.slice(manual.indexOf('  validate:'), manual.indexOf('  preview:'));
   const publishing = manual.slice(manual.indexOf('  preview:'));
+  assert.ok(selection.includes('base_sha: ${{ steps.pr.outputs.base_sha }}'));
   assert.match(selection, /head_sha: \$\{\{ steps\.pr\.outputs\.head_sha \}\}/);
   assert.doesNotMatch(selection, /checkout@|npm run check|environment:|secrets\./);
   assert.match(validation, /needs: select/);
   assert.match(validation, /SELECTED_SHA: \$\{\{ needs\.select\.outputs\.head_sha \}\}/);
+  assert.ok(validation.includes('SELECTED_BASE: ${{ needs.select.outputs.base_sha }}'));
+  assert.ok(validation.includes('!= "$SELECTED_BASE"'));
   assert.match(validation, /PR advanced since trusted selection/);
   assert.doesNotMatch(validation, /^    environment:|secrets\.EXPO_TOKEN|secrets\.CODESPACES_TOKEN/m);
   assert.match(validation, /npm run check/);
   assert.doesNotMatch(validation, /^    outputs:/m);
   assert.match(publishing, /needs: \[select, validate\]/);
   assert.match(publishing, /VALIDATED_SHA: \$\{\{ needs\.select\.outputs\.head_sha \}\}/);
+  assert.ok(publishing.includes('SELECTED_BASE: ${{ needs.select.outputs.base_sha }}'));
+  assert.ok(publishing.includes('!= "$SELECTED_BASE"'));
   assert.match(publishing, /PR advanced since secretless validation/);
   assert.match(publishing, /npm ci --ignore-scripts/);
   assert.doesNotMatch(publishing, /npm run check|npx expo install --check/);
@@ -80,9 +86,9 @@ test('same SHA is a healthy no-op; new SHA never stops a healthy Metro/tunnel', 
   assert.match(worker, /steps.existing.outputs.no_op != 'true'/);
   assert.match(worker, /Verify served Metro source and healthy tunnel/);
   assert.match(sync, /git fetch --no-tags "\$bundle_path" "refs\/tio-preview\/selected"/);
-  assert.match(sync, /git -c advice\.detachedHead=false switch --detach "\$target_sha"/);
+  assert.match(sync, /run_trusted_metro_sync "\$before_sha" "\$target_sha"/);
   assert.doesNotMatch(sync, /start-codespace-expo\.mjs --stop|git (?:reset|clean)|git pull/);
-  assert.match(worker, /--start < "\$RUNNER_TEMP\/trusted-metro-starter\.mjs"/);
+  assert.match(worker, /< "\$RUNNER_TEMP\/trusted-metro-sync\.sh"/);
   assert.match(worker, /gh: The codespace is already running \(HTTP 409\)/);
   assert.match(worker, /for attempt in \$\(seq 1 120\); do/);
   assert.match(worker, /if \[\[ "\$state" != "Available" \]\]/);
@@ -130,4 +136,24 @@ test('served source map is matched byte-for-byte against selected tracked Git so
     'https://x/index.bundle?platform=ios&dev=false']) {
     assert.throws(() => metroMapUrl({ launchAsset: { url } }, 'ios'), /Unexpected/);
   }
+});
+
+test('controlled runtime recovery stops only owned Metro before detaching or installing', () => {
+  const start = starter.indexOf('async function syncSelected(');
+  const end = starter.indexOf('async function main()', start);
+  const syncSelected = starter.slice(start, end);
+  const incompatible = syncSelected.indexOf('!compatibleRuntime(current, fingerprint, dependenciesReady)');
+  const stop = syncSelected.indexOf('await stopManaged();', incompatible);
+  const checkout = syncSelected.indexOf("'switch', '--detach', target");
+  const install = syncSelected.indexOf("spawnSync('npm', ['ci'");
+  const reuse = syncSelected.indexOf('compatible Metro PID and tunnel reused');
+  const startManaged = syncSelected.indexOf('await startManaged(fingerprint)');
+  assert.ok(incompatible >= 0 && incompatible < stop && stop < checkout && checkout < install);
+  assert.ok(install < reuse && reuse < startManaged);
+  assert.match(starter, /await withLock\(async \(\) => \{\n      const current = checkedManagedRecord\(\);\n      if \(current\) verifyListener\(current\);/);
+  assert.match(starter, /verifyListener\(record\);\n  if \(!recordMatches/);
+  assert.match(syncSelected, /currentRecord.pid !== managed.pid/);
+  assert.match(syncSelected, /await ownedTunnel\(currentRecord\) !== previousTunnel/);
+  assert.match(starter, /requireSyncSnapshot\(before,/);
+  assert.match(starter, /'FETCH_HEAD\^\{commit\}'/);
 });

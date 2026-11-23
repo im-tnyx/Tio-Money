@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { constants, closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, readlinkSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -13,6 +14,7 @@ const ROOT = streamed ? '/workspaces/Tio-Money' : resolve(dirname(fileURLToPath(
 const CONFIGURED_EXPO_OWNER = JSON.parse(readFileSync(join(ROOT, 'app.json'), 'utf8')).expo.owner;
 const STATE = join(homedir(), '.cache', 'tio-money-expo-preview');
 const PID_FILE = join(STATE, 'metro.json');
+const DEPENDENCY_MARKER = join(STATE, 'preview-dependency-manifests.sha256');
 const LOCK_FILE = join(STATE, 'startup.lock');
 const LOG_FILE = join(STATE, 'metro.log');
 const PORT = 8081;
@@ -75,6 +77,58 @@ export function recordMatches(record, proc, projectRoot = ROOT) {
     && typeof record.startTicks === 'string' && record.startTicks.length > 0
     && record.startTicks === proc.startTicks
     && proc.cwd === projectRoot && isMobileCommand(proc.command);
+}
+
+const RUNTIME_INPUT = /^(?:(?:package(?:-lock)?|npm-shrinkwrap|app|tsconfig(?:\.[^/]+)?|jsconfig)\.json|\.(?:npmrc|nvmrc|node-version|babelrc(?:\.[^/]+)?)|(?:app|metro|babel)\.config\.[^/]+|(?:\.devcontainer|patches|plugins)\/.+|scripts\/start-codespace-expo\.mjs)$/u;
+
+function gitOutput(root, ...args) {
+  const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+  if (result.status !== 0 || result.error) throw Error('Unable to verify preview Git state.');
+  return result.stdout;
+}
+
+export function runtimeFingerprint(revision, root = ROOT) {
+  if (!/^[0-9a-f]{40}$/.test(revision)) throw Error('Invalid preview runtime revision.');
+  const tree = gitOutput(root, 'ls-tree', '-r', '-z', '--full-tree', revision);
+  const runtimeEntries = tree.split('\0').filter((entry) =>
+    RUNTIME_INPUT.test(entry.slice(entry.indexOf('\t') + 1)));
+  const hash = createHash('sha256').update(process.version).update('\0').update(JSON.stringify(runtimeEntries));
+  // Local Expo env files may influence Metro without appearing in Git. Never log their contents or digest.
+  for (const name of ['.env', '.env.local', '.env.development', '.env.development.local']) {
+    try {
+      const value = readFileSync(join(root, name));
+      hash.update(JSON.stringify([name, createHash('sha256').update(value).digest('hex')]));
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+  return hash.digest('hex');
+}
+
+function dependencyStamp(revision) {
+  const manifests = gitOutput(ROOT, 'ls-tree', '-r', '-z', '--full-tree', revision, '--',
+    'package.json', 'package-lock.json', 'npm-shrinkwrap.json', '.npmrc', 'patches');
+  return createHash('sha256').update(process.version).update('\0').update(manifests).digest('hex');
+}
+
+function dependenciesMatch(revision) {
+  try {
+    return existsSync(join(ROOT, 'node_modules/.package-lock.json')) &&
+      readFileSync(DEPENDENCY_MARKER, 'utf8').trim() === dependencyStamp(revision);
+  } catch (error) {
+    if (error.code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
+export function requireSyncSnapshot(expected, actual, status) {
+  if (!/^[0-9a-f]{40}$/.test(expected) || actual !== expected || status !== '') {
+    throw Error('Codespace checkout changed or became dirty before preview sync.');
+  }
+}
+
+export function compatibleRuntime(record, fingerprint, dependenciesReady = true) {
+  return !!record && dependenciesReady && record.runtimeFingerprint === fingerprint;
 }
 
 export function previewAction(current, metroHealthy, tunnelHealthy) {
@@ -148,9 +202,19 @@ export async function metroReady(port = PORT) {
   return typeof body === 'string' && body.trim() === 'packager-status:running';
 }
 
-export async function tunnelReady(port = PORT) {
+async function tunnelUrl(port) {
   const body = await request('/_expo/open?platform=ios&runtime=expo', true, port);
-  return validExpoGoTunnel(body?.url);
+  return validExpoGoTunnel(body?.url) ? body.url : null;
+}
+
+export async function tunnelReady(port = PORT) {
+  return (await tunnelUrl(port)) !== null;
+}
+
+async function ownedTunnel(record) {
+  if (!verifyListener(record) || !(await metroReady())) return null;
+  const url = await tunnelUrl(PORT);
+  return verifyListener(record) ? url : null;
 }
 
 async function portIsFree() {
@@ -248,7 +312,7 @@ async function stopManaged() {
   throw new Error('Managed Metro did not stop within 10s; inspect the private Codespace log manually.');
 }
 
-async function startManaged() {
+async function startManaged(fingerprint) {
   await portIsFree();
   const logFd = openSync(LOG_FILE, constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | constants.O_NOFOLLOW, 0o600);
   let child;
@@ -275,7 +339,7 @@ async function startManaged() {
     child.kill('SIGTERM'); // This process was launched by this invocation.
     throw new Error('Launched process identity could not be verified.');
   }
-  const record = { pid: child.pid, startTicks: proc.startTicks };
+  const record = { pid: child.pid, startTicks: proc.startTicks, runtimeFingerprint: fingerprint };
   writeFileSync(PID_FILE, JSON.stringify(record), { mode: 0o600 });
   child.unref();
   const deadline = Date.now() + START_TIMEOUT_MS;
@@ -299,11 +363,67 @@ async function startManaged() {
   throw new Error('Metro and tunnel not ready within 180s. Inspect the private log and retry --restart.');
 }
 
+async function syncSelected(current, before, target) {
+  if (!/^[0-9a-f]{40}$/.test(target) || gitOutput(ROOT, 'rev-parse', 'FETCH_HEAD^{commit}').trim() !== target) {
+    throw Error('Prepared bundle commit no longer matches the selected revision.');
+  }
+  requireSyncSnapshot(before, gitOutput(ROOT, 'rev-parse', 'HEAD').trim(),
+    gitOutput(ROOT, 'status', '--porcelain=v1', '--untracked-files=normal'));
+  const fingerprint = runtimeFingerprint(target);
+  const dependenciesReady = dependenciesMatch(target);
+
+  // Stop an incompatible owned process before changing the files it is using.
+  // Hold the startup lock through source switch, install and managed restart.
+  let managed = current;
+  if (current && !compatibleRuntime(current, fingerprint, dependenciesReady)) {
+    await stopManaged();
+    managed = null;
+  }
+  const previousTunnel = managed ? await ownedTunnel(managed) : null;
+  requireSyncSnapshot(before, gitOutput(ROOT, 'rev-parse', 'HEAD').trim(),
+    gitOutput(ROOT, 'status', '--porcelain=v1', '--untracked-files=normal'));
+  if (before !== target) {
+    gitOutput(ROOT, '-c', 'advice.detachedHead=false', 'switch', '--detach', target);
+  }
+  if (!dependenciesReady) {
+    const install = spawnSync('npm', ['ci', '--no-audit', '--no-fund'], { cwd: ROOT, stdio: 'inherit' });
+    if (install.status !== 0 || install.error) throw Error('Unable to install locked preview dependencies.');
+    writeFileSync(DEPENDENCY_MARKER, dependencyStamp(target) + '\n', { mode: 0o600 });
+  }
+  requireSyncSnapshot(target, gitOutput(ROOT, 'rev-parse', 'HEAD').trim(),
+    gitOutput(ROOT, 'status', '--porcelain=v1', '--untracked-files=normal'));
+  if (runtimeFingerprint(target) !== fingerprint || !dependenciesMatch(target)) {
+    throw Error('Preview runtime inputs changed during synchronization.');
+  }
+  if (previousTunnel) {
+    const currentRecord = checkedManagedRecord();
+    if (!currentRecord || currentRecord.pid !== managed.pid ||
+        currentRecord.startTicks !== managed.startTicks || await ownedTunnel(currentRecord) !== previousTunnel) {
+      throw Error('Source synchronized, but the existing Metro/tunnel session could not be confirmed.');
+    }
+    console.log('Exact preview checkout synchronized; compatible Metro PID and tunnel reused.');
+    return;
+  }
+  requireExpoAccount();
+  if (managed) await stopManaged();
+  await startManaged(fingerprint);
+}
+
 async function main() {
   if (process.platform !== 'linux' || !existsSync('/proc')) {
     throw new Error('This managed starter supports Linux Codespaces only.');
   }
   const flags = process.argv.slice(2);
+  if (streamed && flags.length === 3 && flags[0] === '--sync-selected') {
+    const [, before, target] = flags;
+    await withLock(async () => {
+      const current = checkedManagedRecord();
+      if (current) verifyListener(current);
+      else await portIsFree();
+      await syncSelected(current, before, target);
+    });
+    return;
+  }
   if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart', '--check-account', '--preflight'].includes(x))) {
     throw new Error('Usage: node scripts/start-codespace-expo.mjs [--start|--status|--restart|--stop|--check-account|--preflight]');
   }
@@ -320,8 +440,11 @@ async function main() {
       console.log('Expo account verified for the configured Tio Money owner.');
       return;
     }
+    const revision = gitOutput(ROOT, 'rev-parse', 'HEAD').trim();
+    const fingerprint = runtimeFingerprint(revision);
+    const compatible = compatibleRuntime(current, fingerprint, !streamed || dependenciesMatch(revision));
     if (flags.includes('--status')) {
-      if (!listening || !(await metroReady()) || !(await tunnelReady()) || !verifyListener(current)) {
+      if (!compatible || !listening || !(await metroReady()) || !(await tunnelReady()) || !verifyListener(current)) {
         throw new Error('No healthy project-owned Metro and tunnel are running.');
       }
       console.log('Tio Money Expo Go tunnel healthy on port 8081.');
@@ -335,7 +458,7 @@ async function main() {
     requireExpoAccount();
     if (flags.includes('--restart')) await stopManaged();
     else {
-      const action = previewAction(current, listening && await metroReady(), listening && await tunnelReady() && verifyListener(current));
+      const action = previewAction(current, compatible && listening && await metroReady(), listening && await tunnelReady() && verifyListener(current));
       if (action === 'reuse') {
         console.log('Expo tunnel already healthy; no duplicate Metro started.');
         return;
@@ -345,7 +468,7 @@ async function main() {
         await stopManaged();
       }
     }
-    await startManaged();
+    await startManaged(fingerprint);
   });
 }
 

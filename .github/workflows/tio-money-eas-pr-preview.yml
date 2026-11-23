@@ -59,6 +59,7 @@ jobs:
     timeout-minutes: 45
     outputs:
       head_sha: ${{ steps.pr.outputs.head_sha }}
+      base_sha: ${{ steps.pr.outputs.base_sha }}
     steps:
       - name: Validate owner-authored PR and immutable source head
         id: pr

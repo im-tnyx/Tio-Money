@@ -233,6 +233,13 @@ jobs:
             scripts/start-codespace-expo.mjs > "$RUNNER_TEMP/trusted-metro-starter.mjs"
           sed "s|\./preflight-pr-codespaces-preview.mjs|data:text/javascript;base64,$ownership|" \
             .github/scripts/verify-codespace-served-source.mjs > "$RUNNER_TEMP/trusted-metro-source-probe.mjs"
+          {
+            printf "%s\n" 'run_trusted_metro_sync() {' \
+              "  node --input-type=module - --sync-selected \"\$1\" \"\$2\" <<'TRUSTED_METRO_STARTER'"
+            cat "$RUNNER_TEMP/trusted-metro-starter.mjs"
+            printf "%s\n" 'TRUSTED_METRO_STARTER' '}'
+            cat .github/scripts/sync-pr-codespaces-preview.sh
+          } > "$RUNNER_TEMP/trusted-metro-sync.sh"
 
       - name: Discover and start only the verified preview-only Codespace
         id: codespace
@@ -406,10 +413,7 @@ jobs:
           # permissions, SHA-256, Git bundle and exact selected PR commit.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" \
-            < .github/scripts/sync-pr-codespaces-preview.sh
-          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
-          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            node --input-type=module - --start < "$RUNNER_TEMP/trusted-metro-starter.mjs"
+            < "$RUNNER_TEMP/trusted-metro-sync.sh"
 
       - name: Verify served Metro source and healthy tunnel
         if: steps.pr.outputs.selected == 'true'
