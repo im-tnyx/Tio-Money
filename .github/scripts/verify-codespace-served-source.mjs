@@ -30,6 +30,24 @@ export function verifySourceMap(map, tracked) {
   return matched;
 }
 
+export function metroMapUrl(manifest, platform) {
+  const raw = manifest?.launchAsset?.url;
+  if (typeof raw !== 'string' || raw.length > 4096) throw Error('Missing Expo Go launch bundle.');
+  const url = new URL(raw, 'http://127.0.0.1:8081/');
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
+      !/^\/(?:node_modules\/expo-router\/entry|\.expo\/\.virtual-metro-entry|index)\.bundle$/.test(url.pathname) ||
+      url.searchParams.get('platform') !== platform || url.searchParams.get('dev') !== 'true') {
+    throw Error('Unexpected Expo Go launch bundle.');
+  }
+  // Query the exact bundle parameters supplied by this local Metro manifest,
+  // never follow the tunnel hostname or make an outbound HTTP request.
+  url.protocol = 'http:';
+  url.hostname = '127.0.0.1';
+  url.port = '8081';
+  url.pathname = url.pathname.replace(/\.bundle$/, '.map');
+  return url.toString();
+}
+
 async function readBounded(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(120_000) });
   if (!response.ok || !response.body) throw Error('Metro source-map request failed.');
@@ -61,8 +79,13 @@ async function main() {
   const tracked = new Map(files.filter((f) => /^src\/[a-zA-Z0-9_./()-]+\.(?:js|jsx|ts|tsx)$/.test(f))
     .map((f) => [f, git('show', `HEAD:${f}`)]));
   for (const p of platform === 'all' ? ['android', 'ios'] : [platform]) {
-    const url = `http://127.0.0.1:8081/node_modules/expo-router/entry.map?platform=${p}&dev=true&minify=false`;
-    const count = verifySourceMap(await readBounded(url), tracked);
+    const manifestResponse = await fetch('http://127.0.0.1:8081/', {
+      headers: { 'expo-platform': p }, signal: AbortSignal.timeout(20_000),
+    });
+    if (!manifestResponse.ok) throw Error('Local Expo Go manifest unavailable.');
+    const manifestText = await manifestResponse.text();
+    if (manifestText.length > 65536) throw Error('Expo Go manifest exceeds the safe limit.');
+    const count = verifySourceMap(await readBounded(metroMapUrl(JSON.parse(manifestText), p)), tracked);
     console.log(`Metro ${p} source verified against selected Git HEAD (${count} app modules).`);
   }
   if (git('rev-parse', 'HEAD').trim() !== sha || git('status', '--porcelain=v1', '--untracked-files=normal').trim()) {

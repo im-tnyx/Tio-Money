@@ -6,7 +6,7 @@
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7090616033), 2026-11-23 UTC, acting architect ChatGPT/GPT-6; owner request transcribed from conversation, not GitHub-authenticated merge approval |
 | State / agent | `VALIDATING`; ChatGPT/GPT-6; prior verified agent `UNKNOWN_NOT_VERIFIED` |
 | Branch / base | `feat/unified-expo-preview-live-refresh` from verified main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6` |
-| PR / merge | Pending feature PR; owner merge authorization `NOT_GRANTED`; privileged dispatch `NOT_GRANTED` |
+| PR / merge | [Draft PR #88](https://github.com/im-tnyx/Tio-Money/pull/88); owner merge authorization `NOT_GRANTED`; privileged dispatch `NOT_GRANTED` |
 | Review | `DEFERRED`; independent security review strongly recommended before merge; no passing human review claimed |
 | Started / checkpoint | 2026-11-23T03:16:52Z / 2026-11-23T03:25:24Z |
 
@@ -27,3 +27,9 @@ Alternative `git pull --ff-only` cannot attest the detached preview SHA. Retain 
 - Real Codespace, Metro process, tunnel URL, Expo Go Android/iPhone display and HMR: **NOT_RUN**; expressly prohibited here. Source-map route and behavior need an authorized live run after merge before claiming physical success.
 
 No `Co-authored-by:` trailers permitted. GitHub commit-range and exact-HEAD CI/review to be appended after PR creation. Owner-specific merge authorization is still required and is not present. Issue #71/PR #65 supply-chain holds are separate and unchanged.
+
+### 2026-11-23T03:29:00Z — First PR HEAD and corrective probe design
+
+- First branch HEAD `48df52e6c03eb697fe10be9665d434d7a957d3ae`, Draft PR #88, base `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`, 15 changed files, one commit with no forbidden co-author trailer. GitHub run 45106182759 Governance and 45106182841 Phase 0 both reported FAILURE with zero job steps available through connector; job logs returned BlobNotFound 404. Do **not** claim tests executed or diagnose the cause from this evidence. Push signal also showed failure; no Codespace action is inferred.
+- Correction under RFC scope: derive the Metro source-map request from the selected platform's locally returned Expo Go manifest launch bundle URL, preserve exact transform/query settings, rewrite to loopback only after a strict bundle path/platform check, and compare source content to Git HEAD. This avoids assuming a hardcoded Expo Router transform route. Focused mocked tests PASS; live manifest/source-map response and Expo Go still NOT_RUN.
+- Remaining: commit correction, recheck exact HEAD/CI and record review disposition. A red CI with inaccessible failure details blocks Ready for Review/merge; independent human security review DEFERRED.
