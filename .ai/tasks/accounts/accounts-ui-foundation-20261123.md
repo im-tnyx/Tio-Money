@@ -3,16 +3,16 @@
 | Field | Verified value |
 | --- | --- |
 | Repository | `im-tnyx/Tio-Money` |
-| Lifecycle | VALIDATING |
+| Lifecycle | IN_REVIEW |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
 | Current agent | Codex Cloud, GPT-6 family. Exact variant UNKNOWN_NOT_VERIFIED. |
 | Previous agent | No previous assignee verified for this task. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
-| Review | DEFERRED until draft handoff. |
+| Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
-| PR | Pending |
+| PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
 
 ## Scope and ownership
 
@@ -60,5 +60,13 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
   - `tests/phase0/settings-topbar-groups.test.ts`
   - `tests/phase0/shared-bottom-sheet.test.ts`
   - `tests/phase0/tab-crossfade.test.ts`
+
+
+### Draft handoff — 2026-11-23 UTC
+
+- GitHub confirmed open Draft PR #97 from the assigned branch to main at the base above. Initial implementation HEAD `c154c40cfee2071eef94a440624a479bff3d999a`; GitHub PR author `im-tnyx`, Git commit author Santosh Jangid. Agent provenance is recorded separately above.
+- The staged implementation tree matched the connector commit tree `1759f29b5e098fe52675f99da34142bd842092b4`. Local `python3 scripts/ai_context.py check-commits --base f865969d200d70fbc8e84dd6a48d8020a155e42c --head c154c40cfee2071eef94a440624a479bff3d999a` passed (1 commit).
+- Main ruleset `protect-main` requires `static`, `Governance / Python, links and commit attribution` and resolved review threads. Governance passed on the initial draft HEAD and static was in progress. The handoff-only commit requires fresh exact-HEAD CI. Follow the [PR checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for current evidence.
+- Independent review DEFERRED. No device acceptance recorded and no merge authorization granted. Safest next steps are exact-HEAD CI, review and on-device navigation checks for the UI draft, and separate owner review of the finance design in RFC #96.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
