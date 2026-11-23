@@ -165,4 +165,12 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/account-form-contract.ts`, `src/features/accounts/add-account-route.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Compact Currency row and Description
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099965028) and [selected placement clarification](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7099988365) record the owner’s requests against Draft #97 head `33fe62f93be9336b9f3ccec0a555aafe17982a99`.
+- The Currency label and small symbol boxes share one row. The selected radio stays at the right edge with a translucent brand fill. The other configured choices scroll in the remaining space. The visible box is compact and the radio target stays at least 48dp. Main remains the default and amount clearing is preserved.
+- Description starts at the same height as the single-line inputs, shows its label inside when empty, wraps using native input layout and uses Done on the keyboard. The draft stores the original text.
+- Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/add-account-screen.tsx`, `src/shared/theme/tokens.ts`, `src/shared/ui/app-text-field.tsx` and `tests/accounts/accounts-preview.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native device visual QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
