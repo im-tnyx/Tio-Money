@@ -8,10 +8,7 @@ export interface NavigationMotionDurations {
  * JS Tabs and native Stack need different navigator APIs for the same fade intent.
  * Native Stack animationDuration is iOS-only; Android owns its native timing.
  */
-export function getNavigationMotion(
-  reduceMotion: boolean,
-  durations: NavigationMotionDurations,
-) {
+export function getNavigationMotion(reduceMotion: boolean, durations: NavigationMotionDurations) {
   const animation = reduceMotion ? ('none' as const) : ('fade' as const);
 
   return {
