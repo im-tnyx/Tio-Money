@@ -94,7 +94,10 @@ test('all Settings detail routes preregister the same native Stack motion', () =
 
 test('Currency details preserve native forward push and Back pop', () => {
   const moreViewModel = readFileSync('src/features/settings/use-more-view-model.ts', 'utf8');
-  const mainViewModel = readFileSync('src/features/settings/use-main-currency-view-model.ts', 'utf8');
+  const mainViewModel = readFileSync(
+    'src/features/settings/use-main-currency-view-model.ts',
+    'utf8',
+  );
   const subViewModel = readFileSync('src/features/settings/use-sub-currency-view-model.ts', 'utf8');
   assert.match(moreViewModel, /router\.push\('\/currency\/main'\)/);
   assert.match(moreViewModel, /router\.push\('\/currency\/sub'\)/);
