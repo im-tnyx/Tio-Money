@@ -37,7 +37,7 @@ export function verifySourceMap(map, tracked, affected) {
   return matched;
 }
 
-export function metroMapUrl(manifest, platform) {
+export function metroMapUrl(manifest, platform, port = 8081) {
   const raw = manifest?.launchAsset?.url;
   if (typeof raw !== 'string' || raw.length > 4096) throw Error('Missing Expo Go launch bundle.');
   const url = new URL(raw, 'http://127.0.0.1:8081/');
@@ -51,13 +51,13 @@ export function metroMapUrl(manifest, platform) {
   // never follow the tunnel hostname or make an outbound HTTP request.
   url.protocol = 'http:';
   url.hostname = '127.0.0.1';
-  url.port = '8081';
+  url.port = String(port);
   url.pathname = url.pathname.replace(/\.bundle$/, '.map');
   return url.toString();
 }
 
-export async function readBounded(url, limit = LIMIT, headers = {}) {
-  if (new URL(url).origin !== 'http://127.0.0.1:8081') throw Error('Unexpected Metro probe endpoint.');
+export async function readBounded(url, limit = LIMIT, headers = {}, port = 8081) {
+  if (new URL(url).origin !== `http://127.0.0.1:${port}`) throw Error('Unexpected Metro probe endpoint.');
   const response = await fetch(url, { headers, redirect: 'error', signal: AbortSignal.timeout(120_000) });
   if (response.status !== 200 || response.redirected || !response.body) throw Error('Metro source-map request failed.');
   let size = 0;
@@ -92,11 +92,11 @@ async function main() {
   const outcomes = [];
   for (const p of platform === 'all' ? ['android', 'ios'] : [platform]) {
     try {
-      requirePreviewListener();
-      const manifest = await readBounded('http://127.0.0.1:8081/', 65536, { 'expo-platform': p });
-      requirePreviewListener();
-      const count = verifySourceMap(await readBounded(metroMapUrl(manifest, p)), tracked, affected);
-      requirePreviewListener();
+      const port = requirePreviewListener();
+      const manifest = await readBounded(`http://127.0.0.1:${port}/`, 65536, { 'expo-platform': p }, port);
+      if (requirePreviewListener() !== port) throw Error('Metro port changed.');
+      const count = verifySourceMap(await readBounded(metroMapUrl(manifest, p, port), LIMIT, {}, port), tracked, affected);
+      if (requirePreviewListener() !== port) throw Error('Metro port changed.');
       outcomes.push({ platform: p, status: count ? 'PASS' : 'UNVERIFIED', count });
     } catch {
       outcomes.push({ platform: p, status: 'FAILED', count: 0 });

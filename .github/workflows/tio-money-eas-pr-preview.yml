@@ -247,7 +247,7 @@ jobs:
             .github/scripts/verify-codespace-served-source.mjs > "$RUNNER_TEMP/trusted-metro-source-probe.mjs"
           {
             printf "%s\n" 'run_trusted_metro_sync() {' \
-              "  node --input-type=module - --sync-selected \"\$1\" \"\$2\" <<'TRUSTED_METRO_STARTER'"
+              "  node --input-type=module - --sync-selected \"\$1\" \"\$2\" \"\$3\" <<'TRUSTED_METRO_STARTER'"
             cat "$RUNNER_TEMP/trusted-metro-starter.mjs"
             printf "%s\n" 'TRUSTED_METRO_STARTER' '}'
             cat .github/scripts/sync-pr-codespaces-preview.sh
@@ -335,6 +335,7 @@ jobs:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+          EVENT_NAME: ${{ github.event_name }}
           PR_READ_TOKEN: ${{ github.token }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
           PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
@@ -344,14 +345,18 @@ jobs:
           # Main-owned read-only gate also supports older approved PRs whose
           # starter predates --preflight. It never executes PR code here.
           env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+          mode=""
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then mode="--manual"; fi
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            node --input-type=module - \
+            node --input-type=module - "$mode" \
             < .github/scripts/preflight-pr-codespaces-preview.mjs
           result="$(gh codespace ssh --codespace "$CODESPACE_NAME" -- \
             bash -s -- "$TARGET_SHA" < .github/scripts/check-pr-codespaces-preview.sh)"
           case "$result" in
             *EXACT_SHA)
-              if gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+              if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+                echo 'no_op=false' >> "$GITHUB_OUTPUT"
+              elif gh codespace ssh --codespace "$CODESPACE_NAME" -- \
                 node --input-type=module - --status < "$RUNNER_TEMP/trusted-metro-starter.mjs"; then
                 echo 'no_op=true' >> "$GITHUB_OUTPUT"
               else
@@ -369,6 +374,7 @@ jobs:
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
           TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          EVENT_NAME: ${{ github.event_name }}
           PR_READ_TOKEN: ${{ github.token }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
           PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
@@ -417,14 +423,16 @@ jobs:
           gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_finalize_command"
           # Recheck immediately before the worktree mutation. The remote sync
           # script stays on trusted main and independently checks the worktree.
+          mode=""
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then mode="--manual"; fi
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            node --input-type=module - \
+            node --input-type=module - "$mode" \
             < .github/scripts/preflight-pr-codespaces-preview.mjs
           env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
           # Trusted main script verifies private-dir ownership, file size,
           # permissions, SHA-256, Git bundle and exact selected PR commit.
           gh codespace ssh --codespace "$CODESPACE_NAME" -- \
-            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" "$mode" \
             < "$RUNNER_TEMP/trusted-metro-sync.sh"
 
       - name: Verify served Metro source and healthy tunnel

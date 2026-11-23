@@ -9,9 +9,11 @@ readonly target_sha="${1:-}"
 readonly pr_number="${2:-}"
 readonly bundle_path="${3:-}"
 readonly expected_bundle_sha256="${4:-}"
+readonly mode="${5:-}"
 
 if [[ ! "$target_sha" =~ ^[0-9a-f]{40}$ || ! "$pr_number" =~ ^[1-9][0-9]*$ ||
-      ! "$expected_bundle_sha256" =~ ^[0-9a-f]{64}$ ]]; then
+      ! "$expected_bundle_sha256" =~ ^[0-9a-f]{64}$ ||
+      ( -n "$mode" && "$mode" != '--manual' ) ]]; then
   echo "Refusing preview: exact SHA, numeric PR and trusted SHA-256 are required." >&2
   exit 1
 fi
@@ -97,4 +99,4 @@ fi
 
 # Only the trusted streamed starter may mutate the checkout or managed Metro.
 # It rechecks FETCH_HEAD, HEAD, worktree and listener under its startup lock.
-run_trusted_metro_sync "$before_sha" "$target_sha"
+run_trusted_metro_sync "$before_sha" "$target_sha" "$mode"
