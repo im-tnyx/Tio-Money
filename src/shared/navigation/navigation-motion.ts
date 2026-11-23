@@ -14,7 +14,8 @@ export function getNavigationMotion(
   platform: string,
 ) {
   const animation = reduceMotion ? ('none' as const) : ('fade' as const);
-  const detailAnimation = !reduceMotion && platform === 'android' ? 'fade_from_bottom' : animation;
+  const detailAnimation: 'fade' | 'none' | 'fade_from_bottom' =
+    !reduceMotion && platform === 'android' ? 'fade_from_bottom' : animation;
 
   return {
     tab: {
