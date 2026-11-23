@@ -249,4 +249,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides this record and the index are `src/features/accounts/account-form-controls.tsx`, `src/features/accounts/bank-payment-modes.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
 
+### 2026-11-23 — Smaller payment actions and Apply-only editor
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111219399) records the owner’s requests against Draft #97 head `2071e4bf3fdfc802a48a0018ca8d4bc2da7074d2`.
+- Edit and Delete use 18dp glyphs in 32dp painted circles with 48dp controls. Credit card, QR, checkbook and globe marks use official weight-200 Material Symbols Outlined for Debit Card, UPI, Cheque and Internet Banking. The sheet exposes Apply and uses shared dismissal to discard unapplied edits.
+- Changed paths besides the task and index are `src/features/accounts/bank-payment-modes.tsx`, `src/shared/assets/google-material-icons/payment-mode-icons.json`, `src/shared/assets/google-material-icons/README.md`, `src/shared/theme/README.md`, `src/shared/theme/component-tokens.ts`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/design-tokens.test.ts`.
+- Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
