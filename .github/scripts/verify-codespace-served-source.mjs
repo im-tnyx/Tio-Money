@@ -1,5 +1,6 @@
 // Trusted main-only source probe streamed into the verified Codespace.
 // A successful Metro /status alone does not prove the current JS bundle.
+import { Buffer } from 'node:buffer';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
