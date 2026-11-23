@@ -8,7 +8,7 @@
 |---|---|
 | Task ID | TM-DOC-IA-20261123-001 |
 | Repository | `im-tnyx/Tio-Money` |
-| Lifecycle state | `VALIDATING` (non-force latest-main reconciliation completed; final CI/review pending) |
+| Lifecycle state | `IN_REVIEW` (Gate 3 audit verified; GitHub Ready for Review transition pending) |
 | RFC / discussion | [Issue #89](https://github.com/im-tnyx/Tio-Money/issues/89) |
 | Proceed decision | `PROCEED` — [technical decision comment](https://github.com/im-tnyx/Tio-Money/issues/89#issuecomment-7091498129) |
 | Decision maker | ChatGPT GPT-6 (agent), 2026-11-23 UTC, based on owner chat request; not a GitHub-owner-authored approval |
@@ -36,13 +36,13 @@ Owner requested a task managed through `.ai` and docs restructuring into separat
 
 ## Acceptance gates defined before implementation
 
-- [ ] README conveys product, offline-first trust boundary, truthful shipped/planned features and basic developer setup; no raw historical PR merge-gate block.
-- [ ] Docs are categorized with retained `00-INDEX.md`; current owner decisions, finance ADRs and security records remain canonical and distinct from history.
-- [ ] Historical snapshots from README and doc index preserved in history or source task/PR with permanent links and accurate superseded labels.
-- [ ] Every moved doc's relative and incoming Markdown links/anchors validated; internal references in governance, scripts and docs checked; explicit deferred list for active PR overlap.
-- [ ] Doc scope only, zero unintended code/policy changes; no forbidden co-author trailers in new commits.
-- [ ] Exact PR HEAD governance/link CI checked; review disposition evidence recorded; no fabricated test claims.
-- [ ] PR remains unmerged until separate owner instruction names exact repo + PR + merge conditions.
+- [x] README conveys product, offline-first trust boundary, truthful shipped/planned features and basic developer setup; no raw historical PR merge-gate block.
+- [x] Docs are categorized with retained `00-INDEX.md`; current owner decisions, finance ADRs and security records remain canonical and distinct from history.
+- [x] Historical snapshots from README and doc index preserved in history or source task/PR with permanent links and accurate superseded labels.
+- [x] Every moved doc's relative and incoming Markdown links/anchors validated; internal references in governance, scripts and docs checked; explicit deferred list for active PR overlap.
+- [x] Doc scope only, zero unintended code/policy changes; no forbidden co-author trailers in new commits.
+- [x] Exact PR HEAD governance/link CI checked; review disposition evidence recorded; no fabricated test claims.
+- [x] PR remains unmerged until separate owner instruction names exact repo + PR + merge conditions.
 
 ## Immutable session checkpoints
 
@@ -79,3 +79,15 @@ Owner requested a task managed through `.ai` and docs restructuring into separat
 - **Review status:** PR #90 has no submitted GitHub reviews and no inline threads at inspection. Independent review **DEFERRED**; full manual anchor check and concurrent-PR final reconciliation outstanding. Keep Draft. Owner action-specific merge authorization **NOT_GRANTED**; never bypass branch protections, do not alter `main`, auto-merge, or PR #88.
 - **Next:** This checkpoint write itself advances exact HEAD and triggers fresh CI; reverify new SHA/status and link-validation. Recheck main and PR #88 at review/merge gate. PR #90 remains Draft until all remaining gates are satisfied.
 
+
+### 2026-11-23 UTC — Gate 3 final documentation review (ChatGPT GPT-6)
+
+- **Inspected exact HEAD:** `1cdf32d6f5bed2443ea14b5901c13319c0c4bfdf` from current main `1d512cf4b75911cfe8c4a4f409768ca311b33c0d`; PR #90 OPEN/DRAFT at review start, GitHub reports `mergeable_state=clean`. Diff remains 58 documentation-only paths, ahead 18/behind 0.
+- **Owner scope and review method:** Gate 3 from owner chat, documentation-only review performed by working ChatGPT/GPT-6 (NOT independent human approval). Checked product purpose, setup, planned-vs-shipped status, privacy/finance boundary, category separation, source history retention, link destinations, GitHub review threads and ruleset. No security/finance implementation changes.
+- **Verified docs:** 13 core product/design/architecture/governance/engineering files have **74/74** internal Markdown heading fragments resolving via GitHub-compatible heading slug normalization. Additional 13 README/hub/history/security/style/preview/theme Markdown files yielded **17/17** internal anchor targets (5 same-group, 12 to core docs). Scanned 24 AGENTS/.ai governance/task documents; **27/27** doc-targeted anchor links matched existing canonical target heading IDs. These are manual static checks; GitHub markdown renderer and external network links were not exhaustively visited. Current-HEAD Governance CI also passed repository Markdown link verification.
+- **Required exact-HEAD CI:** [Governance run 45117471158](https://github.com/im-tnyx/Tio-Money/actions/runs/45117471158) **SUCCESS**; [static run 45117471118](https://github.com/im-tnyx/Tio-Money/actions/runs/45117471118) **SUCCESS** (typed checks, lint, tests, Android/iOS Metro smoke); commit attribution checked by governance CI. No real phone testing; only documentation scope.
+- **Active branch protection:** `protect-main` ruleset 27567187 active; `static` and `Governance / Python, links and commit attribution` required; approving review count 0, review-thread resolution required. PR #90 had **zero submitted reviews and zero review threads** on inspection. Copilot review-on-push applies, draft reviews disabled; revisit findings after Ready for Review.
+- **PR #88 coordination:** Draft PR #88 HEAD `1b68936930ed0c627ca525ed6972885ba1336d5e` remains untouched and currently reports an independent merge conflict against newer main. Its three preview docs deliberately remain in `docs/` root, and its `.ai/current.md` addition is not copied into PR #90 because it is unmerged. After PR #88 is merged/reconciled, PR #90 must re-check shared index/history and exact HEAD. No blocker to separately reviewing PR #90 now.
+- **Review disposition:** working-agent documentation self-review **PERFORMED (not independent GitHub approval)**, independent human review **DEFERRED** (optional unless active GitHub settings change). No unaddressed blocking findings identified in this static docs review; preservation of PR #88 work is a deferred dependency, not a waiver.
+- **Lifecycle:** task moves to `IN_REVIEW`; PR #90 is eligible for the separate GitHub Ready for Review action after this commit's exact-HEAD required CI verifies success. This checkpoint changes PR head; older CI is historical and must not be reused for the new SHA.
+- **Merge restriction:** Owner PR #90 merge authorization **NOT_GRANTED**. No auto-merge, merge, force-push, branch deletion, protected-main or PR #88 branch modification, deployment, trust change or security acceptance.
