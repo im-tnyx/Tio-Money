@@ -112,7 +112,12 @@ test('Add Account Group sheet has only Save; dismissal remains on shared shell',
   assert.match(modal, /onPress=\{onDismiss\}/);
   assert.doesNotMatch(screen, /<TextInput|<Modal|style=\{\{[^}]*fontSize:/);
   assert.match(field, /TextInputProps/);
-  assert.match(field, /minHeight: theme\.buttons\.minimumHeight/);
+  const groupInput = screen.match(/<AppTextField\s[\s\S]*?\/>/)?.[0];
+  assert.ok(groupInput);
+  assert.doesNotMatch(groupInput, /appearance=/);
+  assert.match(field, /appearance = 'outlined'/);
+  assert.match(field, /const minHeight = theme\.textField\.minimumHeight\[appearance\]/);
+  assert.match(field, /style=\{\{\s+minHeight,/);
   assert.match(field, /placeholderTextColor=\{theme\.colors\.secondaryText\}/);
   assert.match(field, /borderColor: invalid \? theme\.colors\.expense : theme\.colors\.border/);
   assert.match(field, /fontSize: theme\.typeScale\.body/);
