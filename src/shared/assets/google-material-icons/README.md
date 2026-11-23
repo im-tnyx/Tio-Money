@@ -86,3 +86,20 @@ Exact upstream SVG is archived as `home_storage.svg`; identical runtime XML is
 `settings-account-groups-icon.json`. Render via `SvgXml` with shared
 `iconRoleSizes.card` and theme color, no extra icon fonts/dependencies.
 Existing Apache 2.0 license applies.
+
+## Linked Payment Modes — Draft PR #97 (2026-11-23)
+
+The saved draft rows use the official Google Material Symbols Outlined glyphs
+at weight 200 and 24px optical size. The source files below come from
+[commit 10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7](https://github.com/google/material-design-icons/tree/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/web).
+The exact XML is bundled in [payment-mode-icons.json](./payment-mode-icons.json)
+and rendered at 24dp using the theme transfer color.
+
+| Payment type | Source SVG |
+| --- | --- |
+| Debit Card | `symbols/web/credit_card/materialsymbolsoutlined/credit_card_wght200_24px.svg` |
+| UPI | `symbols/web/qr_code_2/materialsymbolsoutlined/qr_code_2_wght200_24px.svg` |
+| Cheque | `symbols/web/checkbook/materialsymbolsoutlined/checkbook_wght200_24px.svg` |
+| Internet Banking | `symbols/web/language/materialsymbolsoutlined/language_wght200_24px.svg` |
+
+The existing [Apache 2.0 license](./LICENSE.txt) applies.

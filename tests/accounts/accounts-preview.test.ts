@@ -7,6 +7,7 @@ import {
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
+  paymentModeTypes,
   reconcileAccountDraftCurrency,
   updateAccountDraft,
   type AccountDraft,
@@ -16,6 +17,7 @@ import {
 } from '../../src/features/accounts/account-form-contract';
 import { beginPickerClose, finishPickerClose } from '../../src/features/accounts/account-picker';
 import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-group-templates';
+import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
 import { en } from '../../src/shared/i18n/strings';
 
 const currencies = draftCurrencies({ mainCode: 'INR', subCodes: ['USD', 'JPY'] });
@@ -150,6 +152,19 @@ test('linked payment modes show a compact header action and named icon rows with
     source,
     /width: theme.buttons.minimumHeight,\s+minHeight: theme.buttons.minimumHeight/,
   );
+  assert.match(
+    source,
+    /width: theme.buttons.smallActionHeight,\s+height: theme.buttons.smallActionHeight/,
+  );
+  assert.match(
+    source,
+    /width=\{theme.buttons.smallActionIconSize\}\s+height=\{theme.buttons.smallActionIconSize\}/,
+  );
+  assert.match(source, /<SvgXml\s+xml=\{paymentModeIcons\[name\]\}/);
+  assert.deepEqual(Object.keys(paymentModeIcons), [...paymentModeTypes]);
+  for (const xml of Object.values(paymentModeIcons)) {
+    assert.match(xml, /<svg[^>]+viewBox="0 -960 960 960"/);
+  }
 });
 
 test('currency uses configured preferences, retains reference dates and never relabels amounts', () => {
@@ -444,7 +459,8 @@ test('main form aligns icons and wraps Description from one line with its label 
 });
 
 test('payment mode editor uses compact outlined radios in one horizontal row', () => {
-  const editor = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
+  const source = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
+  const editor = source.slice(source.indexOf('export function BankModeEditor'));
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const choices = controls.slice(controls.indexOf('export function AccountChoices'));
   const compactRow = choices.slice(choices.indexOf('if (compact)'));
@@ -458,6 +474,10 @@ test('payment mode editor uses compact outlined radios in one horizontal row', (
   assert.match(compactRow, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
   assert.match(compactRow, /\{choices\}\s+<\/ScrollView>/);
   assert.match(controls, /labelAsPlaceholder \? null : <AppText>\{t\(label\)\}<\/AppText>/);
+  assert.equal(editor.match(/<ActionButton/g)?.length, 1);
+  assert.match(editor, /label=\{t\('accountModeApply'\)\}/);
+  assert.match(editor, /onDismiss=\{\(\) => onAction\(\{ type: 'mode.cancel' \}\)\}/);
+  assert.match(editor, /dismissAccessibilityLabel=\{t\('accountCancel'\)\}/);
 });
 
 test('settings routes are distinct and detail routes inherit shared theme motion', () => {

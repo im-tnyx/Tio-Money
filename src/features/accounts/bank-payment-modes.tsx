@@ -1,6 +1,7 @@
 import { Pressable, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, SvgXml } from 'react-native-svg';
 
+import paymentModeIcons from '@/shared/assets/google-material-icons/payment-mode-icons.json';
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { ActionButton } from '@/shared/ui/action-button';
@@ -21,12 +22,7 @@ const modeLabels = {
   internetBanking: 'accountCapabilityInternetBanking',
 } as const;
 
-const modeIcons = {
-  debitCard: 'M3 6h18v12H3z M3 10h18 M6 15h4',
-  upi: 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h3v3h3v3 M14 20h1 M20 14h.01',
-  cheque: 'M3 6h18v12H3z M6 10h6 M6 13h4 M13 15l2-2 2 2 2-2',
-  internetBanking:
-    'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z M3 12h18 M12 3c-5 5-5 13 0 18 5-5 5-13 0-18Z',
+const actionIcons = {
   edit: 'm4 16-1 5 5-1L20 8l-4-4L4 16Z M14 6l4 4',
   remove: 'M4 6h16 M9 6V3h6v3 M6 6l1 15h10l1-15 M10 10v7 M14 10v7',
 } as const;
@@ -35,27 +31,19 @@ function ModeIcon({
   name,
   color,
 }: {
-  readonly name: keyof typeof modeIcons;
+  readonly name: keyof typeof paymentModeIcons;
   readonly color: string;
 }) {
   const theme = useAppTheme();
   return (
-    <Svg
-      width={theme.iconRoles.button}
-      height={theme.iconRoles.button}
-      viewBox="0 0 24 24"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
-      <Path
-        d={modeIcons[name]}
-        fill="none"
-        stroke={color}
-        strokeWidth={theme.icons.stroke}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <SvgXml
+        xml={paymentModeIcons[name]}
+        fill={color}
+        width={theme.iconRoles.button}
+        height={theme.iconRoles.button}
       />
-    </Svg>
+    </View>
   );
 }
 
@@ -84,8 +72,8 @@ function ModeRowAction({
     >
       <View
         style={{
-          width: theme.buttons.actionHeight,
-          height: theme.buttons.actionHeight,
+          width: theme.buttons.smallActionHeight,
+          height: theme.buttons.smallActionHeight,
           borderRadius: theme.radius.pill,
           borderWidth: theme.buttons.outlineWidth,
           borderColor: theme.colors.border,
@@ -94,10 +82,22 @@ function ModeRowAction({
           justifyContent: 'center',
         }}
       >
-        <ModeIcon
-          name={icon}
-          color={icon === 'edit' ? theme.colors.primaryText : theme.colors.secondaryText}
-        />
+        <Svg
+          width={theme.buttons.smallActionIconSize}
+          height={theme.buttons.smallActionIconSize}
+          viewBox="0 0 24 24"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <Path
+            d={actionIcons[icon]}
+            fill="none"
+            stroke={icon === 'edit' ? theme.colors.primaryText : theme.colors.secondaryText}
+            strokeWidth={theme.icons.stroke}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
       </View>
     </Pressable>
   );
@@ -188,11 +188,6 @@ export function BankModeEditor({ draft, canApplyMode, animateSheet, onAction }: 
             label={t('accountModeApply')}
             disabled={!canApplyMode}
             onPress={() => onAction({ type: 'mode.apply' })}
-          />
-          <ActionButton
-            label={t('accountCancel')}
-            variant="ghost"
-            onPress={() => onAction({ type: 'mode.cancel' })}
           />
         </View>
       ) : null}

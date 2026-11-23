@@ -740,6 +740,9 @@ The Linked Payment Modes header in Draft PR #97 opts into `size="small"` for a
 **32dp painted surface**. Both sizes use the shared 48dp minimum touch target and
 can expand for text scaling.
 
+Linked Payment Modes Edit and Delete use **18dp** icons within **32dp**
+painted circles and keep **48dp** minimum press targets.
+
 Draft PR #97 shows **36 × 36dp** currency boxes at the right end of one amount
 row per form with **48dp** minimum press targets. Borderless fields, outlined fields
 and noninteractive leading icons share a **46dp** minimum height. Description
