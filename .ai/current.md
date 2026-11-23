@@ -1,3 +1,7 @@
+## 2026-11-23 — PR #80 latest owner choice: Android fade-only (slide removed)
+
+- Owner superseded Android slide/slide+fade request due to right-edge white flash. [RFC #79](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091987225), [assigned task](tasks/ui/settings-topbar-account-groups-20261122.md). Four detail routes share native `fade` on Android/iOS (iOS 160ms, Android OS-native duration); keep theme underlay, tabs fade, Reduced Motion and bottom sheet. Device QA required, PR #80 only, no merge or #71 trust approval. Exact new HEAD CI pending.
+
 ## 2026-11-23 — PR #80 Android Back white-edge mitigation (combined fade requested)
 
 - Owner requests smooth Android Back, no white right-edge flash and a subtle fade along with slide. [RFC #79 decision](https://github.com/im-tnyx/Tio-Money/issues/79#issuecomment-7091913435) / [task](tasks/ui/settings-topbar-account-groups-20261122.md). Root Stack native underlay now matches theme canvas like Tabs; existing native Android slide, iOS fade, Reduced Motion and gestures kept. Expo Router native Stack lacks one-option slide+fade composition, so combined effect is NOT claimed; device QA still required. PR #80 only, no merge authority, main untouched, Issue #71 OPEN. Exact new HEAD/CI pending.

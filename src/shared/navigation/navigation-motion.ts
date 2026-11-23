@@ -6,7 +6,7 @@ export interface NavigationMotionDurations {
 
 /**
  * JS Tabs and native Stack need different navigator APIs for the same fade intent.
- * Native Stack animationDuration is iOS-only; Android uses native horizontal slide timing.
+ * Native Stack animationDuration is iOS-only; Android uses the native fade preset and OS timing.
  */
 export function getNavigationMotion(
   reduceMotion: boolean,
@@ -14,8 +14,6 @@ export function getNavigationMotion(
   platform: string,
 ) {
   const animation = reduceMotion ? ('none' as const) : ('fade' as const);
-  const detailAnimation: 'fade' | 'none' | 'slide_from_right' =
-    !reduceMotion && platform === 'android' ? 'slide_from_right' : animation;
 
   return {
     tab: {
@@ -26,7 +24,7 @@ export function getNavigationMotion(
       },
     },
     detail: {
-      animation: detailAnimation,
+      animation,
       ...(platform === 'ios' ? { animationDuration: durations.detailFadeDurationMs } : {}),
     },
   };

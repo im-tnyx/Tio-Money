@@ -27,7 +27,7 @@ test('one theme primitive owns both tab and detail fade intent', () => {
 
   const android = getNavigationMotion(false, navigationTokens, 'android');
   assert.deepEqual(android.tab, active.tab);
-  assert.deepEqual(android.detail, { animation: 'slide_from_right' });
+  assert.deepEqual(android.detail, { animation: 'fade' });
 
   const reduced = getNavigationMotion(true, navigationTokens, 'ios');
   assert.equal(reduced.tab.animation, 'none');
@@ -37,6 +37,10 @@ test('one theme primitive owns both tab and detail fade intent', () => {
   const androidReduced = getNavigationMotion(true, navigationTokens, 'android');
   assert.deepEqual(androidReduced.tab, reduced.tab);
   assert.deepEqual(androidReduced.detail, { animation: 'none' });
+
+  const source = readFileSync('src/shared/navigation/navigation-motion.ts', 'utf8');
+  assert.doesNotMatch(source, /slide_from_right|fade_from_bottom|animationDuration: \d+/);
+  assert.match(source, /platform === 'ios'/);
 });
 
 test('five-tab scene host reuses policy without animating the tab bar or FAB', () => {

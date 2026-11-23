@@ -765,3 +765,26 @@ white. Compare animation smoothness on a physical device and iOS regression sepa
 Source tests/CI/Metro cannot certify perceived smoothness or absence of native flashes.
 Rollback: revert the root `contentStyle` change if it introduces a regression;
 keep product data, bottom sheet, tokens and all native gesture ownership intact.
+
+## Superseding Android detail transition — owner fade-only decision (2026-11-23)
+
+**The latest owner direction supersedes earlier Android slide/slide+fade proposals.**
+PR #80 detail navigation for Account Groups, Main Currency, Sub Currency and
+Sub Currency Detail must use **native Stack `animation: 'fade'`** on Android and iOS.
+Android uses OS-controlled native fade timing (no `animationDuration` override);
+iOS retains theme-owned 160ms native fade. Five-tab scene crossfade stays 160ms,
+and the shared native Bottom Sheet keeps its vertical slide. The native route
+push/pop, card swipe and gesture arbitration must not change. Do not reintroduce
+`slide_from_right` or `fade_from_bottom` for those four detail routes without a
+new owner decision. Reduced Motion true/unknown still selects `animation: 'none'`.
+
+The earlier theme-matched native Stack `contentStyle.backgroundColor` fix is
+preserved. Fade-only avoids deliberate horizontal edge exposure, but does **not**
+prove Android's right-side white flash is eliminated or native transitions feel
+smooth. On a physical Android device test toolbar, hardware and gesture Back
+under Light/Dark/System with app appearance override; test all four routes, fast
+taps, OS animator scale and Reduced Motion. Confirm iOS fade, Tab transitions,
+Bottom Sheet animation and swipe-to-Delete remain correct. If flash persists,
+investigate native window/fragment background and system bars, not a screen-level
+JS animation workaround. This section is authoritative over earlier Android
+slide statements retained above as a decision history.
