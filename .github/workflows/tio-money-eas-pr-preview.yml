@@ -579,10 +579,15 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22.16.0
-          cache: npm
 
       - name: Install locked project dependencies
-        run: npm ci --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          export NPM_CONFIG_CACHE
+          NPM_CONFIG_CACHE="$(mktemp -d "${RUNNER_TEMP:?}/eas-validate-npm.XXXXXXXX")"
+          test "$(npm config get cache)" = "$NPM_CONFIG_CACHE"
+          printf 'NPM_CONFIG_CACHE=%s\n' "$NPM_CONFIG_CACHE" >> "$GITHUB_ENV"
+          npm ci --no-audit --no-fund --cache "$NPM_CONFIG_CACHE" --registry=https://registry.npmjs.org
 
       - name: Resolve native Draft OTA fingerprints without Expo credentials
         id: draft_runtime
@@ -769,11 +774,15 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22.16.0
-          cache: npm
 
       - name: Install locked project dependencies
         # No dependency lifecycle hook may persist into the EXPO_TOKEN step.
-        run: npm ci --ignore-scripts --no-audit --no-fund
+        run: |
+          set -euo pipefail
+          export NPM_CONFIG_CACHE
+          NPM_CONFIG_CACHE="$(mktemp -d "${RUNNER_TEMP:?}/eas-publish-root-npm.XXXXXXXX")"
+          test "$(npm config get cache)" = "$NPM_CONFIG_CACHE"
+          npm ci --ignore-scripts --no-audit --no-fund --cache "$NPM_CONFIG_CACHE" --registry=https://registry.npmjs.org
 
       - name: Install committed and verify EAS CLI without Expo credentials
         env:
@@ -798,15 +807,22 @@ jobs:
           }
           for (const [path, pkg] of Object.entries(lock.packages)) {
             if (!path) continue;
-            if (pkg.resolved && (!pkg.resolved.startsWith('https://registry.npmjs.org/') ||
-                !pkg.integrity?.startsWith('sha512-'))) {
+            if (!pkg.resolved?.startsWith('https://registry.npmjs.org/') ||
+                !pkg.integrity?.startsWith('sha512-')) {
               throw Error('Untrusted npm registry or sha512 integrity for ' + path);
             }
           }
           NODE
+          export NPM_CONFIG_CACHE
+          NPM_CONFIG_CACHE="$(mktemp -d "${RUNNER_TEMP:?}/eas-publish-cli-npm.XXXXXXXX")"
+          test "$(npm config get cache --prefix "$EAS_CLI_ROOT")" = "$NPM_CONFIG_CACHE"
           npm ci --prefix "$EAS_CLI_ROOT" \
-            --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
-          ( cd "$EAS_CLI_ROOT" && npm audit signatures --registry=https://registry.npmjs.org )
+            --ignore-scripts --no-audit --no-fund --cache "$NPM_CONFIG_CACHE" --registry=https://registry.npmjs.org
+          (
+            cd "$EAS_CLI_ROOT"
+            test "$(npm config get cache)" = "$NPM_CONFIG_CACHE"
+            npm audit signatures --cache "$NPM_CONFIG_CACHE" --registry=https://registry.npmjs.org
+          )
           node - "$EAS_CLI_ROOT/node_modules/eas-cli/package.json" "$EAS_CLI_VERSION" <<'NODE'
           const [file, approved] = process.argv.slice(2);
           if (require(file).version !== approved) throw Error('Installed EAS CLI version mismatch');
