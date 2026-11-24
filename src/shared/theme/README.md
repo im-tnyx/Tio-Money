@@ -723,6 +723,25 @@ only values and intents. Caller domain validation owns the max 40-character
 limit and duplicate handling. No `TextInput`-specific visual constants or
 local modal/button code are allowed in this screen.
 
+## Add Account option popup — PR #97 (2026-11-24)
+
+Wallet Type, Investment Type and Loan Direction share
+[`AccountDropdown`](../../features/accounts/account-option-popup.tsx). This Accounts
+component renders an anchored popup and receives its options, selected value and
+dismiss callback from the Add Account view model.
+
+- [`optionPopupTokens`](component-tokens.ts) define a preferred width of 240 dp,
+  a 24 dp corner radius and the elevation and shadow settings.
+- The light and dark `optionPopup` palette colors in [`tokens.ts`](tokens.ts)
+  provide the translucent surface. The card uses the standard theme border.
+- [`accountPopupPosition`](../../features/accounts/account-popup-position.ts)
+  clamps the card to the safe viewport and places it above the trigger when that
+  gives the list more room. Long lists scroll. Selecting an option, tapping
+  outside or pressing Back closes the card.
+
+The [Accounts preview tests](../../../tests/accounts/accounts-preview.test.ts)
+cover placement, dismissal wiring and option selection.
+
 ## Shared ActionButton visual height — 2026-11-22 (owner RFC #79 refinement)
 
 The canonical `src/shared/ui/action-button.tsx` defaults to a **42dp painted
