@@ -776,6 +776,7 @@ jobs:
           node-version: 22.16.0
 
       - name: Install locked project dependencies
+        id: publisher_npm
         # No dependency lifecycle hook may persist into the EXPO_TOKEN step.
         run: |
           set -euo pipefail
@@ -783,6 +784,7 @@ jobs:
           NPM_CONFIG_CACHE="$(mktemp -d "${RUNNER_TEMP:?}/eas-publish-root-npm.XXXXXXXX")"
           test "$(npm config get cache)" = "$NPM_CONFIG_CACHE"
           npm ci --ignore-scripts --no-audit --no-fund --cache "$NPM_CONFIG_CACHE" --registry=https://registry.npmjs.org
+          printf 'cache_path=%s\n' "$NPM_CONFIG_CACHE" >> "$GITHUB_OUTPUT"
 
       - name: Install committed and verify EAS CLI without Expo credentials
         env:
@@ -861,6 +863,7 @@ jobs:
 
       - name: Revalidate immutable PR and source scope before EAS
         env:
+          NPM_CONFIG_CACHE: ${{ steps.publisher_npm.outputs.cache_path }}
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
@@ -868,6 +871,11 @@ jobs:
           TARGET_OPERATION: ${{ inputs.operation }}
         run: |
           set -euo pipefail
+          # Check the cache that the later EAS process and its children will inherit.
+          [[ "$NPM_CONFIG_CACHE" == "${RUNNER_TEMP:?}"/eas-publish-root-npm.???????? ]]
+          [[ -d "$NPM_CONFIG_CACHE" && ! -L "$NPM_CONFIG_CACHE" && -O "$NPM_CONFIG_CACHE" ]]
+          test "$(stat -c '%a' -- "$NPM_CONFIG_CACHE")" = 700
+          test "$(npm config get cache)" = "$NPM_CONFIG_CACHE"
           test "$(git rev-parse HEAD)" = "$PR_SHA"
           worktree="$(git status --porcelain=v1 --untracked-files=normal)"
           test -z "$worktree"
@@ -882,6 +890,7 @@ jobs:
 
       - name: Publish OTA or queue internal preview build (owner dispatch only)
         env:
+          NPM_CONFIG_CACHE: ${{ steps.publisher_npm.outputs.cache_path }}
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
