@@ -462,4 +462,9 @@ The entries below record implementation history at their stated revisions; super
 - [AI Governance](https://github.com/im-tnyx/Tio-Money/actions/runs/45390126543) passed; [Phase 0](https://github.com/im-tnyx/Tio-Money/actions/runs/45390126450/job/138431317244) passed typecheck and lint, then failed Prettier in two files. Reformat the Pick union and projection memo without behavior changes; no checks relaxed. Add regression assertions for compact geometry and rotation.
 - Changed paths: shared component tokens, Add Account screen (format only), shared wheel picker (equivalent memo structure), Accounts preview tests, theme README, product spec, current task index and this record. Connector-only; local formatter/full checks NOT_RUN. Fresh exact-HEAD CI and native visual QA required. Independent review DEFERRED. No merge or publish authorization; rollback scoped revert.
 
+### 2026-11-24 — Compact date popup padding
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7131153575) · Owner requests 4 dp padding on every side; ChatGPT GPT-6.2; starting HEAD `29f36781bebb37352318e57b3494af399debb8cb`. Use one shared padding token in the content layout, preferred popup height and viewport budget. The nominal wheel remains 160 dp with 32 dp rows; padded content is now 168 dp excluding border. Curvature and date behavior unchanged.
+- [Prior AI Governance](https://github.com/im-tnyx/Tio-Money/actions/runs/45390807001) passed; [Phase 0](https://github.com/im-tnyx/Tio-Money/actions/runs/45390806997/job/138433680899) failed Prettier in app-wheel-picker.tsx. That existing formatting blocker is outside this padding-only edit and remains unresolved. Connector-only; local checks NOT_RUN. Fresh exact-HEAD CI and device QA required. Independent review DEFERRED; no merge/publish authorization. Rollback scoped revert.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
