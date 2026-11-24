@@ -137,16 +137,18 @@ function DraftInput({
   label,
   info,
   infoBody,
+  currencyControl,
 }: DraftInputControls & {
   readonly field: DraftField;
   readonly value: string;
   readonly label?: TranslationKey;
   readonly info?: LoanFieldInfo | false;
   readonly infoBody?: TranslationKey;
+  readonly currencyControl?: boolean;
 }) {
   const spec = fieldSpecs[field];
   const money = 'money' in spec;
-  const showCurrency = 'currencyControl' in spec && currencyChoices !== null;
+  const showCurrency = (currencyControl ?? 'currencyControl' in spec) && currencyChoices !== null;
   const date = 'date' in spec;
   const monthly = 'monthly' in spec;
   const calendar = isCalendarDateField(field);
@@ -486,6 +488,7 @@ function GroupFields({
                 label="accountLoanInstallmentOptional"
                 info="emiAmount"
                 infoBody="accountLoanInstallmentInfo"
+                currencyControl={false}
                 value={draft.fields.emiAmount}
                 {...draftInput}
               />
@@ -526,6 +529,7 @@ function GroupFields({
             <>
               <DraftInput
                 field="originalPrincipal"
+                currencyControl={false}
                 value={draft.fields.originalPrincipal}
                 {...draftInput}
               />
