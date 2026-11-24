@@ -97,7 +97,7 @@ export const datePickerTokens = {
   width: size.dp100 * 3 + space.md,
   rowHeight: size.dp32,
   paddingHorizontal: space.xs,
-  paddingVertical: space.xxs,
+  paddingVertical: size.dp6,
   visibleRows: 5,
   compactRows: 3,
   minimumRows: 1,

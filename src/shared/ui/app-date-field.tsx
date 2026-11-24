@@ -9,10 +9,10 @@ import { AppPopupCard } from './app-popup-card';
 import { AppText } from './app-text';
 import { AppWheelPicker } from './app-wheel-picker';
 import {
-  calendarDays,
   calendarMonths,
-  calendarYearMax,
-  calendarYearMin,
+  calendarWheelCounts,
+  calendarWheelIndex,
+  calendarWheelLabel,
   parseCalendarDate,
   type CalendarPart,
 } from './calendar-date';
@@ -22,14 +22,8 @@ export interface AppDateFieldModel {
   readonly open: boolean;
   readonly onOpen: () => void;
   readonly onClose: () => void;
-  readonly onChange: (part: CalendarPart, value: number) => void;
+  readonly onChange: (part: CalendarPart, index: number) => void;
 }
-
-const years = Array.from({ length: calendarYearMax - calendarYearMin + 1 }, (_, index) => ({
-  value: calendarYearMin + index,
-  label: String(calendarYearMin + index),
-}));
-const months = calendarMonths.map((label, index) => ({ value: index + 1, label }));
 
 /** Reusable controlled local-date field; selection updates immediately, with no footer. */
 export function AppDateField({
@@ -52,11 +46,6 @@ export function AppDateField({
 
   const day = String(date.day).padStart(2, '0');
   const month = calendarMonths[date.month - 1];
-  const count = calendarDays(date.year, date.month);
-  const days = Array.from({ length: count }, (_, index) => ({
-    value: index + 1,
-    label: String(index + 1).padStart(2, '0'),
-  }));
   const desiredRowHeight = Math.max(
     theme.datePicker.rowHeight,
     Math.ceil(theme.typeScale.section * viewport.fontScale * theme.typography.relativeLineHeight) +
@@ -150,10 +139,11 @@ export function AppDateField({
             }}
           />
           <AppWheelPicker
-            key={`day-${count}-${wheelKey}`}
+            key={`day-${wheelKey}`}
             label={t('accountDateDay')}
-            options={days}
-            value={date.day}
+            count={calendarWheelCounts.day}
+            labelAt={(index) => calendarWheelLabel('day', index)}
+            value={calendarWheelIndex(date, 'day')}
             onChange={(value) => onChange('day', value)}
             rowHeight={rowHeight}
             visibleRows={visibleRows}
@@ -161,8 +151,9 @@ export function AppDateField({
           <AppWheelPicker
             key={`month-${wheelKey}`}
             label={t('accountDateMonth')}
-            options={months}
-            value={date.month}
+            count={calendarWheelCounts.month}
+            labelAt={(index) => calendarWheelLabel('month', index)}
+            value={calendarWheelIndex(date, 'month')}
             onChange={(value) => onChange('month', value)}
             rowHeight={rowHeight}
             visibleRows={visibleRows}
@@ -170,8 +161,9 @@ export function AppDateField({
           <AppWheelPicker
             key={`year-${wheelKey}`}
             label={t('accountDateYear')}
-            options={years}
-            value={date.year}
+            count={calendarWheelCounts.year}
+            labelAt={(index) => calendarWheelLabel('year', index)}
+            value={calendarWheelIndex(date, 'year')}
             onChange={(value) => onChange('year', value)}
             rowHeight={rowHeight}
             visibleRows={visibleRows}

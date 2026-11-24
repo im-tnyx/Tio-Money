@@ -77,3 +77,45 @@ export function changeCalendarPart(
   const next = { ...date, [part]: value };
   return { ...next, day: Math.min(next.day, calendarDays(next.year, next.month)) };
 }
+
+// UTC is used only as an arithmetic coordinate for Gregorian civil-day ordinals.
+// No local time or timezone conversion is applied to stored dates.
+const millisecondsPerDay = 86_400_000;
+const firstCalendarDay = Date.UTC(calendarYearMin, 0, 1) / millisecondsPerDay;
+const yearCount = calendarYearMax - calendarYearMin + 1;
+
+export const calendarWheelCounts: Readonly<Record<CalendarPart, number>> = {
+  day: Date.UTC(calendarYearMax + 1, 0, 1) / millisecondsPerDay - firstCalendarDay,
+  month: yearCount * 12,
+  year: yearCount,
+};
+
+export function calendarWheelIndex(date: CalendarDate, part: CalendarPart): number {
+  if (part === 'year') return date.year - calendarYearMin;
+  if (part === 'month') return (date.year - calendarYearMin) * 12 + date.month - 1;
+  return Date.UTC(date.year, date.month - 1, date.day) / millisecondsPerDay - firstCalendarDay;
+}
+
+function dateAtDayIndex(index: number): CalendarDate {
+  const date = new Date((firstCalendarDay + index) * millisecondsPerDay);
+  return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate() };
+}
+
+export function calendarWheelLabel(part: CalendarPart, index: number): string {
+  if (part === 'year') return String(calendarYearMin + index);
+  if (part === 'month') return calendarMonths[index % 12] ?? '';
+  return String(dateAtDayIndex(index).day).padStart(2, '0');
+}
+
+/** Select an absolute detent; skipped events and multiple month/year rollovers remain exact. */
+export function selectCalendarWheel(
+  date: CalendarDate,
+  part: CalendarPart,
+  index: number,
+): CalendarDate {
+  if (!Number.isInteger(index) || index < 0 || index >= calendarWheelCounts[part]) return date;
+  if (part === 'day') return dateAtDayIndex(index);
+  const year = calendarYearMin + (part === 'year' ? index : Math.floor(index / 12));
+  const month = part === 'month' ? (index % 12) + 1 : date.month;
+  return { year, month, day: Math.min(date.day, calendarDays(year, month)) };
+}
