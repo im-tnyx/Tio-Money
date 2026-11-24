@@ -86,6 +86,7 @@ export const recoveryTokens = {
 
 /** Shared native bottom-sheet geometry. No individual feature may override the shell. */
 export const bottomSheetTokens = {
+  entranceDurationMs: motion.bottomSheetEntranceDurationMs,
   topCornerRadius: radius.xl,
   collapsedViewportFraction: 0.9,
   expandedViewportFraction: 0.96,

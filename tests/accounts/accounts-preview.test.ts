@@ -666,6 +666,7 @@ test('Accounts plus opens group options first and the resulting form has disable
   );
   assert.match(controller, /current\?\.phase === 'group'[\s\S]*?group.select/);
   assert.match(controller, /animate: !reduceMotion/);
+  assert.match(form, /animate=\{animate\}\s+slideInOnMount=\{form !== null\}/);
   assert.match(
     form,
     /<AppBottomSheet[\s\S]*?avoidKeyboard\s+expandable=\{form !== null\}\s+showCloseButton/,

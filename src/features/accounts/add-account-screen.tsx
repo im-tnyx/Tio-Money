@@ -167,6 +167,7 @@ export function AddAccountSheet({ content, animate, onDismiss }: AddAccountSheet
     <AppBottomSheet
       visible={content !== null}
       animate={animate}
+      slideInOnMount={form !== null}
       avoidKeyboard
       expandable={form !== null}
       showCloseButton
