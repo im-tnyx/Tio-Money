@@ -1,13 +1,18 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
-import { constants, closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, readlinkSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { constants, closeSync, existsSync, fstatSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { TextDecoder } from 'node:util';
 
-import { managedListener } from '../.github/scripts/preflight-pr-codespaces-preview.mjs';
+import {
+  currentBootId, groupListener, inspectManagedMetro, isMobileCommand, listeners, metroGroup,
+  ownedMetro, processIdentity, processStat, readManagedRecordSnapshot, retryOwnership,
+} from '../.github/scripts/preflight-pr-codespaces-preview.mjs';
+
+export { isMobileCommand };
 
 const streamed = process.argv[1] === '-';
 const ROOT = streamed ? '/workspaces/Tio-Money' : resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -15,20 +20,17 @@ const CONFIGURED_EXPO_OWNER = JSON.parse(readFileSync(join(ROOT, 'app.json'), 'u
 const STATE = join(homedir(), '.cache', 'tio-money-expo-preview');
 const PID_FILE = join(STATE, 'metro.json');
 const DEPENDENCY_MARKER = join(STATE, 'preview-dependency-manifests.sha256');
-const LOCK_FILE = join(STATE, 'startup.lock');
 const LOG_FILE = join(STATE, 'metro.log');
 const PORT = 8081;
 const START_TIMEOUT_MS = 180_000;
+const MANUAL_START_TIMEOUT_MS = 90_000;
+const TERM_TIMEOUT_MS = 10_000;
+const KILL_TIMEOUT_MS = 5_000;
 
 export function parseStartTicks(stat) {
   const marker = stat.lastIndexOf(')');
   if (marker < 0) return null;
   return stat.slice(marker + 1).trim().split(/\s+/)[19] || null;
-}
-
-export function isMobileCommand(command) {
-  // GitHub Codespaces commonly runs npm via Node's npm-cli.js, not an npm executable.
-  return /(?:^|[\s/])npm(?:-cli)?(?:\.js)?\s+run\s+mobile(?:\s|$)/.test(command);
 }
 
 export function validExpoGoTunnel(raw) {
@@ -58,25 +60,25 @@ export function validWhoami(result, expectedOwner = CONFIGURED_EXPO_OWNER) {
 
 const wait = (ms) => new Promise((done) => setTimeout(done, ms));
 
-function identity(pid) {
-  if (!Number.isSafeInteger(pid) || pid <= 1) return null;
-  try {
-    return {
-      startTicks: parseStartTicks(readFileSync('/proc/' + pid + '/stat', 'utf8')),
-      cwd: resolve(readlinkSync('/proc/' + pid + '/cwd')),
-      command: readFileSync('/proc/' + pid + '/cmdline', 'utf8').replaceAll('\0', ' ').trim(),
-    };
-  } catch {
-    return null;
+export function checkStartupIdentity(pid, startTicks, proc, projectRoot = ROOT, uid = process.getuid()) {
+  if (!proc) return false;
+  if (proc.pid !== pid || proc.startTicks !== startTicks) {
+    throw Error('PID_REUSED: Metro startup PID no longer identifies the spawned process.');
+  }
+  if (proc.uid !== uid || proc.group !== pid || proc.session !== pid || proc.cwd !== projectRoot) {
+    throw Error('START_IDENTITY_UNKNOWN: Metro startup UID, group, session or directory did not match.');
+  }
+  return ownedMetro({ pid, startTicks }, proc, projectRoot);
+}
+
+export function requireStartupIdentity(pid, startTicks, readIdentity = processIdentity) {
+  if (!checkStartupIdentity(pid, startTicks, readIdentity(pid))) {
+    throw Error('START_IDENTITY_UNKNOWN: The original Metro process could not be verified before writing its record.');
   }
 }
 
 export function recordMatches(record, proc, projectRoot = ROOT) {
-  return !!record && !!proc
-    && Number.isSafeInteger(record.pid) && record.pid > 1
-    && typeof record.startTicks === 'string' && record.startTicks.length > 0
-    && record.startTicks === proc.startTicks
-    && proc.cwd === projectRoot && isMobileCommand(proc.command);
+  return ownedMetro(record, proc, projectRoot);
 }
 
 const RUNTIME_INPUT = /^(?:(?:package(?:-lock)?|npm-shrinkwrap|app|tsconfig(?:\.[^/]+)?|jsconfig)\.json|\.(?:npmrc|nvmrc|node-version|babelrc(?:\.[^/]+)?)|(?:app|metro|babel)\.config\.[^/]+|(?:\.devcontainer|patches|plugins)\/.+|scripts\/start-codespace-expo\.mjs)$/u;
@@ -136,36 +138,36 @@ export function previewAction(current, metroHealthy, tunnelHealthy) {
   return metroHealthy && tunnelHealthy ? 'reuse' : 'recover';
 }
 
-// A missing record permits a new start only after checking the port. An
-// unreadable, stale or unsafe record cannot authorize reuse or recovery.
-function checkedManagedRecord() {
-  let stat;
-  try {
-    stat = lstatSync(PID_FILE);
-  } catch (error) {
-    if (error.code === 'ENOENT') return null;
-    throw error;
+function requireUnchangedRecord(recordPath, snapshot) {
+  const current = readManagedRecordSnapshot(recordPath);
+  if (!current || current.stamp !== snapshot.stamp || current.raw !== snapshot.raw) {
+    throw Error('RECORD_CHANGED: Managed Metro record changed during recovery. Inspect the private preview state.');
   }
-  if (!stat.isFile() || stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0) {
-    throw Error('Unsafe managed Metro ownership record.');
-  }
-  const fd = openSync(PID_FILE, constants.O_RDONLY | constants.O_NOFOLLOW);
-  let data;
-  try {
-    data = JSON.parse(readFileSync(fd, 'utf8'));
-  } finally {
-    closeSync(fd);
-  }
-  if (!recordMatches(data, identity(data.pid))) {
-    throw Error('Managed Metro ownership record is invalid; refusing automatic recovery.');
-  }
-  return data;
 }
 
-function verifyListener(record) {
-  const state = managedListener(record, ROOT);
-  if (state === 'FOREIGN') throw Error('Refusing to control a foreign or ambiguous Metro listener.');
-  return state === 'OWNED';
+// Call with the startup lock held. The read-only preflight uses the same
+// ownership inspection but only the starter can remove a stale record.
+export async function checkedManagedRecord(recoverStale = false, recordPath = PID_FILE, ensureFree = portIsFree) {
+  const snapshot = readManagedRecordSnapshot(recordPath);
+  if (!snapshot) return null;
+  const { record } = snapshot;
+  const inspect = () => inspectManagedMetro(record, ROOT);
+  const { state } = await retryOwnership(inspect);
+  if (state === 'OWNED_METRO') return record;
+  if (!recoverStale) throw Error('STALE_RECORD: Run Live Expo Go Preview manually to recover the exited managed Metro.');
+  await ensureFree(record.port ?? PORT);
+  if ((await retryOwnership(inspect)).state !== 'STALE_RECORD') {
+    throw Error('OWNERSHIP_CHANGED: Managed Metro state changed during stale-record recovery.');
+  }
+  requireUnchangedRecord(recordPath, snapshot);
+  rmSync(recordPath);
+  console.log('STALE_RECORD_CLEARED: Managed Metro exited and its group and port are clear.');
+  return null;
+}
+
+async function verifyListener(record) {
+  const { state, listener } = await retryOwnership(() => inspectManagedMetro(record, ROOT));
+  return state === 'OWNED_METRO' && listener === 'OWNED';
 }
 
 export async function request(path, json = false, port = PORT) {
@@ -213,17 +215,18 @@ export async function tunnelReady(port = PORT) {
 
 async function ownedTunnel(record) {
   const port = record.port ?? PORT;
-  if (!verifyListener(record) || !(await metroReady(port))) return null;
+  if (!(await verifyListener(record)) || !(await metroReady(port))) return null;
   const url = await tunnelUrl(port);
-  return verifyListener(record) ? url : null;
+  return await verifyListener(record) ? url : null;
 }
 
 async function portIsFree(port = PORT) {
+  if (listeners(port).size) throw Error('PORT_OCCUPIED: Metro port is occupied; inspect the dedicated Codespace.');
   await new Promise((ok, fail) => {
     const server = createServer();
     server.once('error', (error) => {
       fail(error.code === 'EADDRINUSE'
-        ? new Error('Metro port is occupied; refusing to control an unowned process.')
+        ? new Error('PORT_OCCUPIED: Metro port is occupied; inspect the dedicated Codespace.')
         : error);
     });
     server.listen(port, '127.0.0.1', () => {
@@ -232,45 +235,66 @@ async function portIsFree(port = PORT) {
   });
 }
 
-async function withLock(task) {
-  mkdirSync(STATE, { recursive: true, mode: 0o700 });
-  const deadline = Date.now() + 30_000;
-  let fd;
-  while (Date.now() < deadline) {
-    try {
-      fd = openSync(LOCK_FILE, 'wx', 0o600);
-      writeFileSync(fd, String(process.pid));
-      break;
-    } catch (error) {
-      if (error.code !== 'EEXIST') throw error;
-      let owner = 0;
-      let age = 0;
-      try {
-        owner = Number(readFileSync(LOCK_FILE, 'utf8'));
-        age = Date.now() - statSync(LOCK_FILE).mtimeMs;
-      } catch {
-        // Another starter may still be writing a new lock.
-      }
-      if (age > 5000 && (!Number.isSafeInteger(owner) || owner < 1 || !identity(owner))) {
-        rmSync(LOCK_FILE, { force: true });
-      }
-      await wait(500);
-    }
+// flock serializes new callers, including stale marker cleanup. Keep a PID marker
+// at the legacy path while holding it so a pre-upgrade devcontainer postStart
+// still waits for this invocation rather than competing to launch Metro.
+export async function withStartupLock(state, task, timeoutSeconds = 30) {
+  mkdirSync(state, { recursive: true, mode: 0o700 });
+  const directory = lstatSync(state);
+  if (!directory.isDirectory() || directory.uid !== process.getuid() || (directory.mode & 0o077)) {
+    throw Error('STATE_UNSAFE: Managed Metro state directory must be private.');
   }
-  if (fd === undefined) throw new Error('Timed out waiting for the Expo startup lock.');
+  const fd = openSync(join(state, 'startup.flock'),
+    constants.O_CREAT | constants.O_RDWR | constants.O_NOFOLLOW | constants.O_NONBLOCK, 0o600);
+  const marker = join(state, 'startup.lock');
+  let ownsMarker = false;
   try {
+    const lock = fstatSync(fd);
+    if (!lock.isFile() || lock.uid !== process.getuid() || (lock.mode & 0o077)) {
+      throw Error('LOCK_UNSAFE: Metro startup lock must be a private regular file.');
+    }
+    const deadline = Date.now() + timeoutSeconds * 1000;
+    await new Promise((done, fail) => {
+      const child = spawn('/usr/bin/flock', ['--exclusive', '--timeout', String(timeoutSeconds),
+        '--conflict-exit-code', '75', '3'], { stdio: ['ignore', 'ignore', 'ignore', fd] });
+      child.once('error', () => fail(Error('LOCK_UNAVAILABLE: Linux flock is required in the preview Codespace.')));
+      child.once('exit', (code) => {
+        if (code === 0) done();
+        else fail(Error(code === 75 ? 'LOCK_TIMEOUT: Another preview lifecycle operation is still running.'
+          : 'LOCK_UNAVAILABLE: Could not acquire the Metro startup lock.'));
+      });
+    });
+    do {
+      try {
+        writeFileSync(marker, String(process.pid), { flag: 'wx', mode: 0o600 });
+        ownsMarker = true;
+        break;
+      } catch (error) {
+        if (error.code !== 'EEXIST') throw error;
+        const stat = lstatSync(marker, { throwIfNoEntry: false });
+        if (!stat) continue;
+        if (!stat.isFile() || stat.uid !== process.getuid() || (stat.mode & 0o077) || stat.size > 32) {
+          throw Error('LOCK_UNSAFE: Legacy Metro startup marker is not a private PID file.');
+        }
+        const owner = Number(readFileSync(marker, 'utf8'));
+        const ownerStat = Number.isSafeInteger(owner) && owner > 1 ? processStat(owner) : null;
+        if (Date.now() - stat.mtimeMs > 5000 && (!ownerStat || ['Z', 'X'].includes(ownerStat.state))) {
+          const current = lstatSync(marker, { throwIfNoEntry: false });
+          if (current?.ino === stat.ino && current.dev === stat.dev) rmSync(marker);
+          continue;
+        }
+      }
+      await wait(250);
+    } while (Date.now() < deadline);
+    if (!ownsMarker) throw Error('LOCK_TIMEOUT: Legacy Codespace Metro startup is still running.');
     return await task();
   } finally {
-    closeSync(fd);
-    try {
-      if (readFileSync(LOCK_FILE, 'utf8').trim() === String(process.pid)) {
-        rmSync(LOCK_FILE, { force: true });
-      }
-    } catch {
-      // Never remove another invocation's lock.
-    }
+    try { if (ownsMarker) rmSync(marker, { force: true }); }
+    finally { closeSync(fd); }
   }
 }
+
+const withLock = (task) => withStartupLock(STATE, task);
 
 function requireExpoAccount() {
   const bin = join(ROOT, 'node_modules', '.bin', 'expo');
@@ -287,30 +311,114 @@ function requireExpoAccount() {
   }
 }
 
-async function stopManaged() {
-  const record = checkedManagedRecord();
-  if (!record) {
-    await portIsFree();
-    rmSync(PID_FILE, { force: true });
-    return;
+// Acquire a Linux pidfd for each member and verify its start ticks and
+// group/session before sending any signal. A recycled numeric PID cannot receive
+// a signal through the old process handle.
+const PIDFD_SIGNAL = `import json, os, signal, sys
+
+group, name = int(sys.argv[1]), sys.argv[2]
+handles = []
+try:
+    for pid, ticks in json.load(sys.stdin):
+        try:
+            fd = os.pidfd_open(pid)
+        except ProcessLookupError:
+            continue
+        path = f"/proc/{pid}"
+        try:
+            with open(path + "/stat") as stat:
+                fields = stat.read().rsplit(")", 1)[1].split()
+            if (fields[19] != ticks or int(fields[2]) != group or
+                int(fields[3]) != group or os.stat(path).st_uid != os.getuid()):
+                sys.exit(3)
+        except FileNotFoundError:
+            os.close(fd)
+            continue
+        handles.append(fd)
+    for fd in handles:
+        try:
+            signal.pidfd_send_signal(fd, getattr(signal, name))
+        except ProcessLookupError:
+            pass
+finally:
+    for fd in handles:
+        os.close(fd)
+`;
+
+export function signalMetroGroup(pid, group, name) {
+  const result = spawnSync('/usr/bin/python3', ['-I', '-c', PIDFD_SIGNAL, String(pid), name], {
+    input: JSON.stringify([...group]), stdio: ['pipe', 'ignore', 'ignore'], timeout: 5000,
+  });
+  if (result.status === 3) throw Error('SIGNAL_IDENTITY_CHANGED: Managed process identity changed before signaling.');
+  if (result.status !== 0 || result.error) {
+    throw Error('SIGNAL_FAILED: Could not safely signal managed Metro. Check Linux pidfd support and the private preview state.');
   }
-  verifyListener(record);
-  if (!recordMatches(record, identity(record.pid))) {
-    throw new Error('Process ownership changed; refusing to signal it.');
-  }
-  try { process.kill(-record.pid, 'SIGTERM'); } catch (error) {
-    if (error.code !== 'ESRCH') throw error;
-  }
-  const deadline = Date.now() + 10_000;
-  while (Date.now() < deadline) {
-    if (!recordMatches(record, identity(record.pid))) {
-      await portIsFree(record.port ?? PORT);
-      rmSync(PID_FILE, { force: true });
-      return;
+}
+
+async function verifiedRemaining(record, original, readGroup, verify) {
+  const remaining = readGroup(record.pid);
+  // If the leader exited, only the exact survivors of the verified TERM group
+  // can be escalated. Never follow a new PID or an unverified group member.
+  if (!remaining.has(record.pid)) {
+    for (const [pid, ticks] of remaining) {
+      if (original.get(pid) !== ticks) throw Error('GROUP_UNKNOWN: Unverified process remains in the managed Metro group.');
     }
-    await wait(300);
+    return remaining;
   }
-  throw new Error('Managed Metro did not stop within 10s; inspect the private Codespace log manually.');
+  if (remaining.get(record.pid) !== record.startTicks) throw Error('PID_REUSED: Managed Metro PID changed during shutdown.');
+  return (await verify(record)).group;
+}
+
+export async function stopOwnedMetro(record, {
+  verify, readGroup, readListener, send, ensureFree, forceAfterTimeout = false,
+  pause = wait, now = Date.now, log = console.log,
+}) {
+  const initial = await verify(record);
+  if (initial.state === 'OWNED_METRO') {
+    log('METRO_SIGTERM: Stopping verified managed Metro.');
+    send(record.pid, initial.group, 'SIGTERM');
+    const waitForGroup = async (timeout) => {
+      const deadline = now() + timeout;
+      while (readGroup(record.pid).size && now() < deadline) await pause(250);
+    };
+    await waitForGroup(TERM_TIMEOUT_MS);
+    const remaining = await verifiedRemaining(record, initial.group, readGroup, verify);
+    if (remaining.size) {
+      if (!forceAfterTimeout) throw Error('STOP_TIMEOUT: Managed Metro did not exit after SIGTERM. Use manual Live Expo Go Preview to recover.');
+      const port = record.port ?? PORT;
+      if (await retryOwnership(() => readListener(port, remaining, record.pid)) === 'FOREIGN') {
+        throw Error('FOREIGN_LISTENER: Refusing to escalate while an unverified listener occupies the managed port.');
+      }
+      log('METRO_SIGKILL: SIGTERM timed out; reverified surviving managed Metro processes.');
+      send(record.pid, remaining, 'SIGKILL');
+      await waitForGroup(KILL_TIMEOUT_MS);
+    }
+    if (readGroup(record.pid).size) {
+      throw Error('STOP_TIMEOUT: Managed Metro group remains after shutdown. Inspect the private preview state.');
+    }
+  }
+  await ensureFree(record.port ?? PORT);
+}
+
+async function stopManaged(record, manual = false) {
+  if (!record) return;
+  const snapshot = readManagedRecordSnapshot(PID_FILE);
+  if (!snapshot || JSON.stringify(snapshot.record) !== JSON.stringify(record)) {
+    throw Error('RECORD_CHANGED: Managed Metro record changed before shutdown.');
+  }
+  await stopOwnedMetro(record, {
+    verify: (candidate) => retryOwnership(() => inspectManagedMetro(candidate, ROOT)),
+    readGroup: metroGroup,
+    readListener: groupListener,
+    send: (pid, group, signal) => {
+      requireUnchangedRecord(PID_FILE, snapshot);
+      signalMetroGroup(pid, group, signal);
+    },
+    ensureFree: portIsFree,
+    forceAfterTimeout: streamed && manual,
+  });
+  requireUnchangedRecord(PID_FILE, snapshot);
+  rmSync(PID_FILE);
 }
 
 export function candidatePorts(manual, preferredPort = PORT) {
@@ -347,7 +455,7 @@ async function selectPort(manual, preferredPort) {
   throw Error('No free managed preview port in the approved range.');
 }
 
-async function startManaged(fingerprint, manual = false, preferredPort = PORT) {
+async function startAttempt(fingerprint, manual, preferredPort) {
   const port = await selectPort(manual, preferredPort);
   const logFd = openSync(LOG_FILE, constants.O_WRONLY | constants.O_CREAT | constants.O_TRUNC | constants.O_NOFOLLOW, 0o600);
   let child;
@@ -359,51 +467,84 @@ async function startManaged(fingerprint, manual = false, preferredPort = PORT) {
   } finally {
     closeSync(logFd);
   }
-  if (!child.pid) throw new Error('Unable to launch Metro; inspect the private Codespace log.');
   let exited = false;
   child.once('exit', () => { exited = true; });
   child.once('error', () => { exited = true; });
-  let proc;
-  const idDeadline = Date.now() + 3000;
-  while (Date.now() < idDeadline && !exited) {
-    proc = identity(child.pid);
-    if (proc && proc.cwd === ROOT && isMobileCommand(proc.command) && proc.startTicks) break;
+  if (!child.pid) {
+    throw Error('START_FAILED: Unable to launch Metro; inspect the private Codespace log.');
+  }
+  const started = processStat(child.pid);
+  let verified = false;
+  const idDeadline = Date.now() + 5000;
+  while (started && Date.now() < idDeadline && !exited) {
+    verified = await retryOwnership(() => checkStartupIdentity(child.pid, started.startTicks, processIdentity(child.pid)));
+    if (verified) break;
     await wait(100);
   }
-  if (!proc || proc.cwd !== ROOT || !proc.startTicks || !isMobileCommand(proc.command)) {
-    child.kill('SIGTERM'); // This process was launched by this invocation.
-    throw new Error('Launched process identity could not be verified.');
+  if (!verified || exited) {
+    if ((exited || !started || started.state === 'Z') && metroGroup(child.pid).size === 0) {
+      await portIsFree(port);
+      return { reason: 'START_EXITED', category: startupFailure() };
+    }
+    throw Error('START_IDENTITY_UNKNOWN: Could not verify the launched command. Inspect the dedicated Codespace.');
   }
-  const record = { pid: child.pid, startTicks: proc.startTicks, runtimeFingerprint: fingerprint, port };
-  writeFileSync(PID_FILE, JSON.stringify(record), { mode: 0o600 });
+  const record = {
+    pid: child.pid, startTicks: started.startTicks, bootId: currentBootId(), runtimeFingerprint: fingerprint, port,
+  };
+  const pending = join(STATE, 'metro-' + randomUUID() + '.tmp');
+  try {
+    await retryOwnership(() => {
+      requireStartupIdentity(child.pid, started.startTicks);
+      writeFileSync(pending, JSON.stringify(record), { flag: 'wx', mode: 0o600 });
+      renameSync(pending, PID_FILE);
+    });
+  } finally { rmSync(pending, { force: true }); }
   child.unref();
-  const deadline = Date.now() + START_TIMEOUT_MS;
+  const deadline = Date.now() + (manual ? MANUAL_START_TIMEOUT_MS : START_TIMEOUT_MS);
+  let reason = 'START_TIMEOUT';
   while (Date.now() < deadline) {
-    if (exited || !recordMatches(record, identity(record.pid))) {
-      rmSync(PID_FILE, { force: true });
-      throw new Error(`Expo exited before Metro/tunnel readiness (${startupFailure()}).`);
+    if (exited) {
+      reason = 'START_EXITED';
+      break;
     }
-    if (verifyListener(record) && (await metroReady(port)) && (await tunnelReady(port)) && verifyListener(record)) {
+    if (await ownedTunnel(record)) {
       console.log(`Tio Money Expo Go tunnel ready; managed Metro serves port ${port}.`);
-      return;
+      return null;
     }
-    await wait(1000);
+    await wait(750);
   }
-  if (recordMatches(record, identity(record.pid))) {
-    verifyListener(record);
-    try { process.kill(-record.pid, 'SIGTERM'); } catch (error) {
-      if (error.code !== 'ESRCH') throw error;
-    }
-  }
-  throw new Error(`Metro/tunnel readiness timed out (${startupFailure()}).`);
+  const category = startupFailure();
+  console.log(`${reason} (${category}): Checking ownership before startup cleanup.`);
+  if (!streamed) throw Error(reason + ': Inspect the private Codespace log before further lifecycle actions.');
+  await stopManaged(record, manual);
+  return { reason, category };
 }
 
-async function syncSelected(current, before, target, manual = false) {
+export async function retryStartup(start, manual, pause = wait, log = console.log) {
+  const first = await start();
+  if (!first) return;
+  if (manual && ['NETWORK', 'UNKNOWN'].includes(first.category)) {
+    log(`METRO_START_RETRY: Retrying after clean shutdown (${first.reason}, ${first.category}).`);
+    await pause(1000);
+    const second = await start();
+    if (!second) return;
+    throw Error(`${second.reason} (${second.category}): Metro failed on its second attempt. Inspect the private Codespace log.`);
+  }
+  throw Error(`${first.reason} (${first.category}): Metro did not become ready. Inspect the private Codespace log.`);
+}
+
+async function startManaged(fingerprint, manual = false, preferredPort = PORT) {
+  await retryStartup(() => startAttempt(fingerprint, manual, preferredPort), manual);
+}
+
+async function syncSelected(before, target, manual = false) {
   if (!/^[0-9a-f]{40}$/.test(target) || gitOutput(ROOT, 'rev-parse', 'FETCH_HEAD^{commit}').trim() !== target) {
     throw Error('Prepared bundle commit no longer matches the selected revision.');
   }
   requireSyncSnapshot(before, gitOutput(ROOT, 'rev-parse', 'HEAD').trim(),
     gitOutput(ROOT, 'status', '--porcelain=v1', '--untracked-files=normal'));
+  const current = await checkedManagedRecord(manual);
+  if (!current && !manual) await portIsFree();
   const fingerprint = runtimeFingerprint(target);
   const dependenciesReady = dependenciesMatch(target);
 
@@ -412,7 +553,9 @@ async function syncSelected(current, before, target, manual = false) {
   let managed = current;
   const recoveryPort = current?.port ?? PORT;
   if (current && (manual || !compatibleRuntime(current, fingerprint, dependenciesReady))) {
-    await stopManaged();
+    console.log(manual ? 'MANUAL_REFRESH: Replacing the managed preview for the selected PR commit.'
+      : 'RUNTIME_CHANGED: Replacing an incompatible managed Metro.');
+    await stopManaged(current, manual);
     managed = null;
   }
   const previousTunnel = managed ? await ownedTunnel(managed) : null;
@@ -432,7 +575,7 @@ async function syncSelected(current, before, target, manual = false) {
     throw Error('Preview runtime inputs changed during synchronization.');
   }
   if (previousTunnel) {
-    const currentRecord = checkedManagedRecord();
+    const currentRecord = await checkedManagedRecord();
     if (!currentRecord || currentRecord.pid !== managed.pid ||
         currentRecord.startTicks !== managed.startTicks || await ownedTunnel(currentRecord) !== previousTunnel) {
       throw Error('Source synchronized, but the existing Metro/tunnel session could not be confirmed.');
@@ -441,8 +584,13 @@ async function syncSelected(current, before, target, manual = false) {
     return;
   }
   requireExpoAccount();
-  if (managed) await stopManaged();
+  if (managed) {
+    console.log('METRO_UNHEALTHY: Recovering the managed Metro and tunnel.');
+    await stopManaged(managed, manual);
+  }
   await startManaged(fingerprint, manual, recoveryPort);
+  requireSyncSnapshot(target, gitOutput(ROOT, 'rev-parse', 'HEAD').trim(),
+    gitOutput(ROOT, 'status', '--porcelain=v1', '--untracked-files=normal'));
 }
 
 async function main() {
@@ -453,20 +601,15 @@ async function main() {
   if (streamed && (flags.length === 3 || flags.length === 4) && flags[0] === '--sync-selected') {
     const [, before, target, mode] = flags;
     if (mode !== undefined && mode !== '' && mode !== '--manual') throw Error('Invalid sync mode.');
-    await withLock(async () => {
-      const current = checkedManagedRecord();
-      if (current) verifyListener(current);
-      else if (mode !== '--manual') await portIsFree();
-      await syncSelected(current, before, target, mode === '--manual');
-    });
+    await withLock(() => syncSelected(before, target, mode === '--manual'));
     return;
   }
   if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart', '--check-account', '--preflight'].includes(x))) {
     throw new Error('Usage: node scripts/start-codespace-expo.mjs [--start|--status|--restart|--stop|--check-account|--preflight]');
   }
   await withLock(async () => {
-    const current = checkedManagedRecord();
-    const listening = current && verifyListener(current);
+    const current = await checkedManagedRecord();
+    const listening = current && await verifyListener(current);
     if (flags.includes('--preflight')) {
       if (!current) await portIsFree();
       console.log(current ? 'Verified managed Metro ownership.' : 'No managed Metro occupies the preview port.');
@@ -481,29 +624,32 @@ async function main() {
     const fingerprint = runtimeFingerprint(revision);
     const compatible = compatibleRuntime(current, fingerprint, !streamed || dependenciesMatch(revision));
     if (flags.includes('--status')) {
-      if (!compatible || !listening || !(await metroReady(current.port ?? PORT)) || !(await tunnelReady(current.port ?? PORT)) || !verifyListener(current)) {
+      if (!compatible || !listening || !(await metroReady(current.port ?? PORT)) || !(await tunnelReady(current.port ?? PORT)) || !(await verifyListener(current))) {
         throw new Error('No healthy project-owned Metro and tunnel are running.');
       }
       console.log(`Tio Money Expo Go tunnel healthy on port ${current.port ?? PORT}.`);
       return;
     }
     if (flags.includes('--stop')) {
-      await stopManaged();
+      if (!current) await portIsFree();
+      await stopManaged(current);
       console.log('Project-owned Expo server stopped (or was not running).');
       return;
     }
     requireExpoAccount();
     const recoveryPort = current?.port ?? PORT;
-    if (flags.includes('--restart')) await stopManaged();
+    if (flags.includes('--restart')) await stopManaged(current);
     else {
-      const action = previewAction(current, compatible && listening && await metroReady(current.port ?? PORT), listening && await tunnelReady(current.port ?? PORT) && verifyListener(current));
+      const action = previewAction(current, compatible && listening && await metroReady(current.port ?? PORT), listening && await tunnelReady(current.port ?? PORT) && await verifyListener(current));
       if (action === 'reuse') {
         console.log('Expo tunnel already healthy; no duplicate Metro started.');
         return;
       }
       if (action === 'recover') {
-        // The lock is held throughout the ownership recheck and recovery.
-        await stopManaged();
+        if (process.env.CODESPACES === 'true') {
+          throw Error('MANUAL_RECOVERY_REQUIRED: Use the trusted Live Expo Go Preview action for Codespace recovery.');
+        }
+        await stopManaged(current);
       }
     }
     await startManaged(fingerprint, false, recoveryPort);
