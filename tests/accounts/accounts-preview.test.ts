@@ -347,6 +347,18 @@ test('linked payment modes show a compact header action and named icon rows with
     source.indexOf('export function BankPaymentModes'),
     source.indexOf('export function BankModeEditor'),
   );
+  assert.match(
+    list,
+    /draft.modes.length === 0 \? \(\s*<EmptyBankPaymentModes \/>\s*\) : \(\s*draft.modes.map/,
+  );
+  const empty = source.slice(
+    source.indexOf('function EmptyBankPaymentModes'),
+    source.indexOf('type BankModesProps'),
+  );
+  assert.match(
+    empty,
+    /<Svg[\s\S]*?accessibilityElementsHidden[\s\S]*?accountModeEmptyTitle[\s\S]*?accountModeEmptyDescription/,
+  );
   const rows = list.indexOf('draft.modes.map');
   assert.ok(rows >= 0);
   assert.match(

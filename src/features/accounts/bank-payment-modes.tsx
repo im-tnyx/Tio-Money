@@ -102,6 +102,44 @@ function ModeRowAction({
   );
 }
 
+function EmptyBankPaymentModes() {
+  const theme = useAppTheme();
+  return (
+    <View
+      style={{
+        alignItems: 'center',
+        gap: theme.space.md,
+        paddingVertical: theme.space.xxxl,
+        paddingHorizontal: theme.space.md,
+      }}
+    >
+      <Svg
+        width={theme.iconRoles.card}
+        height={theme.iconRoles.card}
+        viewBox="0 0 24 24"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <Path
+          d="M10 7H7a5 5 0 0 0 0 10h3m4-10h3a5 5 0 0 1 0 10h-3M8 12h8"
+          fill="none"
+          stroke={theme.colors.secondaryText}
+          strokeWidth={theme.icons.stroke}
+          strokeLinecap="round"
+        />
+      </Svg>
+      <View style={{ gap: theme.space.xs, alignItems: 'center' }}>
+        <AppText variant="section" muted style={{ textAlign: 'center' }}>
+          {t('accountModeEmptyTitle')}
+        </AppText>
+        <AppText muted style={{ textAlign: 'center' }}>
+          {t('accountModeEmptyDescription')}
+        </AppText>
+      </View>
+    </View>
+  );
+}
+
 type BankModesProps = Pick<
   AddAccountViewModel,
   'canAddMode' | 'canApplyMode' | 'availableModeTypes' | 'onAction'
@@ -136,37 +174,41 @@ export function BankPaymentModes({
           {t('accountModeLimitReached')}
         </AppText>
       ) : null}
-      {draft.modes.map((mode) => (
-        <View
-          key={mode.id}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.space.xs,
-          }}
-        >
+      {draft.modes.length === 0 ? (
+        <EmptyBankPaymentModes />
+      ) : (
+        draft.modes.map((mode) => (
           <View
-            accessible
-            accessibilityLabel={mode.name + ', ' + t(modeLabels[mode.kind])}
-            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}
+            key={mode.id}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: theme.space.xs,
+            }}
           >
-            <ModeIcon name={mode.kind} color={theme.colors.transfer} />
-            <AppText style={{ flex: 1 }}>{mode.name}</AppText>
+            <View
+              accessible
+              accessibilityLabel={mode.name + ', ' + t(modeLabels[mode.kind])}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.sm }}
+            >
+              <ModeIcon name={mode.kind} color={theme.colors.transfer} />
+              <AppText style={{ flex: 1 }}>{mode.name}</AppText>
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <ModeRowAction
+                icon="edit"
+                accessibilityLabel={t('accountModeEdit') + ': ' + mode.name}
+                onPress={() => onAction({ type: 'mode.open', id: mode.id })}
+              />
+              <ModeRowAction
+                icon="remove"
+                accessibilityLabel={t('accountModeRemove') + ': ' + mode.name}
+                onPress={() => onAction({ type: 'mode.remove', id: mode.id })}
+              />
+            </View>
           </View>
-          <View style={{ flexDirection: 'row' }}>
-            <ModeRowAction
-              icon="edit"
-              accessibilityLabel={t('accountModeEdit') + ': ' + mode.name}
-              onPress={() => onAction({ type: 'mode.open', id: mode.id })}
-            />
-            <ModeRowAction
-              icon="remove"
-              accessibilityLabel={t('accountModeRemove') + ': ' + mode.name}
-              onPress={() => onAction({ type: 'mode.remove', id: mode.id })}
-            />
-          </View>
-        </View>
-      ))}
+        ))
+      )}
     </View>
   );
 }
