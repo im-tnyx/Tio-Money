@@ -17,14 +17,6 @@ export type PreviewGroup = (typeof previewGroups)[number];
 
 export const paymentModeTypes = ['debitCard', 'upi', 'cheque', 'internetBanking'] as const;
 export const loanDirections = ['borrowed', 'given'] as const;
-export const investmentKinds = [
-  'stocks',
-  'mutualFunds',
-  'fixedDeposit',
-  'gold',
-  'ppf',
-  'other',
-] as const;
 
 type PaymentModeType = (typeof paymentModeTypes)[number];
 const paymentModeLimits = {
@@ -35,7 +27,6 @@ const paymentModeLimits = {
 } satisfies Record<PaymentModeType, number>;
 
 type LoanDirection = (typeof loanDirections)[number];
-type InvestmentKind = (typeof investmentKinds)[number];
 
 export interface PaymentModeDraft {
   readonly id: number;
@@ -87,8 +78,8 @@ export function isLoanFieldInfo(value: unknown): value is LoanFieldInfo {
 
 interface InvestmentFields extends CommonFields {
   readonly investedCost: string;
-  readonly valuation: string;
-  readonly valuationDate: string;
+  readonly startDate: string;
+  readonly tenure: string;
 }
 
 interface Draft<Group extends PreviewGroup, Fields extends CommonFields> {
@@ -111,7 +102,7 @@ export type AccountDraft =
       readonly moreDetailsOpen: boolean;
       readonly fieldInfo: LoanFieldInfo | null;
     })
-  | (Draft<'investment', InvestmentFields> & { readonly investmentKind: InvestmentKind });
+  | Draft<'investment', InvestmentFields>;
 
 type GroupFields<Group extends PreviewGroup> = Extract<AccountDraft, { group: Group }>['fields'];
 export type DraftField = {
@@ -119,12 +110,12 @@ export type DraftField = {
 }[PreviewGroup];
 
 export type LoanDateField = 'startDate';
-export type CalendarDateField = LoanDateField | 'valuationDate';
+export type CalendarDateField = LoanDateField;
 type CalendarDateParts = Readonly<Record<'day' | 'month' | 'year', string>>;
 export type CalendarDatePart = keyof CalendarDateParts;
 
 export function isCalendarDateField(field: DraftField): field is CalendarDateField {
-  return field === 'startDate' || field === 'valuationDate';
+  return field === 'startDate';
 }
 
 export function calendarDateParts(value: string): CalendarDateParts {
@@ -193,8 +184,7 @@ export function newAccountDraft(
       return {
         group,
         currency,
-        fields: { ...common, investedCost: '', valuation: '', valuationDate: '' },
-        investmentKind: 'stocks',
+        fields: { ...common, investedCost: '', startDate: today, tenure: '' },
       };
   }
 }
@@ -206,9 +196,10 @@ type PaymentModeAction =
   | { readonly type: 'mode.apply' | 'mode.cancel' }
   | { readonly type: 'mode.remove'; readonly id: number };
 
-export type AccountChoiceAction =
-  | { readonly type: 'loan.direction'; readonly value: LoanDirection }
-  | { readonly type: 'investment.kind'; readonly value: InvestmentKind };
+export type AccountChoiceAction = {
+  readonly type: 'loan.direction';
+  readonly value: LoanDirection;
+};
 
 export type AccountFormAction =
   | { readonly type: 'text'; readonly field: DraftField; readonly value: string }
@@ -248,7 +239,7 @@ function changeCurrency(draft: AccountDraft, currency: CurrencyCode): AccountDra
         fields: { ...draft.fields, originalPrincipal: '', fees: '', emiAmount: '' },
       };
     case 'investment':
-      return { ...draft, currency, fields: { ...draft.fields, investedCost: '', valuation: '' } };
+      return { ...draft, currency, fields: { ...draft.fields, investedCost: '' } };
   }
 }
 
@@ -342,9 +333,16 @@ export function updateAccountDraft(
   switch (action.type) {
     case 'text':
       if (
-        draft.group === 'loan' &&
+        (draft.group === 'loan' || draft.group === 'investment') &&
         action.field === 'startDate' &&
         !parseCalendarDate(action.value)
+      ) {
+        return draft;
+      }
+      if (
+        draft.group === 'investment' &&
+        action.field === 'tenure' &&
+        (!/^\d{0,3}$/.test(action.value) || action.value === '0')
       ) {
         return draft;
       }
@@ -360,7 +358,7 @@ export function updateAccountDraft(
         : draft;
     case 'date.part': {
       const { field, part, value } = action;
-      if (draft.group === 'loan') return draft;
+      if (draft.group === 'loan' || draft.group === 'investment') return draft;
       if (!Object.hasOwn(draft.fields, field) || !/^\d{0,4}$/.test(value)) return draft;
       const limit = part === 'month' ? 12 : 31;
       if (part !== 'year' && (value.length > 2 || value === '00' || Number(value) > limit)) {
@@ -409,8 +407,6 @@ export function updateAccountDraft(
       return draft.group === 'loan' && draft.fieldInfo !== null
         ? { ...draft, fieldInfo: null }
         : draft;
-    case 'investment.kind':
-      return draft.group === 'investment' ? { ...draft, investmentKind: action.value } : draft;
     default:
       return draft.group === 'bank' ? updateModes(draft, action) : draft;
   }

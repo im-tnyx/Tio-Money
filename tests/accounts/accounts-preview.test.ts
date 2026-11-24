@@ -13,7 +13,6 @@ import {
 } from '../../src/features/accounts/account-add-session';
 import {
   accountCurrencyChoices,
-  calendarDateParts,
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
@@ -160,53 +159,44 @@ test('changing and dismissing Group retains separate drafts and guards inactive 
   assert.equal(bank.drafts['credit-card'], card.drafts['credit-card']);
 });
 
-test('the two account dropdowns preserve drafts on dismiss and close after one selection', () => {
-  const cases = [
-    { group: 'loan', field: 'direction', choice: { type: 'loan.direction', value: 'given' } },
-    {
-      group: 'investment',
-      field: 'investmentKind',
-      choice: { type: 'investment.kind', value: 'fixedDeposit' },
-    },
-  ] as const;
+test('Loan Direction dropdown preserves drafts on dismiss and closes after one selection', () => {
+  const choice = { type: 'loan.direction', value: 'given' } as const;
   const initial = newAccountAddSession(true);
   const bank = updateSession(initial, { type: 'group.select', group: 'bank' });
   assert.equal(updateSession(bank, { type: 'options.open' }), bank);
   const wallet = updateSession(initial, { type: 'group.select', group: 'wallet' });
   assert.equal(updateSession(wallet, { type: 'options.open' }), wallet);
+  const investment = updateSession(initial, { type: 'group.select', group: 'investment' });
+  assert.equal(updateSession(investment, { type: 'options.open' }), investment);
 
-  for (const { group, field, choice } of cases) {
-    const form = updateSession(initial, { type: 'group.select', group });
-    const named = updateSession(form, {
-      type: 'form',
-      group,
-      action: { type: 'text', field: 'name', value: 'Keep this edit' },
-    });
-    const open = updateSession(named, { type: 'options.open' });
-    assert.equal(open.choicePickerOpen, true);
-    assert.equal(updateSession(open, { type: 'group.open' }), open);
-    const wrongChoice = group === 'loan' ? cases[1].choice : cases[0].choice;
-    assert.equal(updateSession(open, { type: 'options.select', choice: wrongChoice }), open);
+  const form = updateSession(initial, { type: 'group.select', group: 'loan' });
+  const named = updateSession(form, {
+    type: 'form',
+    group: 'loan',
+    action: { type: 'text', field: 'name', value: 'Keep this edit' },
+  });
+  const open = updateSession(named, { type: 'options.open' });
+  assert.equal(open.choicePickerOpen, true);
+  assert.equal(updateSession(open, { type: 'group.open' }), open);
 
-    const dismissed = updateSession(open, { type: 'options.close' });
-    assert.equal(dismissed.choicePickerOpen, false);
-    assert.equal(dismissed.drafts, named.drafts);
-    assert.equal(updateSession(dismissed, { type: 'options.select', choice }), dismissed);
-    const selected = updateSession(open, { type: 'options.select', choice });
-    assert.equal(selected.choicePickerOpen, false);
-    assert.equal(updateSession(selected, { type: 'options.select', choice }), selected);
+  const dismissed = updateSession(open, { type: 'options.close' });
+  assert.equal(dismissed.choicePickerOpen, false);
+  assert.equal(dismissed.drafts, named.drafts);
+  assert.equal(updateSession(dismissed, { type: 'options.select', choice }), dismissed);
+  const selected = updateSession(open, { type: 'options.select', choice });
+  assert.equal(selected.choicePickerOpen, false);
+  assert.equal(updateSession(selected, { type: 'options.select', choice }), selected);
 
-    const backToGroupPicker = updateSession(selected, { type: 'group.open' });
-    const cash = updateSession(backToGroupPicker, { type: 'group.select', group: 'cash' });
-    const reopened = updateSession(updateSession(cash, { type: 'group.open' }), {
-      type: 'group.select',
-      group,
-    });
-    const draft = reopened.drafts[group];
-    assert.ok(draft && field in draft);
-    assert.equal(Reflect.get(draft, field), choice.value);
-    assert.equal(draft.fields.name, 'Keep this edit');
-  }
+  const backToGroupPicker = updateSession(selected, { type: 'group.open' });
+  const cash = updateSession(backToGroupPicker, { type: 'group.select', group: 'cash' });
+  const reopened = updateSession(updateSession(cash, { type: 'group.open' }), {
+    type: 'group.select',
+    group: 'loan',
+  });
+  const draft = reopened.drafts.loan;
+  assert.ok(draft?.group === 'loan');
+  assert.equal(draft.direction, 'given');
+  assert.equal(draft.fields.name, 'Keep this edit');
 });
 
 test('closing the Bank payment editor discards unapplied changes and preserves the form', () => {
@@ -421,15 +411,15 @@ test('currency uses configured preferences, retains reference dates and never re
   assert.deepEqual(currencies, ['INR', 'USD', 'JPY']);
   const draft = replay('investment', [
     { type: 'text', field: 'investedCost', value: '123.45' },
-    { type: 'text', field: 'valuation', value: '150.54' },
-    { type: 'text', field: 'valuationDate', value: '2026-11-23' },
-    { type: 'investment.kind', value: 'gold' },
+    { type: 'text', field: 'tenure', value: '12' },
   ]);
   assert.equal(updateAccountDraft(draft, { type: 'currency', value: 'EUR' }, currencies), draft);
   assert.equal(updateAccountDraft(draft, { type: 'currency', value: 'INR' }, currencies), draft);
   const changed = updateAccountDraft(draft, { type: 'currency', value: 'JPY' }, currencies);
   assert.equal(changed.currency, 'JPY');
-  assert.deepEqual(changed.fields, { ...draft.fields, investedCost: '', valuation: '' });
+  assert.ok(changed.group === 'investment');
+  assert.deepEqual(changed.fields, { ...draft.fields, investedCost: '' });
+  assert.equal(changed.fields.tenure, '12');
 });
 
 test('every eligible form defaults to Main and only shows currency choices with configured Subs', () => {
@@ -530,7 +520,7 @@ test('currency changes clear each group’s amounts while retaining all other dr
     'credit-card': ['outstanding', 'creditLimit'],
     wallet: ['openingAmount'],
     loan: ['originalPrincipal', 'fees', 'emiAmount'],
-    investment: ['investedCost', 'valuation'],
+    investment: ['investedCost'],
   } satisfies Record<PreviewGroup, readonly DraftField[]>;
 
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
@@ -595,7 +585,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
     wallet: ['openingAmount'],
     loan: ['emiAmount', 'originalPrincipal', 'fees', 'interestRate', 'startDate'],
-    investment: ['investedCost', 'valuation', 'valuationDate'],
+    investment: ['investedCost', 'startDate', 'tenure'],
   } satisfies Record<PreviewGroup, readonly string[]>;
   const expectedRendered = {
     ...expectedFields,
@@ -608,6 +598,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
       'fees',
       'interestRate',
     ],
+    investment: ['investedCost', 'tenure'],
   } satisfies Record<PreviewGroup, readonly string[]>;
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const groupFields = screen.slice(screen.indexOf('function GroupFields'));
@@ -707,7 +698,17 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(en.accountLoanInterestRateInfo, /interest rate as a percent/);
   assert.doesNotMatch(groupFields, /outstandingPrincipal|accountLoanOutstandingPrincipal/);
   const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
-  assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
+  assert.doesNotMatch(
+    investmentSection,
+    /PaymentFromField|accountAutoPay|accountInvestmentType|accountInvestmentValuation|investmentKind/,
+  );
+  assert.match(
+    investmentSection,
+    /field="investedCost"[\s\S]*?accountInvestmentStartDate[\s\S]*?field="tenure"/,
+  );
+  assert.equal(en.accountInvestmentStartDate, 'Start Date');
+  assert.equal(en.accountInvestmentTenure, 'Tenure (Optional)');
+  assert.equal(en.accountInvestmentTenureMonths, 'months');
   assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);
   assert.match(paymentField, /accessibilityLabel=\{t\('accountPayFrom'\)\}/);
   assert.match(paymentField, /accessibilityState=\{\{ disabled: true \}\}/);
@@ -823,11 +824,25 @@ test('Credit Card dates edit monthly days and Loan and Investment dates keep the
 
   const loan = replay('loan', [{ type: 'text', field: 'startDate', value: '2026-11-24' }]);
   const investment = replay('investment', [
-    { type: 'text', field: 'valuationDate', value: '2026-11-24' },
+    { type: 'text', field: 'startDate', value: '2026-11-24' },
+    { type: 'text', field: 'tenure', value: '12' },
   ]);
   assert.ok(loan.group === 'loan' && investment.group === 'investment');
   assert.equal(loan.fields.startDate, '2026-11-24');
-  assert.equal(investment.fields.valuationDate, '2026-11-24');
+  assert.equal(investment.fields.startDate, '2026-11-24');
+  assert.equal(investment.fields.tenure, '12');
+  assert.equal(
+    updateAccountDraft(investment, { type: 'text', field: 'tenure', value: '0' }, currencies),
+    investment,
+  );
+  assert.equal(
+    updateAccountDraft(
+      investment,
+      { type: 'date.part', field: 'startDate', part: 'day', value: '1' },
+      currencies,
+    ),
+    investment,
+  );
 
   assert.equal(en.accountCardMonthlySuffix, 'of every month');
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
@@ -838,48 +853,47 @@ test('Credit Card dates edit monthly days and Loan and Investment dates keep the
     ['statementDate', 'dueDate'],
   );
   assert.match(form, /suffix=\{\s*monthly \? \([\s\S]*?accountCardMonthlySuffix/);
-  assert.match(form, /keyboardType=\{date \? 'number-pad'/);
+  assert.match(form, /keyboardType=\{date \|\| months \? 'number-pad'/);
+  assert.match(form, /accountInvestmentTenureMonths/);
 });
 
-test('Investment keeps editable day, month and year on the same date row', () => {
-  const forms = [{ group: 'investment', field: 'valuationDate' }] as const;
-
-  for (const { group, field } of forms) {
-    const draft = replay(group, [
-      { type: 'date.part', field, part: 'day', value: '24' },
-      { type: 'date.part', field, part: 'year', value: '2026' },
-      { type: 'date.part', field, part: 'month', value: '11' },
-      { type: 'currency', value: 'USD' },
-    ]);
-    assert.ok(field in draft.fields);
-    assert.equal(Reflect.get(draft.fields, field), '2026-11-24');
-    assert.deepEqual(calendarDateParts(Reflect.get(draft.fields, field)), {
-      day: '24',
-      month: '11',
-      year: '2026',
-    });
-    assert.equal(
-      updateAccountDraft(
-        draft,
-        { type: 'date.part', field, part: 'month', value: '13' },
-        currencies,
-      ),
-      draft,
-    );
-    const cleared = updateAccountDraft(
-      draft,
-      { type: 'date.part', field, part: 'day', value: '' },
-      currencies,
-    );
-    assert.equal(Reflect.get(cleared.fields, field), '2026-11-');
-  }
+test('Investment Start Date uses the shared wheel date field and keeps optional tenure months', () => {
+  const today = '2026-11-25';
+  const update = (session: AccountAddSession, action: AccountAddAction) =>
+    updateAccountAddSession(session, action, 'INR', currencies, today);
+  let session = update(newAccountAddSession(true), { type: 'group.select', group: 'investment' });
+  const draft = () => {
+    const investment = session.drafts.investment;
+    assert.ok(investment?.group === 'investment');
+    return investment.fields;
+  };
+  assert.equal(draft().startDate, today);
+  assert.equal(draft().tenure, '');
+  assert.equal(Object.hasOwn(session.drafts.investment ?? {}, 'investmentKind'), false);
+  session = update(session, { type: 'date.open', field: 'startDate' });
+  assert.ok(session.datePicker);
+  const id = session.datePicker.id;
+  session = update(session, {
+    type: 'date.change',
+    id,
+    part: 'day',
+    value: calendarWheelIndex({ year: 2026, month: 11, day: 24 }, 'day'),
+  });
+  assert.equal(draft().startDate, '2026-11-24');
+  session = update(session, { type: 'date.close', id });
+  session = update(session, {
+    type: 'form',
+    group: 'investment',
+    action: { type: 'text', field: 'tenure', value: '12' },
+  });
+  assert.equal(draft().tenure, '12');
 
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  assert.match(
-    form,
-    /<CalendarDateMonthAndYear[\s\S]*?type: 'date.part', field, part: 'month'[\s\S]*?type: 'date.part', field, part: 'year'/,
-  );
-  assert.match(form, /value=\{parts\?\.day \?\? value\}/);
+  const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
+  assert.match(form, /case 'investment':[\s\S]*?accountInvestmentStartDate[\s\S]*?field="tenure"/);
+  assert.doesNotMatch(form, /accountInvestmentType|field="valuation"|valuationDate/);
+  assert.doesNotMatch(controller, /accountInvestmentType|investmentKinds|investment\.kind/);
+  assert.match(controller, /draft\.group === 'loan' \|\| draft\.group === 'investment'/);
 });
 
 test('wheel projection preserves the center and curves and fades symmetrically', () => {
@@ -1188,7 +1202,10 @@ test('small account captions align above their inputs while icons align beside t
     /alignItems: props.multiline \? 'flex-start' : 'center'[\s\S]*?\{leading\}\s*<\/View>\s*\{suffix \? \([\s\S]*?\{input\}<\/View>\s*\)\}\s*\{trailing\}/,
   );
   assert.match(controls, /d=\{rowIcons\[name\]\}[\s\S]*?theme\.colors\.primaryText/);
-  assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
+  assert.match(
+    form,
+    /textSize=\{field === 'name' \|\| money \|\| date \|\| months \? 'title' : 'section'\}/,
+  );
   assert.match(form, /leading=\{leading\}[\s\S]*?textAlign="left"/);
   assert.match(
     form,
@@ -1199,7 +1216,10 @@ test('small account captions align above their inputs while icons align beside t
     /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<AccountFormIcon/,
   );
   assert.match(form, /labelAsPlaceholder=\{field === 'name' \|\| description\}/);
-  assert.match(form, /placeholder=\{calendar \? t\('accountDateDayPlaceholder'\) : money \? '0'/);
+  assert.match(
+    form,
+    /placeholder=\{calendar \? t\('accountDateDayPlaceholder'\) : money \|\| months \? '0'/,
+  );
   assert.match(input, /const growsWithText = borderless && props.multiline/);
   assert.match(input, /includeFontPadding: borderless \? false : undefined/);
   assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);
@@ -1322,10 +1342,9 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   );
   assert.doesNotMatch(form, /choice\?\.open|children: <AccountChoices/);
   assert.match(form, /<AccountDropdown\s+choice=\{choice\}/);
-  assert.match(
-    controller,
-    /choice\(\s*'accountLoanDirection',[\s\S]*?choice\(\s*'accountInvestmentType'/,
-  );
+  assert.match(controller, /choice\(\s*'accountLoanDirection'/);
+  assert.doesNotMatch(controller, /accountInvestmentType|investmentKinds|investment\.kind/);
+  assert.match(controller, /if \(draft\.group !== 'loan'\) return null/);
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
   assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
