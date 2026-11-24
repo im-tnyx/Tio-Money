@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, type ComponentRef } from 'react';
 import { TextInput, type TextInputProps } from 'react-native';
 
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -20,7 +20,7 @@ export function AppTextField({
 }: AppTextFieldProps) {
   const theme = useAppTheme();
   const focusBridge = useContext(KeyboardFormFocusContext);
-  const input = useRef<TextInput>(null);
+  const input = useRef<ComponentRef<typeof TextInput>>(null);
   const borderless = appearance === 'borderless';
   const minHeight = theme.textField.minimumHeight;
   const growsWithText = borderless && props.multiline;
