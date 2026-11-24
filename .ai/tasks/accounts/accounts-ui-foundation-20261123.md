@@ -355,4 +355,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed `src/features/accounts/{account-form-controls,add-account-screen}.tsx`, `src/shared/i18n/strings.ts`, `tests/accounts/accounts-preview.test.ts`, this record and the index. The focused tests verify adjacency, left-aligned text and the existing dropdown and Credit Card order. The top bar and Account Group source match the earlier editor.
 - Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
 
+### 2026-11-24 — Align captions above editable values
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-reference-photo--proceed) records the owner’s reference photo at PR #97 head `47c665317013d18efff2a043d65a29c818745f72`. Captions use the shared caption size and the same start inset as the editable value. The icon aligns beside the value. Name and Description retain their inline placeholders. Existing field meanings and date formats are preserved.
+- Changed `src/features/accounts/account-form-controls.tsx`, `tests/accounts/accounts-preview.test.ts`, `docs/product/ACCOUNT-GROUPS-SPEC.md`, this record and the index. The focused assertions cover caption placement, icon alignment and inline currency options.
+- Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
