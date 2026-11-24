@@ -73,6 +73,13 @@ interface LoanFields extends CommonFields {
   readonly startDate: string;
 }
 
+export const loanFieldInfoFields = ['originalPrincipal', 'fees', 'interestRate'] as const;
+export type LoanFieldInfo = (typeof loanFieldInfoFields)[number];
+
+export function isLoanFieldInfo(value: unknown): value is LoanFieldInfo {
+  return loanFieldInfoFields.some((field) => field === value);
+}
+
 interface InvestmentFields extends CommonFields {
   readonly investedCost: string;
   readonly valuation: string;
@@ -97,6 +104,7 @@ export type AccountDraft =
   | (Draft<'loan', LoanFields> & {
       readonly direction: LoanDirection;
       readonly moreDetailsOpen: boolean;
+      readonly fieldInfo: LoanFieldInfo | null;
     })
   | (Draft<'investment', InvestmentFields> & { readonly investmentKind: InvestmentKind });
 
@@ -174,6 +182,7 @@ export function newAccountDraft(
         },
         direction: 'borrowed',
         moreDetailsOpen: false,
+        fieldInfo: null,
       };
     case 'investment':
       return {
@@ -206,6 +215,8 @@ export type AccountFormAction =
     }
   | { readonly type: 'currency'; readonly value: CurrencyCode }
   | { readonly type: 'moreDetails.toggle' }
+  | { readonly type: 'fieldInfo.open'; readonly field: LoanFieldInfo }
+  | { readonly type: 'fieldInfo.close' }
   | AccountChoiceAction
   | PaymentModeAction;
 
@@ -365,7 +376,23 @@ export function updateAccountDraft(
     case 'loan.direction':
       return draft.group === 'loan' ? { ...draft, direction: action.value } : draft;
     case 'moreDetails.toggle':
-      return draft.group === 'loan' ? { ...draft, moreDetailsOpen: !draft.moreDetailsOpen } : draft;
+      return draft.group === 'loan'
+        ? {
+            ...draft,
+            moreDetailsOpen: !draft.moreDetailsOpen,
+            fieldInfo: draft.moreDetailsOpen ? null : draft.fieldInfo,
+          }
+        : draft;
+    case 'fieldInfo.open':
+      return draft.group === 'loan' &&
+        draft.moreDetailsOpen &&
+        draft.fieldInfo !== action.field
+        ? { ...draft, fieldInfo: action.field }
+        : draft;
+    case 'fieldInfo.close':
+      return draft.group === 'loan' && draft.fieldInfo !== null
+        ? { ...draft, fieldInfo: null }
+        : draft;
     case 'investment.kind':
       return draft.group === 'investment' ? { ...draft, investmentKind: action.value } : draft;
     default:

@@ -58,6 +58,14 @@ export const en = {
   accountLoanFees: 'Fees',
   accountLoanInterestRate: 'Interest Rate',
   accountLoanMoreDetails: 'More details',
+  accountLoanFieldInfo: 'About this field',
+  closeLoanFieldInfo: 'Close field information',
+  accountLoanAmountInfo:
+    'Enter the original sanctioned loan amount. This is the contract total before fees were cut.',
+  accountLoanFeesInfo:
+    'Enter processing or other upfront charges deducted when the loan was disbursed, if you know them.',
+  accountLoanInterestRateInfo:
+    'Enter the interest rate as a percent if you know it. Leave blank when the rate is unknown.',
   accountLoanEmiAmount: 'EMI Amount (Optional)',
   accountLoanFirstEmiDate: 'First EMI Date',
   accountInvestmentType: 'Investment Type',
