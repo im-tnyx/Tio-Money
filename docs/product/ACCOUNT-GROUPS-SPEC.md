@@ -22,12 +22,14 @@
 | User path | Behavior |
 | :--- | :--- |
 | Settings → Account Groups | Browse, explain, order and optionally hide future **built-in** group templates; hiding does not delete accounts |
-| Accounts → Add Account → Select Group | Render group-specific required/optional fields, help text and validations |
+| Accounts → Add Account → Account Group | Open Add Account as a bottom sheet with a Group row above the name. Choose a group in a sheet above the form. The Bank payment-mode editor opens above the form in the same way. |
 | Edit Account | Preserve stable account ID, ledger classification, old posted events and linked accounts |
 | Archive Account | Hide from ordinary pickers, retain historical ledger and backup/sync identity; reactivation explicit |
 | Group customization | **Future gated design**; free-form custom groups must not invent unsupported ledger semantics |
 
 One user can have many accounts in a group. Local data is primary; no Tio Money signup required. Currency choice must follow [Currency & FX](CURRENCY-SPEC.md); never silently mix minor units.
+
+In the Add Account preview, the Group row begins at Select. Group selection reveals its fields. Switching groups preserves each draft until Add Account closes. Long forms can expand to the top safe area and scroll. Insurance remains informational and Save stays disabled.
 
 ## 02 · Shared create/edit rules
 

@@ -1,0 +1,106 @@
+import { Pressable, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+
+import { t, type TranslationKey } from '@/shared/i18n/strings';
+import { useAppTheme } from '@/shared/theme/theme-provider';
+import { AppText } from '@/shared/ui/app-text';
+
+import type { AccountGroupChoice } from './account-form-contract';
+import { AccountGroupIcon } from './account-group-icon';
+
+export function AccountGroupField({
+  value,
+  onPress,
+}: {
+  readonly value: TranslationKey;
+  readonly onPress: () => void;
+}) {
+  const theme = useAppTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t('accountGroup')}
+      accessibilityValue={{ text: t(value) }}
+      onPress={onPress}
+      style={{
+        minHeight: theme.buttons.minimumHeight,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.space.sm,
+      }}
+    >
+      <AppText muted style={{ flex: 1 }}>
+        {t('accountGroup')}
+      </AppText>
+      <AppText style={{ flexShrink: 1, textAlign: 'right' }}>{t(value)}</AppText>
+      <GroupChoiceMark />
+    </Pressable>
+  );
+}
+
+export function AccountGroupOptions({
+  choices,
+}: {
+  readonly choices: readonly AccountGroupChoice[];
+}) {
+  const theme = useAppTheme();
+  return (
+    <View accessibilityRole="radiogroup">
+      {choices.map(({ id, label, detail, status, checked, onSelect }) => (
+        <Pressable
+          key={id}
+          accessible
+          accessibilityRole="radio"
+          accessibilityLabel={[t(label), t(detail), status ? t(status) : null]
+            .filter(Boolean)
+            .join('. ')}
+          accessibilityState={{ disabled: !onSelect, checked }}
+          disabled={!onSelect}
+          onPress={onSelect}
+          style={{
+            minHeight: theme.buttons.minimumHeight,
+            paddingHorizontal: theme.space.lg,
+            paddingVertical: theme.space.sm,
+            gap: theme.space.md,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderBottomColor: theme.colors.border,
+            borderBottomWidth: theme.navigation.borderWidth,
+          }}
+        >
+          <AccountGroupIcon group={id} />
+          <View style={{ flex: 1, gap: theme.space.xxs }}>
+            <AppText muted={!onSelect}>{t(label)}</AppText>
+            <AppText variant="caption" muted>
+              {t(detail)}
+            </AppText>
+            {status ? <AppText variant="caption">{t(status)}</AppText> : null}
+          </View>
+          {checked ? <GroupChoiceMark checked /> : null}
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+function GroupChoiceMark({ checked = false }: { readonly checked?: boolean }) {
+  const theme = useAppTheme();
+  return (
+    <Svg
+      width={theme.iconRoles.bottomSheet}
+      height={theme.iconRoles.bottomSheet}
+      viewBox="0 0 24 24"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Path
+        d={checked ? 'm5 12 4 4L19 6' : 'm9 6 6 6-6 6'}
+        fill="none"
+        stroke={checked ? theme.colors.brand : theme.colors.secondaryText}
+        strokeWidth={theme.icons.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}

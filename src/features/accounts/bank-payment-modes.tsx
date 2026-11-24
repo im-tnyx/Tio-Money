@@ -5,7 +5,6 @@ import paymentModeIcons from '@/shared/assets/google-material-icons/payment-mode
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { ActionButton } from '@/shared/ui/action-button';
-import { AppBottomSheet } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
 
 import {
@@ -105,7 +104,7 @@ function ModeRowAction({
 
 type BankModesProps = Pick<
   AddAccountViewModel,
-  'canAddMode' | 'canApplyMode' | 'availableModeTypes' | 'animateSheet' | 'onAction'
+  'canAddMode' | 'canApplyMode' | 'availableModeTypes' | 'onAction'
 > & {
   readonly draft: Extract<AccountDraft, { group: 'bank' }>;
 };
@@ -176,50 +175,39 @@ export function BankModeEditor({
   draft,
   canApplyMode,
   availableModeTypes,
-  animateSheet,
   onAction,
 }: Omit<BankModesProps, 'canAddMode'>) {
   const theme = useAppTheme();
   const editor = draft.modeEditor;
+  if (!editor) return null;
   return (
-    <AppBottomSheet
-      visible={editor !== null}
-      animate={animateSheet}
-      avoidKeyboard
-      title={t(editor?.id == null ? 'accountModeAdd' : 'accountModeEdit')}
-      onDismiss={() => onAction({ type: 'mode.cancel' })}
-      dismissAccessibilityLabel={t('accountCancel')}
-    >
-      {editor ? (
-        <View style={{ padding: theme.space.lg, gap: theme.space.md }}>
-          <AccountField
-            label="accountModeName"
-            labelAsPlaceholder
-            value={editor.name}
-            onChangeText={(value) => onAction({ type: 'mode.name', value })}
-          />
-          <AccountChoices
-            label="accountModeType"
-            compact
-            options={paymentModeTypes.map((value) => {
-              const disabled = !availableModeTypes.includes(value);
-              return {
-                value,
-                label: t(modeLabels[value]),
-                disabled,
-                accessibilityHint: disabled ? t('accountModeTypeLimitReached') : undefined,
-              };
-            })}
-            value={editor.kind}
-            onChange={(value) => onAction({ type: 'mode.kind', value })}
-          />
-          <ActionButton
-            label={t('accountModeApply')}
-            disabled={!canApplyMode}
-            onPress={() => onAction({ type: 'mode.apply' })}
-          />
-        </View>
-      ) : null}
-    </AppBottomSheet>
+    <View style={{ padding: theme.space.lg, gap: theme.space.md }}>
+      <AccountField
+        label="accountModeName"
+        labelAsPlaceholder
+        value={editor.name}
+        onChangeText={(value) => onAction({ type: 'mode.name', value })}
+      />
+      <AccountChoices
+        label="accountModeType"
+        compact
+        options={paymentModeTypes.map((value) => {
+          const disabled = !availableModeTypes.includes(value);
+          return {
+            value,
+            label: t(modeLabels[value]),
+            disabled,
+            accessibilityHint: disabled ? t('accountModeTypeLimitReached') : undefined,
+          };
+        })}
+        value={editor.kind}
+        onChange={(value) => onAction({ type: 'mode.kind', value })}
+      />
+      <ActionButton
+        label={t('accountModeApply')}
+        disabled={!canApplyMode}
+        onPress={() => onAction({ type: 'mode.apply' })}
+      />
+    </View>
   );
 }

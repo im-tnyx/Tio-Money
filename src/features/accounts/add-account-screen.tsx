@@ -1,18 +1,19 @@
-import { KeyboardAvoidingView, Platform, ScrollView, Switch, View } from 'react-native';
+import { Switch, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { ActionButton } from '@/shared/ui/action-button';
+import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
 
 import {
   investmentKinds,
   loanDirections,
   walletKinds,
+  type AddAccountSheetViewModel,
   type AddAccountViewModel,
   type DraftField,
-  type PreviewGroup,
 } from './account-form-contract';
 import {
   AccountChoices,
@@ -20,17 +21,8 @@ import {
   AmountCurrencyChoices,
   UnavailableAccountChoice,
 } from './account-form-controls';
-import { AccountPage } from './account-page';
+import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
-
-const titleKeys: Record<PreviewGroup, TranslationKey> = {
-  cash: 'addCashAccount',
-  bank: 'addBankAccount',
-  'credit-card': 'addCardAccount',
-  wallet: 'addWalletAccount',
-  loan: 'addLoanAccount',
-  investment: 'addInvestmentAccount',
-};
 
 const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
 const walletLabels = {
@@ -147,34 +139,56 @@ function DraftInput({
   );
 }
 
-export function AddAccountScreen({
+export function AddAccountSheet({
+  visible,
+  animate,
   form,
-  onBack,
-}: {
-  readonly form: AddAccountViewModel | null;
-  readonly onBack: () => void;
-}) {
+  selectedLabel,
+  groupPicker,
+  onOpenGroupPicker,
+  onDismiss,
+}: AddAccountSheetViewModel) {
   const theme = useAppTheme();
+  let overlay: BottomSheetLayer | undefined;
+  if (groupPicker) {
+    overlay = {
+      title: t('chooseAccountGroup'),
+      dismissAccessibilityLabel: t('closeAccountGroupPicker'),
+      onDismiss: groupPicker.onDismiss,
+      showCloseButton: true,
+      children: <AccountGroupOptions choices={groupPicker.choices} />,
+    };
+  } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
+    overlay = {
+      title: t(form.draft.modeEditor.id === null ? 'accountModeAdd' : 'accountModeEdit'),
+      dismissAccessibilityLabel: t('closeAccountPaymentMode'),
+      onDismiss: () => form.onAction({ type: 'mode.cancel' }),
+      children: <BankModeEditor {...form} draft={form.draft} />,
+    };
+  }
 
   return (
-    <AccountPage
-      title={t(form ? titleKeys[form.draft.group] : 'addAccount')}
-      backLabel={t('backToAccounts')}
-      onBack={onBack}
+    <AppBottomSheet
+      visible={visible}
+      animate={animate}
+      avoidKeyboard
+      expandable
+      showCloseButton
+      title={t('addAccount')}
+      dismissAccessibilityLabel={t('closeAddAccount')}
+      onDismiss={onDismiss}
+      overlay={overlay}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
-      >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: theme.space.lg, gap: theme.space.lg }}
-        >
-          {form ? <AccountFields {...form} /> : <AppText>{t('accountGroupUnavailable')}</AppText>}
-        </ScrollView>
-      </KeyboardAvoidingView>
-      {form?.draft.group === 'bank' ? <BankModeEditor {...form} draft={form.draft} /> : null}
-    </AccountPage>
+      <View style={{ padding: theme.space.lg, gap: theme.space.lg }}>
+        <AppText muted>{t('accountFormPreview')}</AppText>
+        <AccountGroupField value={selectedLabel} onPress={onOpenGroupPicker} />
+        {form ? <AccountFields key={form.draft.group} {...form} /> : null}
+        <View style={{ gap: theme.space.xxs }}>
+          <AppText muted>{t('accountSaveUnavailable')}</AppText>
+          <ActionButton label={t('save')} disabled />
+        </View>
+      </View>
+    </AppBottomSheet>
   );
 }
 
@@ -190,7 +204,6 @@ function AccountFields({
   const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   return (
     <>
-      <AppText muted>{t('accountFormPreview')}</AppText>
       <DraftInput
         field="name"
         label={draft.group === 'credit-card' ? 'accountCardName' : undefined}
@@ -224,10 +237,6 @@ function AccountFields({
       {draft.group === 'bank' ? (
         <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
       ) : null}
-      <View style={{ gap: theme.space.xxs }}>
-        <AppText muted>{t('accountSaveUnavailable')}</AppText>
-        <ActionButton label={t('save')} disabled />
-      </View>
     </>
   );
 }
