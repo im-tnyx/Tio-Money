@@ -78,7 +78,6 @@ export const loanFieldInfoFields = [
   'fees',
   'interestRate',
   'emiAmount',
-  'collectInto',
 ] as const;
 export type LoanFieldInfo = (typeof loanFieldInfoFields)[number];
 

@@ -73,15 +73,10 @@ export const en = {
     'Enter the interest rate you agreed with the borrower, as a percent. Leave blank when unknown.',
   accountLoanInstallmentInfo:
     'Optional. Enter a fixed installment only when recovery follows a set schedule.',
-  accountLoanCollectIntoInfo:
-    'Choose where repaid amounts should be collected. Setup stays unavailable until account linking is approved.',
   accountLoanEmiAmount: 'EMI Amount (Optional)',
   accountLoanInstallmentOptional: 'Installment (Optional)',
   accountLoanFirstEmiDate: 'First EMI Date',
   accountLoanStartDate: 'Start Date',
-  accountCollectInto: 'Collect Into',
-  accountCollectIntoCaption: 'Into',
-  accountCollectIntoPlaceholder: 'Collection',
   accountInvestmentType: 'Investment Type',
   accountInvestmentStocks: 'Stocks',
   accountInvestmentMutualFunds: 'Mutual Funds',

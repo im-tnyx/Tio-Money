@@ -37,7 +37,6 @@ const loanFieldInfoCopy = {
   fees: 'accountLoanFeesInfo',
   interestRate: 'accountLoanInterestRateInfo',
   emiAmount: 'accountLoanInstallmentInfo',
-  collectInto: 'accountLoanCollectIntoInfo',
 } as const satisfies Record<LoanFieldInfo, TranslationKey>;
 
 const fieldSpecs = {
@@ -156,9 +155,7 @@ function DraftInput({
   const fieldLabel = label ?? spec.label;
   const description = field === 'description';
   const infoField = info === false ? undefined : (info ?? ('info' in spec ? spec.info : undefined));
-  const infoBodyKey =
-    infoBody ??
-    (infoField && infoField !== 'collectInto' ? loanFieldInfoCopy[infoField] : undefined);
+  const infoBodyKey = infoBody ?? (infoField ? loanFieldInfoCopy[infoField] : undefined);
   const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
     <AppText
@@ -307,7 +304,6 @@ function AccountFields({
   canAddMode,
   onAction,
 }: AddAccountViewModel) {
-  const theme = useAppTheme();
   const fieldInfo = draft.group === 'loan' ? draft.fieldInfo : null;
   const inputProps = {
     currencySymbol,
@@ -334,21 +330,7 @@ function AccountFields({
         {...inputProps}
       />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
-      {draft.group === 'credit-card' ||
-      (draft.group === 'loan' && draft.direction === 'borrowed') ? (
-        <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
-          <Switch
-            accessibilityRole="switch"
-            accessibilityLabel={t('accountAutoPay')}
-            accessibilityHint={t('accountAutoPayUnavailable')}
-            accessibilityState={{ disabled: true, checked: false }}
-            trackColor={{ false: theme.colors.border }}
-            ios_backgroundColor={theme.colors.border}
-            value={false}
-            disabled
-          />
-        </AccountFormRow>
-      ) : null}
+      {draft.group === 'credit-card' ? <DisabledAutoPay /> : null}
       {draft.group === 'bank' ? (
         <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
       ) : null}
@@ -356,54 +338,46 @@ function AccountFields({
   );
 }
 
-function PaymentFromField({
-  picker = null,
-  mode = 'pay',
-  fieldInfo = null,
-  onAction,
-}: {
-  readonly picker?: AccountPickerModel | null;
-  readonly mode?: 'pay' | 'collect';
-  readonly fieldInfo?: LoanFieldInfo | null;
-  readonly onAction?: AddAccountViewModel['onAction'];
-}) {
+function DisabledAutoPay() {
+  const theme = useAppTheme();
+  return (
+    <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
+      <Switch
+        accessibilityRole="switch"
+        accessibilityLabel={t('accountAutoPay')}
+        accessibilityHint={t('accountAutoPayUnavailable')}
+        accessibilityState={{ disabled: true, checked: false }}
+        trackColor={{ false: theme.colors.border }}
+        ios_backgroundColor={theme.colors.border}
+        value={false}
+        disabled
+      />
+    </AccountFormRow>
+  );
+}
+
+function PaymentFromField({ picker = null }: { readonly picker?: AccountPickerModel | null }) {
   const selectedName = selectedAccountName(picker);
-  const collect = mode === 'collect';
-  const caption = collect ? 'accountCollectIntoCaption' : 'accountPayFromCaption';
-  const placeholder = collect ? 'accountCollectIntoPlaceholder' : 'accountPayFromPlaceholder';
-  const accessLabel = collect ? 'accountCollectInto' : 'accountPayFrom';
   const field = (
     <AccountField
-      label={caption}
+      label="accountPayFromCaption"
       appearance="borderless"
       textSize="title"
       leading={<AccountFormIcon name="card" />}
-      placeholder={t(placeholder)}
-      accessibilityLabel={t(accessLabel)}
+      placeholder={t('accountPayFromPlaceholder')}
+      accessibilityLabel={t('accountPayFrom')}
       accessibilityState={{ disabled: true }}
       editable={false}
       value={selectedName ?? ''}
       textAlign="left"
-      info={
-        collect && onAction ? (
-          <LoanFieldInfoTip
-            field="collectInto"
-            fieldLabel="accountCollectInto"
-            bodyKey="accountLoanCollectIntoInfo"
-            open={fieldInfo === 'collectInto'}
-            onOpen={() => onAction({ type: 'fieldInfo.open', field: 'collectInto' })}
-            onClose={() => onAction({ type: 'fieldInfo.close' })}
-          />
-        ) : undefined
-      }
     />
   );
   if (!picker || picker.accounts.length === 0) return field;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t(accessLabel)}
-      accessibilityValue={{ text: selectedName ?? t(placeholder) }}
+      accessibilityLabel={t('accountPayFrom')}
+      accessibilityValue={{ text: selectedName ?? t('accountPayFromPlaceholder') }}
       accessibilityState={{ expanded: picker.open }}
       onPress={picker.onOpen}
     >
@@ -482,22 +456,15 @@ function GroupFields({
               </AccountFormRow>
             </Pressable>
             {draft.moreDetailsOpen ? (
-              <>
-                <PaymentFromField
-                  mode="collect"
-                  fieldInfo={draftInput.fieldInfo}
-                  onAction={onAction}
-                />
-                <DraftInput
-                  field="emiAmount"
-                  label="accountLoanInstallmentOptional"
-                  info="emiAmount"
-                  infoBody="accountLoanInstallmentInfo"
-                  currencyControl={false}
-                  value={draft.fields.emiAmount}
-                  {...draftInput}
-                />
-              </>
+              <DraftInput
+                field="emiAmount"
+                label="accountLoanInstallmentOptional"
+                info="emiAmount"
+                infoBody="accountLoanInstallmentInfo"
+                currencyControl={false}
+                value={draft.fields.emiAmount}
+                {...draftInput}
+              />
             ) : null}
           </>
         );
@@ -510,7 +477,6 @@ function GroupFields({
             value={draft.fields.emiAmount}
             {...draftInput}
           />
-          <PaymentFromField />
           {loanDates ? (
             <AppDateField
               label={t('accountLoanFirstEmiDate')}
@@ -533,6 +499,7 @@ function GroupFields({
           </Pressable>
           {draft.moreDetailsOpen ? (
             <>
+              <PaymentFromField />
               <DraftInput
                 field="originalPrincipal"
                 currencyControl={false}
@@ -541,6 +508,7 @@ function GroupFields({
               />
               <DraftInput field="fees" value={draft.fields.fees} {...draftInput} />
               <DraftInput field="interestRate" value={draft.fields.interestRate} {...draftInput} />
+              <DisabledAutoPay />
             </>
           ) : null}
         </>
