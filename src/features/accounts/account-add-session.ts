@@ -23,6 +23,15 @@ import {
   type PreviewGroup,
 } from './account-form-contract';
 
+function withoutLoanFieldInfo(
+  drafts: AccountAddSession['drafts'],
+): AccountAddSession['drafts'] {
+  const loan = drafts.loan;
+  return loan?.group === 'loan' && loan.fieldInfo !== null
+    ? { ...drafts, loan: { ...loan, fieldInfo: null } }
+    : drafts;
+}
+
 type GroupPickerState = 'pending' | 'open' | 'closed';
 
 export interface AccountAddSession {
@@ -102,7 +111,11 @@ export function updateAccountAddSession(
       ) {
         return session;
       }
-      return { ...session, groupPicker: 'open' };
+      return {
+        ...session,
+        groupPicker: 'open',
+        drafts: withoutLoanFieldInfo(session.drafts),
+      };
     case 'group.close':
       return session.groupPicker === 'open' ? { ...session, groupPicker: 'closed' } : session;
     case 'group.select': {
@@ -122,7 +135,11 @@ export function updateAccountAddSession(
       ) {
         return session;
       }
-      return { ...session, choicePickerOpen: true };
+      return {
+        ...session,
+        choicePickerOpen: true,
+        drafts: withoutLoanFieldInfo(session.drafts),
+      };
     case 'options.close':
       return session.choicePickerOpen ? { ...session, choicePickerOpen: false } : session;
     case 'options.select': {
@@ -156,6 +173,7 @@ export function updateAccountAddSession(
           monthIndex: initialMonthWheelIndex(date),
         },
         datePickerEpoch: id,
+        drafts: withoutLoanFieldInfo(session.drafts),
       };
     }
     case 'date.close':
@@ -189,6 +207,12 @@ export function updateAccountAddSession(
         session.groupPicker !== 'closed' ||
         session.datePicker ||
         active.group !== action.group
+      ) {
+        return session;
+      }
+      if (
+        session.choicePickerOpen &&
+        (action.action.type === 'fieldInfo.open' || action.action.type === 'fieldInfo.close')
       ) {
         return session;
       }

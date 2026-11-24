@@ -5,6 +5,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
 import { AppDateField } from '@/shared/ui/app-date-field';
 import { AppKeyboardForm } from '@/shared/ui/app-keyboard-form';
+import { AppPopupCard } from '@/shared/ui/app-popup-card';
 import { AppPopupChevron } from '@/shared/ui/app-popup-chevron';
 import { AppText } from '@/shared/ui/app-text';
 
@@ -14,9 +15,11 @@ import {
   type AddAccountScreenViewModel,
   type AddAccountViewModel,
   type DraftField,
+  type LoanFieldInfo,
 } from './account-form-contract';
 import {
   AccountField,
+  AccountFieldInfoMark,
   AccountFormIcon,
   AccountFormRow,
   AmountCurrencyChoices,
@@ -29,6 +32,12 @@ import { accountPickerBottomSheetLayer } from './account-picker-bottom-sheet';
 import { selectedAccountName, type AccountPickerModel } from './account-picker-contract';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
 
+const loanFieldInfoCopy = {
+  originalPrincipal: 'accountLoanAmountInfo',
+  fees: 'accountLoanFeesInfo',
+  interestRate: 'accountLoanInterestRateInfo',
+} as const satisfies Record<LoanFieldInfo, TranslationKey>;
+
 const fieldSpecs = {
   name: { label: 'accountName' },
   description: { label: 'accountDescription' },
@@ -37,9 +46,13 @@ const fieldSpecs = {
   creditLimit: { label: 'accountCardCreditLimit', money: true, currencyControl: true },
   statementDate: { label: 'accountCardStatementDate', date: true, monthly: true },
   dueDate: { label: 'accountCardDueDate', date: true, monthly: true },
-  originalPrincipal: { label: 'accountLoanOriginalPrincipal', money: true },
-  fees: { label: 'accountLoanFees', money: true },
-  interestRate: { label: 'accountLoanInterestRate' },
+  originalPrincipal: {
+    label: 'accountLoanOriginalPrincipal',
+    money: true,
+    info: 'originalPrincipal',
+  },
+  fees: { label: 'accountLoanFees', money: true, info: 'fees' },
+  interestRate: { label: 'accountLoanInterestRate', info: 'interestRate' },
   emiAmount: { label: 'accountLoanEmiAmount', money: true, currencyControl: true },
   startDate: { label: 'accountLoanFirstEmiDate', date: true },
   investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
@@ -53,6 +66,7 @@ const fieldSpecs = {
     date?: boolean;
     monthly?: boolean;
     currencyControl?: boolean;
+    info?: LoanFieldInfo;
   }
 >;
 
@@ -61,7 +75,47 @@ type DraftInputControls = Pick<
   'currencySymbol' | 'currencyChoices' | 'onAction'
 > & {
   readonly currency: AddAccountViewModel['draft']['currency'];
+  readonly fieldInfo: LoanFieldInfo | null;
 };
+
+function LoanFieldInfoTip({
+  field,
+  open,
+  onOpen,
+  onClose,
+}: {
+  readonly field: LoanFieldInfo;
+  readonly open: boolean;
+  readonly onOpen: () => void;
+  readonly onClose: () => void;
+}) {
+  const theme = useAppTheme();
+  const body = t(loanFieldInfoCopy[field]);
+  return (
+    <AppPopupCard
+      trigger={<AccountFieldInfoMark />}
+      label={t('accountLoanFieldInfo') + ', ' + t(fieldSpecs[field].label)}
+      value={body}
+      dismissLabel={t('closeLoanFieldInfo')}
+      open={open}
+      onOpen={onOpen}
+      onClose={onClose}
+      preferredWidth={theme.optionPopup.width}
+      preferredHeight={theme.space.xxxl * 4}
+      placement="auto"
+    >
+      <AppText
+        style={{
+          paddingHorizontal: theme.space.md,
+          paddingVertical: theme.space.sm,
+          includeFontPadding: false,
+        }}
+      >
+        {body}
+      </AppText>
+    </AppPopupCard>
+  );
+}
 
 function DraftInput({
   field,
@@ -70,6 +124,7 @@ function DraftInput({
   currencySymbol,
   currencyChoices,
   currency,
+  fieldInfo,
   label,
 }: DraftInputControls & {
   readonly field: DraftField;
@@ -85,6 +140,7 @@ function DraftInput({
   const parts = calendar ? calendarDateParts(value) : null;
   const fieldLabel = label ?? spec.label;
   const description = field === 'description';
+  const infoField = 'info' in spec ? spec.info : undefined;
   const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
     <AppText
@@ -106,6 +162,16 @@ function DraftInput({
       accessibilityLabel={calendar ? t(fieldLabel) + ', ' + t('accountDateDay') : t(fieldLabel)}
       labelAsPlaceholder={field === 'name' || description}
       leading={leading}
+      info={
+        infoField ? (
+          <LoanFieldInfoTip
+            field={infoField}
+            open={fieldInfo === infoField}
+            onOpen={() => onAction({ type: 'fieldInfo.open', field: infoField })}
+            onClose={() => onAction({ type: 'fieldInfo.close' })}
+          />
+        ) : undefined
+      }
       trailing={
         showCurrency ? (
           <AmountCurrencyChoices
@@ -222,7 +288,14 @@ function AccountFields({
   onAction,
 }: AddAccountViewModel) {
   const theme = useAppTheme();
-  const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
+  const fieldInfo = draft.group === 'loan' ? draft.fieldInfo : null;
+  const inputProps = {
+    currencySymbol,
+    currencyChoices,
+    currency: draft.currency,
+    fieldInfo,
+    onAction,
+  };
   return (
     <>
       <DraftInput
@@ -234,12 +307,7 @@ function AccountFields({
       {choice ? (
         <AccountDropdown choice={choice} leading={<AccountFormIcon name="options" />} />
       ) : null}
-      <GroupFields
-        draft={draft}
-        paymentSource={paymentSource}
-        loanDates={loanDates}
-        {...inputProps}
-      />
+      <GroupFields draft={draft} paymentSource={paymentSource} loanDates={loanDates} {...inputProps} />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
       {draft.group === 'credit-card' || draft.group === 'loan' ? (
         <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
@@ -300,38 +368,35 @@ function PaymentFromField({ picker = null }: { readonly picker?: AccountPickerMo
 
 function GroupFields({
   draft,
-  currencySymbol,
-  currencyChoices,
   paymentSource,
   loanDates,
   onAction,
-}: Pick<
-  AddAccountViewModel,
-  'draft' | 'currencySymbol' | 'currencyChoices' | 'paymentSource' | 'loanDates' | 'onAction'
->) {
-  const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
+  ...inputProps
+}: DraftInputControls &
+  Pick<AddAccountViewModel, 'draft' | 'paymentSource' | 'loanDates'>) {
+  const draftInput = { ...inputProps, onAction };
   switch (draft.group) {
     case 'cash':
     case 'bank':
     case 'wallet':
       return (
-        <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
+        <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...draftInput} />
       );
     case 'credit-card':
       return (
         <>
-          <DraftInput field="outstanding" value={draft.fields.outstanding} {...inputProps} />
-          <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...inputProps} />
+          <DraftInput field="outstanding" value={draft.fields.outstanding} {...draftInput} />
+          <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...draftInput} />
           <PaymentFromField picker={paymentSource} />
-          <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
-          <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
+          <DraftInput field="statementDate" value={draft.fields.statementDate} {...draftInput} />
+          <DraftInput field="dueDate" value={draft.fields.dueDate} {...draftInput} />
         </>
       );
 
     case 'loan':
       return (
         <>
-          <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...inputProps} />
+          <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...draftInput} />
           <PaymentFromField />
           {loanDates ? (
             <AppDateField
@@ -358,10 +423,10 @@ function GroupFields({
               <DraftInput
                 field="originalPrincipal"
                 value={draft.fields.originalPrincipal}
-                {...inputProps}
+                {...draftInput}
               />
-              <DraftInput field="fees" value={draft.fields.fees} {...inputProps} />
-              <DraftInput field="interestRate" value={draft.fields.interestRate} {...inputProps} />
+              <DraftInput field="fees" value={draft.fields.fees} {...draftInput} />
+              <DraftInput field="interestRate" value={draft.fields.interestRate} {...draftInput} />
             </>
           ) : null}
         </>
@@ -369,9 +434,9 @@ function GroupFields({
     case 'investment':
       return (
         <>
-          <DraftInput field="investedCost" value={draft.fields.investedCost} {...inputProps} />
-          <DraftInput field="valuation" value={draft.fields.valuation} {...inputProps} />
-          <DraftInput field="valuationDate" value={draft.fields.valuationDate} {...inputProps} />
+          <DraftInput field="investedCost" value={draft.fields.investedCost} {...draftInput} />
+          <DraftInput field="valuation" value={draft.fields.valuation} {...draftInput} />
+          <DraftInput field="valuationDate" value={draft.fields.valuationDate} {...draftInput} />
           <AppText variant="caption" muted>
             {t('accountInvestmentValuationHint')}
           </AppText>

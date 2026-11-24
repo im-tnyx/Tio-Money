@@ -38,7 +38,7 @@ Source verified at Accounts preview First EMI Date fix [`7c805e5`](https://githu
 | Bank Account | Account Name, Opening Amount, Description, Linked Payment Modes |
 | Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Description, Auto Pay |
 | Wallet | Account Name, Opening Amount/Currency, Description |
-| Loan | Account Name, Loan Direction, EMI Amount (Optional), From / Payment, First EMI Date, More details (chevron; expands Loan Amount, Fees, Interest Rate), Description, Auto Pay |
+| Loan | Account Name, Loan Direction, EMI Amount (Optional), From / Payment, First EMI Date, More details (chevron; expands Loan Amount, Fees, Interest Rate — each with a ? info tip), Description, Auto Pay |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
 
 **Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card and Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Credit Card and Loan alone show Auto Pay after Description, Off and disabled. Investment has neither Payment From nor Auto Pay. Monthly card days begin at 01 and 15 with “of every month”. Loan uses a single First EMI Date (defaults to local Today); Next Due is not collected because it can be derived later from First EMI and today. The First EMI control opens the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Valuation Date retains the existing editable day/month/year row.
@@ -580,6 +580,11 @@ The entries below record implementation history at their stated revisions; super
 ### 2026-11-24 — Loan More details; remove Outstanding
 
 - Owner direction: remove Opening Outstanding Principal; keep the Loan layout and put remaining optional amount details behind a More details row with the shared right/down chevron. Default collapsed. Expanded fields: Loan Amount, Fees, Interest Rate. Primary remain EMI, Payment, First EMI Date. Given still shares this Loan form for now. No outstanding calculation or finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; independent review DEFERRED; merge authorization NOT_GRANTED.
+
+### 2026-11-24 — Loan More details field info tips
+
+- Owner direction: show a ? control beside Loan Amount, Fees and Interest Rate captions; tap opens a short popup explaining what to enter. Controller-owned `fieldInfo` on the Loan draft; clears when More details collapses or another picker opens. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; independent review DEFERRED; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

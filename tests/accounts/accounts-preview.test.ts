@@ -469,8 +469,8 @@ test('one amount row per form carries the inline currency selector and all amoun
     'emiAmount',
     'investedCost',
   ]);
-  assert.match(card, /field="outstanding"[^>]*?\{\.\.\.inputProps\}/);
-  assert.match(card, /field="creditLimit"[^>]*?\{\.\.\.inputProps\}/);
+  assert.match(card, /field="outstanding"[^>]*?\{\.\.\.draftInput\}/);
+  assert.match(card, /field="creditLimit"[^>]*?\{\.\.\.draftInput\}/);
   assert.match(screen, /currency: draft.currency/);
   assert.match(screen, /trailing=\{\s*showCurrency \? \(\s*<AmountCurrencyChoices/);
   assert.doesNotMatch(screen, /accountCurrencyChangeHint/);
@@ -624,6 +624,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   const loanDraft = newAccountDraft('loan', 'INR');
   assert.equal(loanDraft.group, 'loan');
   assert.equal(loanDraft.moreDetailsOpen, false);
+  assert.equal(loanDraft.fieldInfo, null);
   assert.equal(en.accountName, 'Account Name');
   assert.equal(en.accountCardName, 'Card Name');
   assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
@@ -652,6 +653,17 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(groupFields, /draft\.moreDetailsOpen \? \([\s\S]*?field="originalPrincipal"/);
   assert.match(groupFields, /field="fees"/);
   assert.match(groupFields, /field="interestRate"/);
+  assert.match(screen, /fieldInfo\.open/);
+  assert.match(screen, /LoanFieldInfoTip/);
+  assert.match(screen, /AccountFieldInfoMark/);
+  assert.match(screen, /accountLoanAmountInfo/);
+  assert.match(screen, /accountLoanFeesInfo/);
+  assert.match(screen, /accountLoanInterestRateInfo/);
+  assert.equal(en.accountLoanFieldInfo, 'About this field');
+  assert.equal(en.closeLoanFieldInfo, 'Close field information');
+  assert.match(en.accountLoanAmountInfo, /original sanctioned loan amount/);
+  assert.match(en.accountLoanFeesInfo, /upfront charges/);
+  assert.match(en.accountLoanInterestRateInfo, /interest rate as a percent/);
   assert.doesNotMatch(groupFields, /outstandingPrincipal|accountLoanOutstandingPrincipal/);
   const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
   assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
@@ -683,6 +695,44 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(choices, /accessibilityRole="radio"/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled \}\}/);
   assert.match(choices, /disabled=\{disabled\}/);
+  assert.match(choices, /function AccountFieldInfoMark/);
+  assert.match(choices, /info\?: ReactNode/);
+});
+
+test('Loan More details field info opens only while expanded and clears on collapse', () => {
+  let draft = newAccountDraft('loan', 'INR');
+  assert.ok(draft.group === 'loan');
+  assert.equal(
+    updateAccountDraft(
+      draft,
+      { type: 'fieldInfo.open', field: 'originalPrincipal' },
+      currencies,
+    ),
+    draft,
+  );
+  draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.moreDetailsOpen, true);
+  draft = updateAccountDraft(
+    draft,
+    { type: 'fieldInfo.open', field: 'originalPrincipal' },
+    currencies,
+  );
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.fieldInfo, 'originalPrincipal');
+  draft = updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'fees' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.fieldInfo, 'fees');
+  draft = updateAccountDraft(draft, { type: 'fieldInfo.close' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.fieldInfo, null);
+  draft = updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'interestRate' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.fieldInfo, 'interestRate');
+  draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.moreDetailsOpen, false);
+  assert.equal(draft.fieldInfo, null);
 });
 
 test('Credit Card dates edit monthly days and Loan and Investment dates keep their full values', () => {
@@ -1039,7 +1089,7 @@ test('small account captions align above their inputs while icons align beside t
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
   const row = controls.slice(
     controls.indexOf('export function AccountFormRow'),
-    controls.indexOf('export function AccountField'),
+    controls.indexOf('export function AccountFieldInfoMark'),
   );
 
   assert.match(form, /<AppKeyboardForm>[\s\S]*?<AccountFields[\s\S]*?<\/AppKeyboardForm>/);
@@ -1063,7 +1113,7 @@ test('small account captions align above their inputs while icons align beside t
   assert.match(field, /<View style=\{\{ gap: theme.textField.captionGap \}\}>/);
   assert.match(
     field,
-    /labelAsPlaceholder \? null : \([\s\S]*?<AppText[\s\S]*?variant="caption"\s+muted[\s\S]*?marginStart: iconWidth \+ columnGap[\s\S]*?\{t\(label\)\}[\s\S]*?flexDirection: 'row'/,
+    /labelAsPlaceholder \? null : \(\s*<View[\s\S]*?marginStart: iconWidth \+ columnGap[\s\S]*?<AppText[\s\S]*?variant="caption"\s+muted[\s\S]*?\{t\(label\)\}[\s\S]*?\{info\}[\s\S]*?flexDirection: 'row'/,
   );
   assert.match(
     field,
