@@ -6,12 +6,12 @@
 | Lifecycle | IN_REVIEW |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
-| Current agent | ChatGPT GPT-6.2 (bounded Accounts UI and documentation checkpoints) |
-| Previous agent | Codex Cloud, GPT-6 family. Exact variant UNKNOWN_NOT_VERIFIED. |
+| Current agent | Cursor Cloud (Composer) — docs provenance alignment only |
+| Previous agent | ChatGPT GPT-6.2; earlier Codex Cloud, GPT-6 family. Exact prior variants UNKNOWN_NOT_VERIFIED. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
-| Latest audited base | `6468b62786d56edb1a70b7a5c90146e17566e23b` |
-| Latest audited starting HEAD | `bffa1ad2bea5deebbec1b3f049afcb3232e1edaa` (Loan live date wheel checkpoint below) |
+| Latest audited base | `2698fb3f1988e7a6247974fa3e79a410a6bb5b70` (main after PR #103) |
+| Latest audited HEAD | `9eae9214efd767bcef08d6ff83566f7e21337b53` (merge of Accounts preview with that main) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -26,7 +26,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 
 ## Current UI snapshot (source verified 2026-11-24)
 
-Source baseline: [`eebbd8e`](https://github.com/im-tnyx/Tio-Money/commit/eebbd8e8f1aa717060438a3b568e1a6cf7e7a866), plus the [Loan-only payment controls checkpoint](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130036055) in this revision; base `6468b62786d56edb1a70b7a5c90146e17566e23b`. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
+Source verified at Accounts preview HEAD [`9eae921`](https://github.com/im-tnyx/Tio-Money/commit/9eae9214efd767bcef08d6ff83566f7e21337b53) on base [`2698fb3`](https://github.com/im-tnyx/Tio-Money/commit/2698fb3f1988e7a6247974fa3e79a410a6bb5b70). Behavior includes the independent Wallet form ([`9ad5d80`](https://github.com/im-tnyx/Tio-Money/commit/9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06)), Credit Card payment-picker shell with `paymentSource: null`, Loan date wheels, keyboard-aware form viewport, Group row label, and the main reconciliation in that merge. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
 
 **Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Group row can reopen it. Six built-in groups have forms; Insurance is informational and custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
 
@@ -558,5 +558,11 @@ The entries below record implementation history at their stated revisions; super
 - The owner requested safe reconciliation in chat. [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7136972788). Draft #97 started at `9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06` and integrates main `2698fb3f1988e7a6247974fa3e79a410a6bb5b70` with a normal two-parent merge. The only conflict was the shared task index. Both Accounts and Expo histories were retained.
 - The change preserves Accounts behavior, the independent Wallet scope and the RFC #98 finance gate. [PR #97](https://github.com/im-tnyx/Tio-Money/pull/97) records exact-head validation. Independent review remains deferred and device QA is pending.
 - Local validation reproduced the existing two-file Prettier failure. Formatting the affected screen and test exposed two stale source assertions. The tests now cover the shared Cash/Bank/Wallet opening amount and follow the form spacing into the existing shared keyboard viewport. The application runtime behavior is unchanged.
+
+### 2026-11-24 — Align task provenance with live HEAD
+
+- Owner requested documentation/task alignment with current code after a read-only branch audit, on this Accounts preview branch only (no separate docs branch). Cursor Cloud (Composer) from verified Accounts HEAD `9eae9214efd767bcef08d6ff83566f7e21337b53` / base `2698fb3f1988e7a6247974fa3e79a410a6bb5b70`.
+- Docs-only in `.ai/`: refresh the task header audited base/HEAD, rewrite the Current UI snapshot source line to that live merge (independent Wallet, payment-picker shell still null, Loan wheels, keyboard form, Group label), and update the compact index provenance. No application, test, schema or finance runtime change. Dated checkpoints that mention Wallet Type remain historical.
+- Source comparison against `src/features/accounts/{account-form-contract,add-account-screen,use-add-account-view-model}.ts(x)` and `src/shared/theme/component-tokens.ts` confirms the field-order table, 0 dp caption gap, disabled Save, and `paymentSource: null` already matched the previous narrative. Exact-HEAD CI for this docs commit and device QA remain separate; independent review DEFERRED; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
