@@ -273,3 +273,58 @@ test('npm preloader hashes helpers registry packument and exact attestation, rej
     assert.equal(partial.counts['@babel/helpers@7.29.15'].attestation, 1);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+test('first HTTP tap records only exact locked template responses', () => {
+  const root = mkdtempSync(join(tmpdir(), 'tm-tap-template-'));
+  try {
+    const mod = join(root, 'node_modules/make-fetch-happen');
+    mkdirSync(mod, { recursive: true });
+    writeFileSync(join(mod, 'index.js'), [
+      "const { Readable } = require('node:stream');",
+      "module.exports = async () => ({ status: 200,",
+      " body: Readable.from([Buffer.from('{\"private\":\"fixture-secret\"}')]),",
+      " json: async () => ({}) });",
+    ].join('\n'));
+    const cli = join(root, 'npm-cli.cjs');
+    const urls = [
+      'https://registry.npmjs.org/%40babel%2Ftemplate',
+      'https://registry.npmjs.org/-/npm/v1/attestations/%40babel%2Ftemplate@7.29.7',
+      'https://registry.npmjs.org/-/npm/v1/attestations/%40babel%2Ftemplate@7.29.8',
+      'https://evil.invalid/%40babel%2Ftemplate',
+      'https://registry.npmjs.org/%40babel%2Ftemplate?token=fixture-secret',
+    ];
+    writeFileSync(cli, [
+      "const fetch = require('make-fetch-happen');",
+      'const urls = ' + JSON.stringify(urls) + ';',
+      '(async () => { for (const url of urls) await (await fetch(url)).json(); })()',
+      '.catch(() => { process.exitCode = 1; });',
+    ].join('\n'));
+    const bin = join(root, 'npm');
+    symlinkSync(cli, bin);
+    const tap = join(dirname(fileURLToPath(import.meta.url)),
+      '../../scripts/security/npm-sigstore-http-tap.cjs');
+    const report = join(root, 'result.json');
+    const result = spawnSync(process.execPath, ['--require', tap, bin], {
+      encoding: 'utf8', timeout: 10000,
+      env: { PATH: process.env.PATH || '/usr/bin:/bin',
+        TM_HTTP_TAP_REPORT: report },
+    });
+    assert.equal(result.status, 0);
+    const raw = readFileSync(report, 'utf8');
+    assert.ok(!raw.includes('fixture-secret'));
+    assert.ok(!raw.includes('evil.invalid'));
+    assert.ok(!raw.includes('token='));
+    const snapshot = JSON.parse(raw);
+    assert.deepEqual(snapshot.evidence.map(e => e.kind),
+      ['packument', 'attestation']);
+    assert.ok(snapshot.evidence.every(e =>
+      e.packageId === '@babel/template@7.29.7'));
+    const bounded = sanitizeTapReport(snapshot, { allowPartial: true });
+    assert.equal(bounded.counts['@babel/template@7.29.7'].packument, 1);
+    assert.equal(bounded.counts['@babel/template@7.29.7'].attestation, 1);
+    const spoofed = structuredClone(snapshot);
+    spoofed.evidence[0].packageId = '@babel/template@7.29.8';
+    assert.throws(() => sanitizeTapReport(spoofed, { allowPartial: true }),
+      /TAP_REPORT_UNVERIFIED/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

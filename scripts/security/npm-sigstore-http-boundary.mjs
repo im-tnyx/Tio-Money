@@ -26,6 +26,7 @@ const TARGETS = new Set([
   '@babel/helper-compilation-targets@7.29.13',
   '@babel/code-frame@7.29.7',
   '@babel/types@7.29.15',
+  '@babel/template@7.29.7',
 ]);
 const TAP_REJECTIONS = new Set([
   'TAP_BODY_READ_REJECTED', 'TAP_BODY_CHUNK_INVALID',

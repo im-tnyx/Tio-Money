@@ -3,7 +3,8 @@ import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import { checkedRegistryPath, inspectFrozenTarget,
-  compareFrozenPacotePaths } from '../../scripts/security/npm-sigstore-pacote.mjs';
+  compareFrozenPacotePaths, localFrozenRegistry } from '../../scripts/security/npm-sigstore-pacote.mjs';
+import { AFFECTED } from '../../scripts/security/npm-sigstore-diagnostic.mjs';
 
 const id = '@babel/helper-module-transforms';
 const version = '7.29.13';
@@ -125,4 +126,42 @@ test('positive frozen replay requires both client paths to GET the same memory b
   assert.equal(result.unreviewedHttpRequests, 0);
   assert.equal(result.evidence[0].npm10AttestationRequests, 1);
   assert.equal(result.evidence[0].npm11AttestationRequests, 1);
+});
+
+
+// Gate 3: eight locked packages produce exactly sixteen public JSON paths.
+// Do not weaken the allowlist or the absolute capture bound to hide a red run.
+test('eight-target frozen public registry admits exactly sixteen bounded paths', async () => {
+  assert.equal(Object.keys(AFFECTED).length, 8);
+  const entries = new Map();
+  for (const [name, version] of Object.entries(AFFECTED)) {
+    entries.set('/' + name, Buffer.from('packument'));
+    entries.set('/-/npm/v1/attestations/' + name + '@' + version,
+      Buffer.from('attestation'));
+  }
+  assert.equal(entries.size, 16);
+  const local = await localFrozenRegistry(entries);
+  try {
+    assert.equal(new URL(local.registry).hostname, '127.0.0.1');
+    assert.equal(local.getRejectedRequests(), 0);
+  } finally {
+    await local.close();
+  }
+  entries.set('/unreviewed-extra-capture', Buffer.from('not allowed'));
+  await assert.rejects(() => localFrozenRegistry(entries),
+    /PACOTE_INVALID_CAPTURE_SET/);
+});
+
+test('frozen sampled response count must match exact packument/attestation pairs', async () => {
+  const fixture = {
+    entries: new Map([[packumentPath, first]]),
+    publicKeys: [], keysetSha256: 'f'.repeat(64),
+    samples: [{ name: id, version, packumentSha256: 'a'.repeat(64),
+      attestationSha256: 'b'.repeat(64) }],
+  };
+  await assert.rejects(() => compareFrozenPacotePaths(fixture, [
+    { npmVersion: '10.9.2', pacoteVersion: '1.2.3' },
+    { npmVersion: '11.19.1', pacoteVersion: '2.3.4' },
+  ], '/tmp/tm-frozen-tests'), /PACOTE_CAPTURE_SAMPLE_SIZE_MISMATCH/);
+  assert.equal(fixture.entries.size, 1);
 });

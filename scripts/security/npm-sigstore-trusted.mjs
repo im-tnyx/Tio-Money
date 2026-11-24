@@ -4,7 +4,7 @@
 // Authenticated TUF bootstrap is bundled in that verifier; an out-of-band Tio-Money
 // root-key pin is NOT established by this diagnostic.
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, X509Certificate } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -41,6 +41,65 @@ export function trustedVerificationOptions(tufCachePath) {
     tufCachePath,
     tufForceCache: false,
   });
+}
+
+
+// Observe only public identity fields from a signed, already Sigstore-verified
+// SLSA sample. This is NOT a policy allowlist or a trusted publisher approval.
+// Unexpected certificates/paths are sanitized to fixed UNVERIFIED categories.
+const SAFE_REF = /^refs\/(?:heads|tags)\/[A-Za-z0-9._/-]{1,120}$/;
+const SAFE_CERT_SAN = /^URI:(https:\/\/github\.com\/babel\/babel\/\.github\/workflows\/release\.yml@(refs\/(?:heads|tags)\/[A-Za-z0-9._/-]{1,120}))$/;
+const SAFE_INVOCATION = /^https:\/\/github\.com\/babel\/babel\/actions\/runs\/[1-9][0-9]{0,19}\/attempts\/[1-9][0-9]{0,6}$/;
+const COMMIT_SHA = /^[0-9a-f]{40}$/;
+const safeRef = value => typeof value === 'string' && SAFE_REF.test(value) &&
+  value.split('/').every(segment => segment !== '.' && segment !== '..');
+
+export function observeVerifiedPublisherSource(subjectAltName, statement) {
+  const output = {
+    exactReleaseWorkflowSanStatus: 'UNVERIFIED',
+    signedSlsaWorkflowStatus: 'UNVERIFIED',
+    signedSourceCommitStatus: 'UNVERIFIED',
+    signedRunIdentityStatus: 'UNVERIFIED',
+    refAgreement: 'UNVERIFIED',
+    npmRegisteredTrustedPublisher: 'UNVERIFIED',
+    sourceCommitMatchesOfficialReleaseTree: 'UNVERIFIED',
+    rootBootstrapSeparatelyApproved: false,
+  };
+  // SubjectAltName comes from a leaf already validated by pinned Sigstore
+  // verifier; never echo arbitrary SAN content or raw X.509 material.
+  const uris = typeof subjectAltName === 'string' && subjectAltName.length < 1500
+    ? subjectAltName.split(/,\s*/).filter(value => value.startsWith('URI:'))
+    : [];
+  const match = uris.length === 1 ? SAFE_CERT_SAN.exec(uris[0]) : null;
+  if (match && safeRef(match[2])) {
+    output.exactReleaseWorkflowSanStatus = 'OBSERVED_IN_VERIFIED_CERT_SAMPLE';
+    output.releaseWorkflowSan = match[1];
+  }
+  const def = statement?.predicate?.buildDefinition;
+  const workflow = def?.externalParameters?.workflow;
+  const ref = workflow?.ref;
+  if (workflow?.repository === 'https://github.com/babel/babel' &&
+      workflow?.path === '.github/workflows/release.yml' && safeRef(ref)) {
+    output.signedSlsaWorkflowStatus = 'OBSERVED_IN_SIGNED_SAMPLE';
+    output.signedSlsaWorkflowRef = ref;
+    if (match && safeRef(match[2])) {
+      output.refAgreement = match[2] === ref ? 'MATCH' : 'MISMATCH';
+    }
+    const dep = Array.isArray(def?.resolvedDependencies)
+      ? def.resolvedDependencies.filter(item =>
+        item?.uri === 'git+https://github.com/babel/babel@' + ref &&
+        COMMIT_SHA.test(item?.digest?.gitCommit || '')) : [];
+    if (dep.length === 1) {
+      output.signedSourceCommitStatus = 'OBSERVED_IN_SIGNED_SAMPLE';
+      output.signedSourceCommit = dep[0].digest.gitCommit;
+    }
+  }
+  const invocation = statement?.predicate?.runDetails?.metadata?.invocationId;
+  if (typeof invocation === 'string' && SAFE_INVOCATION.test(invocation)) {
+    output.signedRunIdentityStatus = 'OBSERVED_IN_SIGNED_SAMPLE';
+    output.signedReleaseRunUri = invocation;
+  }
+  return output;
 }
 
 // Only a stable, patched npm-bundled Sigstore can supply this verifier. No npx,
@@ -107,8 +166,24 @@ export async function verifyTrustedTargetProvenance(verified, lock, targets,
       // Sigstore error strings may contain URLs, raw bundle fields or untrusted text.
       throw new Error('TRUSTED_PROVENANCE_CRYPTO_OR_IDENTITY_REJECTED_' + name);
     }
+    let subjectAltName = '';
+    try {
+      const publicCert = bundle.verificationMaterial?.certificate?.rawBytes ||
+        bundle.verificationMaterial?.x509CertificateChain?.certificates?.[0]?.rawBytes;
+      // Never expose raw or invalid certificate input; report UNVERIFIED instead.
+      if (typeof publicCert === 'string' && publicCert.length > 0 &&
+          publicCert.length <= 24000) {
+        subjectAltName = new X509Certificate(
+          Buffer.from(publicCert, 'base64')).subjectAltName || '';
+      }
+    } catch {
+      subjectAltName = '';
+    }
+    const observedPublisherSource = observeVerifiedPublisherSource(
+      subjectAltName, statement);
     reports.push({
       name, version,
+      observedPublisherSource,
       committedSri: 'PASS',
       signedSubjectDigest: 'PASS',
       sigstoreTufFulcioCtOidcRekor: 'PASS_BY_PINNED_SIGSTORE_VERIFIER',

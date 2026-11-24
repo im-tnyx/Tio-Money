@@ -20,6 +20,7 @@ const TARGETS = new Map([
   ['@babel/helper-compilation-targets', '7.29.13'],
   ['@babel/code-frame', '7.29.7'],
   ['@babel/types', '7.29.15'],
+  ['@babel/template', '7.29.7'],
 ]);
 const evidence = [];
 let stage = 'PRELOAD_STARTED';
