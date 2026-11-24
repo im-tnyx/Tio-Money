@@ -553,4 +553,10 @@ The entries below record implementation history at their stated revisions; super
 
 - [Owner refinement](https://github.com/im-tnyx/Tio-Money/issues/98#issuecomment-7135648127) · [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7135649141). Starting HEAD `3b54c9b92ccafca75d76e54fd48036d60aa27534`. Remove Wallet Type, Provider, Linked Bank UI and corresponding draft state/action/translation. Wallet shares independent opening amount and currency selector with Cash/Bank. Only Loan and Investment option popups remain. UPI remains Bank payment mode. Product spec, TM-DEC-007, TM-ADR-019 and ledger design updated for new product scope; legacy compatibility and all finance implementation gates remain. Regression coverage for Wallet draft/currency and blocked Wallet option popup; no finance data, schema or write changes. Fresh CI and device QA required; previous formatting failures unresolved. Scoped revert, no merge/publish.
 
+### 2026-11-24 — Reconcile with main after PR #103
+
+- The owner requested safe reconciliation in chat. [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7136972788). Draft #97 started at `9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06` and integrates main `2698fb3f1988e7a6247974fa3e79a410a6bb5b70` with a normal two-parent merge. The only conflict was the shared task index. Both Accounts and Expo histories were retained.
+- The change preserves Accounts behavior, the independent Wallet scope and the RFC #98 finance gate. [PR #97](https://github.com/im-tnyx/Tio-Money/pull/97) records exact-head validation. Independent review remains deferred and device QA is pending.
+- Local validation reproduced the existing two-file Prettier failure. Formatting the affected screen and test exposed two stale source assertions. The tests now cover the shared Cash/Bank/Wallet opening amount and follow the form spacing into the existing shared keyboard viewport. The application runtime behavior is unchanged.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

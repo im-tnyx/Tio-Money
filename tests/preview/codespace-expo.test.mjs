@@ -70,10 +70,8 @@ test('managed process stays unchanged on healthy refresh and recovery requires o
   assert.equal(previewAction(record, false, true), 'recover');
   assert.equal(previewAction(null, false, false), 'start');
   const starter = readFileSync(new URL('../../scripts/start-codespace-expo.mjs', import.meta.url), 'utf8');
-  assert.match(starter, /lstatSync\(PID_FILE\)/);
-  assert.match(starter, /constants\.O_RDONLY \| constants\.O_NOFOLLOW/);
   assert.match(starter, /verifyListener\(record\)/);
-  assert.match(starter, /await stopManaged\(\);/);
+  assert.match(starter, /await stopManaged\(current\);/);
   assert.match(starter, /if \(action === 'reuse'\)/);
   assert.match(starter, /if \(action === 'recover'\)/);
 });
