@@ -143,7 +143,7 @@ export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): Ac
       return {
         group,
         currency,
-        fields: { ...common, outstanding: '', creditLimit: '', statementDate: '', dueDate: '' },
+        fields: { ...common, outstanding: '', creditLimit: '', statementDate: '01', dueDate: '15' },
       };
     case 'wallet':
       return {
@@ -309,6 +309,13 @@ export function updateAccountDraft(
 ): AccountDraft {
   switch (action.type) {
     case 'text':
+      if (
+        draft.group === 'credit-card' &&
+        (action.field === 'statementDate' || action.field === 'dueDate') &&
+        (!/^\d{0,2}$/.test(action.value) || action.value === '00' || Number(action.value) > 31)
+      ) {
+        return draft;
+      }
       return Object.hasOwn(draft.fields, action.field)
         ? withDraftFields(draft, { [action.field]: action.value })
         : draft;

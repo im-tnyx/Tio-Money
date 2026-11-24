@@ -39,6 +39,7 @@
 - [Account Group restoration PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-correction--proceed) restores the original Group row above the form and verifies the Add Account top bar against the prior layout.
 - [Add Account input placement PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-input-placement-correction--proceed) restores the text input immediately after its icon and keeps the other controls on their established rows.
 - [Add Account caption placement PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-reference-photo--proceed) aligns the small captions above their inputs in the column to the right of the icon.
+- [Credit Card date rows PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-credit-card-date-rows--proceed) presents the editable monthly days with the reference labels. The caption-to-input gap is 4 dp.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
