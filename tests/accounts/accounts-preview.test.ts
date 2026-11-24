@@ -466,6 +466,7 @@ test('one amount row per form carries the inline currency selector and all amoun
   assert.deepEqual(controllingFields, [
     'openingAmount',
     'creditLimit',
+    'originalPrincipal',
     'emiAmount',
     'investedCost',
   ]);
@@ -598,7 +599,15 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   } satisfies Record<PreviewGroup, readonly string[]>;
   const expectedRendered = {
     ...expectedFields,
-    loan: ['emiAmount', 'originalPrincipal', 'fees', 'interestRate'],
+    loan: [
+      'originalPrincipal',
+      'interestRate',
+      'emiAmount',
+      'emiAmount',
+      'originalPrincipal',
+      'fees',
+      'interestRate',
+    ],
   } satisfies Record<PreviewGroup, readonly string[]>;
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const groupFields = screen.slice(screen.indexOf('function GroupFields'));
@@ -621,6 +630,18 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
       [...expectedFields[id], 'name', 'description'].sort(),
     );
   }
+  assert.match(groupFields, /direction === 'given'/);
+  assert.match(groupFields, /accountLoanAmountLent/);
+  assert.match(groupFields, /accountLoanStartDate/);
+  assert.match(groupFields, /mode="collect"/);
+  assert.match(groupFields, /accountLoanInstallmentOptional/);
+  assert.doesNotMatch(
+    groupFields.slice(
+      groupFields.indexOf("direction === 'given'"),
+      groupFields.indexOf('return ('),
+    ),
+    /field="fees"|accountAutoPay/,
+  );
   const loanDraft = newAccountDraft('loan', 'INR');
   assert.equal(loanDraft.group, 'loan');
   assert.equal(loanDraft.moreDetailsOpen, false);
@@ -632,9 +653,15 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.equal(en.accountPayFrom, 'Payment From');
   assert.equal(en.accountPayFromCaption, 'From');
   assert.equal(en.accountPayFromPlaceholder, 'Payment');
+  assert.equal(en.accountCollectInto, 'Collect Into');
+  assert.equal(en.accountCollectIntoCaption, 'Into');
+  assert.equal(en.accountCollectIntoPlaceholder, 'Collection');
+  assert.equal(en.accountLoanAmountLent, 'Amount Lent');
+  assert.equal(en.accountLoanStartDate, 'Start Date');
+  assert.equal(en.accountLoanInstallmentOptional, 'Installment (Optional)');
   assert.match(
     screen,
-    /<AccountField\s+label="accountPayFromCaption"\s+appearance="borderless"\s+textSize="title"/,
+    /<AccountField\s+label=\{caption\}\s+appearance="borderless"\s+textSize="title"/,
   );
   const paymentField = screen.slice(
     screen.indexOf('function PaymentFromField'),
@@ -646,7 +673,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(groupFields, /field="emiAmount"[^>]*\/>\s*<PaymentFromField \/>/);
   assert.match(
     groupFields,
-    /<PaymentFromField \/>\s*\{loanDates \? \(\s*<AppDateField[\s\S]*?loanDates\.startDate/,
+    /<PaymentFromField \/>\s*\{loanDates \? \(\s*<AppDateField[\s\S]*?accountLoanFirstEmiDate/,
   );
   assert.match(groupFields, /moreDetails\.toggle/);
   assert.match(groupFields, /AppPopupChevron open=\{draft\.moreDetailsOpen\}/);
@@ -667,8 +694,10 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.doesNotMatch(groupFields, /outstandingPrincipal|accountLoanOutstandingPrincipal/);
   const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
   assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
-  assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);
-  assert.match(paymentField, /accessibilityLabel=\{t\('accountPayFrom'\)\}/);
+  assert.match(paymentField, /placeholder=\{t\(placeholder\)\}/);
+  assert.match(paymentField, /accessibilityLabel=\{t\(accessLabel\)\}/);
+  assert.match(paymentField, /accountPayFromPlaceholder/);
+  assert.match(paymentField, /accountCollectIntoPlaceholder/);
   assert.match(paymentField, /accessibilityState=\{\{ disabled: true \}\}/);
   assert.match(paymentField, /editable=\{false\}\s+value=\{selectedName \?\? ''\}/);
   assert.doesNotMatch(paymentField, /labelAsPlaceholder|trailing=|onChangeText/);
@@ -680,7 +709,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
   assert.match(
     screen,
-    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \|\| draft.group === 'loan' \? \(\s*<AccountFormRow label="accountAutoPay"[^>]*>[\s\S]*?<Switch/,
+    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \|\|\s*\(draft.group === 'loan' && draft.direction === 'borrowed'\) \? \(\s*<AccountFormRow label="accountAutoPay"[^>]*>[\s\S]*?<Switch/,
   );
   assert.equal(screen.match(/<Switch\s/g)?.length, 1);
   const autoPay = screen.match(/<Switch\s[\s\S]*?\/>/)?.[0];
@@ -712,16 +741,10 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(infoSvg, /M460-300h40v-220/);
 });
 
-test('Loan More details field info opens only while expanded and clears on collapse', () => {
+test('Loan field info and direction switch keep Borrowed and Given drafts separate', () => {
   let draft = newAccountDraft('loan', 'INR');
   assert.ok(draft.group === 'loan');
-  assert.equal(
-    updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'originalPrincipal' }, currencies),
-    draft,
-  );
-  draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);
-  assert.ok(draft.group === 'loan');
-  assert.equal(draft.moreDetailsOpen, true);
+  assert.equal(draft.direction, 'borrowed');
   draft = updateAccountDraft(
     draft,
     { type: 'fieldInfo.open', field: 'originalPrincipal' },
@@ -729,15 +752,36 @@ test('Loan More details field info opens only while expanded and clears on colla
   );
   assert.ok(draft.group === 'loan');
   assert.equal(draft.fieldInfo, 'originalPrincipal');
+  draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.moreDetailsOpen, true);
   draft = updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'fees' }, currencies);
   assert.ok(draft.group === 'loan');
   assert.equal(draft.fieldInfo, 'fees');
-  draft = updateAccountDraft(draft, { type: 'fieldInfo.close' }, currencies);
+  draft = updateAccountDraft(draft, { type: 'text', field: 'emiAmount', value: '10' }, currencies);
+  draft = updateAccountDraft(
+    draft,
+    { type: 'text', field: 'originalPrincipal', value: '100' },
+    currencies,
+  );
+  draft = updateAccountDraft(draft, { type: 'loan.direction', value: 'given' }, currencies);
   assert.ok(draft.group === 'loan');
+  assert.equal(draft.direction, 'given');
+  assert.equal(draft.moreDetailsOpen, false);
   assert.equal(draft.fieldInfo, null);
+  assert.equal(draft.fields.emiAmount, '');
+  assert.equal(draft.fields.originalPrincipal, '');
+  assert.equal(draft.fields.fees, '');
+  assert.equal(draft.fields.interestRate, '');
   draft = updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'interestRate' }, currencies);
   assert.ok(draft.group === 'loan');
   assert.equal(draft.fieldInfo, 'interestRate');
+  draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.moreDetailsOpen, true);
+  draft = updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'emiAmount' }, currencies);
+  assert.ok(draft.group === 'loan');
+  assert.equal(draft.fieldInfo, 'emiAmount');
   draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);
   assert.ok(draft.group === 'loan');
   assert.equal(draft.moreDetailsOpen, false);
@@ -1287,7 +1331,9 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
   assert.doesNotMatch(form, /accountWalletBank|accountWalletProvider/);
-  assert.match(form, /label="accountPayFromCaption"/);
+  assert.match(form, /label=\{caption\}/);
+  assert.match(form, /accountPayFromCaption/);
+  assert.match(form, /accountCollectIntoCaption/);
   assert.match(choices, /checked: selected/);
   assert.match(choices, /m5 12 4 4 10-10/);
   assert.doesNotMatch(form + bankModes, /onSave|onSubmit/);

@@ -73,7 +73,13 @@ interface LoanFields extends CommonFields {
   readonly startDate: string;
 }
 
-export const loanFieldInfoFields = ['originalPrincipal', 'fees', 'interestRate'] as const;
+export const loanFieldInfoFields = [
+  'originalPrincipal',
+  'fees',
+  'interestRate',
+  'emiAmount',
+  'collectInto',
+] as const;
 export type LoanFieldInfo = (typeof loanFieldInfoFields)[number];
 
 export function isLoanFieldInfo(value: unknown): value is LoanFieldInfo {
@@ -374,7 +380,20 @@ export function updateAccountDraft(
         ? changeCurrency(draft, action.value)
         : draft;
     case 'loan.direction':
-      return draft.group === 'loan' ? { ...draft, direction: action.value } : draft;
+      if (draft.group !== 'loan' || draft.direction === action.value) return draft;
+      return {
+        ...draft,
+        direction: action.value,
+        moreDetailsOpen: false,
+        fieldInfo: null,
+        fields: {
+          ...draft.fields,
+          originalPrincipal: '',
+          fees: '',
+          interestRate: '',
+          emiAmount: '',
+        },
+      };
     case 'moreDetails.toggle':
       return draft.group === 'loan'
         ? {
@@ -384,7 +403,7 @@ export function updateAccountDraft(
           }
         : draft;
     case 'fieldInfo.open':
-      return draft.group === 'loan' && draft.moreDetailsOpen && draft.fieldInfo !== action.field
+      return draft.group === 'loan' && draft.fieldInfo !== action.field
         ? { ...draft, fieldInfo: action.field }
         : draft;
     case 'fieldInfo.close':
