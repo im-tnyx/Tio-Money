@@ -14,7 +14,6 @@ const rowIcons = {
   text: 'M5 17 12 4l7 13 M8 12h8 M5 21h14',
   calendar: 'M4 6h16v14H4z M4 10h16 M8 4v4 M16 4v4 M8 14h1 M12 14h1 M16 14h1',
   description: 'M4 6h16 M4 10h16 M4 14h16 M4 18h10',
-  group: 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h6v6h-6z',
   options: 'M5 6h2 M5 12h2 M5 18h2 M11 6h8 M11 12h8 M11 18h8',
   card: 'M3 5h18v14H3z M3 10h18 M6 15h4',
   bank: 'm3 9 9-5 9 5H3 M6 9v8 M12 9v8 M18 9v8 M3 20h18',
@@ -115,16 +114,12 @@ export function AccountDropdown({
   leading,
   onPress,
   expanded,
-  minimumHeight,
-  hitSlop,
 }: {
   readonly label: TranslationKey;
   readonly value: TranslationKey;
   readonly leading: ReactNode;
   readonly onPress: () => void;
-  readonly expanded?: boolean;
-  readonly minimumHeight?: number;
-  readonly hitSlop?: { readonly top: number; readonly bottom: number };
+  readonly expanded: boolean;
 }) {
   const theme = useAppTheme();
   return (
@@ -133,14 +128,9 @@ export function AccountDropdown({
       accessibilityLabel={t(label)}
       accessibilityValue={{ text: t(value) }}
       accessibilityState={{ expanded }}
-      hitSlop={hitSlop}
       onPress={onPress}
     >
-      <AccountFormRow
-        label={label}
-        leading={leading}
-        minimumHeight={minimumHeight ?? theme.buttons.minimumHeight}
-      >
+      <AccountFormRow label={label} leading={leading} minimumHeight={theme.buttons.minimumHeight}>
         <AppText
           numberOfLines={1}
           adjustsFontSizeToFit

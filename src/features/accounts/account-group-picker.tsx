@@ -6,31 +6,38 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { AccountGroupChoice } from './account-form-contract';
-import { AccountDropdown, AccountFormIcon } from './account-form-controls';
 import { AccountGroupIcon } from './account-group-icon';
 
 export function AccountGroupField({
   value,
-  expanded,
   onPress,
 }: {
   readonly value: TranslationKey;
-  readonly expanded: boolean;
   readonly onPress: () => void;
 }) {
   const theme = useAppTheme();
   const rowHeight = theme.space.xxl;
   const touchInset = (theme.buttons.minimumHeight - rowHeight) / 2;
   return (
-    <AccountDropdown
-      label="accountGroup"
-      value={value}
-      expanded={expanded}
-      leading={<AccountFormIcon name="group" />}
-      onPress={onPress}
-      minimumHeight={rowHeight}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t('accountGroup')}
+      accessibilityValue={{ text: t(value) }}
       hitSlop={{ top: touchInset, bottom: touchInset }}
-    />
+      onPress={onPress}
+      style={{
+        minHeight: rowHeight,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.space.sm,
+      }}
+    >
+      <AppText muted style={{ flex: 1 }}>
+        {t('accountGroup')}
+      </AppText>
+      <AppText style={{ flexShrink: 1, textAlign: 'right' }}>{t(value)}</AppText>
+      <GroupMark />
+    </Pressable>
   );
 }
 
@@ -72,14 +79,14 @@ export function AccountGroupOptions({
             </AppText>
             {status ? <AppText variant="caption">{t(status)}</AppText> : null}
           </View>
-          {selected ? <GroupMark /> : null}
+          {selected ? <GroupMark selected /> : null}
         </Pressable>
       ))}
     </>
   );
 }
 
-function GroupMark() {
+function GroupMark({ selected = false }: { readonly selected?: boolean }) {
   const theme = useAppTheme();
   return (
     <Svg
@@ -90,9 +97,9 @@ function GroupMark() {
       importantForAccessibility="no-hide-descendants"
     >
       <Path
-        d="m5 12 4 4L19 6"
+        d={selected ? 'm5 12 4 4L19 6' : 'm9 6 6 6-6 6'}
         fill="none"
-        stroke={theme.colors.brand}
+        stroke={selected ? theme.colors.brand : theme.colors.secondaryText}
         strokeWidth={theme.icons.stroke}
         strokeLinecap="round"
         strokeLinejoin="round"

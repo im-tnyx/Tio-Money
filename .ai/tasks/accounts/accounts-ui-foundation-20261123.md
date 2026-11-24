@@ -343,4 +343,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths beyond this checkpoint and index are `docs/product/ACCOUNT-GROUPS-SPEC.md`, `src/features/accounts/{account-add-session.ts,account-form-contract.ts,account-form-controls.tsx,account-group-picker.tsx,add-account-screen.tsx,bank-payment-modes.tsx,use-add-account-view-model.ts}`, `src/shared/i18n/strings.ts`, `src/shared/ui/app-text-field.tsx`, and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED, independent review DEFERRED. Physical-device visual alignment, keyboard and dropdown interaction remain unverified. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for current-head CI. Merge authorization NOT_GRANTED.
 
+### 2026-11-24 — Restore Account Group layout
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-correction--proceed) records the owner’s correction at PR #97 head `65ed42c651c0e172eae4114bb5b17a73516c57eb`. Codex verified the restored Account Group control and picker match `3451aa9` byte for byte. The top bar components, route configuration and header props also match that revision. The Group row remains above all fields and opens Choose Account Group.
+- The correction touches `src/features/accounts/{account-form-controls,account-group-picker,add-account-screen}.tsx` and `tests/accounts/accounts-preview.test.ts` plus this record and the index. Loan, Wallet and Investment dropdowns and the Credit Card field sequence retain their preview behavior.
+- Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
