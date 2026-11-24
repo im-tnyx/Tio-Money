@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -8,6 +7,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppPopupCard } from './app-popup-card';
 import { AppText } from './app-text';
 import { AppWheelPicker } from './app-wheel-picker';
+import { fitPopupRows } from './popup-position';
 import {
   calendarMonths,
   calendarWheelCounts,
@@ -40,34 +40,22 @@ export function AppDateField({
 }) {
   const theme = useAppTheme();
   const viewport = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const date = parseCalendarDate(value);
   if (!date) return null;
 
   const day = String(date.day).padStart(2, '0');
   const month = calendarMonths[date.month - 1];
-  const desiredRowHeight = Math.max(
+  const rowHeight = Math.max(
     theme.datePicker.rowHeight,
     Math.ceil(theme.typeScale.section * viewport.fontScale * theme.typography.relativeLineHeight) +
       theme.space.xxs,
   );
-  const usableHeight = Math.max(
-    1,
-    viewport.height -
-      insets.top -
-      insets.bottom -
-      theme.space.xs * 2 -
-      theme.datePicker.paddingVertical * 2,
-  );
-  const rowHeight = Math.min(desiredRowHeight, usableHeight);
-  const visibleRows =
-    usableHeight >= rowHeight * theme.datePicker.visibleRows
-      ? theme.datePicker.visibleRows
-      : usableHeight >= rowHeight * theme.datePicker.compactRows
-        ? theme.datePicker.compactRows
-        : theme.datePicker.minimumRows;
-  const wheelHeight = rowHeight * visibleRows;
-  const wheelKey = `${rowHeight}-${visibleRows}`;
+  const verticalInsets = theme.datePicker.paddingVertical * 2 + theme.navigation.borderWidth * 2;
+  const rowCounts = [
+    theme.datePicker.visibleRows,
+    theme.datePicker.compactRows,
+    theme.datePicker.minimumRows,
+  ];
 
   return (
     <AppPopupCard
@@ -78,7 +66,9 @@ export function AppDateField({
       onOpen={onOpen}
       onClose={onClose}
       preferredWidth={theme.datePicker.width}
-      preferredHeight={wheelHeight + theme.datePicker.paddingVertical * 2}
+      placement="above"
+      preferredHeight={rowHeight * theme.datePicker.visibleRows + verticalInsets}
+      minimumHeight={rowHeight * theme.datePicker.minimumRows + verticalInsets}
       trigger={
         <View style={{ gap: theme.textField.captionGap }}>
           <AppText
@@ -119,57 +109,70 @@ export function AppDateField({
         </View>
       }
     >
-      <View
-        style={{
-          paddingHorizontal: theme.datePicker.paddingHorizontal,
-          paddingVertical: theme.datePicker.paddingVertical,
-        }}
-      >
-        <View style={{ height: wheelHeight, flexDirection: 'row' }}>
+      {(availableContentHeight) => {
+        const visibleRows = fitPopupRows(
+          availableContentHeight - theme.datePicker.paddingVertical * 2,
+          rowHeight,
+          rowCounts,
+        );
+        if (!visibleRows) return null;
+        const wheelHeight = rowHeight * visibleRows;
+        const wheelKey = `${rowHeight}-${visibleRows}`;
+
+        return (
           <View
-            pointerEvents="none"
             style={{
-              position: 'absolute',
-              top: ((visibleRows - 1) / 2) * rowHeight,
-              left: theme.navigation.origin,
-              right: theme.navigation.origin,
-              height: rowHeight,
-              borderRadius: theme.radius.sm,
-              backgroundColor: theme.colors.wheelSelection,
+              paddingHorizontal: theme.datePicker.paddingHorizontal,
+              paddingVertical: theme.datePicker.paddingVertical,
             }}
-          />
-          <AppWheelPicker
-            key={`day-${wheelKey}`}
-            label={t('accountDateDay')}
-            count={calendarWheelCounts.day}
-            labelAt={(index) => calendarWheelLabel('day', index)}
-            value={calendarWheelIndex(date, 'day')}
-            onChange={(value) => onChange('day', value)}
-            rowHeight={rowHeight}
-            visibleRows={visibleRows}
-          />
-          <AppWheelPicker
-            key={`month-${wheelKey}`}
-            label={t('accountDateMonth')}
-            count={calendarWheelCounts.month}
-            labelAt={(index) => calendarWheelLabel('month', index)}
-            value={calendarWheelIndex(date, 'month')}
-            onChange={(value) => onChange('month', value)}
-            rowHeight={rowHeight}
-            visibleRows={visibleRows}
-          />
-          <AppWheelPicker
-            key={`year-${wheelKey}`}
-            label={t('accountDateYear')}
-            count={calendarWheelCounts.year}
-            labelAt={(index) => calendarWheelLabel('year', index)}
-            value={calendarWheelIndex(date, 'year')}
-            onChange={(value) => onChange('year', value)}
-            rowHeight={rowHeight}
-            visibleRows={visibleRows}
-          />
-        </View>
-      </View>
+          >
+            <View style={{ height: wheelHeight, flexDirection: 'row' }}>
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  top: ((visibleRows - 1) / 2) * rowHeight,
+                  left: theme.navigation.origin,
+                  right: theme.navigation.origin,
+                  height: rowHeight,
+                  borderRadius: theme.radius.sm,
+                  backgroundColor: theme.colors.wheelSelection,
+                }}
+              />
+              <AppWheelPicker
+                key={`day-${wheelKey}`}
+                label={t('accountDateDay')}
+                count={calendarWheelCounts.day}
+                labelAt={(index) => calendarWheelLabel('day', index)}
+                value={calendarWheelIndex(date, 'day')}
+                onChange={(value) => onChange('day', value)}
+                rowHeight={rowHeight}
+                visibleRows={visibleRows}
+              />
+              <AppWheelPicker
+                key={`month-${wheelKey}`}
+                label={t('accountDateMonth')}
+                count={calendarWheelCounts.month}
+                labelAt={(index) => calendarWheelLabel('month', index)}
+                value={calendarWheelIndex(date, 'month')}
+                onChange={(value) => onChange('month', value)}
+                rowHeight={rowHeight}
+                visibleRows={visibleRows}
+              />
+              <AppWheelPicker
+                key={`year-${wheelKey}`}
+                label={t('accountDateYear')}
+                count={calendarWheelCounts.year}
+                labelAt={(index) => calendarWheelLabel('year', index)}
+                value={calendarWheelIndex(date, 'year')}
+                onChange={(value) => onChange('year', value)}
+                rowHeight={rowHeight}
+                visibleRows={visibleRows}
+              />
+            </View>
+          </View>
+        );
+      }}
     </AppPopupCard>
   );
 }
