@@ -28,6 +28,7 @@ import {
 } from '../../src/features/accounts/account-form-contract';
 import { accountPopupPosition } from '../../src/features/accounts/account-popup-position';
 import { fitPopupRows, popupPosition } from '../../src/shared/ui/popup-position';
+import { focusedFieldScrollOffset } from '../../src/shared/ui/keyboard-form-geometry';
 import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-group-templates';
 import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
@@ -1288,6 +1289,34 @@ test('date popup stays above the field and fits only complete rows', () => {
   assert.equal(tight.bottom, 638);
   assert.equal(fitPopupRows(tight.maxHeight - 14, 32, [5, 3, 1]), 1);
   assert.equal(fitPopupRows(31, 32, [5, 3, 1]), 0);
+});
+
+test('focused fields scroll only enough to clear the keyboard viewport', () => {
+  const viewport = { y: 100, height: 300 };
+  assert.equal(focusedFieldScrollOffset({ y: 180, height: 46 }, viewport, 0, 12), 0);
+  assert.equal(focusedFieldScrollOffset({ y: 360, height: 46 }, viewport, 80, 12), 98);
+  assert.equal(focusedFieldScrollOffset({ y: 90, height: 46 }, viewport, 80, 12), 58);
+  assert.equal(focusedFieldScrollOffset({ y: 90, height: 46 }, viewport, 0, 12), 0);
+  assert.equal(focusedFieldScrollOffset({ y: 200, height: 260 }, viewport, 80, 12), 152);
+  assert.equal(focusedFieldScrollOffset({ y: -20, height: 440 }, viewport, 80, 12), 112);
+  assert.equal(focusedFieldScrollOffset({ y: 300, height: 46 }, { y: 100, height: 0 }, 80, 12), 80);
+});
+
+test('all Add Account inputs share keyboard-aware viewport and focus bridge', () => {
+  const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const form = readFileSync('src/shared/ui/app-keyboard-form.tsx', 'utf8');
+  const field = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
+  assert.match(screen, /<AppKeyboardForm>[\s\S]*?<AccountFields/);
+  assert.match(form, /<KeyboardAvoidingView/);
+  assert.match(form, /onLayout=\{reveal\}/);
+  assert.match(form, /automaticallyAdjustKeyboardInsets=\{false\}/);
+  assert.match(form, /keyboardDidShow/);
+  assert.match(form, /focusedFieldScrollOffset\(/);
+  assert.match(form, /focused\.current !== input/);
+  assert.match(form, /cancelAnimationFrame/);
+  assert.match(field, /focusBridge\?\.focus\(input\.current\)/);
+  assert.match(field, /focusBridge\?\.blur\(input\.current\)/);
+  assert.match(field, /focusBridge\?\.resize\(input\.current\)/);
 });
 
 test('all anchored form popups share a controlled disclosure chevron', () => {

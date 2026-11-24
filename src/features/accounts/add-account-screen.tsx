@@ -1,9 +1,10 @@
-import { KeyboardAvoidingView, Platform, ScrollView, Switch } from 'react-native';
+import { Switch } from 'react-native';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
 import { AppDateField } from '@/shared/ui/app-date-field';
+import { AppKeyboardForm } from '@/shared/ui/app-keyboard-form';
 import { AppText } from '@/shared/ui/app-text';
 
 import {
@@ -159,7 +160,6 @@ export function AddAccountScreen({
   onCloseGroupPicker,
   onClose,
 }: AddAccountScreenViewModel) {
-  const theme = useAppTheme();
   let sheet: BottomSheetLayer | undefined;
   if (groupChoices) {
     sheet = {
@@ -193,18 +193,10 @@ export function AddAccountScreen({
         },
       ]}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
-      >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: theme.space.md, gap: theme.space.sm }}
-        >
-          <AccountGroupField value={groupLabel} onPress={onOpenGroupPicker} />
-          {form ? <AccountFields key={form.draft.group} {...form} /> : null}
-        </ScrollView>
-      </KeyboardAvoidingView>
+      <AppKeyboardForm>
+        <AccountGroupField value={groupLabel} onPress={onOpenGroupPicker} />
+        {form ? <AccountFields key={form.draft.group} {...form} /> : null}
+      </AppKeyboardForm>
       <AppBottomSheet
         visible={sheet !== undefined}
         animate={animateSheet}
