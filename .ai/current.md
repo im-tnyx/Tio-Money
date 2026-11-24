@@ -1,5 +1,8 @@
 ## 2026-11-23 — Accounts UI foundation
 
+**Current source snapshot (2026-11-24):** [TM-ACCOUNTS-20261123-001](tasks/accounts/accounts-ui-foundation-20261123.md#current-ui-snapshot-source-verified-2026-11-24) · [Draft PR #97](https://github.com/im-tnyx/Tio-Money/pull/97) · UI reference `149c48b32ce503a6646341bfba6755254ce44f8c`. Six transient forms, Group picker after editor entrance, separate group drafts, 0 dp caption gap, Credit Card From caption above read-only Payment placeholder, monthly card days, Loan EMI, anchored option popups and Bank mode sheet. Save and financial writes remain unavailable; RFC #98 remains gated. ChatGPT GPT-6.2 owns this bounded documentation checkpoint; previous implementation by Codex Cloud. Device QA and fresh exact-HEAD CI remain required. The dated entries below are historical decisions, not current UI instructions.
+
+
 - [TM-ACCOUNTS-20261123-001](tasks/accounts/accounts-ui-foundation-20261123.md) · [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) · [technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991). Codex Cloud on `feat/accounts-ui-foundation-20261123` from `f865969d200d70fbc8e84dd6a48d8020a155e42c`. Accounts group picker, Cash/Bank previews and separate Manage Accounts foundation only. Finance persistence, projections and Default Cash remain BLOCKED_PENDING_DECISION. Android navigation QA remains tracked separately in #91.
 
 - Draft #97 source audit recorded at `7042a1ba8ac78b6fd1b7a347666212cd1630a7f6`. Exact reviewed HEAD CI passed; independent and device review pending. [Audit and technical decision](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096975333) · [Finance RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98), DECISION_PENDING.

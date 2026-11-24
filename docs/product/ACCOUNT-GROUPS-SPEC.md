@@ -13,7 +13,7 @@
 ---
 
 > [!IMPORTANT]
-> **Future Stage 1 product requirements, NOT implemented Phase 0 UI or approved SQLite DDL.** Current Phase 0 remains five blank tabs and a disabled floating +. The existing `04-DATABASE-DESIGN.md` currently allows only Cash/Bank/Wallet/Credit Card and INR; this proposed expansion **must not be coded** until a ledger/schema ADR resolves the gaps. Owner direction: [TM-DEC-007](../governance/DECISIONS.md#tm-dec-007--account-group-driven-setup) · [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13).
+> **UI preview and future Stage 1 product contract are distinct.** [Draft PR #97](https://github.com/im-tnyx/Tio-Money/pull/97) contains the Accounts UI preview described in section 01; it does not implement financial persistence, ledger posting or approved SQLite DDL. Sections 02–07 describe future financial requirements, not working UI or authorization to implement finance. The [ledger design](../architecture/DATABASE-DESIGN.md) and [RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98) govern that separate gate. Owner direction: [TM-DEC-007](../governance/DECISIONS.md#tm-dec-007--account-group-driven-setup) · [RFC #13](https://github.com/im-tnyx/Tio-Money/issues/13).
 
 ## 01 · Product contract and terminology
 
@@ -29,11 +29,13 @@
 
 One user can have many accounts in a group. Local data is primary; no Tio Money signup required. Currency choice must follow [Currency & FX](CURRENCY-SPEC.md); never silently mix minor units.
 
-Add Account keeps a separate draft for each selected group until the screen closes. Long forms scroll. The top bar has round Close and Save icons. Insurance remains informational and Save stays disabled in the preview.
+Add Account keeps a separate in-memory draft for each of the six supported groups until the screen closes. Long forms scroll. The top bar has round Close and Save icons. Insurance remains informational, custom groups do not open forms, and Save stays disabled in the preview. Accounts and Manage Accounts do not expose real financial data. The [source-verified task snapshot](../../.ai/tasks/accounts/accounts-ui-foundation-20261123.md#current-ui-snapshot-source-verified-2026-11-24) records the exact field order and UI-only state.
 
-Inputs start to the right of their icons. Small field captions sit above the input at the same left edge with a 0 dp gap. The Name and Description prompts appear inside their fields. Loan Direction, Wallet Type and Investment Type show the selected value on the right. Tapping any of those rows opens a rounded popup beside the selected value. Tap outside it or go back to dismiss and keep the current value. Credit Card shows a From caption above a non-editable Payment placeholder before Billing Cycle Start Date, without eligibility or unavailable copy. The two Credit Card dates show editable monthly days in the preview, initially 01 and 15. Loan Start Date and Next Due Date and Investment Valuation Date use an editable day, month and year in the same row. The Loan preview includes an optional, manually entered EMI Amount in the draft currency.
+Inputs start to the right of their icons. Small field captions sit above the input at the same left edge with a 0 dp gap. The Name and Description prompts appear inside their fields. Loan Direction, Wallet Type and Investment Type show the selected value on the right. Tapping any of those rows opens a rounded popup beside the selected value. Tap outside it or go back to dismiss and keep the current value. Credit Card shows a From caption above a non-editable Payment placeholder before Billing Cycle Start Date, without eligibility or unavailable copy. The two Credit Card dates show editable monthly days in the preview, initially 01 and 15. Loan Start Date and Next Due Date and Investment Valuation Date use an editable day, month and year in the same row. The Loan preview includes an optional, manually entered EMI Amount in the draft currency. One amount row per eligible form carries Main/Sub Currency symbols only when Sub Currencies are configured; the selected symbol uses a tinted state and accessible checked radio state. Switching currency clears monetary inputs, including EMI, but preserves other draft details. The Bank-linked Wallet has no independent opening amount or currency selector, and linking is unavailable. Credit Card Auto Pay remains Off and disabled.
 
 ## 02 · Shared create/edit rules
+
+The following rules and subsequent accounting examples apply to future finance implementation, not validation or persistence in the current preview.
 
 | Field | Requirement |
 | :--- | :--- |
