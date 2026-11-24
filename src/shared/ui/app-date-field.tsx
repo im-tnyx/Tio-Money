@@ -13,6 +13,9 @@ import {
   calendarWheelCounts,
   calendarWheelIndex,
   calendarWheelLabel,
+  dayWheelBounds,
+  dayWheelCount,
+  initialDayWheelIndex,
   parseCalendarDate,
   type CalendarPart,
 } from './calendar-date';
@@ -20,6 +23,7 @@ import {
 export interface AppDateFieldModel {
   readonly value: string;
   readonly open: boolean;
+  readonly dayIndex?: number | undefined;
   readonly onOpen: () => void;
   readonly onClose: () => void;
   readonly onChange: (part: CalendarPart, index: number) => void;
@@ -31,6 +35,7 @@ export function AppDateField({
   leading,
   value,
   open,
+  dayIndex,
   onOpen,
   onClose,
   onChange,
@@ -45,6 +50,8 @@ export function AppDateField({
 
   const day = String(date.day).padStart(2, '0');
   const month = calendarMonths[date.month - 1];
+  const physicalDay = dayIndex ?? initialDayWheelIndex(date);
+  const dayBounds = dayWheelBounds(date, physicalDay);
   const rowHeight = Math.max(
     theme.datePicker.rowHeight,
     Math.ceil(theme.typeScale.section * viewport.fontScale * theme.typography.relativeLineHeight) +
@@ -142,10 +149,12 @@ export function AppDateField({
               <AppWheelPicker
                 key={`day-${wheelKey}`}
                 label={t('accountDateDay')}
-                count={calendarWheelCounts.day}
-                labelAt={(index) => calendarWheelLabel('day', index)}
-                value={calendarWheelIndex(date, 'day')}
-                onChange={(value) => onChange('day', value)}
+                count={dayWheelCount}
+                minimumIndex={dayBounds.minimum}
+                maximumIndex={dayBounds.maximum}
+                labelAt={(index) => calendarWheelLabel('day', index + dayBounds.origin)}
+                value={physicalDay}
+                onChange={(index) => onChange('day', index + dayBounds.origin)}
                 rowHeight={rowHeight}
                 visibleRows={visibleRows}
               />

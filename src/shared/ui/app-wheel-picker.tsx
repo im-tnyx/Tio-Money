@@ -85,6 +85,8 @@ function WheelRow({
 export function AppWheelPicker({
   label,
   count,
+  minimumIndex = 0,
+  maximumIndex = count - 1,
   labelAt,
   value,
   onChange,
@@ -94,6 +96,8 @@ export function AppWheelPicker({
 }: {
   readonly label: string;
   readonly count: number;
+  readonly minimumIndex?: number;
+  readonly maximumIndex?: number;
   readonly labelAt: (index: number) => string;
   readonly value: number;
   readonly onChange: (index: number) => void;
@@ -103,13 +107,13 @@ export function AppWheelPicker({
 }) {
   const reduceMotion = useReducedMotion();
   const scroll = useRef<ComponentRef<typeof Animated.FlatList>>(null);
-  const selected = Math.min(count - 1, Math.max(0, value));
+  const selected = Math.min(maximumIndex, Math.max(minimumIndex, value));
   const lastIndex = useRef(selected);
   const interacting = useRef(false);
   const programmaticTarget = useRef<number | null>(null);
   const didLayout = useRef(false);
   const pendingEchoes = useRef(new Set<number>());
-  const selection = useRef({ count, onChange });
+  const selection = useRef({ minimumIndex, maximumIndex, onChange });
   const [initialIndex] = useState(selected);
   const [offset] = useState(() => new Animated.Value(selected * rowHeight));
   const spacerRows = (visibleRows - 1) / 2;
@@ -121,23 +125,40 @@ export function AppWheelPicker({
   );
 
   useLayoutEffect(() => {
-    selection.current = { count, onChange };
-  }, [count, onChange]);
+    selection.current = { minimumIndex, maximumIndex, onChange };
+  }, [minimumIndex, maximumIndex, onChange]);
 
   const select = useCallback((index: number) => {
-    const { count, onChange } = selection.current;
-    const next = Math.min(count - 1, Math.max(0, index));
-    if (next === lastIndex.current) return;
-    pendingEchoes.current.add(next);
-    lastIndex.current = next;
-    onChange(next);
+    const { minimumIndex, maximumIndex, onChange } = selection.current;
+    const next = Math.min(maximumIndex, Math.max(minimumIndex, index));
+    if (next !== lastIndex.current) {
+      pendingEchoes.current.add(next);
+      lastIndex.current = next;
+      onChange(next);
+    }
+    return next;
   }, []);
+
+  const selectFromOffset = useCallback(
+    (value: number) => {
+      const index = Math.round(value / rowHeight);
+      const next = select(index);
+      if (next !== index) {
+        // Stop at a real calendar boundary, not at an internal month boundary.
+        programmaticTarget.current = next;
+        interacting.current = false;
+        offset.setValue(next * rowHeight);
+        scroll.current?.scrollToOffset({ offset: next * rowHeight, animated: false });
+      }
+    },
+    [offset, rowHeight, select],
+  );
 
   const selectFromScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      select(Math.round(event.nativeEvent.contentOffset.y / rowHeight));
+      selectFromOffset(event.nativeEvent.contentOffset.y);
     },
-    [rowHeight, select],
+    [selectFromOffset],
   );
 
   const onScroll = useMemo(
@@ -160,11 +181,11 @@ export function AppWheelPicker({
         return;
       }
       if (interacting.current || (Platform.OS === 'web' && didLayout.current)) {
-        select(Math.round(value / rowHeight));
+        selectFromOffset(value);
       }
     });
     return () => offset.removeListener(subscription);
-  }, [offset, rowHeight, select]);
+  }, [offset, rowHeight, selectFromOffset]);
 
   useEffect(() => {
     const echoed = pendingEchoes.current.delete(selected);
@@ -186,7 +207,7 @@ export function AppWheelPicker({
 
   function selectAndAlign(index: number) {
     interacting.current = false;
-    const next = Math.min(count - 1, Math.max(0, index));
+    const next = Math.min(maximumIndex, Math.max(minimumIndex, index));
     programmaticTarget.current = next;
     select(next);
     offset.setValue(next * rowHeight);
@@ -251,7 +272,7 @@ export function AppWheelPicker({
           interacting.current = false;
         }}
         renderItem={({ item }) => {
-          if (typeof item !== 'number' || item < 0 || item >= count) {
+          if (typeof item !== 'number' || item < minimumIndex || item > maximumIndex) {
             return <View style={{ height: rowHeight }} />;
           }
           return (

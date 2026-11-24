@@ -82,10 +82,7 @@ export function AppPopupCard({
             maxHeight: safeHeight,
           };
   const availableHeight = position ? Math.min(height, position.maxHeight) : 0;
-  const availableContentHeight = Math.max(
-    0,
-    availableHeight - theme.navigation.borderWidth * 2,
-  );
+  const availableContentHeight = Math.max(0, availableHeight - theme.navigation.borderWidth * 2);
 
   return (
     <>
