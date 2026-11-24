@@ -46,33 +46,30 @@ export function AppWheelPicker({
   const [initialOffset] = useState(() => ({ x: 0, y: selected * rowHeight }));
   // Animation nodes are presentation-only; the controlled value remains in the ViewModel.
   const [offset] = useState(() => new Animated.Value(selected * rowHeight));
-  const projections = useMemo(
-    () =>
-      reduceMotion
-        ? []
-        : Array.from({ length: options.length }, (_, index) => {
-            const samples = wheelProjectionSamples(index, rowHeight);
-            const inputRange = samples.map((sample) => sample.offset);
-            const interpolate = (outputRange: number[]) =>
-              offset.interpolate({ inputRange, outputRange, extrapolate: 'clamp' });
-            return {
-              opacity: interpolate(samples.map((sample) => sample.opacity)),
-              transform: [
-                { translateY: interpolate(samples.map((sample) => sample.translateY)) },
-                { perspective: wheelPickerTokens.perspective },
-                {
-                  rotateX: offset.interpolate({
-                    inputRange,
-                    outputRange: samples.map((sample) => `${sample.rotateX}deg`),
-                    extrapolate: 'clamp',
-                  }),
-                },
-                { scale: interpolate(samples.map((sample) => sample.scale)) },
-              ],
-            };
-          }),
-    [offset, options.length, reduceMotion, rowHeight],
-  );
+  const projections = useMemo(() => {
+    if (reduceMotion) return [];
+    return Array.from({ length: options.length }, (_, index) => {
+      const samples = wheelProjectionSamples(index, rowHeight);
+      const inputRange = samples.map((sample) => sample.offset);
+      const interpolate = (outputRange: number[]) =>
+        offset.interpolate({ inputRange, outputRange, extrapolate: 'clamp' });
+      return {
+        opacity: interpolate(samples.map((sample) => sample.opacity)),
+        transform: [
+          { translateY: interpolate(samples.map((sample) => sample.translateY)) },
+          { perspective: wheelPickerTokens.perspective },
+          {
+            rotateX: offset.interpolate({
+              inputRange,
+              outputRange: samples.map((sample) => `${sample.rotateX}deg`),
+              extrapolate: 'clamp',
+            }),
+          },
+          { scale: interpolate(samples.map((sample) => sample.scale)) },
+        ],
+      };
+    });
+  }, [offset, options.length, reduceMotion, rowHeight]);
   const padding = ((visibleRows - 1) / 2) * rowHeight;
 
   useEffect(() => {
