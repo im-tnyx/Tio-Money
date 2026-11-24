@@ -696,7 +696,9 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled \}\}/);
   assert.match(choices, /disabled=\{disabled\}/);
   assert.match(choices, /function AccountFieldInfoMark/);
+  assert.match(choices, /theme\.iconRoles\.textField \/ 2/);
   assert.match(choices, /info\?: ReactNode/);
+  assert.match(screen, /preferredWidth=\{theme\.space\.xxxl \* 5\}/);
 });
 
 test('Loan More details field info opens only while expanded and clears on collapse', () => {
