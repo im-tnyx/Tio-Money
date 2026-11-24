@@ -38,7 +38,7 @@ Source verified on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/
 | Bank Account | Account Name, Opening Amount, Linked Payment Modes |
 | Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Auto Pay |
 | Wallet | Account Name, Opening Amount/Currency |
-| Loan (Borrowed) | Account Name, Loan Direction, Loan Amount (? tip), First EMI Date, More details (chevron; expands EMI Amount (Optional), Fees, Interest Rate — Fees/Interest with ? tips). No Payment or Auto Pay. |
+| Loan (Borrowed) | Account Name, Loan Direction, Loan Amount (? tip), EMI Amount (Optional), First EMI Date, More details (chevron; expands Fees, Interest Rate with ? tips). No Payment or Auto Pay. |
 | Loan (Given) | Account Name, Loan Direction, Amount Lent, Interest Rate, Start Date, More details (chevron; expands optional Installment with ? tip). No Collect Into, Fees, Payment, or Auto Pay. |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance |
 
@@ -622,6 +622,11 @@ The entries below record implementation history at their stated revisions; super
 
 - Owner direction: swap Borrowed primary EMI with Loan Amount. Loan Amount and First EMI Date stay primary; EMI moves under More details with Fees and Interest Rate.
 - Currency strip stays on primary Loan Amount; EMI in More details has no currency buttons.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
+### 2026-11-25 — Borrowed EMI below Loan Amount (not under More details)
+
+- Owner correction: keep EMI Amount on the primary Borrowed form under Loan Amount, not inside More details. More details stays Fees and Interest Rate.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

@@ -475,6 +475,12 @@ function GroupFields({
             value={draft.fields.originalPrincipal}
             {...draftInput}
           />
+          <DraftInput
+            field="emiAmount"
+            info={false}
+            value={draft.fields.emiAmount}
+            {...draftInput}
+          />
           {loanDates ? (
             <AppDateField
               label={t('accountLoanFirstEmiDate')}
@@ -497,13 +503,6 @@ function GroupFields({
           </Pressable>
           {draft.moreDetailsOpen ? (
             <>
-              <DraftInput
-                field="emiAmount"
-                info={false}
-                currencyControl={false}
-                value={draft.fields.emiAmount}
-                {...draftInput}
-              />
               <DraftInput field="fees" value={draft.fields.fees} {...draftInput} />
               <DraftInput field="interestRate" value={draft.fields.interestRate} {...draftInput} />
             </>

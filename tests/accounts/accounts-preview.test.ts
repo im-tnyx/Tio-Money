@@ -645,7 +645,14 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     groupFields,
     /field="emiAmount"[\s\S]*?accountLoanInstallmentOptional[\s\S]*?currencyControl=\{false\}/,
   );
-  assert.match(groupFields, /field="emiAmount"\s+info=\{false\}\s+currencyControl=\{false\}/);
+  assert.match(groupFields, /field="emiAmount"\s+info=\{false\}/);
+  assert.doesNotMatch(
+    groupFields.slice(
+      groupFields.indexOf('accountLoanFirstEmiDate'),
+      groupFields.indexOf("case 'investment':"),
+    ),
+    /currencyControl=\{false\}/,
+  );
   const loanDraft = newAccountDraft('loan', 'INR');
   assert.equal(loanDraft.group, 'loan');
   assert.equal(loanDraft.moreDetailsOpen, false);
@@ -677,11 +684,11 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(groupFields, /picker=\{paymentSource\} \/>\s*<DraftInput field="statementDate"/);
   assert.match(
     groupFields,
-    /field="originalPrincipal"[^>]*\/>\s*\{loanDates \? \(\s*<AppDateField[\s\S]*?accountLoanFirstEmiDate/,
+    /field="originalPrincipal"[^>]*\/>\s*<DraftInput\s+field="emiAmount"\s+info=\{false\}[\s\S]*?\{loanDates \? \(\s*<AppDateField[\s\S]*?accountLoanFirstEmiDate/,
   );
   assert.match(
     groupFields,
-    /draft\.moreDetailsOpen \? \(\s*<>\s*<DraftInput[\s\S]*?field="emiAmount"[\s\S]*?field="fees"[\s\S]*?field="interestRate"/,
+    /draft\.moreDetailsOpen \? \(\s*<>\s*<DraftInput field="fees"[\s\S]*?field="interestRate"/,
   );
   assert.doesNotMatch(
     groupFields.slice(
