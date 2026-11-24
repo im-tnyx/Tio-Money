@@ -14,7 +14,7 @@ import { wheelPickerTokens } from '@/shared/theme/component-tokens';
 
 import { AppText } from './app-text';
 import { wheelProjectionSamples } from './wheel-projection';
-import { shouldAlignWheel } from './wheel-selection';
+import { shouldAlignWheel, shouldAnimateWheelAlignment } from './wheel-selection';
 
 function projectRow(offset: Animated.Value, index: number, rowHeight: number) {
   const samples = wheelProjectionSamples(index, rowHeight);
@@ -106,6 +106,7 @@ export function AppWheelPicker({
   const selected = Math.min(count - 1, Math.max(0, value));
   const lastIndex = useRef(selected);
   const interacting = useRef(false);
+  const programmaticTarget = useRef<number | null>(null);
   const didLayout = useRef(false);
   const pendingEchoes = useRef(new Set<number>());
   const selection = useRef({ count, onChange });
@@ -149,6 +150,15 @@ export function AppWheelPicker({
 
   useEffect(() => {
     const subscription = offset.addListener(({ value }) => {
+      const target = programmaticTarget.current;
+      if (target !== null) {
+        // Web has no reliable native momentum lifecycle. Release the guard only
+        // at the destination; native gestures explicitly take ownership below.
+        if (Platform.OS === 'web' && Math.abs(value - target * rowHeight) < 0.5) {
+          programmaticTarget.current = null;
+        }
+        return;
+      }
       if (interacting.current || (Platform.OS === 'web' && didLayout.current)) {
         select(Math.round(value / rowHeight));
       }
@@ -164,14 +174,20 @@ export function AppWheelPicker({
     }
     if (!shouldAlignWheel(selected, lastIndex.current, interacting.current, echoed)) return;
     pendingEchoes.current.clear();
+    const animated = shouldAnimateWheelAlignment(lastIndex.current, selected, reduceMotion);
     lastIndex.current = selected;
-    offset.setValue(selected * rowHeight);
-    scroll.current?.scrollToOffset({ offset: selected * rowHeight, animated: false });
-  }, [offset, selected, rowHeight]);
+    programmaticTarget.current = selected;
+    interacting.current = false;
+    // Do not pre-set the animation node for an animated native scroll. Doing
+    // so would rotate the rows before the native content actually moves.
+    if (!animated) offset.setValue(selected * rowHeight);
+    scroll.current?.scrollToOffset({ offset: selected * rowHeight, animated });
+  }, [offset, selected, rowHeight, reduceMotion]);
 
   function selectAndAlign(index: number) {
     interacting.current = false;
     const next = Math.min(count - 1, Math.max(0, index));
+    programmaticTarget.current = next;
     select(next);
     offset.setValue(next * rowHeight);
     scroll.current?.scrollToOffset({ offset: next * rowHeight, animated: false });
@@ -218,18 +234,20 @@ export function AppWheelPicker({
           didLayout.current = true;
         }}
         onScrollBeginDrag={() => {
+          programmaticTarget.current = null;
+          pendingEchoes.current.clear();
           interacting.current = true;
         }}
         onScroll={onScroll}
         onScrollEndDrag={(event) => {
-          selectFromScroll(event);
+          if (programmaticTarget.current === null) selectFromScroll(event);
           interacting.current = false;
         }}
         onMomentumScrollBegin={() => {
-          interacting.current = true;
+          if (programmaticTarget.current === null) interacting.current = true;
         }}
         onMomentumScrollEnd={(event) => {
-          if (interacting.current) selectFromScroll(event);
+          if (programmaticTarget.current === null && interacting.current) selectFromScroll(event);
           interacting.current = false;
         }}
         renderItem={({ item }) => {
