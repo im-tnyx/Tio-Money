@@ -446,7 +446,7 @@ test('every eligible form defaults to Main and only shows currency choices with 
   assert.match(route, /currencyChoices:\s*accountCurrencyChoices\(currencies\)\?\.map/);
   assert.match(
     screen,
-    /const showCurrency = 'currencyControl' in spec && currencyChoices !== null/,
+    /const showCurrency =\s*\(currencyControl \?\? 'currencyControl' in spec\) && currencyChoices !== null/,
   );
   assert.doesNotMatch(screen, /subCodes|useCurrencySettings/);
 });
@@ -642,6 +642,11 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     ),
     /field="fees"|accountAutoPay/,
   );
+  assert.match(
+    groupFields,
+    /field="emiAmount"[\s\S]*?accountLoanInstallmentOptional[\s\S]*?currencyControl=\{false\}/,
+  );
+  assert.match(groupFields, /field="originalPrincipal"\s+currencyControl=\{false\}/);
   const loanDraft = newAccountDraft('loan', 'INR');
   assert.equal(loanDraft.group, 'loan');
   assert.equal(loanDraft.moreDetailsOpen, false);
