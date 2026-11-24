@@ -52,22 +52,26 @@ export function processStat(pid) {
   }
 }
 
-function processIdentity(pid) {
+export function processIdentity(pid) {
   const before = processStat(pid);
   if (!live(before)) return null;
   try {
     const proc = {
       ...before,
+      pid,
       cwd: resolve(readlinkSync(`/proc/${pid}/cwd`)),
       command: readFileSync(`/proc/${pid}/cmdline`, 'utf8').replaceAll('\0', ' ').trim(),
       uid: lstatSync(`/proc/${pid}`).uid,
     };
     const after = processStat(pid);
-    if (!live(after) || after.startTicks !== before.startTicks) throw race();
+    if (after && after.startTicks !== before.startTicks) {
+      throw Object.assign(Error('PID_REUSED: PID changed while reading Metro identity.'), { code: 'PID_REUSED' });
+    }
+    if (!live(after) || after.group !== before.group || after.session !== before.session) throw race();
     return proc;
   } catch (error) {
     if (gone(error)) throw race();
-    if (error.code === 'OWNERSHIP_RACE') throw error;
+    if (['OWNERSHIP_RACE', 'PID_REUSED'].includes(error.code)) throw error;
     throw Error('PROCESS_UNREADABLE: Cannot inspect managed Metro command, directory or user.');
   }
 }
@@ -84,10 +88,10 @@ export function metroGroup(pid) {
 
 export async function retryOwnership(check, { attempts = 5, pause = wait } = {}) {
   for (let attempt = 1; ; attempt += 1) {
-    try { return check(); }
+    try { return await check(); }
     catch (error) {
       if (error.code !== 'OWNERSHIP_RACE' || attempt >= attempts) throw error;
-      await pause(200);
+      await pause(Math.min(100 * 2 ** (attempt - 1), 500));
     }
   }
 }
@@ -161,8 +165,7 @@ export function classifyRecord(record, leader, group, listener, projectRoot = ro
     throw Error('OWNERSHIP_UNKNOWN: Managed Metro command, user, directory or session could not be verified.');
   }
   if (listener === 'FOREIGN') {
-    // A socket can appear between /proc reads. Allow bounded re-observation, never control it.
-    throw Object.assign(Error('FOREIGN_LISTENER: Metro port ownership could not be verified. Inspect the port in the dedicated Codespace.'), { code: 'OWNERSHIP_RACE' });
+    throw Error('FOREIGN_LISTENER: Metro port ownership could not be verified. Inspect the port in the dedicated Codespace.');
   }
   return 'OWNED_METRO';
 }
@@ -172,6 +175,9 @@ export function inspectManagedMetro(record, projectRoot = root) {
   if (stat && record.bootId && record.bootId !== currentBootId()) {
     throw Error('PID_REUSED: Previous-boot Metro PID is present in the current process table.');
   }
+  if (stat && stat.startTicks !== record.startTicks) {
+    throw Error('PID_REUSED: Managed Metro PID now identifies another process.');
+  }
   const leader = live(stat) ? processIdentity(record.pid) : stat;
   const group = metroGroup(record.pid);
   if (live(leader) && leader.group === record.pid && leader.session === record.pid &&
@@ -179,7 +185,12 @@ export function inspectManagedMetro(record, projectRoot = root) {
   const port = record.port ?? 8081;
   const listener = groupListener(port, group, record.pid);
   const after = processStat(record.pid);
+  if (after && after.startTicks !== record.startTicks) throw Error('PID_REUSED: Metro PID changed during inspection.');
   if (after?.startTicks !== stat?.startTicks || Boolean(live(after)) !== Boolean(live(stat))) throw race();
+  if (listener === 'FOREIGN' && live(leader)) {
+    const latest = metroGroup(record.pid);
+    if (latest.size !== group.size || [...latest].some(([pid, ticks]) => group.get(pid) !== ticks)) throw race();
+  }
   return { state: classifyRecord(record, leader, group, listener, projectRoot), listener, group };
 }
 

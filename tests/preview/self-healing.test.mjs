@@ -3,14 +3,16 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
   classifyRecord, listenerState, processStat, readManagedRecord, retryOwnership,
 } from '../../.github/scripts/preflight-pr-codespaces-preview.mjs';
 import {
-  checkedManagedRecord, previewAction, retryStartup, signalMetroGroup, stopOwnedMetro, withStartupLock,
+  checkedManagedRecord, checkStartupIdentity, previewAction, requireStartupIdentity,
+  retryStartup, signalMetroGroup, stopOwnedMetro, withStartupLock,
 } from '../../scripts/start-codespace-expo.mjs';
 
 const record = { pid: 81, startTicks: '1234', port: 8083 };
@@ -52,6 +54,38 @@ test('ownership resamples transient reads only and stops after the bound', async
   reads = 0;
   await assert.rejects(retryOwnership(() => { reads += 1; throw Error('unknown'); }, { pause }), /unknown/);
   assert.equal(reads, 1);
+});
+
+test('async transient ownership races back off within a fixed budget; stable foreign listeners do not retry', async () => {
+  const delays = [];
+  const pause = async (ms) => { delays.push(ms); };
+  const transient = Object.assign(Error('listener set changed'), { code: 'OWNERSHIP_RACE' });
+  await assert.rejects(retryOwnership(async () => { throw transient; }, { pause }), transient);
+  assert.deepEqual(delays, [100, 200, 400, 500]);
+  delays.length = 0;
+  for (const [proc, listener, error] of [
+    [leader, 'FOREIGN', /FOREIGN_LISTENER/],
+    [{ ...leader, startTicks: '1235' }, 'EMPTY', /PID_REUSED/],
+    [{ ...leader, uid: 1001 }, 'EMPTY', /OWNERSHIP_UNKNOWN/],
+  ]) {
+    await assert.rejects(retryOwnership(() => classifyRecord(record, proc, group, listener, leader.cwd, leader.uid),
+      { pause }), error);
+  }
+  assert.deepEqual(delays, []);
+});
+
+test('startup rejects PID reuse after a successful poll and checks all identity fields before record creation', () => {
+  const candidate = { ...leader, uid: process.getuid(), cwd: resolve(fileURLToPath(new URL('../..', import.meta.url))) };
+  assert.equal(checkStartupIdentity(record.pid, record.startTicks, candidate), true);
+  requireStartupIdentity(record.pid, record.startTicks, () => candidate);
+  for (const mismatch of [{ pid: 82 }, { startTicks: '999' }, { uid: candidate.uid + 1 },
+    { group: 82 }, { session: 82 }, { cwd: '/other' }, { command: 'npm run dev' }]) {
+    assert.throws(() => requireStartupIdentity(record.pid, record.startTicks, () => ({ ...candidate, ...mismatch })),
+      /PID_REUSED|START_IDENTITY_UNKNOWN/);
+  }
+  assert.throws(() => requireStartupIdentity(record.pid, record.startTicks, () => null), /START_IDENTITY_UNKNOWN/);
+  const starter = readFileSync(new URL('../../scripts/start-codespace-expo.mjs', import.meta.url), 'utf8');
+  assert.match(starter, /requireStartupIdentity\(child\.pid, started\.startTicks\);\n\s+writeFileSync\(pending,/);
 });
 
 function shutdownFixture({ afterTerm = group, afterKill = new Map(), listener = 'OWNED',

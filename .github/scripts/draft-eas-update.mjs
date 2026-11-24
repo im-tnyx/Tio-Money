@@ -29,6 +29,32 @@ function nativePlatforms(platform) {
   throw Error('Invalid native Draft OTA platform.');
 }
 
+export function requireRuntimeFingerprints(value, platform) {
+  const required = nativePlatforms(platform);
+  if (!value || Array.isArray(value) || typeof value !== 'object' ||
+      Object.keys(value).sort().join(',') !== required.join(',') ||
+      required.some((target) => typeof value[target] !== 'string' || !sha.test(value[target]))) {
+    throw Error('DRAFT_RUNTIME_EXPECTATION_INVALID: Expected independent fingerprints for the selected native platforms.');
+  }
+  return value;
+}
+
+export function resolveRuntimeFingerprints(platform, execute = spawnSync) {
+  const runtimes = {};
+  for (const target of nativePlatforms(platform)) {
+    // EAS CLI 27.4.1 delegates to expo-updates for this managed project.
+    const result = execute('node_modules/.bin/expo-updates',
+      ['runtimeversion:resolve', '--platform', target, '--workflow', 'managed'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 8 * 1024 * 1024, timeout: 60_000 });
+    if (result.status !== 0 || result.error) {
+      throw Error(`DRAFT_RUNTIME_RESOLUTION_FAILED: Check the locked Expo runtime resolver for ${target}.`);
+    }
+    const { runtimeVersion } = JSON.parse(result.stdout);
+    runtimes[target] = runtimeVersion;
+  }
+  return requireRuntimeFingerprints(runtimes, platform);
+}
+
 function requireBundleFile(root, relative) {
   let path = root;
   const parts = relative.split('/');
@@ -81,7 +107,7 @@ export function assertUnmapped(channels, branchName, branchId) {
       throw Error('Cannot verify an unsupported Expo channel mapping.');
     }
     if (channel.name === branchName || mapping.data.some((target) => target.branchId === branchId)) {
-      throw Error('Draft OTA branch is associated with an Expo channel. Publishing was refused.');
+      throw Error('Draft OTA branch is associated with an Expo channel.');
     }
   }
 }
@@ -104,23 +130,38 @@ function readPages(eas, command, limit, selectPage) {
   throw Error('Expo branch/channel inventory exceeded the bounded isolation check.');
 }
 
-function requireIsolation(eas, branch) {
+export function requireIsolation(eas, branch, phase, list = readPages) {
   if (!/^pr-draft-[1-9][0-9]*$/u.test(branch)) throw Error('Unexpected Draft OTA branch namespace.');
-  const matches = readPages(eas, 'branch:list', 50, (value) => value)
-    .filter(({ name }) => name === branch);
-  if (matches.length > 1) throw Error('Ambiguous Draft OTA branch.');
-  const channels = readPages(eas, 'channel:list', 25, (value) => value?.currentPage);
-  assertUnmapped(channels, branch, matches[0]?.id);
+  if (!['before', 'after'].includes(phase)) throw Error('Unexpected Draft OTA isolation phase.');
+  try {
+    const matches = list(eas, 'branch:list', 50, (value) => value)
+      .filter(({ name }) => name === branch);
+    if (matches.length > 1 || (phase === 'after' && matches.length !== 1)) {
+      throw Error('Could not verify a unique Draft OTA branch.');
+    }
+    const channels = list(eas, 'channel:list', 25, (value) => value?.currentPage);
+    assertUnmapped(channels, branch, matches[0]?.id);
+  } catch (error) {
+    if (phase === 'before') throw error;
+    const reason = error instanceof SyntaxError ? 'Invalid EAS inventory data.' : error.message;
+    throw Error(`DRAFT_POST_PUBLISH_ISOLATION_FAILED: ${reason} An update may already exist on ${branch}. Inspect that branch and its channel mappings in Expo before retrying or sharing the preview.`);
+  }
 }
 
-export function draftSummary(updates, number, head, platform) {
+export function draftSummary(updates, number, head, platform, expectedRuntimes) {
   const branch = draftBranch(number);
   const required = nativePlatforms(platform);
+  const expected = requireRuntimeFingerprints(expectedRuntimes, platform);
   if (!sha.test(head) || !Array.isArray(updates) ||
       updates.map((update) => update?.platform).sort().join(',') !== required.join(',') ||
       updates.some((update) => update.branch !== branch || update.gitCommitHash !== head ||
         !uuid.test(update.id) || !uuid.test(update.group) || !sha.test(update.runtimeVersion))) {
     throw Error('Expo reported publication but its result could not be safely verified. Check the isolated branch before retrying.');
+  }
+  for (const update of updates) {
+    if (update.runtimeVersion !== expected[update.platform]) {
+      throw Error(`DRAFT_RUNTIME_MISMATCH: Published ${update.platform} update ${update.id} on ${branch} has fingerprint ${update.runtimeVersion}; expected ${expected[update.platform]}. Review the Expo preview environment and update group ${update.group} before retrying.`);
+    }
   }
   const rows = updates.map((update) =>
     `| ${update.platform} | \`${update.runtimeVersion}\` | \`${update.id}\` | [${update.group}](${dashboard}/${update.group}) |`);
@@ -144,7 +185,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     else if (command === 'selection') requireDraftSnapshot(JSON.parse(readFileSync(0, 'utf8')), ...args);
     else if (command === 'bundle') requireDraftBundle(...args);
     else if (command === 'isolation') requireIsolation(...args);
-    else if (command === 'summary') console.log(draftSummary(JSON.parse(readFileSync(args.shift(), 'utf8')), ...args));
+    else if (command === 'resolve-runtime') console.log(JSON.stringify(resolveRuntimeFingerprints(args[0])));
+    else if (command === 'verify-runtime') requireRuntimeFingerprints(JSON.parse(process.env.DRAFT_RUNTIME_FINGERPRINTS), args[0]);
+    else if (command === 'summary') console.log(draftSummary(JSON.parse(readFileSync(args.shift(), 'utf8')), ...args,
+      JSON.parse(process.env.DRAFT_RUNTIME_FINGERPRINTS)));
     else throw Error('Invalid trusted Draft OTA command.');
   } catch (error) {
     // Files and API payloads may contain signed URLs or untrusted text.
