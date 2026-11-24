@@ -81,18 +81,18 @@ test('EAS CLI has its own committed full dependency lock and registry integritie
 
 test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated', () => {
   const text = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
-  assert.match(text, /^name: TIO MONEY EXPO PR REVIEW$/m);
+  assert.match(text, /^name: TIO MONEY EXPO PR PREVIEW$/m);
   assert.match(text, /workflow_dispatch:/);
   const dispatchInputs = text.split('workflow_dispatch:')[1].split('\n  workflow_run:')[0];
   assert.deepEqual(
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.match(dispatchInputs, /      pr_number:\n        description: Owner PR number \(EAS requires non-Draft; Codespaces allows Draft\)\n        required: true\n        type: string\n/);
+  assert.match(dispatchInputs, /      pr_number:\n        description: Owner PR number \(choose the operation matching its Draft status\)\n        required: true\n        type: string\n/);
   assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
-    /      operation:\n        description: Live Expo Go, OTA update or internal preview build\n        required: true\n        default: codespaces_live\n        type: choice\n        options:\n          - codespaces_live\n          - publish_update\n          - build_preview\n/,
+    /      operation:\n        description: Live Expo Go, reviewed OTA, Draft PR OTA or internal preview build\n        required: true\n        default: codespaces_live\n        type: choice\n        options:\n          - codespaces_live\n          - publish_update\n          - publish_draft_update\n          - build_preview\n/,
   );
   assert.match(
     dispatchInputs,
@@ -100,7 +100,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   );
   assert.match(text, /case "\$TARGET_PLATFORM" in\s*\n\s*android\|ios\|all\)/);
   assert.match(text, /--platform "\$TARGET_PLATFORM"/);
-  assert.match(text, /case "\$TARGET_OPERATION" in\s*\n\s*publish_update\|build_preview\)/);
+  assert.match(text, /case "\$TARGET_OPERATION" in\s*\n\s*publish_update\|publish_draft_update\|build_preview\)/);
   assert.match(text, /TARGET_OPERATION: \$\{\{ inputs\.operation \}\}/);
   assert.match(text, /if \[\[ "\$TARGET_OPERATION" == "build_preview" \]\]/);
   assert.match(text, /const onlyPreview = Object\.keys\(eas\.build \|\| \{\}\)\.length === 1/);

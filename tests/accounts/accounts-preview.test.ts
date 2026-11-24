@@ -458,10 +458,7 @@ test('one amount row per form carries the inline currency selector and all amoun
     screen.indexOf('const fieldSpecs'),
     screen.indexOf('const inputIcons'),
   );
-  const card = screen.slice(
-    screen.indexOf("case 'credit-card':"),
-    screen.indexOf("case 'loan':"),
-  );
+  const card = screen.slice(screen.indexOf("case 'credit-card':"), screen.indexOf("case 'loan':"));
 
   const controllingFields = [...specs.matchAll(/(\w+): \{[^}]*?currencyControl: true/g)].map(
     ([, field]) => field,
@@ -605,10 +602,10 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(screen, /field="name"[\s\S]*?accountCardName/);
   assert.match(screen, /field="description"/);
   assert.match(screen, /draft.group === 'bank' \? \(\s*<BankPaymentModes/);
-  assert.match(groupFields, /case 'cash':\s*case 'bank':/);
+  assert.match(groupFields, /case 'cash':\s*case 'bank':\s*case 'wallet':/);
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
     if (!isPreviewGroup(id)) continue;
-    const sectionGroup = id === 'cash' ? 'bank' : id;
+    const sectionGroup = id === 'cash' || id === 'bank' ? 'wallet' : id;
     const [section] = groupFields.split("case '" + sectionGroup + "':")[1]?.split(/case '/) ?? [];
     assert.ok(section, id);
     const rendered = [...section.matchAll(/<DraftInput\s+field="([^"]+)"/g)].map(
@@ -1042,6 +1039,7 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
 
 test('small account captions align above their inputs while icons align beside the value', () => {
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const keyboardForm = readFileSync('src/shared/ui/app-keyboard-form.tsx', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
@@ -1050,8 +1048,9 @@ test('small account captions align above their inputs while icons align beside t
     controls.indexOf('export function AccountField'),
   );
 
+  assert.match(form, /<AppKeyboardForm>[\s\S]*?<AccountFields[\s\S]*?<\/AppKeyboardForm>/);
   assert.match(
-    form,
+    keyboardForm,
     /contentContainerStyle=\{\{ padding: theme.space.md, gap: theme.space.sm \}\}/,
   );
   assert.equal(space.md, 16);
@@ -1255,12 +1254,7 @@ test('date popup stays above the field and fits only complete rows', () => {
     preferredHeight: 174,
     placement: 'above' as const,
   };
-  const full = popupPosition(
-    { x: 24, y: 400, width: 350, height: 48 },
-    viewport,
-    insets,
-    settings,
-  );
+  const full = popupPosition({ x: 24, y: 400, width: 350, height: 48 }, viewport, insets, settings);
   assert.ok('bottom' in full);
   assert.equal(full.bottom, 334);
   assert.equal(full.maxHeight, 356);
@@ -1277,12 +1271,7 @@ test('date popup stays above the field and fits only complete rows', () => {
   assert.equal(compact.maxHeight, 116);
   assert.equal(fitPopupRows(compact.maxHeight - 14, 32, [5, 3, 1]), 3);
 
-  const tight = popupPosition(
-    { x: 24, y: 96, width: 350, height: 48 },
-    viewport,
-    insets,
-    settings,
-  );
+  const tight = popupPosition({ x: 24, y: 96, width: 350, height: 48 }, viewport, insets, settings);
   assert.ok('bottom' in tight);
   assert.equal(tight.bottom, 638);
   assert.equal(fitPopupRows(tight.maxHeight - 14, 32, [5, 3, 1]), 1);

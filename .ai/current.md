@@ -49,6 +49,13 @@
 - [Bank payment mode empty state PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-bank-payment-mode-empty-state--proceed) shows a link icon and guidance while the draft has no payment modes.
 - [Loan EMI input PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-emi-input--proceed) adds an optional manual amount to the Loan draft.
 - [Credit Card Payment field clarification](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7129925352): From caption above Payment placeholder, zero caption gap retained, no unavailable copy. [Task checkpoint](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--credit-card-payment-field-clarification). Fresh CI and native QA pending.
+- [2026-11-24 reconciliation](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--reconcile-with-main-after-pr-103) integrates main `2698fb3f1988e7a6247974fa3e79a410a6bb5b70` into Draft #97 and preserves both task histories.
+
+## 2026-11-23 — Expo preview self-healing and Draft OTA (RFC #102)
+
+- Owner-authorized scoped implementation on `feat/expo-preview-self-healing`, tracked in [RFC #102](https://github.com/im-tnyx/Tio-Money/issues/102) and the [task checkpoint](tasks/preview/expo-preview-self-healing-20261123.md). Includes verified manual Metro recovery, display name `TIO MONEY EXPO PR PREVIEW`, and per-PR Draft OTA that stays off shared channels. Live run, device loading and merge require separate authorization.
+- Startup follow-up in [Draft PR #103](https://github.com/im-tnyx/Tio-Money/pull/103) hardens the Codespace polling deadline and requires an unchanged private record for stale cleanup under the existing startup lock. See the [follow-up checkpoint](tasks/preview/expo-preview-self-healing-20261123.md#2026-11-24--codespace-startup-deadline-and-stale-ownership-handoff).
+- The [security remediation checkpoint](tasks/preview/expo-preview-self-healing-20261123.md#2026-11-24--security-remediation-at-reviewed-head-c60daa8) records the disposition of SEC-103-01 through SEC-103-04. PR #103 remains Draft for independent re-review.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

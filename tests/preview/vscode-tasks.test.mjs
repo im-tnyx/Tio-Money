@@ -55,7 +55,7 @@ test('Interactive Expo Go tunnel checks owner, stops only managed Metro, then st
   assert.match(starter, /flags\.includes\('--check-account'\)/);
   assert.match(starter,
     /if \(flags\.includes\('--check-account'\)\) \{\s+requireExpoAccount\(\);/);
-  assert.match(starter, /if \(flags\.includes\('--stop'\)\) \{\s+await stopManaged\(\);/);
+  assert.match(starter, /if \(flags\.includes\('--stop'\)\) \{\s+if \(!current\) await portIsFree\(\);\s+await stopManaged\(current\);/);
   assert.equal(JSON.parse(read('package.json')).scripts.mobile, 'expo start --tunnel --go');
 });
 
