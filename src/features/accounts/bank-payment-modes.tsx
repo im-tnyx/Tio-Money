@@ -196,12 +196,11 @@ export function BankModeEditor({
           return {
             value,
             label: t(modeLabels[value]),
-            disabled,
+            selected: value === editor.kind,
+            onSelect: disabled ? undefined : () => onAction({ type: 'mode.kind', value }),
             accessibilityHint: disabled ? t('accountModeTypeLimitReached') : undefined,
           };
         })}
-        value={editor.kind}
-        onChange={(value) => onAction({ type: 'mode.kind', value })}
       />
       <ActionButton
         label={t('accountModeApply')}

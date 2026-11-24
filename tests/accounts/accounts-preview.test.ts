@@ -76,6 +76,7 @@ test('the first Group picker waits for entry and late transition events do not r
     const form = updateSession(picker, { type: 'group.select', group });
     assert.deepEqual(form, {
       groupPicker: 'closed',
+      choicePickerOpen: false,
       group,
       drafts: { [group]: newAccountDraft(group, 'INR') },
     });
@@ -119,6 +120,58 @@ test('changing and dismissing Group retains separate drafts and guards inactive 
     openingAmount: '',
   });
   assert.equal(bank.drafts['credit-card'], card.drafts['credit-card']);
+});
+
+test('the three account dropdowns preserve drafts on dismiss and close after one selection', () => {
+  const cases = [
+    { group: 'loan', field: 'direction', choice: { type: 'loan.direction', value: 'given' } },
+    {
+      group: 'wallet',
+      field: 'walletKind',
+      choice: { type: 'wallet.kind', value: 'bank-linked' },
+    },
+    {
+      group: 'investment',
+      field: 'investmentKind',
+      choice: { type: 'investment.kind', value: 'fixedDeposit' },
+    },
+  ] as const;
+  const initial = newAccountAddSession(true);
+  const bank = updateSession(initial, { type: 'group.select', group: 'bank' });
+  assert.equal(updateSession(bank, { type: 'options.open' }), bank);
+
+  for (const { group, field, choice } of cases) {
+    const form = updateSession(initial, { type: 'group.select', group });
+    const named = updateSession(form, {
+      type: 'form',
+      group,
+      action: { type: 'text', field: 'name', value: 'Keep this edit' },
+    });
+    const open = updateSession(named, { type: 'options.open' });
+    assert.equal(open.choicePickerOpen, true);
+    assert.equal(updateSession(open, { type: 'group.open' }), open);
+    const wrongChoice = group === 'loan' ? cases[1].choice : cases[0].choice;
+    assert.equal(updateSession(open, { type: 'options.select', choice: wrongChoice }), open);
+
+    const dismissed = updateSession(open, { type: 'options.close' });
+    assert.equal(dismissed.choicePickerOpen, false);
+    assert.equal(dismissed.drafts, named.drafts);
+    assert.equal(updateSession(dismissed, { type: 'options.select', choice }), dismissed);
+    const selected = updateSession(open, { type: 'options.select', choice });
+    assert.equal(selected.choicePickerOpen, false);
+    assert.equal(updateSession(selected, { type: 'options.select', choice }), selected);
+
+    const backToGroupPicker = updateSession(selected, { type: 'group.open' });
+    const cash = updateSession(backToGroupPicker, { type: 'group.select', group: 'cash' });
+    const reopened = updateSession(updateSession(cash, { type: 'group.open' }), {
+      type: 'group.select',
+      group,
+    });
+    const draft = reopened.drafts[group];
+    assert.ok(draft && field in draft);
+    assert.equal(Reflect.get(draft, field), choice.value);
+    assert.equal(draft.fields.name, 'Keep this edit');
+  }
 });
 
 test('closing the Bank payment editor discards unapplied changes and preserves the form', () => {
@@ -400,9 +453,15 @@ test('inline currency boxes follow the input, scroll horizontally and keep check
     controls.indexOf('export function AccountChoices'),
   );
 
-  assert.match(controls, /<View style=\{\{ flex: 1 \}\}>\{input\}<\/View>\s+\{trailing\}/);
+  assert.match(
+    controls,
+    /<View style=\{\{ flex: 1, minWidth: '0%' \}\}>\{input\}<\/View>\s+\{trailing\}/,
+  );
   assert.match(choices, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
-  assert.match(choices, /maxWidth: '50%'/);
+  assert.match(
+    choices,
+    /width: options.length \* theme.buttons.minimumHeight,[\s\S]*?maxWidth: '66%'/,
+  );
   assert.match(choices, /options\.map\(\(option\) =>/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected \}\}/);
   assert.match(choices, /const selected = option.value === value/);
@@ -529,7 +588,8 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(en.accountCardName, 'Card Name');
   assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
   assert.equal(en.accountCardStatementDate, 'Statement Date');
-  assert.equal(en.accountPayFrom, 'Payment');
+  assert.equal(en.accountPayFrom, 'Payment From');
+  assert.match(groupFields, /label="accountPayFrom"[\s\S]*?field="statementDate"/);
   assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
   assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
   assert.equal(en.accountCardDueDate, 'Due Date');
@@ -537,7 +597,7 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
   assert.match(
     screen,
-    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \? \([\s\S]*?\{t\('accountAutoPay'\)\}[\s\S]*?<Switch/,
+    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \? \(\s*<AccountFormRow label="accountAutoPay"[^>]*>[\s\S]*?<Switch/,
   );
   const autoPay = screen.match(/<Switch\s[\s\S]*?\/>/)?.[0];
   assert.ok(autoPay);
@@ -572,55 +632,48 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
 });
 
-test('main form aligns icons and wraps Description from one line with its label inside', () => {
+test('account form keeps the icon, label and input in one row and Description can grow', () => {
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
-
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
+  const row = controls.slice(
+    controls.indexOf('export function AccountFormRow'),
+    controls.indexOf('export function AccountDropdown'),
+  );
 
-  assert.match(form, /const description = field === 'description'/);
   assert.match(
     form,
     /contentContainerStyle=\{\{ padding: theme.space.md, gap: theme.space.sm \}\}/,
   );
   assert.equal(space.md, 16);
   assert.equal(space.sm, 12);
-  assert.match(controls, /const iconColumnWidth = theme.iconRoles.textField/);
-  assert.match(controls, /marginLeft: iconColumnWidth \+ iconGap/);
+  assert.match(row, /const rowHeight = minimumHeight \?\? theme.textField.minimumHeight/);
+  assert.match(row, /flexDirection: 'row',\s+alignItems: multiline \? 'flex-start' : 'center'/);
+  assert.match(
+    row,
+    /importantForAccessibility="no-hide-descendants"[\s\S]*?\{leading\}[\s\S]*?\{t\(label\)\}[\s\S]*?\{children\}/,
+  );
+  assert.match(
+    controls,
+    /<AccountFormRow label=\{label\} leading=\{leading\} multiline=\{props.multiline\}>/,
+  );
+  assert.match(controls, /d=\{rowIcons\[name\]\}[\s\S]*?theme\.colors\.primaryText/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
-  assert.match(form, /d=\{inputIcons\[icon\]\}[\s\S]*?stroke=\{theme\.colors\.primaryText\}/);
-  assert.match(controls, /<AppText variant="caption" muted style=/);
-  assert.match(
-    input,
-    /placeholderTextColor=\{borderless \? theme\.colors\.inputPlaceholder : theme\.colors\.secondaryText\}/,
-  );
-  assert.match(input, /color: theme\.colors\.primaryText/);
-  assert.match(
-    form,
-    /labelAsPlaceholder=\{field === 'name' \|\| description\}\s+leading=\{leading\}/,
-  );
+  assert.match(form, /leading=\{leading\}[\s\S]*?textAlign="right"/);
   assert.match(
     form,
     /multiline=\{description\}[\s\S]*?submitBehavior=\{description \? 'blurAndSubmit'/,
   );
+  assert.match(
+    form,
+    /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<AccountFormIcon/,
+  );
+  assert.match(form, /if \(date\) return t\('accountReferenceDatePlaceholder'\)/);
   assert.match(input, /const growsWithText = borderless && props.multiline/);
-  assert.match(input, /const minHeight = theme\.textField\.minimumHeight;/);
+  assert.match(input, /includeFontPadding: borderless \? false : undefined/);
   assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);
-  assert.match(controls, /minHeight: theme\.textField\.minimumHeight,/);
   assert.doesNotMatch(input, /numberOfLines|maxHeight/);
-  assert.match(form, /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<Svg/);
-  assert.match(form, /date \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/);
-  assert.match(
-    route,
-    /CURRENCY_OPTIONS\.find\(\(\{ code \}\) => code === draft.currency\)\?\.symbol/,
-  );
-  assert.match(controls, /placeholder=\{labelAsPlaceholder \? t\(label\) : props.placeholder\}/);
-  assert.match(
-    controls,
-    /flexDirection: 'row'[\s\S]*?importantForAccessibility="no-hide-descendants"[\s\S]*?\{leading\}[\s\S]*?\{input\}/,
-  );
   assert.doesNotMatch(bankModes, /leading=/);
 });
 
@@ -631,7 +684,7 @@ test('payment mode editor uses compact outlined radios in one horizontal row', (
   const choices = controls.slice(controls.indexOf('export function AccountChoices'));
   const compactRow = choices.slice(choices.indexOf('if (compact)'));
   assert.match(editor, /label="accountModeType"\s+compact/);
-  assert.match(editor, /value=\{editor.kind\}/);
+  assert.match(editor, /selected: value === editor.kind/);
   assert.match(editor, /type: 'mode.kind', value/);
   assert.match(editor, /const disabled = !availableModeTypes.includes\(value\)/);
   assert.match(choices, /selected && !compact \?/);
@@ -716,7 +769,7 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   );
   assert.match(
     form,
-    /<AccountGroupField value=\{groupLabel\} onPress=\{onOpenGroupPicker\}[\s\S]*?<AccountFields/,
+    /<AccountGroupField\s+value=\{groupLabel\}\s+expanded=\{groupChoices !== null\}\s+onPress=\{onOpenGroupPicker\}[\s\S]*?<AccountFields/,
   );
   assert.match(
     form,
@@ -727,9 +780,21 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     /<AppBottomSheet\s+visible=\{sheet !== undefined\}\s+animate=\{animateSheet\}\s+avoidKeyboard/,
   );
   assert.doesNotMatch(form, /ActionButton|accountFormPreview|Entries are discarded|slideInOnMount/);
+  assert.match(
+    form,
+    /else if \(choice\?\.open\)[\s\S]*?onDismiss: choice.onClose,[\s\S]*?children: <AccountChoices/,
+  );
+  assert.match(
+    form,
+    /<AccountDropdown\s+label=\{choice.label\}\s+value=\{choice.value\}\s+expanded=\{choice.open\}/,
+  );
+  assert.match(
+    controller,
+    /choice\(\s*'accountWalletKind',[\s\S]*?choice\(\s*'accountLoanDirection',[\s\S]*?choice\(\s*'accountInvestmentType'/,
+  );
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
-  assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
+  assert.match(picker, /<AccountDropdown\s+label="accountGroup"/);
   assert.match(picker, /rowHeight = theme.space.xxl/);
   assert.match(picker, /touchInset = \(theme.buttons.minimumHeight - rowHeight\) \/ 2/);
   assert.match(picker, /hitSlop=\{\{ top: touchInset, bottom: touchInset \}\}/);

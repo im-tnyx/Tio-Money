@@ -6,38 +6,31 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { AccountGroupChoice } from './account-form-contract';
+import { AccountDropdown, AccountFormIcon } from './account-form-controls';
 import { AccountGroupIcon } from './account-group-icon';
 
 export function AccountGroupField({
   value,
+  expanded,
   onPress,
 }: {
   readonly value: TranslationKey;
+  readonly expanded: boolean;
   readonly onPress: () => void;
 }) {
   const theme = useAppTheme();
   const rowHeight = theme.space.xxl;
   const touchInset = (theme.buttons.minimumHeight - rowHeight) / 2;
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t('accountGroup')}
-      accessibilityValue={{ text: t(value) }}
-      hitSlop={{ top: touchInset, bottom: touchInset }}
+    <AccountDropdown
+      label="accountGroup"
+      value={value}
+      expanded={expanded}
+      leading={<AccountFormIcon name="group" />}
       onPress={onPress}
-      style={{
-        minHeight: rowHeight,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.space.sm,
-      }}
-    >
-      <AppText muted style={{ flex: 1 }}>
-        {t('accountGroup')}
-      </AppText>
-      <AppText style={{ flexShrink: 1, textAlign: 'right' }}>{t(value)}</AppText>
-      <GroupMark />
-    </Pressable>
+      minimumHeight={rowHeight}
+      hitSlop={{ top: touchInset, bottom: touchInset }}
+    />
   );
 }
 
@@ -79,14 +72,14 @@ export function AccountGroupOptions({
             </AppText>
             {status ? <AppText variant="caption">{t(status)}</AppText> : null}
           </View>
-          {selected ? <GroupMark selected /> : null}
+          {selected ? <GroupMark /> : null}
         </Pressable>
       ))}
     </>
   );
 }
 
-function GroupMark({ selected = false }: { readonly selected?: boolean }) {
+function GroupMark() {
   const theme = useAppTheme();
   return (
     <Svg
@@ -97,9 +90,9 @@ function GroupMark({ selected = false }: { readonly selected?: boolean }) {
       importantForAccessibility="no-hide-descendants"
     >
       <Path
-        d={selected ? 'm5 12 4 4L19 6' : 'm9 6 6 6-6 6'}
+        d="m5 12 4 4L19 6"
         fill="none"
-        stroke={selected ? theme.colors.brand : theme.colors.secondaryText}
+        stroke={theme.colors.brand}
         strokeWidth={theme.icons.stroke}
         strokeLinecap="round"
         strokeLinejoin="round"

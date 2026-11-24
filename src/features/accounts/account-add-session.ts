@@ -5,6 +5,7 @@ import {
   previewGroups,
   reconcileAccountDraftCurrency,
   updateAccountDraft,
+  type AccountChoiceAction,
   type AccountDraft,
   type AccountFormAction,
   type PreviewGroup,
@@ -14,6 +15,7 @@ type GroupPickerState = 'pending' | 'open' | 'closed';
 
 export interface AccountAddSession {
   readonly groupPicker: GroupPickerState;
+  readonly choicePickerOpen: boolean;
   readonly group: PreviewGroup | null;
   readonly drafts: Readonly<Partial<Record<PreviewGroup, AccountDraft>>>;
 }
@@ -21,10 +23,17 @@ export interface AccountAddSession {
 export type AccountAddAction =
   | { readonly type: 'group.open' | 'group.close' }
   | { readonly type: 'group.select'; readonly group: PreviewGroup }
+  | { readonly type: 'options.open' | 'options.close' }
+  | { readonly type: 'options.select'; readonly choice: AccountChoiceAction }
   | { readonly type: 'form'; readonly group: PreviewGroup; readonly action: AccountFormAction };
 
 export function newAccountAddSession(showPickerImmediately = false): AccountAddSession {
-  return { groupPicker: showPickerImmediately ? 'open' : 'pending', group: null, drafts: {} };
+  return {
+    groupPicker: showPickerImmediately ? 'open' : 'pending',
+    choicePickerOpen: false,
+    group: null,
+    drafts: {},
+  };
 }
 
 export function presentInitialAccountGroupPicker(session: AccountAddSession): AccountAddSession {
@@ -55,7 +64,11 @@ export function updateAccountAddSession(
   const active = session.group === null ? undefined : session.drafts[session.group];
   switch (action.type) {
     case 'group.open':
-      if (session.groupPicker === 'open' || (active?.group === 'bank' && active.modeEditor)) {
+      if (
+        session.groupPicker === 'open' ||
+        session.choicePickerOpen ||
+        (active?.group === 'bank' && active.modeEditor)
+      ) {
         return session;
       }
       return { ...session, groupPicker: 'open' };
@@ -67,7 +80,28 @@ export function updateAccountAddSession(
       const drafts = session.drafts[group]
         ? session.drafts
         : { ...session.drafts, [group]: newAccountDraft(group, mainCode) };
-      return { group, groupPicker: 'closed', drafts };
+      return { ...session, group, groupPicker: 'closed', drafts };
+    }
+    case 'options.open':
+      if (
+        session.groupPicker !== 'closed' ||
+        session.choicePickerOpen ||
+        (active?.group !== 'wallet' && active?.group !== 'loan' && active?.group !== 'investment')
+      ) {
+        return session;
+      }
+      return { ...session, choicePickerOpen: true };
+    case 'options.close':
+      return session.choicePickerOpen ? { ...session, choicePickerOpen: false } : session;
+    case 'options.select': {
+      if (!session.choicePickerOpen || !active) return session;
+      const draft = updateAccountDraft(active, action.choice, currencies);
+      if (draft === active) return session;
+      return {
+        ...session,
+        choicePickerOpen: false,
+        drafts: { ...session.drafts, [draft.group]: draft },
+      };
     }
     case 'form': {
       if (!active || session.groupPicker !== 'closed' || active.group !== action.group) {
