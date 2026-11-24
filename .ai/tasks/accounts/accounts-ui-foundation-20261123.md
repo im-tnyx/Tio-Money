@@ -11,7 +11,7 @@
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
 | Latest audited base | `885c861d30d7ebc10cade3cf3f781ffb79732d4b` (main after PR #106) |
-| Latest audited HEAD | Investment Simple v1 tip on `feat/accounts-ui-foundation-20261123` (prior [`1e83255`](https://github.com/im-tnyx/Tio-Money/commit/1e83255e283d88f4c1687bdc3136a9c126a0e61f)) |
+| Latest audited HEAD | [`db8252d`](https://github.com/im-tnyx/Tio-Money/commit/db8252dab118f78dc4fa26271de891a227bb36fc) (Investment Simple v1) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
