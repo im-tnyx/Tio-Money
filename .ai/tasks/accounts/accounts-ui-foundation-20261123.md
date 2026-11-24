@@ -39,7 +39,7 @@ Source verified on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/
 | Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Description, Auto Pay |
 | Wallet | Account Name, Opening Amount/Currency, Description |
 | Loan (Borrowed) | Account Name, Loan Direction, EMI Amount (Optional), From / Payment, First EMI Date, More details (chevron; expands Loan Amount, Fees, Interest Rate — each with a ? info tip), Description, Auto Pay |
-| Loan (Given) | Account Name, Loan Direction, Amount Lent, Interest Rate, Start Date, Into / Collection (Collect Into; ? tip), More details (chevron; expands optional Installment with ? tip). No Fees row and no Auto Pay. |
+| Loan (Given) | Account Name, Loan Direction, Amount Lent, Interest Rate, Start Date, More details (chevron; expands Into / Collection with ? tip, then optional Installment with ? tip). No Fees row and no Auto Pay. |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
 
 **Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. Credit Card and Borrowed Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder; Given Loan uses **Into** above **Collection**. Both are non-editable and have no visible Unavailable or eligibility copy. Credit Card and Borrowed Loan alone show Auto Pay after Description, Off and disabled. Given Loan and Investment have neither Payment From nor Auto Pay. Switching Loan Direction clears monetary amount fields and closes More details / field info. Monthly card days begin at 01 and 15 with “of every month”. Borrowed Loan uses First EMI Date; Given Loan uses Start Date (same draft `startDate` key, default local Today). Next Due is not collected. The date control opens the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Valuation Date retains the existing editable day/month/year row.
@@ -594,5 +594,10 @@ The entries below record implementation history at their stated revisions; super
 - Preview change: Loan draft still shares keys; screen branches on `direction === 'given'`. Collect Into reuses the payment-row control with Into/Collection copy and a Collect Into tip. `loan.direction` clears principal/fees/rate/EMI, collapses More details, and closes field info. No finance writes, linking, or Save.
 - Local validation: `npx tsc --noEmit`; Prettier on touched files; `npx tsx --test tests/accounts/accounts-preview.test.ts` (41 pass). Independent review DEFERRED; device QA pending; merge authorization NOT_GRANTED.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`.
+
+### 2026-11-25 — Given Collect Into under More details
+
+- Owner direction: Collection has nothing to fill yet, so move Collect Into into the Given More details expand alongside optional Installment. Primary Given rows stay Amount Lent, Interest Rate, Start Date.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

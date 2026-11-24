@@ -468,7 +468,6 @@ function GroupFields({
                 {...loanDates.startDate}
               />
             ) : null}
-            <PaymentFromField mode="collect" fieldInfo={draftInput.fieldInfo} onAction={onAction} />
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t('accountLoanMoreDetails')}
@@ -483,15 +482,22 @@ function GroupFields({
               </AccountFormRow>
             </Pressable>
             {draft.moreDetailsOpen ? (
-              <DraftInput
-                field="emiAmount"
-                label="accountLoanInstallmentOptional"
-                info="emiAmount"
-                infoBody="accountLoanInstallmentInfo"
-                currencyControl={false}
-                value={draft.fields.emiAmount}
-                {...draftInput}
-              />
+              <>
+                <PaymentFromField
+                  mode="collect"
+                  fieldInfo={draftInput.fieldInfo}
+                  onAction={onAction}
+                />
+                <DraftInput
+                  field="emiAmount"
+                  label="accountLoanInstallmentOptional"
+                  info="emiAmount"
+                  infoBody="accountLoanInstallmentInfo"
+                  currencyControl={false}
+                  value={draft.fields.emiAmount}
+                  {...draftInput}
+                />
+              </>
             ) : null}
           </>
         );
