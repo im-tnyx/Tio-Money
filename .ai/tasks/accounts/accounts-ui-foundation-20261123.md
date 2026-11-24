@@ -11,7 +11,7 @@
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
 | Latest audited base | `885c861d30d7ebc10cade3cf3f781ffb79732d4b` (main after PR #106) |
-| Latest audited HEAD | [`c9ce31a`](https://github.com/im-tnyx/Tio-Money/commit/c9ce31a31ee2e619f8275f6f9396ea8de365beb4) (Loan Given v1) |
+| Latest audited HEAD | [`2b373b5`](https://github.com/im-tnyx/Tio-Money/commit/2b373b55d884f32b9df1c6f334accd74e7669173) (Loan Given v1) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
