@@ -88,9 +88,8 @@ export const wheelPickerTokens = {
   anglePerRow: 34,
   maximumAngle: 84,
   fadeDistance: 4,
-  sampleStep: 0.5,
+  sampleStep: 0.25,
   fadePower: 1.35,
-  minimumScale: 0.82,
   perspective: size.dp100 * 6,
 } as const;
 

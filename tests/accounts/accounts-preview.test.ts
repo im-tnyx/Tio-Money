@@ -32,6 +32,7 @@ import paymentModeIcons from '../../src/shared/assets/google-material-icons/paym
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
 import { wheelProjection, wheelProjectionSamples } from '../../src/shared/ui/wheel-projection';
+import { shouldAlignWheel } from '../../src/shared/ui/wheel-selection';
 import {
   calendarMonths,
   localCalendarToday,
@@ -777,6 +778,16 @@ test('wheel projection preserves the center and curves and fades symmetrically',
   assert.equal(opposite.rotateX, -far.rotateX);
   assert.equal(opposite.opacity, far.opacity);
   assert.equal(wheelProjection(4, rowHeight).opacity, 0);
+  assert.equal(wheelProjection(3, rowHeight).opacity, 0);
+  // Remove the native linear displacement: the center follows one fixed-radius arc.
+  let previousY = 0;
+  for (let distance = 0.125; distance <= 2; distance += 0.125) {
+    const projected = wheelProjection(distance, rowHeight);
+    const centerY = projected.translateY - distance * rowHeight;
+    assert.ok(centerY < previousY);
+    assert.ok(Math.abs(centerY - previousY) <= rowHeight * 0.125);
+    previousY = centerY;
+  }
 
   const samples = wheelProjectionSamples(10, rowHeight);
   assert.ok(samples.some((sample) => sample.offset === 10 * rowHeight && sample.opacity === 1));
@@ -785,6 +796,13 @@ test('wheel projection preserves the center and curves and fades symmetrically',
     const current = samples[index];
     assert.ok(previous && current && current.offset > previous.offset);
   }
+});
+
+test('wheel controlled echoes cannot interrupt native motion', () => {
+  assert.equal(shouldAlignWheel(5, 5, false, false), false);
+  assert.equal(shouldAlignWheel(4, 5, true, false), false);
+  assert.equal(shouldAlignWheel(4, 5, false, true), false);
+  assert.equal(shouldAlignWheel(4, 5, false, false), true);
 });
 
 test('Loan wheels use local Today and retain live valid dates after dismissal', () => {
@@ -840,8 +858,12 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.equal(field.match(/<AppWheelPicker/g)?.length, 3);
   assert.doesNotMatch(field, /ActionButton|TextInput|AppBottomSheet|onSubmit|onSave/);
   assert.match(wheel, /snapToInterval=\{rowHeight\}/);
-  assert.match(wheel, /onScroll=\{/);
-  assert.match(wheel, /offset\.setValue\(event\.nativeEvent\.contentOffset\.y\)/);
+  assert.match(wheel, /<Animated\.ScrollView/);
+  assert.match(wheel, /onScroll=\{onScroll\}/);
+  assert.match(wheel, /Animated\.event/);
+  assert.match(wheel, /useNativeDriver: Platform\.OS !== 'web'/);
+  assert.doesNotMatch(wheel, /offset\.setValue\(event\.nativeEvent\.contentOffset\.y\)/);
+  assert.match(wheel, /shouldAlignWheel\(selected, lastIndex\.current, interacting\.current, echoed\)/);
   assert.match(wheel, /rotateX: offset\.interpolate/);
   assert.match(wheel, /useReducedMotion\(\)/);
   assert.doesNotMatch(wheel, /contentOffset=\{initialOffset\.current\}/);
