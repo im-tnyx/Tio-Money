@@ -118,5 +118,5 @@ Symbols Outlined `info` glyph at weight **200** and 24px optical size from
 (`info_wght200_24px.svg`). Owner reference is the Google Fonts
 [info](https://fonts.google.com/icons?selected=Material+Symbols+Outlined:info:FILL@0;wght@400;GRAD@0;opsz@24)
 name; source weight stays **200** per existing Accounts icon practice. Add
-Account Loan More details captions render it at half the text-field icon size
-via `SvgXml`. The existing [Apache 2.0 license](./LICENSE.txt) applies.
+Account Loan More details captions render it at **16 dp** via `SvgXml`. The
+existing [Apache 2.0 license](./LICENSE.txt) applies.
