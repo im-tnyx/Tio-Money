@@ -67,7 +67,8 @@ interface CardFields extends CommonFields {
 
 interface LoanFields extends CommonFields {
   readonly originalPrincipal: string;
-  readonly outstandingPrincipal: string;
+  readonly fees: string;
+  readonly interestRate: string;
   readonly emiAmount: string;
   readonly startDate: string;
 }
@@ -93,7 +94,10 @@ export type AccountDraft =
     })
   | Draft<'credit-card', CardFields>
   | Draft<'wallet', OpeningAmountFields>
-  | (Draft<'loan', LoanFields> & { readonly direction: LoanDirection })
+  | (Draft<'loan', LoanFields> & {
+      readonly direction: LoanDirection;
+      readonly moreDetailsOpen: boolean;
+    })
   | (Draft<'investment', InvestmentFields> & { readonly investmentKind: InvestmentKind });
 
 type GroupFields<Group extends PreviewGroup> = Extract<AccountDraft, { group: Group }>['fields'];
@@ -163,11 +167,13 @@ export function newAccountDraft(
         fields: {
           ...common,
           originalPrincipal: '',
-          outstandingPrincipal: '',
+          fees: '',
+          interestRate: '',
           emiAmount: '',
           startDate: today,
         },
         direction: 'borrowed',
+        moreDetailsOpen: false,
       };
     case 'investment':
       return {
@@ -199,6 +205,7 @@ export type AccountFormAction =
       readonly value: string;
     }
   | { readonly type: 'currency'; readonly value: CurrencyCode }
+  | { readonly type: 'moreDetails.toggle' }
   | AccountChoiceAction
   | PaymentModeAction;
 
@@ -222,7 +229,7 @@ function changeCurrency(draft: AccountDraft, currency: CurrencyCode): AccountDra
       return {
         ...draft,
         currency,
-        fields: { ...draft.fields, originalPrincipal: '', outstandingPrincipal: '', emiAmount: '' },
+        fields: { ...draft.fields, originalPrincipal: '', fees: '', emiAmount: '' },
       };
     case 'investment':
       return { ...draft, currency, fields: { ...draft.fields, investedCost: '', valuation: '' } };
@@ -357,6 +364,8 @@ export function updateAccountDraft(
         : draft;
     case 'loan.direction':
       return draft.group === 'loan' ? { ...draft, direction: action.value } : draft;
+    case 'moreDetails.toggle':
+      return draft.group === 'loan' ? { ...draft, moreDetailsOpen: !draft.moreDetailsOpen } : draft;
     case 'investment.kind':
       return draft.group === 'investment' ? { ...draft, investmentKind: action.value } : draft;
     default:

@@ -53,6 +53,7 @@
 - [2026-11-24 docs provenance alignment](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--align-task-provenance-with-live-head) refreshes the task header and Current UI snapshot to live HEAD `9eae921` / base `2698fb3` without changing application source.
 - [2026-11-24 Loan First EMI Date only](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--loan-first-emi-date-only-borrowed-first) keeps the Loan layout, labels First EMI Date, and removes Next Due for the Borrowed-first preview.
 - [2026-11-24 reconciliation after PR #106](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--reconcile-with-main-after-pr-106) integrates main `885c861` (Codespaces preview eligibility gate) into Draft #97 and preserves Accounts plus preview-security histories.
+- [2026-11-24 Loan More details](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--loan-more-details-remove-outstanding) removes Outstanding and collapses Loan Amount, Fees and Interest Rate behind a More details chevron.
 
 ## 2026-11-24 — Preview workflow privilege boundary (RFC #105)
 

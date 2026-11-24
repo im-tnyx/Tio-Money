@@ -38,7 +38,7 @@ Source verified at Accounts preview First EMI Date fix [`7c805e5`](https://githu
 | Bank Account | Account Name, Opening Amount, Description, Linked Payment Modes |
 | Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Description, Auto Pay |
 | Wallet | Account Name, Opening Amount/Currency, Description |
-| Loan | Account Name, Loan Direction, Original Principal, Opening Outstanding Principal, EMI Amount (Optional), From / Payment, First EMI Date, Description, Auto Pay |
+| Loan | Account Name, Loan Direction, EMI Amount (Optional), From / Payment, First EMI Date, More details (chevron; expands Loan Amount, Fees, Interest Rate), Description, Auto Pay |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
 
 **Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card and Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Credit Card and Loan alone show Auto Pay after Description, Off and disabled. Investment has neither Payment From nor Auto Pay. Monthly card days begin at 01 and 15 with “of every month”. Loan uses a single First EMI Date (defaults to local Today); Next Due is not collected because it can be derived later from First EMI and today. The First EMI control opens the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Valuation Date retains the existing editable day/month/year row.
@@ -576,5 +576,10 @@ The entries below record implementation history at their stated revisions; super
 - Owner requested safe reconciliation: Draft #97 was four commits behind main. Cursor Cloud (Composer) merges main [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/885c861d30d7ebc10cade3cf3f781ffb79732d4b) (PR #106 Codespaces preview eligibility gate) into `feat/accounts-ui-foundation-20261123` at prior HEAD `7c805e55d90a73c7b08c1383ecac5857630b0d3d` with a normal two-parent merge. No force-push.
 - The only conflict was `.ai/current.md`. Accounts UI history and the RFC #105 preview-privilege index entry are both retained. Accounts application source for First EMI Date and finance gates is unchanged by the merge; preview workflow files match main.
 - Exact-HEAD CI required after publish. Independent review DEFERRED; device QA pending; merge authorization NOT_GRANTED.
+
+### 2026-11-24 — Loan More details; remove Outstanding
+
+- Owner direction: remove Opening Outstanding Principal; keep the Loan layout and put remaining optional amount details behind a More details row with the shared right/down chevron. Default collapsed. Expanded fields: Loan Amount, Fees, Interest Rate. Primary remain EMI, Payment, First EMI Date. Given still shares this Loan form for now. No outstanding calculation or finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; independent review DEFERRED; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
