@@ -39,8 +39,10 @@ import {
 } from '../../src/shared/ui/calendar-date';
 import {
   buttonTokens,
+  datePickerTokens,
   navigationTokens,
   textFieldTokens,
+  wheelPickerTokens,
 } from '../../src/shared/theme/component-tokens';
 import { space } from '../../src/shared/theme/tokens';
 
@@ -753,7 +755,10 @@ test('Investment keeps editable day, month and year on the same date row', () =>
 });
 
 test('wheel projection preserves the center and curves and fades symmetrically', () => {
-  const rowHeight = 48;
+  const { rowHeight, visibleRows } = datePickerTokens;
+  assert.equal(rowHeight, 32);
+  assert.equal(rowHeight * visibleRows, 160);
+  assert.equal(wheelPickerTokens.anglePerRow, 34);
   const center = wheelProjection(0, rowHeight);
   const near = wheelProjection(1, rowHeight);
   const far = wheelProjection(3, rowHeight);
@@ -762,6 +767,8 @@ test('wheel projection preserves the center and curves and fades symmetrically',
   assert.deepEqual(center, { translateY: 0, rotateX: 0, opacity: 1, scale: 1 });
   assert.ok(near.opacity < center.opacity && far.opacity < near.opacity);
   assert.ok(far.scale < near.scale && near.scale < center.scale);
+  assert.equal(near.rotateX, 34);
+  assert.equal(wheelProjection(2, rowHeight).rotateX, 68);
   assert.ok(far.rotateX > near.rotateX && far.rotateX < 90);
   assert.ok(far.translateY > near.translateY && near.translateY > 0);
   assert.equal(opposite.translateY, -far.translateY);

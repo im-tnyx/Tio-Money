@@ -296,12 +296,7 @@ function GroupFields({
   onAction,
 }: Pick<
   AddAccountViewModel,
-  | 'draft'
-  | 'currencySymbol'
-  | 'currencyChoices'
-  | 'showWalletFunding'
-  | 'loanDates'
-  | 'onAction'
+  'draft' | 'currencySymbol' | 'currencyChoices' | 'showWalletFunding' | 'loanDates' | 'onAction'
 >) {
   const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   switch (draft.group) {
