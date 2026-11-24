@@ -41,7 +41,9 @@ export function encodeCalendarDate({ year, month, day }: CalendarDate): string {
 
 export function parseCalendarDate(value: string): CalendarDate | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
-  const [year, month, day] = value.split('-').map(Number);
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(5, 7));
+  const day = Number(value.slice(8, 10));
   if (
     year < calendarYearMin ||
     year > calendarYearMax ||

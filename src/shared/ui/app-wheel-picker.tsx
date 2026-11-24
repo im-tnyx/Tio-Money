@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ComponentRef } from 'react';
 import {
   Platform,
   Pressable,
@@ -36,7 +36,7 @@ export function AppWheelPicker({
   readonly flex?: number;
 }) {
   const theme = useAppTheme();
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const selected = Math.max(0, options.findIndex((option) => option.value === value));
   const lastIndex = useRef(selected);
   const dragging = useRef(false);

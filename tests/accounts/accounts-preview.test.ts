@@ -756,6 +756,10 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.equal(localCalendarToday(new Date(2024, 0, 31, 23, 59)), today);
   assert.equal(calendarMonths[8], 'Sep');
   assert.equal(parseCalendarDate('2025-02-29'), null);
+  assert.deepEqual(parseCalendarDate('2024-02-29'), { year: 2024, month: 2, day: 29 });
+  for (const invalid of ['2024-2-29', '2024-02', '2024-00-01', '2024-04-31', '2101-01-01']) {
+    assert.equal(parseCalendarDate(invalid), null);
+  }
   const update = (session: AccountAddSession, action: AccountAddAction) =>
     updateAccountAddSession(session, action, 'INR', currencies, today);
   let session = update(newAccountAddSession(true), { type: 'group.select', group: 'loan' });
