@@ -242,7 +242,7 @@ function AccountFields({
       ) : null}
       <GroupFields draft={draft} showWalletFunding={showWalletFunding} {...inputProps} />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
-      {draft.group === 'credit-card' ? (
+      {draft.group === 'credit-card' || draft.group === 'loan' ? (
         <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
           <Switch
             accessibilityRole="switch"
@@ -260,6 +260,23 @@ function AccountFields({
         <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
       ) : null}
     </>
+  );
+}
+
+function PaymentFromField() {
+  return (
+    <AccountField
+      label="accountPayFromCaption"
+      appearance="borderless"
+      textSize="title"
+      leading={<AccountFormIcon name="card" />}
+      placeholder={t('accountPayFromPlaceholder')}
+      accessibilityLabel={t('accountPayFrom')}
+      accessibilityState={{ disabled: true }}
+      editable={false}
+      value=""
+      textAlign="left"
+    />
   );
 }
 
@@ -285,18 +302,7 @@ function GroupFields({
         <>
           <DraftInput field="outstanding" value={draft.fields.outstanding} {...inputProps} />
           <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...inputProps} />
-          <AccountField
-            label="accountPayFromCaption"
-            appearance="borderless"
-            textSize="title"
-            leading={<AccountFormIcon name="card" />}
-            placeholder={t('accountPayFromPlaceholder')}
-            accessibilityLabel={t('accountPayFrom')}
-            accessibilityState={{ disabled: true }}
-            editable={false}
-            value=""
-            textAlign="left"
-          />
+          <PaymentFromField />
           <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
         </>
@@ -330,6 +336,7 @@ function GroupFields({
             {...inputProps}
           />
           <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...inputProps} />
+          <PaymentFromField />
           <DraftInput field="startDate" value={draft.fields.startDate} {...inputProps} />
           <DraftInput field="nextDueDate" value={draft.fields.nextDueDate} {...inputProps} />
         </>

@@ -11,7 +11,7 @@
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
 | Latest audited base | `6468b62786d56edb1a70b7a5c90146e17566e23b` |
-| Latest audited UI source HEAD | `149c48b32ce503a6646341bfba6755254ce44f8c` |
+| Latest audited starting HEAD | `eebbd8e8f1aa717060438a3b568e1a6cf7e7a866` (Loan payment controls checkpoint below) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -26,7 +26,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 
 ## Current UI snapshot (source verified 2026-11-24)
 
-Source reference: [`149c48b`](https://github.com/im-tnyx/Tio-Money/commit/149c48b32ce503a6646341bfba6755254ce44f8c), base `6468b62786d56edb1a70b7a5c90146e17566e23b`. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
+Source baseline: [`eebbd8e`](https://github.com/im-tnyx/Tio-Money/commit/eebbd8e8f1aa717060438a3b568e1a6cf7e7a866), plus the [Loan-only payment controls checkpoint](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130036055) in this revision; base `6468b62786d56edb1a70b7a5c90146e17566e23b`. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
 
 **Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Account Group row can reopen it. Six built-in groups have forms; Insurance is informational and custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
 
@@ -38,10 +38,10 @@ Source reference: [`149c48b`](https://github.com/im-tnyx/Tio-Money/commit/149c48
 | Bank Account | Account Name, Opening Amount, Description, Linked Payment Modes |
 | Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Description, Auto Pay |
 | Wallet | Account Name, Wallet Type, Provider, Opening Amount (funded) or unavailable Linked Bank (bank-linked reference), Description |
-| Loan | Account Name, Loan Direction, Original Principal, Opening Outstanding Principal, EMI Amount (Optional), Start Date, Next Due Date, Description |
+| Loan | Account Name, Loan Direction, Original Principal, Opening Outstanding Principal, EMI Amount (Optional), From / Payment, Start Date, Next Due Date, Description, Auto Pay |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
 
-**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card Payment row has a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Auto Pay is Off and disabled. Monthly card days begin at 01 and 15 with “of every month”; other date rows use independently editable day/month/year parts.
+**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card and Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Credit Card and Loan alone show Auto Pay after Description, Off and disabled. Investment has neither Payment From nor Auto Pay. Monthly card days begin at 01 and 15 with “of every month”; other date rows use independently editable day/month/year parts.
 
 **Selectors.** Wallet Type, Loan Direction and Investment Type open an anchored, rounded popup with a selected checkmark, not a bottom sheet. Outside tap or Back dismisses without selecting. Account Group and the Bank mode editor retain their bottom-sheet flows. Main currency is the initial draft currency; if Sub Currencies are configured, one amount row per eligible form shows horizontally scrollable symbol choices in configured order with a tinted selected state and checked radio accessibility. Currency selection is hidden without Subs or for a bank-linked Wallet. Currency changes clear monetary fields, including EMI, without clearing other draft data. Returning to a funded Wallet retains its funded draft.
 
@@ -434,5 +434,10 @@ The entries below record implementation history at their stated revisions; super
 - [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7129981723) records the owner-directed documentation-only checkpoint under RFC #96. ChatGPT GPT-6.2 inspected the current UI source at `149c48b32ce503a6646341bfba6755254ce44f8c`, base `6468b62786d56edb1a70b7a5c90146e17566e23b`, and reconciled the current scope, field order, tokens, preview boundaries and task metadata. The preceding UI commit is the source reference; old checkpoint text is retained as history.
 - Exact source reference workflow snapshot at audit: [AI governance checks](https://github.com/im-tnyx/Tio-Money/actions/runs/45383245822): success; [Phase 0 checks](https://github.com/im-tnyx/Tio-Money/actions/runs/45383245765): success. This is not evidence for the subsequent documentation commit. Local validation NOT_RUN (connector-only); independent review DEFERRED and device QA pending.
 - Changed paths: this task record, `.ai/current.md` and `docs/product/ACCOUNT-GROUPS-SPEC.md` only. PR summary reconciled separately; no application code, tests, dependencies or financial policies changed. Fresh exact-HEAD CI required. Rollback is a scoped docs revert. Merge authorization NOT_GRANTED.
+
+### 2026-11-24 — Loan-only payment controls
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130036055) records the latest owner correction: Loan, not Investment, receives the shared From / Payment field after EMI Amount and Auto Pay after Description. Credit Card stays visually unchanged. Both Loan directions use the same non-editable preview. No real payment, tracking, reminders, selection or finance persistence. Agent ChatGPT GPT-6.2; starting HEAD `eebbd8e8f1aa717060438a3b568e1a6cf7e7a866`, base `6468b62786d56edb1a70b7a5c90146e17566e23b`.
+- Changed paths: `src/features/accounts/add-account-screen.tsx`, `tests/accounts/accounts-preview.test.ts`, `docs/product/ACCOUNT-GROUPS-SPEC.md`, this task record and `.ai/current.md`. Connector-only source inspection; local typecheck, lint, format, tests and device QA NOT_RUN. Independent review DEFERRED. Fresh exact-HEAD CI required. No merge authorization; rollback by scoped revert.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

@@ -576,7 +576,7 @@ test('a Bank-linked Wallet has no currency choice and retains the funded draft w
   );
 });
 
-test('group fields render from the correct typed draft and Card keeps unavailable Auto Pay controls', () => {
+test('group fields render typed drafts and Card and Loan share unavailable payment controls', () => {
   const expectedFields = {
     cash: ['openingAmount'],
     bank: ['openingAmount'],
@@ -614,13 +614,20 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(en.accountPayFromCaption, 'From');
   assert.equal(en.accountPayFromPlaceholder, 'Payment');
   assert.match(
-    groupFields,
+    screen,
     /<AccountField\s+label="accountPayFromCaption"\s+appearance="borderless"\s+textSize="title"/,
   );
-  const paymentField = groupFields.slice(
-    groupFields.indexOf('label="accountPayFromCaption"'),
-    groupFields.indexOf('field="statementDate"'),
+  const paymentField = screen.slice(
+    screen.indexOf('function PaymentFromField'),
+    screen.indexOf('function GroupFields'),
   );
+  assert.equal(screen.match(/<PaymentFromField \/>/g)?.length, 2);
+  assert.match(groupFields, /field="creditLimit"[^>]*\/>\s*<PaymentFromField \/>/);
+  assert.match(groupFields, /<PaymentFromField \/>\s*<DraftInput field="statementDate"/);
+  assert.match(groupFields, /field="emiAmount"[^>]*\/>\s*<PaymentFromField \/>/);
+  assert.match(groupFields, /<PaymentFromField \/>\s*<DraftInput field="startDate"/);
+  const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
+  assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
   assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);
   assert.match(paymentField, /accessibilityLabel=\{t\('accountPayFrom'\)\}/);
   assert.match(paymentField, /accessibilityState=\{\{ disabled: true \}\}/);
@@ -634,8 +641,9 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
   assert.match(
     screen,
-    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \? \(\s*<AccountFormRow label="accountAutoPay"[^>]*>[\s\S]*?<Switch/,
+    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \|\| draft.group === 'loan' \? \(\s*<AccountFormRow label="accountAutoPay"[^>]*>[\s\S]*?<Switch/,
   );
+  assert.equal(screen.match(/<Switch\s/g)?.length, 1);
   const autoPay = screen.match(/<Switch\s[\s\S]*?\/>/)?.[0];
   assert.ok(autoPay);
   assert.match(autoPay, /accessibilityHint=\{t\('accountAutoPayUnavailable'\)\}/);
