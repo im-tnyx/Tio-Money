@@ -129,7 +129,7 @@ export function updateAccountAddSession(
         session.groupPicker !== 'closed' ||
         session.choicePickerOpen ||
         session.datePicker ||
-        (active?.group !== 'loan' && active?.group !== 'investment')
+        active?.group !== 'loan'
       ) {
         return session;
       }
@@ -152,7 +152,7 @@ export function updateAccountAddSession(
     }
     case 'date.open': {
       if (
-        active?.group !== 'loan' ||
+        (active?.group !== 'loan' && active?.group !== 'investment') ||
         session.groupPicker !== 'closed' ||
         session.choicePickerOpen ||
         session.datePicker
@@ -178,7 +178,12 @@ export function updateAccountAddSession(
       return session.datePicker?.id === action.id ? { ...session, datePicker: null } : session;
     case 'date.change': {
       const picker = session.datePicker;
-      if (active?.group !== 'loan' || picker?.id !== action.id) return session;
+      if (
+        (active?.group !== 'loan' && active?.group !== 'investment') ||
+        picker?.id !== action.id
+      ) {
+        return session;
+      }
       const date = parseCalendarDate(active.fields[picker.field]);
       if (!date) return session;
       const next = selectCalendarWheel(date, action.part, action.value);
@@ -196,7 +201,7 @@ export function updateAccountAddSession(
           dayIndex: nextDayWheelIndex(picker.dayIndex, date, next, action.part),
           monthIndex: nextMonthWheelIndex(picker.monthIndex, date, next, action.part),
         },
-        drafts: { ...session.drafts, loan: draft },
+        drafts: { ...session.drafts, [draft.group]: draft },
       };
     }
     case 'form': {

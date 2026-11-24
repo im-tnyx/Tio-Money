@@ -21,7 +21,6 @@ import {
 import {
   accountCurrencyChoices,
   draftCurrencies,
-  investmentKinds,
   isPreviewGroup,
   loanDirections,
   paymentModeAvailability,
@@ -33,14 +32,6 @@ import {
 } from './account-form-contract';
 
 const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
-const investmentLabels = {
-  stocks: 'accountInvestmentStocks',
-  mutualFunds: 'accountInvestmentMutualFunds',
-  fixedDeposit: 'accountInvestmentFixedDeposit',
-  gold: 'accountInvestmentGold',
-  ppf: 'accountInvestmentPpf',
-  other: 'accountInvestmentOther',
-} as const;
 
 function draftChoice(
   draft: AccountDraft,
@@ -72,29 +63,11 @@ function draftChoice(
     };
   }
 
-  switch (draft.group) {
-    case 'loan':
-      return choice(
-        'accountLoanDirection',
-        loanDirections,
-        loanLabels,
-        draft.direction,
-        (value) => ({
-          type: 'loan.direction',
-          value,
-        }),
-      );
-    case 'investment':
-      return choice(
-        'accountInvestmentType',
-        investmentKinds,
-        investmentLabels,
-        draft.investmentKind,
-        (value) => ({ type: 'investment.kind', value }),
-      );
-    default:
-      return null;
-  }
+  if (draft.group !== 'loan') return null;
+  return choice('accountLoanDirection', loanDirections, loanLabels, draft.direction, (value) => ({
+    type: 'loan.direction',
+    value,
+  }));
 }
 
 export function useAddAccountViewModel(): AddAccountScreenViewModel {
@@ -195,7 +168,7 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
           // RFC #98: real account projection and link policy are not enabled yet.
           paymentSource: null,
           loanDates:
-            draft.group === 'loan'
+            draft.group === 'loan' || draft.group === 'investment'
               ? {
                   startDate: loanDate('startDate', draft.fields.startDate),
                 }

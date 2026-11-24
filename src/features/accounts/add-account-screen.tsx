@@ -58,8 +58,7 @@ const fieldSpecs = {
   emiAmount: { label: 'accountLoanEmiAmount', money: true, currencyControl: true },
   startDate: { label: 'accountLoanFirstEmiDate', date: true },
   investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
-  valuation: { label: 'accountInvestmentValuation', money: true },
-  valuationDate: { label: 'accountInvestmentValuationDate', date: true },
+  tenure: { label: 'accountInvestmentTenure', months: true },
 } satisfies Record<
   DraftField,
   {
@@ -67,6 +66,7 @@ const fieldSpecs = {
     money?: boolean;
     date?: boolean;
     monthly?: boolean;
+    months?: boolean;
     currencyControl?: boolean;
     info?: LoanFieldInfo;
   }
@@ -150,6 +150,7 @@ function DraftInput({
   const showCurrency = (currencyControl ?? 'currencyControl' in spec) && currencyChoices !== null;
   const date = 'date' in spec;
   const monthly = 'monthly' in spec;
+  const months = 'months' in spec;
   const calendar = isCalendarDateField(field);
   const parts = calendar ? calendarDateParts(value) : null;
   const fieldLabel = label ?? spec.label;
@@ -172,7 +173,7 @@ function DraftInput({
   return (
     <AccountField
       appearance="borderless"
-      textSize={field === 'name' || money || date ? 'title' : 'section'}
+      textSize={field === 'name' || money || date || months ? 'title' : 'section'}
       label={fieldLabel}
       accessibilityLabel={calendar ? t(fieldLabel) + ', ' + t('accountDateDay') : t(fieldLabel)}
       labelAsPlaceholder={field === 'name' || description}
@@ -200,11 +201,15 @@ function DraftInput({
         ) : undefined
       }
       value={parts?.day ?? value}
-      keyboardType={date ? 'number-pad' : money ? 'decimal-pad' : undefined}
-      maxLength={date ? 2 : undefined}
+      keyboardType={date || months ? 'number-pad' : money ? 'decimal-pad' : undefined}
+      maxLength={date ? 2 : months ? 3 : undefined}
       suffix={
         monthly ? (
           <AppText style={{ includeFontPadding: false }}>{t('accountCardMonthlySuffix')}</AppText>
+        ) : months ? (
+          <AppText style={{ includeFontPadding: false }}>
+            {t('accountInvestmentTenureMonths')}
+          </AppText>
         ) : calendar && parts ? (
           <CalendarDateMonthAndYear
             label={fieldLabel}
@@ -215,7 +220,7 @@ function DraftInput({
           />
         ) : undefined
       }
-      placeholder={calendar ? t('accountDateDayPlaceholder') : money ? '0' : undefined}
+      placeholder={calendar ? t('accountDateDayPlaceholder') : money || months ? '0' : undefined}
       textAlign="left"
       multiline={description}
       returnKeyType={description ? 'done' : undefined}
@@ -514,11 +519,14 @@ function GroupFields({
       return (
         <>
           <DraftInput field="investedCost" value={draft.fields.investedCost} {...draftInput} />
-          <DraftInput field="valuation" value={draft.fields.valuation} {...draftInput} />
-          <DraftInput field="valuationDate" value={draft.fields.valuationDate} {...draftInput} />
-          <AppText variant="caption" muted>
-            {t('accountInvestmentValuationHint')}
-          </AppText>
+          {loanDates ? (
+            <AppDateField
+              label={t('accountInvestmentStartDate')}
+              leading={<AccountFormIcon name="calendar" />}
+              {...loanDates.startDate}
+            />
+          ) : null}
+          <DraftInput field="tenure" value={draft.fields.tenure} {...draftInput} />
         </>
       );
   }
