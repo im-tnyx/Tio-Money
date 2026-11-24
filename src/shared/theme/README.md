@@ -723,6 +723,11 @@ only values and intents. Caller domain validation owns the max 40-character
 limit and duplicate handling. No `TextInput`-specific visual constants or
 local modal/button code are allowed in this screen.
 
+## Add Account field captions — PR #97 (2026-11-24)
+
+`textFieldTokens.captionGap` in [`component-tokens.ts`](component-tokens.ts) sets
+the vertical gap between an Add Account caption and its input row to 0 dp.
+
 ## Add Account option popup — PR #97 (2026-11-24)
 
 Wallet Type, Investment Type and Loan Direction share

@@ -737,7 +737,7 @@ test('small account captions align above their inputs while icons align beside t
   );
   assert.equal(space.md, 16);
   assert.equal(space.sm, 12);
-  assert.equal(textFieldTokens.captionGap, 2);
+  assert.equal(textFieldTokens.captionGap, 0);
   assert.match(row, /const rowHeight = minimumHeight \?\? theme.textField.minimumHeight/);
   assert.match(row, /flexDirection: 'row',\s+alignItems: 'center'/);
   assert.match(
