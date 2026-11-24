@@ -729,6 +729,11 @@ The decorative link illustration is 48 dp through `iconTokens.emptyStateSize`
 in [`component-tokens.ts`](component-tokens.ts). The icon appears under Linked
 Payment Modes while the Bank draft has no modes.
 
+The Linked Payment Modes editor uses 14 sp compact option labels through
+`segmentedControlTokens.compactOptionLabelSize` and the shared typography line
+height ratio. Pill minimum height remains 24 dp and touch height 48 dp. Global
+caption typography is unchanged.
+
 ## Add Account field captions — PR #97 (2026-11-24)
 
 `textFieldTokens.captionGap` in [`component-tokens.ts`](component-tokens.ts) sets

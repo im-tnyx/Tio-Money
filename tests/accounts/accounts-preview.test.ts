@@ -56,6 +56,7 @@ import {
   buttonTokens,
   datePickerTokens,
   navigationTokens,
+  segmentedControlTokens,
   textFieldTokens,
   wheelPickerTokens,
 } from '../../src/shared/theme/component-tokens';
@@ -1119,6 +1120,9 @@ test('payment mode editor uses compact outlined radios in one horizontal row', (
   assert.match(editor, /const disabled = !availableModeTypes.includes\(value\)/);
   assert.match(choices, /selected && !compact \?/);
   assert.match(choices, /compactOptionHeight/);
+  assert.match(choices, /fontSize: theme.segmentedControl.compactOptionLabelSize/);
+  assert.equal(segmentedControlTokens.compactOptionLabelSize, 14);
+  assert.equal(segmentedControlTokens.compactOptionHeight, 24);
   assert.match(choices, /borderColor: selected \? theme.colors.primaryText : theme.colors.border/);
   assert.match(choices, /muted=\{disabled \|\| !selected\}/);
   assert.match(compactRow, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);

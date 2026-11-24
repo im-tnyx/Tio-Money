@@ -359,7 +359,17 @@ export function AccountChoices({
               justifyContent: 'center',
             }}
           >
-            <AppText variant="caption" muted={disabled || !selected} numberOfLines={1}>
+            <AppText
+              variant="caption"
+              muted={disabled || !selected}
+              numberOfLines={1}
+              style={{
+                fontSize: theme.segmentedControl.compactOptionLabelSize,
+                lineHeight: Math.ceil(
+                  theme.segmentedControl.compactOptionLabelSize * theme.typography.relativeLineHeight,
+                ),
+              }}
+            >
               {option.label}
             </AppText>
           </View>
