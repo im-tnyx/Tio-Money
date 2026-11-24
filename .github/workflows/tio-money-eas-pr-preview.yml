@@ -311,13 +311,19 @@ jobs:
               exit 1
             fi
           fi
-          for attempt in $(seq 1 120); do
-            gh api "/user/codespaces/${codespace}" > "$selected_json"
+          deadline=$((SECONDS + 600))
+          while (( SECONDS < deadline )); do
+            remaining=$((deadline - SECONDS))
+            if ! timeout --kill-after=1s "${remaining}s" gh api "/user/codespaces/${codespace}" > "$selected_json"; then
+              if (( SECONDS >= deadline )); then break; fi
+              echo "::error::Dedicated preview Codespace availability check failed."
+              exit 1
+            fi
             # Re-check identity after waking and immediately before SSH.
             node .github/scripts/verify-pr-preview-codespace.mjs \
               "$selected_json" "$PREFERRED_CODESPACE" "$PREFERRED_CODESPACE_ID" >/dev/null
             state="$(jq -r '.state // empty' "$selected_json")"
-            if [[ "$state" == "Available" ]]; then
+            if [[ "$state" == "Available" ]] && (( SECONDS < deadline )); then
               printf 'name=%s\n' "$codespace" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -325,9 +331,10 @@ jobs:
               echo "::error::Codespace was deleted."
               exit 1
             fi
-            sleep 5
+            remaining=$((deadline - SECONDS))
+            if (( remaining > 0 )); then sleep "$((remaining < 5 ? remaining : 5))"; fi
           done
-          echo "::error::Dedicated preview Codespace not available after 10 minutes."
+          echo "::error title=START_TIMEOUT::Dedicated preview Codespace not available after 10 minutes of verified polling."
           exit 1
       - name: Reuse an already healthy exact-SHA preview
         id: existing

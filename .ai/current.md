@@ -1,6 +1,7 @@
 ## 2026-11-23 — Expo preview self-healing and Draft OTA (RFC #102)
 
 - Owner-authorized scoped implementation on `feat/expo-preview-self-healing`, tracked in [RFC #102](https://github.com/im-tnyx/Tio-Money/issues/102) and the [task checkpoint](tasks/preview/expo-preview-self-healing-20261123.md). Includes verified manual Metro recovery, display name `TIO MONEY EXPO PR PREVIEW`, and per-PR Draft OTA that stays off shared channels. Live run, device loading and merge require separate authorization.
+- Startup follow-up in [Draft PR #103](https://github.com/im-tnyx/Tio-Money/pull/103) hardens the Codespace polling deadline and requires an unchanged private record for stale cleanup under the existing startup lock. See the [follow-up checkpoint](tasks/preview/expo-preview-self-healing-20261123.md#2026-11-24--codespace-startup-deadline-and-stale-ownership-handoff).
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

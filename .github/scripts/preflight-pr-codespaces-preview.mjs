@@ -149,12 +149,13 @@ export function classifyRecord(record, leader, group, listener, projectRoot = ro
   if (leader && leader.startTicks !== record.startTicks) {
     throw Error('PID_REUSED: Managed Metro PID now identifies another process. Inspect the private preview state.');
   }
-  if (!live(leader)) {
+  if (!leader) {
     if (group.size || listener !== 'EMPTY') {
       throw Error('STALE_STATE_OCCUPIED: Managed Metro leader is gone but its group or port remains occupied. Inspect the dedicated Codespace.');
     }
     return 'STALE_RECORD';
   }
+  if (!live(leader)) throw Error('PID_PRESENT: Managed Metro PID has not exited from the process table.');
   if (!ownedMetro(record, leader, projectRoot) || leader.group !== record.pid ||
       leader.session !== record.pid || leader.uid !== uid) {
     throw Error('OWNERSHIP_UNKNOWN: Managed Metro command, user, directory or session could not be verified.');
@@ -167,14 +168,10 @@ export function classifyRecord(record, leader, group, listener, projectRoot = ro
 }
 
 export function inspectManagedMetro(record, projectRoot = root) {
-  if (record.bootId && record.bootId !== currentBootId()) {
-    const group = metroGroup(record.pid);
-    if (group.size || listeners(record.port ?? 8081).size) {
-      throw Error('STALE_STATE_OCCUPIED: Previous-boot Metro record conflicts with current group or port.');
-    }
-    return { state: 'STALE_RECORD', listener: 'EMPTY', group };
-  }
   const stat = processStat(record.pid);
+  if (stat && record.bootId && record.bootId !== currentBootId()) {
+    throw Error('PID_REUSED: Previous-boot Metro PID is present in the current process table.');
+  }
   const leader = live(stat) ? processIdentity(record.pid) : stat;
   const group = metroGroup(record.pid);
   if (live(leader) && leader.group === record.pid && leader.session === record.pid &&
@@ -204,33 +201,48 @@ async function freePort(port = 8081) {
   });
 }
 
-export function readManagedRecord(recordPath) {
+function recordStamp(stat) {
+  return [stat.dev, stat.ino, stat.size, stat.uid, stat.mode, stat.mtimeNs, stat.ctimeNs].join(':');
+}
+
+export function readManagedRecordSnapshot(recordPath) {
   if (process.platform !== 'linux') throw Error('Linux Codespace required.');
   try {
-    const initial = lstatSync(recordPath);
+    const initial = lstatSync(recordPath, { bigint: true, throwIfNoEntry: false });
+    if (!initial) return null;
     if (!initial.isFile()) throw Error('RECORD_UNSAFE: Managed Metro record must be a private regular file.');
     const fd = openSync(recordPath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
     try {
-      const stat = fstatSync(fd);
-      if (!stat.isFile() || stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0 ||
-          stat.size > 4096 || stat.ino !== initial.ino || stat.dev !== initial.dev) {
+      const stat = fstatSync(fd, { bigint: true });
+      if (!stat.isFile() || stat.uid !== BigInt(process.getuid()) || (stat.mode & 0o077n) !== 0n ||
+          stat.size > 4096n) {
         throw Error('RECORD_UNSAFE: Managed Metro record must be a private regular file.');
       }
-      const record = JSON.parse(readFileSync(fd, 'utf8'));
+      const stamp = recordStamp(stat);
+      const raw = readFileSync(fd, 'utf8');
+      if (recordStamp(initial) !== stamp ||
+          recordStamp(lstatSync(recordPath, { bigint: true })) !== stamp) {
+        throw Error('RECORD_CHANGED: Managed Metro record changed while being read.');
+      }
+      const record = JSON.parse(raw);
       const port = record?.port ?? 8081;
       if (!Number.isSafeInteger(record?.pid) || record.pid <= 1 || !/^[0-9]+$/.test(record.startTicks) ||
           typeof record.startTicks !== 'string' || !Number.isSafeInteger(port) || port < 8081 || port > 8085 ||
           (record.bootId !== undefined && !/^[0-9a-f-]{36}$/.test(record.bootId))) {
         throw Error('RECORD_INVALID: Managed Metro record has an unsupported PID, identity or port.');
       }
-      return record;
+      return { record, stamp, raw };
     } finally { closeSync(fd); }
   } catch (error) {
-    if (error.code === 'ENOENT') return null;
+    if (error.code === 'ENOENT') throw Error('RECORD_CHANGED: Managed Metro record disappeared while being read.');
     if (error instanceof SyntaxError) throw Error('RECORD_INVALID: Managed Metro record is malformed. Inspect the private preview state.');
     if (error.code) throw Error('RECORD_UNREADABLE: Cannot read the private managed Metro record.');
     throw error;
   }
+}
+
+export function readManagedRecord(recordPath) {
+  return readManagedRecordSnapshot(recordPath)?.record ?? null;
 }
 
 export async function requirePreviewListener(expected) {
