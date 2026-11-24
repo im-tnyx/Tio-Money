@@ -1,3 +1,13 @@
+## 2026-11-24 — Issue #71 security diagnostic consolidation (cleanup Gate 2A)
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/71#issuecomment-7138164951), [task](tasks/security/npm-sigstore-consolidation-20261124.md), canonical [Draft PR #101](https://github.com/im-tnyx/Tio-Money/pull/101). Preserve original #78/#84/#101 commits and 14 source file blobs; combined CI and review pending. Do not close/delete source branches until verified Gate 2B and separate authorization. Issue #71 OPEN, #65 SECURITY HOLD; no merge or risk waiver.
+
+## 2026-11-23 — Expo preview self-healing and Draft OTA (RFC #102)
+
+- Owner-authorized scoped implementation on `feat/expo-preview-self-healing`, tracked in [RFC #102](https://github.com/im-tnyx/Tio-Money/issues/102) and the [task checkpoint](tasks/preview/expo-preview-self-healing-20261123.md). Includes verified manual Metro recovery, display name `TIO MONEY EXPO PR PREVIEW`, and per-PR Draft OTA that stays off shared channels. Live run, device loading and merge require separate authorization.
+- Startup follow-up in [Draft PR #103](https://github.com/im-tnyx/Tio-Money/pull/103) hardens the Codespace polling deadline and requires an unchanged private record for stale cleanup under the existing startup lock. See the [follow-up checkpoint](tasks/preview/expo-preview-self-healing-20261123.md#2026-11-24--codespace-startup-deadline-and-stale-ownership-handoff).
+- The [security remediation checkpoint](tasks/preview/expo-preview-self-healing-20261123.md#2026-11-24--security-remediation-at-reviewed-head-c60daa8) records the disposition of SEC-103-01 through SEC-103-04. PR #103 remains Draft for independent re-review.
+
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
 - [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/99#issuecomment-7097257109) scopes owner-requested fresh manual restart and safe alternate port on `feat/manual-expo-preview-recovery` from verified main `f865969d200d70fbc8e84dd6a48d8020a155e42c`. [Task record](tasks/preview/manual-recovery-20261123.md). The [PR #100](https://github.com/im-tnyx/Tio-Money/pull/100) follow-up applies the same private, no-auto-forward policy to all managed Metro ports. Follow-up CI and live verification are pending.

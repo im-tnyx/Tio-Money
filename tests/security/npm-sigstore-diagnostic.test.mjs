@@ -22,7 +22,7 @@ test('git blob hashing uses exact Git framing', () => {
 test('lock identity, registry and SRI are mandatory', () => {
   const bytes = Buffer.from('synthetic-fixture');
   const sha = gitBlobSha1(bytes);
-  assert.equal(verifyLock(mock(), bytes, sha).length, 6);
+  assert.equal(verifyLock(mock(), bytes, sha).length, 8);
   assert.throws(() => verifyLock(mock(), bytes, 'f'.repeat(40)), /LOCKFILE_IDENTITY_CHANGED/);
   const changed = mock();
   changed.packages['node_modules/@babel/generator'].integrity = '';
@@ -54,7 +54,7 @@ test('new fourth Babel target is mandatory and locked to exact version', () => {
   const name = '@babel/helper-compilation-targets';
   const good = mock();
   assert.equal(good.packages['node_modules/' + name].version, '7.29.13');
-  assert.equal(verifyLock(good, bytes, sha).length, 6);
+  assert.equal(verifyLock(good, bytes, sha).length, 8);
   delete good.packages['node_modules/' + name];
   assert.throws(() => verifyLock(good, bytes, sha),
     /MISSING_LOCKED_PACKAGE_@babel\/helper-compilation-targets/);
@@ -84,7 +84,7 @@ test('new @babel/types first-failure target is bound to exact EAS lock version',
   const name = '@babel/types';
   const good = mock();
   assert.equal(AFFECTED[name], '7.29.15');
-  assert.equal(verifyLock(good, bytes, sha).length, 6);
+  assert.equal(verifyLock(good, bytes, sha).length, 8);
   delete good.packages['node_modules/' + name];
   assert.throws(() => verifyLock(good, bytes, sha),
     /MISSING_LOCKED_PACKAGE_@babel\/types/);
@@ -98,3 +98,33 @@ test('new @babel/types first-failure target is bound to exact EAS lock version',
   assert.deepEqual(failure.reportedInvalidPackageIds, ['@babel/types@7.29.15']);
   assert.ok(!JSON.stringify(failure).includes('never-publish-this'));
 });
+
+
+// Gate 2: the final two historically affected locked IDs must be verified, not
+// merely listed in first-failure HTTP capture. Missing/wrong versions fail closed.
+for (const [name, version] of [
+  ['@babel/helpers', '7.29.15'],
+  ['@babel/traverse', '7.29.15'],
+]) {
+  test('Gate 2 exact eight-target provenance lock boundary: ' + name, () => {
+    const bytes = Buffer.from('synthetic-gate2-eight-target');
+    const sha = gitBlobSha1(bytes);
+    assert.equal(AFFECTED[name], version);
+    const good = mock();
+    assert.equal(verifyLock(good, bytes, sha).length, 8);
+    delete good.packages['node_modules/' + name];
+    assert.throws(() => verifyLock(good, bytes, sha),
+      /MISSING_LOCKED_PACKAGE_/);
+    const wrong = mock();
+    wrong.packages['node_modules/' + name].version = '0.0.0';
+    assert.throws(() => verifyLock(wrong, bytes, sha),
+      /PACKAGE_VERSION_CHANGED_/);
+    const output = ['1 package has an invalid attestation:',
+      name + '@' + version + ' (https://registry.npmjs.org/)',
+      'password=never-release-this'].join(String.fromCharCode(10));
+    const result = sanitizeFailure(output, mock());
+    assert.deepEqual(result.reportedInvalidPackageIds, [name + '@' + version]);
+    assert.equal(result.rawOutputRetained, false);
+    assert.ok(!JSON.stringify(result).includes('never-release-this'));
+  });
+}
