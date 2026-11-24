@@ -75,6 +75,7 @@ export const segmentedControlTokens = {
 } as const;
 
 export const optionPopupTokens = {
+  chevronDurationMs: motion.tabCrossfadeDurationMs,
   width: size.dp100 + size.dp100 + space.xxxl,
   radius: radius.xl,
   elevation: size.dp6,

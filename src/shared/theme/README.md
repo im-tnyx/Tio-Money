@@ -739,7 +739,7 @@ the vertical gap between an Add Account caption and its input row to 0 dp.
 Wallet Type, Investment Type and Loan Direction share
 [`AccountDropdown`](../../features/accounts/account-option-popup.tsx). This Accounts
 component renders an anchored popup and receives its options, selected value and
-dismiss callback from the Add Account view model.
+dismiss callback from the Add Account view model. All anchored form popups (including Loan dates) use [AppPopupChevron](../ui/app-popup-chevron.tsx): right when closed, down when open, with a 90-degree rotation driven by the actual open prop. Its 24 dp size and stroke reuse icon roles, secondary text color comes from the palette, and the 160 ms duration aliases the existing motion primitive. Reduced Motion changes direction immediately. Navigation and bottom-sheet indicators retain their own contract.
 
 - [`optionPopupTokens`](component-tokens.ts) define a preferred width of 240 dp,
   a 24 dp corner radius and the elevation and shadow settings.

@@ -1006,7 +1006,7 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.match(wheel, /Animated\.event/);
   assert.match(wheel, /offset\.addListener/);
   assert.match(wheel, /offset\.removeListener/);
-  assert.match(wheel, /shouldAnimateWheelAlignment\(lastIndex\.current, selected, reduceMotion\)/);
+  assert.match(wheel, /shouldAnimateWheelAlignment\(lastIndex\.current/);
   assert.match(field, /value=\{physicalDay\}/);
   assert.match(field, /minimumIndex=\{dayBounds\.minimum\}/);
   assert.match(field, /maximumIndex=\{dayBounds\.maximum\}/);
@@ -1288,6 +1288,24 @@ test('date popup stays above the field and fits only complete rows', () => {
   assert.equal(tight.bottom, 638);
   assert.equal(fitPopupRows(tight.maxHeight - 14, 32, [5, 3, 1]), 1);
   assert.equal(fitPopupRows(31, 32, [5, 3, 1]), 0);
+});
+
+test('all anchored form popups share a controlled disclosure chevron', () => {
+  const dropdown = readFileSync('src/features/accounts/account-option-popup.tsx', 'utf8');
+  const dateField = readFileSync('src/shared/ui/app-date-field.tsx', 'utf8');
+  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
+  const chevron = readFileSync('src/shared/ui/app-popup-chevron.tsx', 'utf8');
+  assert.match(dropdown, /<AppPopupChevron open=\{open\} \/>/);
+  assert.match(dateField, /<AppPopupChevron open=\{open\} \/>/);
+  assert.doesNotMatch(controls, /expand:/);
+  assert.match(chevron, /d="m9 6 6 6-6 6"/);
+  assert.match(chevron, /outputRange: \['0deg', '90deg'\]/);
+  assert.match(chevron, /toValue: target/);
+  assert.match(chevron, /useReducedMotion\(\)/);
+  assert.match(chevron, /theme\.optionPopup\.chevronDurationMs/);
+  assert.match(chevron, /theme\.iconRoles\.textField/);
+  assert.match(chevron, /return \(\) => animation\.stop\(\)/);
+  assert.match(chevron, /pointerEvents="none"/);
 });
 
 test('option popup anchors beside the trigger and stays within the safe viewport', () => {

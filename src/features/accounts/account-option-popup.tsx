@@ -4,10 +4,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
+import { AppPopupChevron } from '@/shared/ui/app-popup-chevron';
 import { AppText } from '@/shared/ui/app-text';
 
 import type { AccountDraftChoice } from './account-form-contract';
-import { AccountChoices, AccountFormIcon, AccountFormRow } from './account-form-controls';
+import { AccountChoices, AccountFormRow } from './account-form-controls';
 import { accountPopupPosition, type AccountPopupAnchor } from './account-popup-position';
 
 export function AccountDropdown({
@@ -73,7 +74,7 @@ export function AccountDropdown({
           >
             {t(value)}
           </AppText>
-          <AccountFormIcon name="expand" />
+          <AppPopupChevron open={open} />
         </AccountFormRow>
       </Pressable>
       {open ? (

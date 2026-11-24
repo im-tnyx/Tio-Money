@@ -8,6 +8,7 @@ import {
   iconRoleSizes,
   iconTokens,
   navigationTokens,
+  optionPopupTokens,
   shadowTokens,
   textFieldTokens,
 } from '../../src/shared/theme/component-tokens';
@@ -47,6 +48,7 @@ test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(navigationTokens.unselectedIconWeight, 200);
   assert.equal(navigationTokens.tabCrossfadeDurationMs, motion.tabCrossfadeDurationMs);
   assert.equal(navigationTokens.detailFadeDurationMs, motion.tabCrossfadeDurationMs);
+  assert.equal(optionPopupTokens.chevronDurationMs, motion.tabCrossfadeDurationMs);
   assert.equal(navigationTokens.tabCrossfadeDurationMs, 160);
   assert.equal(buttonTokens.actionHeight, size.dp42);
   assert.equal(buttonTokens.smallActionIconSize, size.dp18);
