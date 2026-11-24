@@ -69,6 +69,7 @@ export const segmentedControlTokens = {
   minimumOptionHeight: buttonTokens.minimumHeight,
   compactWidth: size.dp100 + size.dp20,
   compactOptionHeight: size.dp24,
+  compactOptionLabelSize: size.dp14,
   compactHitSlop: size.dp12,
   inset: space.xxs,
   radius: radius.pill,
