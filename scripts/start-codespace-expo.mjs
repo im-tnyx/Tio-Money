@@ -9,7 +9,7 @@ import { TextDecoder } from 'node:util';
 
 import {
   currentBootId, groupListener, inspectManagedMetro, isMobileCommand, listeners, metroGroup,
-  ownedMetro, processStat, readManagedRecord, retryOwnership,
+  ownedMetro, processStat, readManagedRecordSnapshot, retryOwnership,
 } from '../.github/scripts/preflight-pr-codespaces-preview.mjs';
 
 export { isMobileCommand };
@@ -134,18 +134,29 @@ export function previewAction(current, metroHealthy, tunnelHealthy) {
   return metroHealthy && tunnelHealthy ? 'reuse' : 'recover';
 }
 
-async function checkedManagedRecord(recoverStale = false) {
-  const record = readManagedRecord(PID_FILE);
-  if (!record) return null;
+function requireUnchangedRecord(recordPath, snapshot) {
+  const current = readManagedRecordSnapshot(recordPath);
+  if (!current || current.stamp !== snapshot.stamp || current.raw !== snapshot.raw) {
+    throw Error('RECORD_CHANGED: Managed Metro record changed during recovery. Inspect the private preview state.');
+  }
+}
+
+// Call with the startup lock held. The read-only preflight uses the same
+// ownership inspection but only the starter can remove a stale record.
+export async function checkedManagedRecord(recoverStale = false, recordPath = PID_FILE, ensureFree = portIsFree) {
+  const snapshot = readManagedRecordSnapshot(recordPath);
+  if (!snapshot) return null;
+  const { record } = snapshot;
   const inspect = () => inspectManagedMetro(record, ROOT);
   const { state } = await retryOwnership(inspect);
   if (state === 'OWNED_METRO') return record;
   if (!recoverStale) throw Error('STALE_RECORD: Run Live Expo Go Preview manually to recover the exited managed Metro.');
-  await portIsFree(record.port ?? PORT);
+  await ensureFree(record.port ?? PORT);
   if ((await retryOwnership(inspect)).state !== 'STALE_RECORD') {
     throw Error('OWNERSHIP_CHANGED: Managed Metro state changed during stale-record recovery.');
   }
-  rmSync(PID_FILE);
+  requireUnchangedRecord(recordPath, snapshot);
+  rmSync(recordPath);
   console.log('STALE_RECORD_CLEARED: Managed Metro exited and its group and port are clear.');
   return null;
 }
@@ -387,14 +398,22 @@ export async function stopOwnedMetro(record, {
 
 async function stopManaged(record, manual = false) {
   if (!record) return;
+  const snapshot = readManagedRecordSnapshot(PID_FILE);
+  if (!snapshot || JSON.stringify(snapshot.record) !== JSON.stringify(record)) {
+    throw Error('RECORD_CHANGED: Managed Metro record changed before shutdown.');
+  }
   await stopOwnedMetro(record, {
     verify: (candidate) => retryOwnership(() => inspectManagedMetro(candidate, ROOT)),
     readGroup: metroGroup,
     readListener: groupListener,
-    send: signalMetroGroup,
+    send: (pid, group, signal) => {
+      requireUnchangedRecord(PID_FILE, snapshot);
+      signalMetroGroup(pid, group, signal);
+    },
     ensureFree: portIsFree,
     forceAfterTimeout: streamed && manual,
   });
+  requireUnchangedRecord(PID_FILE, snapshot);
   rmSync(PID_FILE);
 }
 
@@ -511,12 +530,14 @@ async function startManaged(fingerprint, manual = false, preferredPort = PORT) {
   await retryStartup(() => startAttempt(fingerprint, manual, preferredPort), manual);
 }
 
-async function syncSelected(current, before, target, manual = false) {
+async function syncSelected(before, target, manual = false) {
   if (!/^[0-9a-f]{40}$/.test(target) || gitOutput(ROOT, 'rev-parse', 'FETCH_HEAD^{commit}').trim() !== target) {
     throw Error('Prepared bundle commit no longer matches the selected revision.');
   }
   requireSyncSnapshot(before, gitOutput(ROOT, 'rev-parse', 'HEAD').trim(),
     gitOutput(ROOT, 'status', '--porcelain=v1', '--untracked-files=normal'));
+  const current = await checkedManagedRecord(manual);
+  if (!current && !manual) await portIsFree();
   const fingerprint = runtimeFingerprint(target);
   const dependenciesReady = dependenciesMatch(target);
 
@@ -573,11 +594,7 @@ async function main() {
   if (streamed && (flags.length === 3 || flags.length === 4) && flags[0] === '--sync-selected') {
     const [, before, target, mode] = flags;
     if (mode !== undefined && mode !== '' && mode !== '--manual') throw Error('Invalid sync mode.');
-    await withLock(async () => {
-      const current = await checkedManagedRecord(mode === '--manual');
-      if (!current && mode !== '--manual') await portIsFree();
-      await syncSelected(current, before, target, mode === '--manual');
-    });
+    await withLock(() => syncSelected(before, target, mode === '--manual'));
     return;
   }
   if (flags.length > 1 || flags.some((x) => !['--start', '--stop', '--status', '--restart', '--check-account', '--preflight'].includes(x))) {

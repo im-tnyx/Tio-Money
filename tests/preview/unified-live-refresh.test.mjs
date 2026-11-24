@@ -91,7 +91,7 @@ test('same SHA is a healthy no-op; new SHA never stops a healthy Metro/tunnel', 
   assert.doesNotMatch(sync, /start-codespace-expo\.mjs --stop|git (?:reset|clean)|git pull/);
   assert.match(worker, /< "\$RUNNER_TEMP\/trusted-metro-sync\.sh"/);
   assert.match(worker, /gh: The codespace is already running \(HTTP 409\)/);
-  assert.match(worker, /for attempt in \$\(seq 1 120\); do/);
+  assert.match(worker, /deadline=\$\(\(SECONDS \+ 600\)\)/);
   assert.match(worker, /if \[\[ "\$state" != "Available" \]\]/);
 });
 
@@ -106,8 +106,8 @@ test('trusted preflight supports old starters and refuses ambiguous Metro owners
     assert.throws(() => preflightDecision(true, record, foreign, false), /ownership is uncertain/);
   }
   assert.throws(() => preflightDecision(false, null, null, false), /occupied without/);
-  assert.match(preflight, /lstatSync\(recordPath\)/);
-  assert.match(preflight, /stat\.uid !== process\.getuid\(\)/);
+  assert.match(preflight, /lstatSync\(recordPath, \{ bigint: true/);
+  assert.match(preflight, /stat\.uid !== BigInt\(process\.getuid\(\)\)/);
   assert.doesNotMatch(preflight, /process\.kill|rmSync|child_process/);
   assert.equal((worker.match(/< \.github\/scripts\/preflight-pr-codespaces-preview\.mjs/g) || []).length, 2);
 });
@@ -152,7 +152,8 @@ test('controlled runtime recovery stops only owned Metro before detaching or ins
   assert.ok(incompatible >= 0 && incompatible < stop && stop < checkout && checkout < install);
   assert.ok(install < reuse && reuse < startManaged);
   assert.match(syncSelected, /current && \(manual \|\| !compatibleRuntime/);
-  assert.match(starter, /await withLock\(async \(\) => \{\n      const current = await checkedManagedRecord\(mode === '--manual'\);/);
+  assert.match(starter, /await withLock\(\(\) => syncSelected\(before, target, mode === '--manual'\)\);/);
+  assert.ok(syncSelected.indexOf('requireSyncSnapshot(before,') < syncSelected.indexOf('await checkedManagedRecord(manual)'));
   assert.match(syncSelected, /currentRecord.pid !== managed.pid/);
   assert.match(syncSelected, /await ownedTunnel\(currentRecord\) !== previousTunnel/);
   assert.match(starter, /requireSyncSnapshot\(before,/);

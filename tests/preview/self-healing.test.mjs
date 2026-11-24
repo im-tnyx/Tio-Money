@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtempSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, renameSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -10,7 +10,7 @@ import {
   classifyRecord, listenerState, processStat, readManagedRecord, retryOwnership,
 } from '../../.github/scripts/preflight-pr-codespaces-preview.mjs';
 import {
-  retryStartup, signalMetroGroup, stopOwnedMetro, withStartupLock,
+  checkedManagedRecord, previewAction, retryStartup, signalMetroGroup, stopOwnedMetro, withStartupLock,
 } from '../../scripts/start-codespace-expo.mjs';
 
 const record = { pid: 81, startTicks: '1234', port: 8083 };
@@ -26,7 +26,7 @@ test('only a dead record with a clear process group and port is stale', () => {
   const empty = new Map();
   assert.equal(classify(leader, group, 'OWNED'), 'OWNED_METRO');
   assert.equal(classify(null, empty, 'EMPTY'), 'STALE_RECORD');
-  assert.equal(classify({ ...leader, state: 'Z' }, empty, 'EMPTY'), 'STALE_RECORD');
+  assert.throws(() => classify({ ...leader, state: 'Z' }, empty, 'EMPTY'), /PID_PRESENT/);
   assert.throws(() => classify(null, group, 'EMPTY'), /STALE_STATE_OCCUPIED/);
   assert.throws(() => classify(null, empty, 'FOREIGN'), /STALE_STATE_OCCUPIED/);
   assert.throws(() => classify({ ...leader, startTicks: '6000' }, empty, 'EMPTY'), /PID_REUSED/);
@@ -190,6 +190,76 @@ test('concurrent lifecycle runs serialize, including after a stale legacy lock',
     }
     assert.equal(await withStartupLock(dir, () => 'next'), 'next');
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('stale-record cleanup refuses replaced records, occupied ports and reused PIDs', { skip: process.platform !== 'linux' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tio-stale-record-'));
+  const path = join(dir, 'metro.json');
+  const stale = { ...record, pid: 2147483647 };
+  const saved = JSON.stringify(stale);
+  const write = (value, file = path) => writeFileSync(file, value, { mode: 0o600 });
+  try {
+    await withStartupLock(dir, async () => {
+      write(saved);
+      await assert.rejects(checkedManagedRecord(false, path), /STALE_RECORD/);
+      await assert.rejects(checkedManagedRecord(true, path, async () => {
+        const replacement = join(dir, 'replacement');
+        write(saved, replacement);
+        renameSync(replacement, path);
+      }), /RECORD_CHANGED/);
+      assert.equal(readFileSync(path, 'utf8'), saved, 'replacement with identical bytes must survive');
+      await assert.rejects(checkedManagedRecord(true, path, async () => {
+        write(JSON.stringify({ ...stale, port: 8084 }));
+      }), /RECORD_CHANGED/);
+      assert.equal(readManagedRecord(path).port, 8084);
+      await assert.rejects(checkedManagedRecord(true, path, async () => {
+        throw Error('PORT_OCCUPIED');
+      }), /PORT_OCCUPIED/);
+      assert.equal(readManagedRecord(path).port, 8084);
+      const reused = { ...stale, pid: process.pid, bootId: '00000000-0000-0000-0000-000000000000' };
+      write(JSON.stringify(reused));
+      await assert.rejects(checkedManagedRecord(true, path, () => assert.fail('unverified PID cannot reach cleanup')), /PID_REUSED/);
+      assert.deepEqual(readManagedRecord(path), reused);
+    });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('manual recovery and a simultaneous push share the lock, then the push reuses healthy Metro', { skip: process.platform !== 'linux' }, async () => {
+  const workflow = readFileSync(new URL('../../.github/workflows/tio-money-eas-pr-preview.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /\(github.event_name == 'workflow_run' \|\| inputs.operation == 'codespaces_live'\) && 'tio-money-codespaces-pr-preview'/);
+  assert.match(workflow, /cancel-in-progress: false/);
+  const dir = mkdtempSync(join(tmpdir(), 'tio-manual-push-'));
+  const path = join(dir, 'metro.json');
+  writeFileSync(path, JSON.stringify({ ...record, pid: 2147483647 }), { mode: 0o600 });
+  const events = [];
+  let announceCleanup;
+  let finishManual;
+  const checking = new Promise((done) => { announceCleanup = done; });
+  const manualMayFinish = new Promise((done) => { finishManual = done; });
+  let managed;
+  try {
+    const manual = withStartupLock(dir, async () => {
+      await checkedManagedRecord(true, path, async () => {
+        events.push('manual-checks-port');
+        announceCleanup();
+        await manualMayFinish;
+      });
+      managed = record;
+      events.push('manual-started-metro');
+    });
+    await Promise.race([checking, manual]);
+    await assert.rejects(withStartupLock(dir, () => assert.fail('push entered during manual cleanup'), 0.1), /LOCK_TIMEOUT/);
+    const push = withStartupLock(dir, async () => {
+      assert.equal(previewAction(managed, true, true), 'reuse');
+      events.push('push-reused-metro');
+    });
+    finishManual();
+    await Promise.all([manual, push]);
+    assert.deepEqual(events, ['manual-checks-port', 'manual-started-metro', 'push-reused-metro']);
+  } finally {
+    finishManual();
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('pidfd rejects mismatched process start time before signaling the real fixture', { skip: process.platform !== 'linux' }, async () => {
