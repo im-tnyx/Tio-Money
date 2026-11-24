@@ -11,15 +11,18 @@ import {
   type CalendarPart,
 } from '@/shared/ui/calendar-date';
 
+import { encodeMonthDay, parseMonthDay } from '@/shared/ui/month-day';
+
 import {
+  isCardMonthDayField,
   newAccountDraft,
   previewGroups,
   reconcileAccountDraftCurrency,
   updateAccountDraft,
   type AccountChoiceAction,
+  type AccountDateField,
   type AccountDraft,
   type AccountFormAction,
-  type LoanDateField,
   type PreviewGroup,
 } from './account-form-contract';
 
@@ -36,7 +39,7 @@ export interface AccountAddSession {
   readonly groupPicker: GroupPickerState;
   readonly choicePickerOpen: boolean;
   readonly datePicker: {
-    readonly field: LoanDateField;
+    readonly field: AccountDateField;
     readonly id: number;
     readonly dayIndex: number;
     readonly monthIndex: number;
@@ -51,7 +54,7 @@ export type AccountAddAction =
   | { readonly type: 'group.select'; readonly group: PreviewGroup }
   | { readonly type: 'options.open' | 'options.close' }
   | { readonly type: 'options.select'; readonly choice: AccountChoiceAction }
-  | { readonly type: 'date.open'; readonly field: LoanDateField }
+  | { readonly type: 'date.open'; readonly field: AccountDateField }
   | { readonly type: 'date.close'; readonly id: number }
   | {
       readonly type: 'date.change';
@@ -151,47 +154,86 @@ export function updateAccountAddSession(
       };
     }
     case 'date.open': {
-      if (
-        (active?.group !== 'loan' && active?.group !== 'investment') ||
-        session.groupPicker !== 'closed' ||
-        session.choicePickerOpen ||
-        session.datePicker
-      ) {
+      if (session.groupPicker !== 'closed' || session.choicePickerOpen || session.datePicker) {
         return session;
       }
-      const date = parseCalendarDate(active.fields[action.field]);
-      if (!date) return session;
-      const id = session.datePickerEpoch + 1;
-      return {
-        ...session,
-        datePicker: {
-          field: action.field,
-          id,
-          dayIndex: initialDayWheelIndex(date),
-          monthIndex: initialMonthWheelIndex(date),
-        },
-        datePickerEpoch: id,
-        drafts: withoutLoanFieldInfo(session.drafts),
-      };
+      if (
+        (active?.group === 'loan' || active?.group === 'investment') &&
+        action.field === 'startDate'
+      ) {
+        const date = parseCalendarDate(active.fields.startDate);
+        if (!date) return session;
+        const id = session.datePickerEpoch + 1;
+        return {
+          ...session,
+          datePicker: {
+            field: action.field,
+            id,
+            dayIndex: initialDayWheelIndex(date),
+            monthIndex: initialMonthWheelIndex(date),
+          },
+          datePickerEpoch: id,
+          drafts: withoutLoanFieldInfo(session.drafts),
+        };
+      }
+      if (active?.group === 'credit-card' && isCardMonthDayField(action.field)) {
+        const day = parseMonthDay(active.fields[action.field]);
+        if (day === null) return session;
+        const id = session.datePickerEpoch + 1;
+        return {
+          ...session,
+          datePicker: {
+            field: action.field,
+            id,
+            dayIndex: day - 1,
+            monthIndex: 0,
+          },
+          datePickerEpoch: id,
+          drafts: withoutLoanFieldInfo(session.drafts),
+        };
+      }
+      return session;
     }
     case 'date.close':
       return session.datePicker?.id === action.id ? { ...session, datePicker: null } : session;
     case 'date.change': {
       const picker = session.datePicker;
+      if (!active || picker?.id !== action.id) return session;
       if (
-        (active?.group !== 'loan' && active?.group !== 'investment') ||
-        picker?.id !== action.id
+        active.group === 'credit-card' &&
+        isCardMonthDayField(picker.field) &&
+        action.part === 'day'
+      ) {
+        if (!Number.isInteger(action.value) || action.value < 1 || action.value > 31) {
+          return session;
+        }
+        const value = encodeMonthDay(action.value);
+        if (value === active.fields[picker.field]) return session;
+        const draft = updateAccountDraft(
+          active,
+          { type: 'text', field: picker.field, value },
+          currencies,
+        );
+        return {
+          ...session,
+          datePicker: { ...picker, dayIndex: action.value - 1 },
+          drafts: { ...session.drafts, [draft.group]: draft },
+        };
+      }
+      if (
+        (active.group !== 'loan' && active.group !== 'investment') ||
+        picker.field !== 'startDate'
       ) {
         return session;
       }
-      const date = parseCalendarDate(active.fields[picker.field]);
+      const date = parseCalendarDate(active.fields.startDate);
       if (!date) return session;
       const next = selectCalendarWheel(date, action.part, action.value);
       const value = encodeCalendarDate(next);
-      if (value === active.fields[picker.field]) return session;
+      if (value === active.fields.startDate) return session;
       const draft = updateAccountDraft(
         active,
-        { type: 'text', field: picker.field, value },
+        { type: 'text', field: 'startDate', value },
         currencies,
       );
       return {

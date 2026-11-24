@@ -8,6 +8,7 @@ import { useCurrencySettings } from '@/shared/currency/currency-provider';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useReducedMotion } from '@/shared/navigation/reduced-motion-provider';
 import type { AppDateFieldModel } from '@/shared/ui/app-date-field';
+import type { AppDayOfMonthFieldModel } from '@/shared/ui/app-day-of-month-field';
 import { localCalendarToday } from '@/shared/ui/calendar-date';
 
 import {
@@ -28,6 +29,7 @@ import {
   type AccountDraft,
   type AccountDraftChoice,
   type AddAccountScreenViewModel,
+  type CardMonthDayField,
   type LoanDateField,
 } from './account-form-contract';
 
@@ -125,6 +127,25 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
     };
   }
 
+  function cardDate(field: CardMonthDayField, value: string): AppDayOfMonthFieldModel {
+    const picker = current.datePicker?.field === field ? current.datePicker : null;
+    return {
+      value,
+      open: picker !== null,
+      dayIndex: picker?.dayIndex,
+      onOpen: () => {
+        Keyboard.dismiss();
+        dispatch({ type: 'date.open', field });
+      },
+      onClose: () => {
+        if (picker) dispatch({ type: 'date.close', id: picker.id });
+      },
+      onChange: (day) => {
+        if (picker) dispatch({ type: 'date.change', id: picker.id, part: 'day', value: day });
+      },
+    };
+  }
+
   return {
     animateSheet: !reduceMotion,
     groupLabel:
@@ -171,6 +192,13 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
             draft.group === 'loan' || draft.group === 'investment'
               ? {
                   startDate: loanDate('startDate', draft.fields.startDate),
+                }
+              : null,
+          cardDates:
+            draft.group === 'credit-card'
+              ? {
+                  statementDate: cardDate('statementDate', draft.fields.statementDate),
+                  dueDate: cardDate('dueDate', draft.fields.dueDate),
                 }
               : null,
           canAddMode: modeAvailability?.canAdd ?? false,

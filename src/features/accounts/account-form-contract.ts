@@ -1,6 +1,7 @@
 import type { CurrencyCode, CurrencyPreferences } from '@/shared/currency/currency-preference';
 import type { TranslationKey } from '@/shared/i18n/strings';
 import type { AppDateFieldModel } from '@/shared/ui/app-date-field';
+import type { AppDayOfMonthFieldModel } from '@/shared/ui/app-day-of-month-field';
 import { localCalendarToday, parseCalendarDate } from '@/shared/ui/calendar-date';
 
 import type { AccountPickerModel } from './account-picker-contract';
@@ -110,12 +111,18 @@ export type DraftField = {
 }[PreviewGroup];
 
 export type LoanDateField = 'startDate';
+export type CardMonthDayField = 'statementDate' | 'dueDate';
+export type AccountDateField = LoanDateField | CardMonthDayField;
 export type CalendarDateField = LoanDateField;
 type CalendarDateParts = Readonly<Record<'day' | 'month' | 'year', string>>;
 export type CalendarDatePart = keyof CalendarDateParts;
 
 export function isCalendarDateField(field: DraftField): field is CalendarDateField {
   return field === 'startDate';
+}
+
+export function isCardMonthDayField(field: string): field is CardMonthDayField {
+  return field === 'statementDate' || field === 'dueDate';
 }
 
 export function calendarDateParts(value: string): CalendarDateParts {
@@ -438,6 +445,7 @@ export interface AddAccountViewModel {
   readonly choice: AccountDraftChoice | null;
   readonly paymentSource: AccountPickerModel | null;
   readonly loanDates: Readonly<Record<LoanDateField, AppDateFieldModel>> | null;
+  readonly cardDates: Readonly<Record<CardMonthDayField, AppDayOfMonthFieldModel>> | null;
   readonly canAddMode: boolean;
   readonly canApplyMode: boolean;
   readonly availableModeTypes: readonly PaymentModeType[];

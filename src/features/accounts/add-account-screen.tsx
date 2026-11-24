@@ -4,6 +4,7 @@ import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
 import { AppDateField } from '@/shared/ui/app-date-field';
+import { AppDayOfMonthField } from '@/shared/ui/app-day-of-month-field';
 import { AppKeyboardForm } from '@/shared/ui/app-keyboard-form';
 import { AppPopupCard } from '@/shared/ui/app-popup-card';
 import { AppPopupChevron } from '@/shared/ui/app-popup-chevron';
@@ -306,6 +307,7 @@ function AccountFields({
   choice,
   paymentSource,
   loanDates,
+  cardDates,
   canAddMode,
   onAction,
 }: AddAccountViewModel) {
@@ -332,6 +334,7 @@ function AccountFields({
         draft={draft}
         paymentSource={paymentSource}
         loanDates={loanDates}
+        cardDates={cardDates}
         {...inputProps}
       />
       {draft.group === 'credit-card' ? <DisabledAutoPay /> : null}
@@ -400,9 +403,11 @@ function GroupFields({
   draft,
   paymentSource,
   loanDates,
+  cardDates,
   onAction,
   ...inputProps
-}: DraftInputControls & Pick<AddAccountViewModel, 'draft' | 'paymentSource' | 'loanDates'>) {
+}: DraftInputControls &
+  Pick<AddAccountViewModel, 'draft' | 'paymentSource' | 'loanDates' | 'cardDates'>) {
   const draftInput = { ...inputProps, onAction };
   switch (draft.group) {
     case 'cash':
@@ -417,8 +422,20 @@ function GroupFields({
           <DraftInput field="outstanding" value={draft.fields.outstanding} {...draftInput} />
           <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...draftInput} />
           <PaymentFromField picker={paymentSource} />
-          <DraftInput field="statementDate" value={draft.fields.statementDate} {...draftInput} />
-          <DraftInput field="dueDate" value={draft.fields.dueDate} {...draftInput} />
+          {cardDates ? (
+            <>
+              <AppDayOfMonthField
+                label={t('accountCardStatementDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...cardDates.statementDate}
+              />
+              <AppDayOfMonthField
+                label={t('accountCardDueDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...cardDates.dueDate}
+              />
+            </>
+          ) : null}
         </>
       );
 
