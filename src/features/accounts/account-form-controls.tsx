@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
+import { size } from '@/shared/theme/primitives';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 import { AppTextField, type AppTextFieldProps } from '@/shared/ui/app-text-field';
@@ -120,7 +121,7 @@ export function AccountFieldInfoMark() {
         d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M9.5 9.2a2.7 2.7 0 0 1 5.1 1.2c0 1.7-2.6 2.1-2.6 3.6 M12 17.2h.01"
         fill="none"
         stroke={theme.colors.secondaryText}
-        strokeWidth={theme.icons.fineStroke}
+        strokeWidth={size.dp1}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
