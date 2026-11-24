@@ -6,10 +6,12 @@
 | Lifecycle | IN_REVIEW |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
-| Current agent | Codex Cloud, GPT-6 family. Exact variant UNKNOWN_NOT_VERIFIED. |
-| Previous agent | No previous assignee verified for this task. |
+| Current agent | ChatGPT GPT-6.2 (bounded Payment UI and documentation reconciliation checkpoints) |
+| Previous agent | Codex Cloud, GPT-6 family. Exact variant UNKNOWN_NOT_VERIFIED. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
-| Base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
+| Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
+| Latest audited base | `6468b62786d56edb1a70b7a5c90146e17566e23b` |
+| Latest audited UI source HEAD | `149c48b32ce503a6646341bfba6755254ce44f8c` |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -18,11 +20,38 @@
 
 Owner directions dated 2026-11-23 were transcribed by the agent in the RFC. The owner requested Accounts creation through the tab header and a separate Manage Accounts destination. The agent recorded the bounded technical decision after checking live refs and the source. No open PR claimed the Accounts route. PRs #80, #88 and #90 had merged. Issue #94 owns reconciliation of prior task history and #91 tracks the Android Back defect separately.
 
-The Accounts feature owns group selection, transient typed Cash/Bank form drafts and the unavailable Manage Accounts view. Routes compose controllers and presentation. Screens receive immutable state and callbacks per [TM-DEC-011](../../../docs/governance/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule). Reuse the visual group definitions, shared theme/components and currency preferences. No finance schema, journals, account data, default seeding, real Save, account lifecycle writes or fake totals.
+The Accounts feature owns group selection, transient typed Cash, Bank, Credit Card, Wallet, Loan and Investment form drafts, named Bank payment modes and the unavailable Manage Accounts view. Routes compose controllers and presentation. Screens receive immutable state and callbacks per [TM-DEC-011](../../../docs/governance/DECISIONS.md#tm-dec-011--strict-dumb-screen-presentation-only-rule). Reuse the visual group definitions, shared theme/components and currency preferences. No finance schema, journals, account data, default seeding, real Save, account lifecycle writes or fake totals.
 
 Acceptance before coding: check routing from the Accounts header and Settings, disabled unsupported groups, guarded draft navigation, Main/Sub currency choices, no persistence, unchanged tabs/FAB, and the screen/controller boundary. Run static checks, Expo bundles and governance. Device QA covers Back, keyboard, safe area, reduced motion, theme and accessibility.
 
+## Current UI snapshot (source verified 2026-11-24)
+
+Source reference: [`149c48b`](https://github.com/im-tnyx/Tio-Money/commit/149c48b32ce503a6646341bfba6755254ce44f8c), base `6468b62786d56edb1a70b7a5c90146e17566e23b`. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
+
+**Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Account Group row can reopen it. Six built-in groups have forms; Insurance is informational and custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
+
+**Current field order** (after the common Account Group row; left to right below means top to bottom in the form):
+
+| Group | Visible fields in order |
+| --- | --- |
+| Cash | Account Name, Opening Amount, Description |
+| Bank Account | Account Name, Opening Amount, Description, Linked Payment Modes |
+| Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Description, Auto Pay |
+| Wallet | Account Name, Wallet Type, Provider, Opening Amount (funded) or unavailable Linked Bank (bank-linked reference), Description |
+| Loan | Account Name, Loan Direction, Original Principal, Opening Outstanding Principal, EMI Amount (Optional), Start Date, Next Due Date, Description |
+| Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
+
+**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card Payment row has a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Auto Pay is Off and disabled. Monthly card days begin at 01 and 15 with “of every month”; other date rows use independently editable day/month/year parts.
+
+**Selectors.** Wallet Type, Loan Direction and Investment Type open an anchored, rounded popup with a selected checkmark, not a bottom sheet. Outside tap or Back dismisses without selecting. Account Group and the Bank mode editor retain their bottom-sheet flows. Main currency is the initial draft currency; if Sub Currencies are configured, one amount row per eligible form shows horizontally scrollable symbol choices in configured order with a tinted selected state and checked radio accessibility. Currency selection is hidden without Subs or for a bank-linked Wallet. Currency changes clear monetary fields, including EMI, without clearing other draft data. Returning to a funded Wallet retains its funded draft.
+
+**Bank payment modes.** Empty state has a 48 dp link icon and guidance. Add opens the shared sheet with an outlined name field, type choices and Apply to draft. Entries have named rows, Edit and Remove; caps are 3 Debit Cards, 3 UPI, 1 Cheque and 1 Internet Banking. Cancel discards unapplied mode edits. No credentials or financial writes.
+
+**Boundary.** All money and date edits are preview strings/parts, not validated financial records. No account Save, linking, payment execution, ledger, schema, balances, Default Cash or management writes. These remain gated by [RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98). Native device QA and independent review remain pending; merge authorization NOT_GRANTED.
+
 ## Checkpoints
+
+The entries below record implementation history at their stated revisions; superseded layouts and old CI results must not be read as current behavior or current-head evidence.
 
 - 2026-11-23 UTC — Verified clean dedicated checkout at the exact main SHA above after posting the separate technical decision. UI and tests assigned to this Codex Cloud session. Finance work remains at the design gate.
 
@@ -399,5 +428,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Reuse AccountField with From as the visible caption and Payment as the borderless title-sized placeholder. Keep the existing card icon, field order, and read-only preview. Remove the unavailable value and supporting copy from this row only. Owner also confirms zero caption-to-input gap; the existing shared captionGap token and regression assertion already equal zero and remain unchanged.
 - Changed paths: `src/features/accounts/add-account-screen.tsx`, `src/shared/i18n/strings.ts`, `tests/accounts/accounts-preview.test.ts`, `docs/product/ACCOUNT-GROUPS-SPEC.md`, this task record and `.ai/current.md`.
 - Connector-only source inspection and exact replacement checks; local TypeScript, lint, format, tests and device QA NOT_RUN here. Independent review DEFERRED. Fresh exact-HEAD CI required; see [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks). RFC #98 finance boundary unchanged; merge authorization NOT_GRANTED. Rollback: revert only this scoped commit.
+
+### 2026-11-24 — Current UI documentation reconciliation
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7129981723) records the owner-directed documentation-only checkpoint under RFC #96. ChatGPT GPT-6.2 inspected the current UI source at `149c48b32ce503a6646341bfba6755254ce44f8c`, base `6468b62786d56edb1a70b7a5c90146e17566e23b`, and reconciled the current scope, field order, tokens, preview boundaries and task metadata. The preceding UI commit is the source reference; old checkpoint text is retained as history.
+- Exact source reference workflow snapshot at audit: [AI governance checks](https://github.com/im-tnyx/Tio-Money/actions/runs/45383245822): success; [Phase 0 checks](https://github.com/im-tnyx/Tio-Money/actions/runs/45383245765): success. This is not evidence for the subsequent documentation commit. Local validation NOT_RUN (connector-only); independent review DEFERRED and device QA pending.
+- Changed paths: this task record, `.ai/current.md` and `docs/product/ACCOUNT-GROUPS-SPEC.md` only. PR summary reconciled separately; no application code, tests, dependencies or financial policies changed. Fresh exact-HEAD CI required. Rollback is a scoped docs revert. Merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
