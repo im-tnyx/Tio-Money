@@ -43,8 +43,7 @@ const fieldSpecs = {
     currencyControl: true,
   },
   emiAmount: { label: 'accountLoanEmiAmount', money: true },
-  startDate: { label: 'accountLoanStartDate', date: true },
-  nextDueDate: { label: 'accountLoanNextDueDate', date: true },
+  startDate: { label: 'accountLoanFirstEmiDate', date: true },
   investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
   valuation: { label: 'accountInvestmentValuation', money: true },
   valuationDate: { label: 'accountInvestmentValuationDate', date: true },
@@ -347,18 +346,11 @@ function GroupFields({
           <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...inputProps} />
           <PaymentFromField />
           {loanDates ? (
-            <>
-              <AppDateField
-                label={t('accountLoanStartDate')}
-                leading={<AccountFormIcon name="calendar" />}
-                {...loanDates.startDate}
-              />
-              <AppDateField
-                label={t('accountLoanNextDueDate')}
-                leading={<AccountFormIcon name="calendar" />}
-                {...loanDates.nextDueDate}
-              />
-            </>
+            <AppDateField
+              label={t('accountLoanFirstEmiDate')}
+              leading={<AccountFormIcon name="calendar" />}
+              {...loanDates.startDate}
+            />
           ) : null}
         </>
       );

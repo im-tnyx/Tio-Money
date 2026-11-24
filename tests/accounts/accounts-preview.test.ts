@@ -593,7 +593,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
     wallet: ['openingAmount'],
-    loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount', 'startDate', 'nextDueDate'],
+    loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount', 'startDate'],
     investment: ['investedCost', 'valuation', 'valuationDate'],
   } satisfies Record<PreviewGroup, readonly string[]>;
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
@@ -642,7 +642,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(groupFields, /field="emiAmount"[^>]*\/>\s*<PaymentFromField \/>/);
   assert.match(
     groupFields,
-    /<PaymentFromField \/>\s*\{loanDates \? \([\s\S]*?<AppDateField[\s\S]*?loanDates.startDate[\s\S]*?loanDates.nextDueDate/,
+    /<PaymentFromField \/>\s*\{loanDates \? \(\s*<AppDateField[\s\S]*?loanDates\.startDate/,
   );
   const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
   assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
@@ -922,7 +922,7 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
     return loan.fields;
   };
   assert.equal(dates().startDate, today);
-  assert.equal(dates().nextDueDate, today);
+  assert.equal(Object.hasOwn(dates(), 'nextDueDate'), false);
   session = update(session, { type: 'date.open', field: 'startDate' });
   assert.ok(session.datePicker);
   const id = session.datePicker.id;
@@ -948,29 +948,14 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.equal(dates().startDate, '2025-02-28');
   assert.equal(session.datePicker?.dayIndex, initialDayIndex - 3);
   assert.equal(session.datePicker?.monthIndex, initialMonthIndex + 1);
-  assert.equal(dates().nextDueDate, today);
   session = update(session, { type: 'date.close', id });
   assert.equal(dates().startDate, '2025-02-28');
-  session = update(session, { type: 'date.open', field: 'nextDueDate' });
-  assert.equal(update(session, { type: 'date.change', id, part: 'day', value: 1 }), session);
-  assert.equal(update(session, { type: 'date.close', id }), session);
-  assert.ok(session.datePicker);
-  const nextId = session.datePicker.id;
-  session = update(session, {
-    type: 'date.change',
-    id: nextId,
-    part: 'month',
-    value: calendarWheelIndex({ year: 2024, month: 9, day: 1 }, 'month'),
-  });
-  assert.equal(dates().nextDueDate, '2024-09-30');
-  session = update(session, { type: 'date.close', id: nextId });
   session = update(session, { type: 'group.open' });
   session = update(session, { type: 'group.select', group: 'cash' });
   assert.equal(update(session, { type: 'date.open', field: 'startDate' }), session);
   session = update(session, { type: 'group.open' });
   session = update(session, { type: 'group.select', group: 'loan' });
   assert.equal(dates().startDate, '2025-02-28');
-  assert.equal(dates().nextDueDate, '2024-09-30');
 
   const field = readFileSync('src/shared/ui/app-date-field.tsx', 'utf8');
   const wheel = readFileSync('src/shared/ui/app-wheel-picker.tsx', 'utf8');

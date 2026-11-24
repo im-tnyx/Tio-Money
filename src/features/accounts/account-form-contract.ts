@@ -70,7 +70,6 @@ interface LoanFields extends CommonFields {
   readonly outstandingPrincipal: string;
   readonly emiAmount: string;
   readonly startDate: string;
-  readonly nextDueDate: string;
 }
 
 interface InvestmentFields extends CommonFields {
@@ -102,13 +101,13 @@ export type DraftField = {
   [Group in PreviewGroup]: keyof GroupFields<Group>;
 }[PreviewGroup];
 
-export type LoanDateField = 'startDate' | 'nextDueDate';
+export type LoanDateField = 'startDate';
 export type CalendarDateField = LoanDateField | 'valuationDate';
 type CalendarDateParts = Readonly<Record<'day' | 'month' | 'year', string>>;
 export type CalendarDatePart = keyof CalendarDateParts;
 
 export function isCalendarDateField(field: DraftField): field is CalendarDateField {
-  return field === 'startDate' || field === 'nextDueDate' || field === 'valuationDate';
+  return field === 'startDate' || field === 'valuationDate';
 }
 
 export function calendarDateParts(value: string): CalendarDateParts {
@@ -167,7 +166,6 @@ export function newAccountDraft(
           outstandingPrincipal: '',
           emiAmount: '',
           startDate: today,
-          nextDueDate: today,
         },
         direction: 'borrowed',
       };
@@ -322,7 +320,7 @@ export function updateAccountDraft(
     case 'text':
       if (
         draft.group === 'loan' &&
-        (action.field === 'startDate' || action.field === 'nextDueDate') &&
+        action.field === 'startDate' &&
         !parseCalendarDate(action.value)
       ) {
         return draft;
