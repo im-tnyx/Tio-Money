@@ -198,7 +198,6 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
             draft.group === 'loan'
               ? {
                   startDate: loanDate('startDate', draft.fields.startDate),
-                  nextDueDate: loanDate('nextDueDate', draft.fields.nextDueDate),
                 }
               : null,
           canAddMode: modeAvailability?.canAdd ?? false,
