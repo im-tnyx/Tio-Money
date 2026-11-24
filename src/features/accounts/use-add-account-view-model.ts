@@ -140,8 +140,10 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
       onClose: () => {
         if (picker) dispatch({ type: 'date.close', id: picker.id });
       },
-      onChange: (day) => {
-        if (picker) dispatch({ type: 'date.change', id: picker.id, part: 'day', value: day });
+      onChange: (wheelIndex) => {
+        if (picker) {
+          dispatch({ type: 'date.change', id: picker.id, part: 'day', value: wheelIndex });
+        }
       },
     };
   }

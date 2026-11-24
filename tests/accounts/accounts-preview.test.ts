@@ -66,6 +66,11 @@ import {
   wheelPickerTokens,
 } from '../../src/shared/theme/component-tokens';
 import { space } from '../../src/shared/theme/tokens';
+import {
+  initialMonthDayWheelIndex,
+  monthDayFromWheelIndex,
+  monthDayWheelCount,
+} from '../../src/shared/ui/month-day';
 
 const currencies = draftCurrencies({ mainCode: 'INR', subCodes: ['USD', 'JPY'] });
 
@@ -826,34 +831,68 @@ test('Credit Card dates use a day-only wheel and Loan and Investment keep full c
     assert.equal(changed.fields[field], '29');
   }
 
+  assert.equal(monthDayFromWheelIndex(30), 31);
+  assert.equal(monthDayFromWheelIndex(31), 1);
+  assert.equal(monthDayFromWheelIndex(32), 2);
+
   const update = (session: AccountAddSession, action: AccountAddAction) =>
     updateAccountAddSession(session, action, 'INR', currencies);
   let session = update(newAccountAddSession(true), { type: 'group.select', group: 'credit-card' });
   session = update(session, { type: 'date.open', field: 'statementDate' });
   assert.ok(session.datePicker);
   assert.equal(session.datePicker.field, 'statementDate');
-  assert.equal(session.datePicker.dayIndex, 0);
+  assert.equal(session.datePicker.dayIndex, initialMonthDayWheelIndex(1));
   const statementId = session.datePicker.id;
+  const day28 = initialMonthDayWheelIndex(28);
   session = update(session, {
     type: 'date.change',
     id: statementId,
     part: 'day',
-    value: 28,
+    value: day28,
   });
   const afterStatement = session.drafts['credit-card'];
   assert.ok(afterStatement?.group === 'credit-card');
   assert.equal(afterStatement.fields.statementDate, '28');
-  assert.equal(session.datePicker?.dayIndex, 27);
+  assert.equal(session.datePicker?.dayIndex, day28);
+  session = update(session, {
+    type: 'date.change',
+    id: statementId,
+    part: 'day',
+    value: day28 + 3,
+  });
+  const afterThirtyOne = session.drafts['credit-card'];
+  assert.ok(afterThirtyOne?.group === 'credit-card');
+  assert.equal(afterThirtyOne.fields.statementDate, '31');
+  session = update(session, {
+    type: 'date.change',
+    id: statementId,
+    part: 'day',
+    value: day28 + 4,
+  });
+  const afterWrap = session.drafts['credit-card'];
+  assert.ok(afterWrap?.group === 'credit-card');
+  assert.equal(afterWrap.fields.statementDate, '01');
+  assert.equal(session.datePicker?.dayIndex, day28 + 4);
   session = update(session, { type: 'date.close', id: statementId });
   session = update(session, { type: 'date.open', field: 'dueDate' });
   assert.ok(session.datePicker);
   const dueId = session.datePicker.id;
-  session = update(session, { type: 'date.change', id: dueId, part: 'day', value: 5 });
+  const day5 = initialMonthDayWheelIndex(5);
+  session = update(session, { type: 'date.change', id: dueId, part: 'day', value: day5 });
   const afterDue = session.drafts['credit-card'];
   assert.ok(afterDue?.group === 'credit-card');
   assert.equal(afterDue.fields.dueDate, '05');
   assert.equal(
     update(session, { type: 'date.change', id: dueId, part: 'month', value: 1 }),
+    session,
+  );
+  assert.equal(
+    update(session, {
+      type: 'date.change',
+      id: dueId,
+      part: 'day',
+      value: monthDayWheelCount,
+    }),
     session,
   );
 
@@ -880,14 +919,15 @@ test('Credit Card dates use a day-only wheel and Loan and Investment keep full c
   );
 
   assert.equal(en.accountCardMonthlySuffix, 'of every month');
-  assert.equal(datePickerTokens.dayPickerWidth, 116);
+  assert.equal(datePickerTokens.dayPickerWidth, 148);
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const dayField = readFileSync('src/shared/ui/app-day-of-month-field.tsx', 'utf8');
   const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(form, /<AppDayOfMonthField[\s\S]*?accountCardStatementDate/);
   assert.match(form, /<AppDayOfMonthField[\s\S]*?accountCardDueDate/);
   assert.doesNotMatch(form, /DraftInput field="statementDate"|DraftInput field="dueDate"/);
-  assert.match(dayField, /count=\{monthDayCount\}/);
+  assert.match(dayField, /count=\{monthDayWheelCount\}/);
+  assert.match(dayField, /align="start"/);
   assert.doesNotMatch(dayField, /accountDateMonth|accountDateYear/);
   assert.match(dayField, /accountCardMonthlySuffix/);
   assert.match(controller, /cardDates:\s*draft\.group === 'credit-card'/);

@@ -65,6 +65,7 @@
 - [2026-11-25 Hide currency on Borrowed EMI](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--hide-currency-on-borrowed-emi) removes currency buttons from Borrowed EMI; Loan Amount keeps them.
 - [2026-11-25 Investment Simple v1](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--investment-simple-v1-remove-type) removes Investment Type/Valuation; keeps Name, Invested Cost, Start Date, optional Tenure.
 - [2026-11-25 Credit Card day-only date wheel](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--credit-card-day-only-date-wheel) replaces typed monthly days with a Day-only popup wheel.
+- [2026-11-25 Credit Card day wheel loop/width/align](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--credit-card-day-wheel-loop-width-left-align) loops 31→01, widens card, left-aligns above the field.
 
 ## 2026-11-24 — Preview workflow privilege boundary (RFC #105)
 
