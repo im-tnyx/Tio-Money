@@ -10,3 +10,7 @@
 Local validation used Node 24.22.3 and npm 11.19.1. The app suite passed 132/132, and preview passed 129 with the one CI-only signature test skipped locally. Governance passed 29 tests, Markdown links, actionlint and diff checks. A read-only replay using #97's recorded signal and current GitHub metadata approved its exact head and base. That replay made no Codespaces requests.
 
 The trusted job retains its existing read permission set. Only the isolated eligibility job receives Actions metadata read access. After admission the trusted job reuses the authenticated event in the same run and independently reads live PR, label and compare data.
+
+## Gate 3C.1 eligibility outcomes
+
+[Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/105#issuecomment-7139256753) scopes the correction to Draft #106. Verified automatic unlabeled PRs and current owner branch pushes without an open PR now return explicit non-approval. Dependabot can only reach the ordinary no-op outcome for its own verified unlabeled PR. Invalid evidence, unauthorized labeled requests, invalid manual requests and live revalidation failures remain errors. The workflow and its job-level approval condition are unchanged.
