@@ -644,6 +644,10 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   );
   assert.match(
     groupFields,
+    /draft\.moreDetailsOpen \? \(\s*<>\s*<PaymentFromField[\s\S]*?mode="collect"[\s\S]*?accountLoanInstallmentOptional/,
+  );
+  assert.match(
+    groupFields,
     /field="emiAmount"[\s\S]*?accountLoanInstallmentOptional[\s\S]*?currencyControl=\{false\}/,
   );
   assert.match(groupFields, /field="originalPrincipal"\s+currencyControl=\{false\}/);
