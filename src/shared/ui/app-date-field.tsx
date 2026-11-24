@@ -133,11 +133,11 @@ export function AppDateField({
             style={{
               position: 'absolute',
               top: ((visibleRows - 1) / 2) * rowHeight,
-              left: 0,
-              right: 0,
+              left: theme.navigation.origin,
+              right: theme.navigation.origin,
               height: rowHeight,
               borderRadius: theme.radius.sm,
-              backgroundColor: theme.colors.brandTint,
+              backgroundColor: theme.colors.segmentedTrack,
             }}
           />
           <AppWheelPicker

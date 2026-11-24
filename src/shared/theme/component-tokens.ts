@@ -83,6 +83,17 @@ export const optionPopupTokens = {
   shadowOpacity: opacity.fabShadow,
 } as const;
 
+/** Cylindrical projection roles for reusable scrolling wheels. */
+export const wheelPickerTokens = {
+  anglePerRow: 26,
+  maximumAngle: 84,
+  fadeDistance: 4,
+  sampleStep: 0.5,
+  fadePower: 1.35,
+  minimumScale: 0.82,
+  perspective: size.dp100 * 6,
+} as const;
+
 export const datePickerTokens = {
   width: size.dp100 * 3 + space.md,
   rowHeight: size.dp48,

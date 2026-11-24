@@ -755,7 +755,7 @@ cover placement, dismissal wiring and option selection.
 
 ## Shared date wheel popup — PR #97 (2026-11-24)
 
-Loan date fields use [AppDateField](../ui/app-date-field.tsx), [AppWheelPicker](../ui/app-wheel-picker.tsx) and [AppPopupCard](../ui/app-popup-card.tsx). Date selection is controlled by the Accounts session. The popup uses the same rounded theme surface and safe viewport placement geometry as AccountDropdown. Date picker roles in component-tokens.ts own the wheel width, row height and visible row count; compact viewports reduce the visible rows. Short English month names, live updates and no confirmation footer are the current owner-approved UI contract.
+Loan date fields use [AppDateField](../ui/app-date-field.tsx), [AppWheelPicker](../ui/app-wheel-picker.tsx) and [AppPopupCard](../ui/app-popup-card.tsx). Date selection is controlled by the Accounts session. The popup uses the same rounded theme surface and safe viewport placement geometry as AccountDropdown. Date picker roles in component-tokens.ts own the wheel width, row height and visible row count; compact viewports reduce the visible rows. Short English month names, live updates and no confirmation footer are the current owner-approved UI contract. The wheel projects rows from continuous scroll offset using perspective, rotation, vertical compression and edge opacity via `wheelPickerTokens` and [wheel-projection](../ui/wheel-projection.ts). The fixed central band uses the neutral segmented track color; Reduced Motion disables the cylindrical transforms. Device smoothness and visual parity require native QA.
 
 ## Shared ActionButton visual height — 2026-11-22 (owner RFC #79 refinement)
 
