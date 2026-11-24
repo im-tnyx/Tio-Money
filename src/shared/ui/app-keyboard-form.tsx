@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, type ComponentRef, type ReactNode } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import type { TextInput } from 'react-native';
 
@@ -12,9 +12,9 @@ import { KeyboardFormFocusContext } from './keyboard-form-focus';
 export function AppKeyboardForm({ children }: { readonly children: ReactNode }) {
   const theme = useAppTheme();
   const reduceMotion = useReducedMotion();
-  const viewport = useRef<View>(null);
-  const scroll = useRef<ScrollView>(null);
-  const focused = useRef<TextInput | null>(null);
+  const viewport = useRef<ComponentRef<typeof View>>(null);
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  const focused = useRef<ComponentRef<typeof TextInput> | null>(null);
   const offset = useRef(0);
   const frame = useRef<number | null>(null);
   const generation = useRef(0);
@@ -52,16 +52,16 @@ export function AppKeyboardForm({ children }: { readonly children: ReactNode }) 
 
   const focusBridge = useMemo(
     () => ({
-      focus(input: TextInput) {
+      focus(input: ComponentRef<typeof TextInput>) {
         focused.current = input;
         reveal();
       },
-      blur(input: TextInput) {
+      blur(input: ComponentRef<typeof TextInput>) {
         if (focused.current !== input) return;
         focused.current = null;
         cancelReveal();
       },
-      resize(input: TextInput) {
+      resize(input: ComponentRef<typeof TextInput>) {
         if (focused.current === input) reveal();
       },
     }),

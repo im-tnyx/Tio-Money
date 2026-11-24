@@ -1319,13 +1319,13 @@ test('all Add Account inputs share keyboard-aware viewport and focus bridge', ()
   assert.match(field, /focusBridge\?\.resize\(input\.current\)/);
 });
 
-test('all anchored form popups share a controlled disclosure chevron', () => {
+test('option popups share a controlled chevron and date rows omit it', () => {
   const dropdown = readFileSync('src/features/accounts/account-option-popup.tsx', 'utf8');
   const dateField = readFileSync('src/shared/ui/app-date-field.tsx', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const chevron = readFileSync('src/shared/ui/app-popup-chevron.tsx', 'utf8');
   assert.match(dropdown, /<AppPopupChevron open=\{open\} \/>/);
-  assert.match(dateField, /<AppPopupChevron open=\{open\} \/>/);
+  assert.doesNotMatch(dateField, /AppPopupChevron/);
   assert.doesNotMatch(controls, /expand:/);
   assert.match(chevron, /d="m9 6 6 6-6 6"/);
   assert.match(chevron, /outputRange: \['0deg', '90deg'\]/);
