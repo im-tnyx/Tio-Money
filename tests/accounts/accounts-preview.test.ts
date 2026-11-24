@@ -769,7 +769,7 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   );
   assert.match(
     form,
-    /<AccountGroupField\s+value=\{groupLabel\}\s+expanded=\{groupChoices !== null\}\s+onPress=\{onOpenGroupPicker\}[\s\S]*?<AccountFields/,
+    /<AccountGroupField\s+value=\{groupLabel\}\s+onPress=\{onOpenGroupPicker\}[\s\S]*?<AccountFields/,
   );
   assert.match(
     form,
@@ -794,7 +794,14 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   );
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
-  assert.match(picker, /<AccountDropdown\s+label="accountGroup"/);
+  assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
+  assert.match(picker, /minHeight: rowHeight,\s+flexDirection: 'row',\s+alignItems: 'center'/);
+  assert.match(picker, /<AppText muted style=\{\{ flex: 1 \}\}>\s*\{t\('accountGroup'\)\}/);
+  assert.match(
+    picker,
+    /<AppText style=\{\{ flexShrink: 1, textAlign: 'right' \}\}>\{t\(value\)\}<\/AppText>\s*<GroupMark \/>/,
+  );
+  assert.doesNotMatch(picker, /AccountDropdown|AccountFormIcon/);
   assert.match(picker, /rowHeight = theme.space.xxl/);
   assert.match(picker, /touchInset = \(theme.buttons.minimumHeight - rowHeight\) \/ 2/);
   assert.match(picker, /hitSlop=\{\{ top: touchInset, bottom: touchInset \}\}/);
