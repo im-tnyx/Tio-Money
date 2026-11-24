@@ -73,6 +73,15 @@ export const segmentedControlTokens = {
   radius: radius.pill,
 } as const;
 
+export const optionPopupTokens = {
+  width: size.dp100 + size.dp100 + space.xxxl,
+  radius: radius.xl,
+  elevation: size.dp6,
+  shadowRadius: size.dp10,
+  shadowOffsetY: size.dp5,
+  shadowOpacity: opacity.fabShadow,
+} as const;
+
 export const shadowTokens = {
   fab: {
     elevation: size.dp6,

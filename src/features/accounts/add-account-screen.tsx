@@ -13,8 +13,6 @@ import {
   type DraftField,
 } from './account-form-contract';
 import {
-  AccountChoices,
-  AccountDropdown,
   AccountField,
   AccountFormIcon,
   AccountFormRow,
@@ -23,6 +21,7 @@ import {
   UnavailableAccountChoice,
 } from './account-form-controls';
 import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
+import { AccountDropdown } from './account-option-popup';
 import { AccountPage } from './account-page';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
 
@@ -160,7 +159,6 @@ export function AddAccountScreen({
 }: AddAccountScreenViewModel) {
   const theme = useAppTheme();
   let sheet: BottomSheetLayer | undefined;
-  const choice = form?.choice;
   if (groupChoices) {
     sheet = {
       title: t('chooseAccountGroup'),
@@ -168,14 +166,6 @@ export function AddAccountScreen({
       onDismiss: onCloseGroupPicker,
       showCloseButton: true,
       children: <AccountGroupOptions choices={groupChoices} />,
-    };
-  } else if (choice?.open) {
-    sheet = {
-      title: t(choice.label),
-      dismissAccessibilityLabel: t('closeAccountOptions'),
-      onDismiss: choice.onClose,
-      showCloseButton: true,
-      children: <AccountChoices label={choice.label} options={choice.options} />,
     };
   } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
     sheet = {
@@ -249,13 +239,7 @@ function AccountFields({
         {...inputProps}
       />
       {choice ? (
-        <AccountDropdown
-          label={choice.label}
-          value={choice.value}
-          expanded={choice.open}
-          leading={<AccountFormIcon name="options" />}
-          onPress={choice.onOpen}
-        />
+        <AccountDropdown choice={choice} leading={<AccountFormIcon name="options" />} />
       ) : null}
       <GroupFields draft={draft} showWalletFunding={showWalletFunding} {...inputProps} />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />

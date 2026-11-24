@@ -26,6 +26,7 @@ import {
   type DraftField,
   type PreviewGroup,
 } from '../../src/features/accounts/account-form-contract';
+import { accountPopupPosition } from '../../src/features/accounts/account-popup-position';
 import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-group-templates';
 import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
@@ -727,7 +728,7 @@ test('small account captions align above their inputs while icons align beside t
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
   const row = controls.slice(
     controls.indexOf('export function AccountFormRow'),
-    controls.indexOf('export function AccountDropdown'),
+    controls.indexOf('export function AccountField'),
   );
 
   assert.match(
@@ -879,14 +880,8 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     /<AppBottomSheet\s+visible=\{sheet !== undefined\}\s+animate=\{animateSheet\}\s+avoidKeyboard/,
   );
   assert.doesNotMatch(form, /ActionButton|accountFormPreview|Entries are discarded|slideInOnMount/);
-  assert.match(
-    form,
-    /else if \(choice\?\.open\)[\s\S]*?onDismiss: choice.onClose,[\s\S]*?children: <AccountChoices/,
-  );
-  assert.match(
-    form,
-    /<AccountDropdown\s+label=\{choice.label\}\s+value=\{choice.value\}\s+expanded=\{choice.open\}/,
-  );
+  assert.doesNotMatch(form, /choice\?\.open|children: <AccountChoices/);
+  assert.match(form, /<AccountDropdown\s+choice=\{choice\}/);
   assert.match(
     controller,
     /choice\(\s*'accountWalletKind',[\s\S]*?choice\(\s*'accountLoanDirection',[\s\S]*?choice\(\s*'accountInvestmentType'/,
@@ -917,4 +912,35 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     accounts + form + choices + bankModes + picker,
     /expo-router|useState|useEffect|sqlite|\/domain\/|\/data\/|fetch\(/i,
   );
+});
+
+test('option popup anchors beside the trigger and stays within the safe viewport', () => {
+  const insets = { top: 32, right: 14, bottom: 24, left: 10 };
+  const settings = { margin: 8, gap: 4, preferredWidth: 240, preferredHeight: 300 };
+  const viewport = { width: 400, height: 730 };
+  assert.deepEqual(
+    accountPopupPosition({ x: 24, y: 96, width: 350, height: 48 }, viewport, insets, settings),
+    { left: 134, width: 240, top: 148, maxHeight: 550 },
+  );
+  assert.deepEqual(
+    accountPopupPosition({ x: 12, y: 540, width: 80, height: 48 }, viewport, insets, settings),
+    { left: 18, width: 240, bottom: 194, maxHeight: 496 },
+  );
+  assert.deepEqual(
+    accountPopupPosition(
+      { x: 0, y: 100, width: 250, height: 48 },
+      { width: 222, height: 240 },
+      insets,
+      settings,
+    ),
+    { left: 18, width: 182, top: 152, maxHeight: 56 },
+  );
+
+  const popup = readFileSync('src/features/accounts/account-option-popup.tsx', 'utf8');
+  assert.match(popup, /accessibilityState=\{\{ expanded: open \}\}/);
+  assert.match(popup, /measureInWindow/);
+  assert.match(popup, /<Modal\s+transparent[\s\S]*?onRequestClose=\{onClose\}/);
+  assert.match(popup, /accessibilityLabel=\{t\('closeAccountOptions'\)\}\s+onPress=\{onClose\}/);
+  assert.match(popup, /<ScrollView[\s\S]*?<AccountChoices label=\{label\} options=\{options\}/);
+  assert.doesNotMatch(popup, /AppBottomSheet|expo-router|useEffect|sqlite|fetch\(/i);
 });

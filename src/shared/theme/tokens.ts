@@ -46,6 +46,7 @@ export const typographyTokens = {
 const light = {
   canvas: '#F7F8FC',
   card: '#FFFFFF',
+  optionPopup: '#FFFFFFF5',
   elevated: '#F0F2F8',
   primaryText: '#172033',
   secondaryText: '#5B6578',
@@ -70,6 +71,7 @@ const light = {
 const dark = {
   canvas: '#0C1018',
   card: '#181F2B',
+  optionPopup: '#242D3BF5',
   elevated: '#242D3B',
   primaryText: '#F6F8FC',
   secondaryText: '#B6C0D0',

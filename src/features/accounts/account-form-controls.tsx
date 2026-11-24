@@ -106,42 +106,6 @@ export function AccountFormRow({
   );
 }
 
-export function AccountDropdown({
-  label,
-  value,
-  leading,
-  onPress,
-  expanded,
-}: {
-  readonly label: TranslationKey;
-  readonly value: TranslationKey;
-  readonly leading: ReactNode;
-  readonly onPress: () => void;
-  readonly expanded: boolean;
-}) {
-  const theme = useAppTheme();
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t(label)}
-      accessibilityValue={{ text: t(value) }}
-      accessibilityState={{ expanded }}
-      onPress={onPress}
-    >
-      <AccountFormRow label={label} leading={leading} minimumHeight={theme.buttons.minimumHeight}>
-        <AppText
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          style={{ textAlign: 'right', includeFontPadding: false }}
-        >
-          {t(value)}
-        </AppText>
-        <AccountFormIcon name="expand" />
-      </AccountFormRow>
-    </Pressable>
-  );
-}
-
 export function AccountField({
   label,
   leading,
@@ -375,8 +339,7 @@ export function AccountChoices({
         style={{
           minWidth: compact ? theme.buttons.minimumHeight : undefined,
           minHeight: theme.buttons.minimumHeight,
-          borderBottomWidth: compact ? theme.buttons.noBorder : theme.navigation.borderWidth,
-          borderBottomColor: theme.colors.border,
+          paddingVertical: compact ? undefined : theme.space.xs,
           paddingHorizontal: compact ? theme.space.xxs : theme.space.lg,
           flexDirection: 'row',
           alignItems: 'center',
