@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  Animated,
+  Easing,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -24,6 +26,8 @@ import {
   shouldExpandBottomSheet,
 } from './bottom-sheet-geometry';
 
+const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
+
 export interface BottomSheetLayer {
   readonly title: string;
   readonly dismissAccessibilityLabel: string;
@@ -45,16 +49,19 @@ export function AppBottomSheet({
   showCloseButton,
   expandable,
   overlay,
+  slideInOnMount = false,
 }: BottomSheetLayer & {
   visible: boolean;
   animate?: boolean;
   avoidKeyboard?: boolean;
   overlay?: BottomSheetLayer;
+  slideInOnMount?: boolean;
 }) {
-  const renderLayer = (layer: BottomSheetLayer) => (
+  const renderLayer = (layer: BottomSheetLayer, animateEntrance = false) => (
     <SheetSurface
       key={layer.title}
       {...layer}
+      animateEntrance={animateEntrance}
       underlayBehindKeyboard={avoidKeyboard && Platform.OS === 'ios'}
       keyboardAvoiding={avoidKeyboard}
     />
@@ -67,14 +74,10 @@ export function AppBottomSheet({
         accessibilityElementsHidden={overlay !== undefined}
         importantForAccessibility={overlay ? 'no-hide-descendants' : 'auto'}
       >
-        {renderLayer({
-          title,
-          dismissAccessibilityLabel,
-          onDismiss,
-          showCloseButton,
-          expandable,
-          children,
-        })}
+        {renderLayer(
+          { title, dismissAccessibilityLabel, onDismiss, showCloseButton, expandable, children },
+          animate && slideInOnMount,
+        )}
       </View>
       {overlay ? <View style={StyleSheet.absoluteFill}>{renderLayer(overlay)}</View> : null}
     </>
@@ -110,9 +113,11 @@ function SheetSurface({
   children,
   showCloseButton,
   expandable,
+  animateEntrance,
   underlayBehindKeyboard,
   keyboardAvoiding,
 }: BottomSheetLayer & {
+  animateEntrance: boolean;
   underlayBehindKeyboard: boolean;
   keyboardAvoiding: boolean;
 }) {
@@ -125,6 +130,10 @@ function SheetSurface({
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const [contentHeight, setContentHeight] = useState(0);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [entranceOffset] = useState(() =>
+    animateEntrance ? new Animated.Value(windowHeight) : null,
+  );
+  const [entranceReady, setEntranceReady] = useState(false);
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
 
@@ -154,6 +163,24 @@ function SheetSurface({
   const visibleMaxHeight = draggedForContent ?? (expandedForContent ? expandedMax : collapsedMax);
   const contentMaxHeight = Math.max(0, visibleMaxHeight - chromeHeight);
   const touchStartY = useRef(0);
+
+  useEffect(() => {
+    if (!entranceOffset) return;
+    if (!animateEntrance) {
+      entranceOffset.setValue(0);
+      return;
+    }
+    if (!entranceReady) return;
+
+    const entrance = Animated.timing(entranceOffset, {
+      toValue: 0,
+      duration: sheet.entranceDurationMs,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    entrance.start();
+    return () => entrance.stop();
+  }, [animateEntrance, entranceOffset, entranceReady, sheet.entranceDurationMs]);
 
   useEffect(() => {
     if (!underlayBehindKeyboard) return;
@@ -208,15 +235,23 @@ function SheetSurface({
           }}
         />
       ) : null}
-      <SafeAreaView
+      <AnimatedSafeAreaView
         edges={['bottom', 'left', 'right']}
         accessibilityViewIsModal
         onAccessibilityEscape={onDismiss}
         onLayout={(event) => {
-          currentHeight.current = event.nativeEvent.layout.height;
+          const height = event.nativeEvent.layout.height;
+          currentHeight.current = height;
+          // Wait until layout so the sheet starts just below its resting position.
+          if (entranceOffset && !entranceReady && height > 0) {
+            if (animateEntrance) entranceOffset.setValue(height);
+            setEntranceReady(true);
+          }
         }}
         style={{
           width: '100%',
+          transform:
+            entranceOffset && animateEntrance ? [{ translateY: entranceOffset }] : undefined,
           maxHeight: draggedForContent === null && !expandedForContent ? collapsedMax : expandedMax,
           height: draggedForContent ?? (expandedForContent ? expandedMax : undefined),
           backgroundColor: theme.colors.card,
@@ -343,7 +378,7 @@ function SheetSurface({
             />
           </View>
         ) : null}
-      </SafeAreaView>
+      </AnimatedSafeAreaView>
     </View>
   );
 }
