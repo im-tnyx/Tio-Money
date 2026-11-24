@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import Svg, { Path, SvgXml } from 'react-native-svg';
 
-import helpIcon from '@/shared/assets/google-material-icons/help-icon.json';
+import infoIcon from '@/shared/assets/google-material-icons/info-icon.json';
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -106,13 +106,13 @@ export function AccountFormRow({
   );
 }
 
-/** Official Material Symbols Outlined `help` wght200, half text-field size. */
+/** Official Material Symbols Outlined `info` wght200, half text-field size. */
 export function AccountFieldInfoMark() {
   const theme = useAppTheme();
   const markSize = theme.iconRoles.textField / 2;
   return (
     <SvgXml
-      xml={helpIcon}
+      xml={infoIcon}
       width={markSize}
       height={markSize}
       fill={theme.colors.secondaryText}

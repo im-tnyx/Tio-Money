@@ -697,16 +697,17 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(choices, /disabled=\{disabled\}/);
   assert.match(choices, /function AccountFieldInfoMark/);
   assert.match(choices, /theme\.iconRoles\.textField \/ 2/);
-  assert.match(choices, /help-icon\.json/);
-  assert.match(choices, /SvgXml[\s\S]*?xml=\{helpIcon\}/);
+  assert.match(choices, /info-icon\.json/);
+  assert.match(choices, /SvgXml[\s\S]*?xml=\{infoIcon\}/);
   assert.match(choices, /info\?: ReactNode/);
   assert.match(screen, /preferredWidth=\{theme\.space\.xxxl \* 5\}/);
-  const helpIcon = JSON.parse(
-    readFileSync('src/shared/assets/google-material-icons/help-icon.json', 'utf8'),
+  const infoIcon = JSON.parse(
+    readFileSync('src/shared/assets/google-material-icons/info-icon.json', 'utf8'),
   );
-  const helpSvg = readFileSync('src/shared/assets/google-material-icons/help.svg', 'utf8').trim();
-  assert.equal(helpIcon, helpSvg);
-  assert.match(helpSvg, /viewBox="0 -960 960 960"/);
+  const infoSvg = readFileSync('src/shared/assets/google-material-icons/info.svg', 'utf8').trim();
+  assert.equal(infoIcon, infoSvg);
+  assert.match(infoSvg, /viewBox="0 -960 960 960"/);
+  assert.match(infoSvg, /M460-300h40v-220/);
 });
 
 test('Loan More details field info opens only while expanded and clears on collapse', () => {

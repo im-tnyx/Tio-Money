@@ -112,9 +112,11 @@ Material Symbols Outlined `save`, fill 0, weight 300, grade 0 and optical size 2
 
 ## Loan field info tip (2026-11-24)
 
-[Help](./help-icon.json) and [help.svg](./help.svg) are the exact Material
-Symbols Outlined `help` glyph at weight **200** and 24px optical size from
-[google/material-design-icons](https://github.com/google/material-design-icons/blob/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/web/help/materialsymbolsoutlined/help_wght200_24px.svg)
-(`help_wght200_24px.svg`). Add Account Loan More details captions render it at
-half the text-field icon size via `SvgXml`. The existing
-[Apache 2.0 license](./LICENSE.txt) applies.
+[Info](./info-icon.json) and [info.svg](./info.svg) are the exact Material
+Symbols Outlined `info` glyph at weight **200** and 24px optical size from
+[google/material-design-icons](https://github.com/google/material-design-icons/blob/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/web/info/materialsymbolsoutlined/info_wght200_24px.svg)
+(`info_wght200_24px.svg`). Owner reference is the Google Fonts
+[info](https://fonts.google.com/icons?selected=Material+Symbols+Outlined:info:FILL@0;wght@400;GRAD@0;opsz@24)
+name; source weight stays **200** per existing Accounts icon practice. Add
+Account Loan More details captions render it at half the text-field icon size
+via `SvgXml`. The existing [Apache 2.0 license](./LICENSE.txt) applies.
