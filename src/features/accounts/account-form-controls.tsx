@@ -107,11 +107,11 @@ export function AccountFormRow({
 
 export function AccountFieldInfoMark() {
   const theme = useAppTheme();
-  const size = theme.iconRoles.textField;
+  const markSize = theme.iconRoles.textField / 2;
   return (
     <Svg
-      width={size}
-      height={size}
+      width={markSize}
+      height={markSize}
       viewBox="0 0 24 24"
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
@@ -120,7 +120,7 @@ export function AccountFieldInfoMark() {
         d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M9.5 9.2a2.7 2.7 0 0 1 5.1 1.2c0 1.7-2.6 2.1-2.6 3.6 M12 17.2h.01"
         fill="none"
         stroke={theme.colors.secondaryText}
-        strokeWidth={theme.icons.stroke}
+        strokeWidth={theme.icons.fineStroke}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
