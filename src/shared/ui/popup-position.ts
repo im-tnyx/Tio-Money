@@ -1,3 +1,5 @@
+export type PopupPlacement = 'auto' | 'above';
+
 export interface PopupAnchor {
   readonly x: number;
   readonly y: number;
@@ -19,11 +21,13 @@ export function popupPosition(
     gap,
     preferredWidth,
     preferredHeight,
+    placement = 'auto',
   }: {
     readonly margin: number;
     readonly gap: number;
     readonly preferredWidth: number;
     readonly preferredHeight: number;
+    readonly placement?: PopupPlacement;
   },
 ) {
   const left = insets.left + margin;
@@ -35,7 +39,8 @@ export function popupPosition(
   const above = Math.min(bottom, anchor.y - gap);
   const belowSpace = bottom - below;
   const aboveSpace = above - top;
-  const openAbove = belowSpace < preferredHeight && aboveSpace > belowSpace;
+  const openAbove =
+    placement === 'above' || (belowSpace < preferredHeight && aboveSpace > belowSpace);
 
   return {
     width,
@@ -43,4 +48,13 @@ export function popupPosition(
     maxHeight: Math.max(0, openAbove ? aboveSpace : belowSpace),
     ...(openAbove ? { bottom: viewport.height - above } : { top: below }),
   };
+}
+
+/** Pick the largest complete row count that fits the available content height. */
+export function fitPopupRows(
+  availableHeight: number,
+  rowHeight: number,
+  rowCounts: readonly number[],
+): number {
+  return rowCounts.find((count) => count * rowHeight <= availableHeight) ?? 0;
 }

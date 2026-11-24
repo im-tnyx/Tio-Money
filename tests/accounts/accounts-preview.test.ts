@@ -27,6 +27,7 @@ import {
   type PreviewGroup,
 } from '../../src/features/accounts/account-form-contract';
 import { accountPopupPosition } from '../../src/features/accounts/account-popup-position';
+import { fitPopupRows, popupPosition } from '../../src/shared/ui/popup-position';
 import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-group-templates';
 import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
@@ -912,6 +913,9 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   const wheel = readFileSync('src/shared/ui/app-wheel-picker.tsx', 'utf8');
   const popup = readFileSync('src/shared/ui/app-popup-card.tsx', 'utf8');
   assert.equal(field.match(/<AppWheelPicker/g)?.length, 3);
+  assert.match(field, /placement="above"/);
+  assert.match(field, /fitPopupRows\(/);
+  assert.match(popup, /placement === 'above'/);
   assert.match(field, /backgroundColor: theme\.colors\.wheelSelection/);
   assert.match(field, /paddingHorizontal: theme\.datePicker\.paddingHorizontal/);
   assert.match(field, /paddingVertical: theme\.datePicker\.paddingVertical/);
@@ -1153,6 +1157,47 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     accounts + form + choices + bankModes + picker,
     /expo-router|useState|useEffect|sqlite|\/domain\/|\/data\/|fetch\(/i,
   );
+});
+
+test('date popup stays above the field and fits only complete rows', () => {
+  const insets = { top: 32, right: 14, bottom: 24, left: 10 };
+  const viewport = { width: 400, height: 730 };
+  const settings = {
+    margin: 8,
+    gap: 4,
+    preferredWidth: 316,
+    preferredHeight: 174,
+    placement: 'above' as const,
+  };
+  const full = popupPosition(
+    { x: 24, y: 400, width: 350, height: 48 },
+    viewport,
+    insets,
+    settings,
+  );
+  assert.equal(full.bottom, 334);
+  assert.equal(full.maxHeight, 356);
+  assert.equal(fitPopupRows(Math.min(full.maxHeight, 174) - 14, 32, [5, 3, 1]), 5);
+
+  const compact = popupPosition(
+    { x: 24, y: 160, width: 350, height: 48 },
+    viewport,
+    insets,
+    settings,
+  );
+  assert.equal(compact.bottom, 574);
+  assert.equal(compact.maxHeight, 116);
+  assert.equal(fitPopupRows(compact.maxHeight - 14, 32, [5, 3, 1]), 3);
+
+  const tight = popupPosition(
+    { x: 24, y: 96, width: 350, height: 48 },
+    viewport,
+    insets,
+    settings,
+  );
+  assert.equal(tight.bottom, 638);
+  assert.equal(fitPopupRows(tight.maxHeight - 14, 32, [5, 3, 1]), 1);
+  assert.equal(fitPopupRows(31, 32, [5, 3, 1]), 0);
 });
 
 test('option popup anchors beside the trigger and stays within the safe viewport', () => {
