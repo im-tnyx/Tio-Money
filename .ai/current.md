@@ -32,6 +32,7 @@
 - [Add Account bottom sheet PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7112159681) opens the form from Accounts +. The Group row and Bank payment editor open above the form in one modal host. Group drafts last until the parent sheet closes. Exact published HEAD and checks are recorded in RFC #96.
 - [Group-first Add Account PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123331800) opens the picker before the selected form. The form has transparent borderless fields and omits the Group row and preview sentence. Exact published HEAD and checks are recorded in RFC #96.
 - [Add Account entrance PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123681685) slides the selected form upward in the existing modal and respects Reduced Motion. Exact published HEAD and checks are recorded in RFC #96.
+- [Add Account timing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123925491) slows the selected form to a 300 ms ease-in-out slide. The group picker uses the native modal slide. Exact published HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

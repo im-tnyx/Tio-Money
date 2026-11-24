@@ -307,4 +307,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths beyond this record and the index are `src/features/accounts/add-account-screen.tsx`, `src/shared/theme/component-tokens.ts`, `src/shared/theme/primitives.ts`, `src/shared/ui/app-bottom-sheet.tsx`, `tests/accounts/accounts-preview.test.ts` and `tests/phase0/shared-bottom-sheet.test.ts`.
 - Source self-review PERFORMED and independent review DEFERRED. Physical-device motion, including Reduced Motion and early dismiss, remains pending. Merge authorization NOT_GRANTED.
 
+### 2026-11-24 — Add Account sheet timing
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123925491) records the owner’s report that the form entrance feels faster than the group picker, against verified Ready for Review PR #97 head `086bb8880c09e9d52d63348a76c0e8bc43109b16` and live main `6468b62786d56edb1a70b7a5c90146e17566e23b`.
+- The picker uses the platform’s native Modal entrance. The opted-in form used a 240 ms cubic ease-out, which covers about 58% of its travel in the first quarter. Use 300 ms and sinusoidal ease-in-out for a gentler start and finish. Preserve native-driven motion and Reduced Motion.
+- `npm run check` passed TypeScript, ESLint, Prettier, 156 app tests and 71 preview tests, with one CI-only signature test skipped locally. `node --import tsx --test --test-isolation=none tests/{accounts/accounts-preview,phase0/shared-bottom-sheet,phase0/bottom-sheet-layout}.test.ts` passed 37 tests. `CI=1 EXPO_OFFLINE=1 EXPO_NO_TELEMETRY=1 node_modules/.bin/expo export --platform android --platform ios --output-dir /tmp/tio97-timing-native --max-workers 2` exported both bundles. Governance tests (29), Markdown links and diff whitespace passed. See RFC #96 for the exact published SHA and required checks.
+- Changed paths beyond this record and the index are `src/shared/theme/primitives.ts`, `src/shared/ui/app-bottom-sheet.tsx` and `tests/phase0/shared-bottom-sheet.test.ts`. Source self-review PERFORMED and independent review DEFERRED. Perceived speed in the new build remains to be verified on device. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
