@@ -156,3 +156,36 @@ export function dayWheelBounds(date: CalendarDate, index: number) {
     maximum: calendarWheelCounts.day - 1 - origin,
   };
 }
+
+// A Year gesture changes the civil month ordinal by multiples of twelve,
+// but must not move the physical Month drum.
+export const monthWheelCount = calendarWheelCounts.month * 3;
+
+export function initialMonthWheelIndex(date: CalendarDate): number {
+  return calendarWheelCounts.month + calendarWheelIndex(date, 'month');
+}
+
+export function nextMonthWheelIndex(
+  previousIndex: number,
+  previous: CalendarDate,
+  next: CalendarDate,
+  part: CalendarPart,
+): number {
+  const ordinal = calendarWheelIndex(next, 'month');
+  const delta = part === 'year' ? 0 : ordinal - calendarWheelIndex(previous, 'month');
+  const index = previousIndex + delta;
+  const origin = ordinal - index;
+  if (origin > 0 || origin + monthWheelCount < calendarWheelCounts.month) {
+    return initialMonthWheelIndex(next);
+  }
+  return index;
+}
+
+export function monthWheelBounds(date: CalendarDate, index: number) {
+  const origin = calendarWheelIndex(date, 'month') - index;
+  return {
+    origin,
+    minimum: -origin,
+    maximum: calendarWheelCounts.month - 1 - origin,
+  };
+}

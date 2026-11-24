@@ -148,6 +148,7 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
       value,
       open: picker !== null,
       dayIndex: picker?.dayIndex,
+      monthIndex: picker?.monthIndex,
       onOpen: () => {
         Keyboard.dismiss();
         dispatch({ type: 'date.open', field });
