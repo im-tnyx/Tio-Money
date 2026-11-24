@@ -613,7 +613,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   const groupFields = screen.slice(screen.indexOf('function GroupFields'));
   assert.equal(screen.match(/field="name"/g)?.length, 1);
   assert.match(screen, /field="name"[\s\S]*?accountCardName/);
-  assert.match(screen, /field="description"/);
+  assert.doesNotMatch(screen, /field="description"/);
   assert.match(screen, /draft.group === 'bank' \? \(\s*<BankPaymentModes/);
   assert.match(groupFields, /case 'cash':\s*case 'bank':\s*case 'wallet':/);
   for (const { id } of BUILT_IN_ACCOUNT_GROUPS) {
@@ -714,8 +714,9 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
   assert.match(
     screen,
-    /field="description"[^>]*?\/>\s*\{draft.group === 'credit-card' \? <DisabledAutoPay \/> : null\}/,
+    /<GroupFields[\s\S]*?\/>\s*\{draft.group === 'credit-card' \? <DisabledAutoPay \/> : null\}/,
   );
+  assert.doesNotMatch(screen, /DraftInput field="description"/);
   assert.match(screen, /function DisabledAutoPay/);
   assert.equal(screen.match(/<Switch\s/g)?.length, 1);
   assert.equal(screen.match(/<DisabledAutoPay \/>/g)?.length, 2);
