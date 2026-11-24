@@ -38,6 +38,8 @@ test('trusted environment is gated on successful explicit eligibility', () => {
   assert.match(eligibility, /persist-credentials: false/);
   assert.doesNotMatch(eligibility, /environment:|secrets\.|cache:|artifact|: write/);
   assert.match(worker, /needs: codespaces_eligibility/);
+  assert.doesNotMatch(worker, /actions: read/);
+  assert.match(worker, /authorize-codespaces-preview\.mjs --revalidate/);
   assert.ok(worker.includes("needs.codespaces_eligibility.result == 'success'"));
   assert.ok(worker.includes("needs.codespaces_eligibility.outputs.approved == 'true'"));
   assert.ok(worker.includes("github.run_attempt == '1'"));

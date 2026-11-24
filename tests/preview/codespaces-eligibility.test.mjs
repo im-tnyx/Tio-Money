@@ -60,6 +60,7 @@ for (const manual of [false, true]) {
       for (const draft of [true, false]) {
         const f = fixture(manual);
         f.pr.draft = f.current.draft = draft;
+        if (expected) delete f.responses['actions/runs/8'];
         const { captured, compare, ...tuple } = evaluate(f, expected);
         assert.deepEqual(tuple, approved);
         assert.equal(captured.number, 97);

@@ -46,16 +46,22 @@ export function authorizePreview(event, context, api, expected) {
     pushed = event.workflow_run;
     requireCondition(context.event === 'workflow_run' && event.action === 'completed' &&
       Number.isSafeInteger(pushed?.id) && pushed.id > 0, 'Preview event denied.');
-    const run = api(`actions/runs/${pushed.id}`);
-    requireCondition(run?.id === pushed.id && run.workflow_id === signalId && run.path === signalPath &&
-      run.event === 'push' && run.status === 'completed' && run.conclusion === 'success' &&
-      run.run_attempt === 1 && pushed.run_attempt === 1 && sameRepo(run.repository) &&
-      sameRepo(run.head_repository) && sameRepo(pushed.head_repository) &&
-      isOwner(run.actor) && isOwner(run.triggering_actor) && isOwner(pushed.actor) &&
-      typeof run.head_branch === 'string' && run.head_branch && run.head_branch !== 'main' &&
-      run.head_branch === pushed.head_branch && sha.test(run.head_sha) && run.head_sha === pushed.head_sha,
-    'Push signal identity, origin or attempt denied.');
-    const matches = api(`commits/${run.head_sha}/pulls?per_page=100`, true)
+    requireCondition(pushed.run_attempt === 1 && sameRepo(pushed.head_repository) &&
+      isOwner(pushed.actor) && typeof pushed.head_branch === 'string' &&
+      pushed.head_branch && pushed.head_branch !== 'main' && sha.test(pushed.head_sha),
+    'Push signal metadata denied.');
+    // The privileged runner reuses the immutable event already verified by the
+    // eligibility job. Its own token needs only live PR, label and compare reads.
+    if (!expected) {
+      const run = api(`actions/runs/${pushed.id}`);
+      requireCondition(run?.id === pushed.id && run.workflow_id === signalId && run.path === signalPath &&
+        run.event === 'push' && run.status === 'completed' && run.conclusion === 'success' &&
+        run.run_attempt === 1 && sameRepo(run.repository) && sameRepo(run.head_repository) &&
+        isOwner(run.actor) && isOwner(run.triggering_actor) &&
+        run.head_branch === pushed.head_branch && run.head_sha === pushed.head_sha,
+      'Push signal identity, origin or attempt denied.');
+    }
+    const matches = api(`commits/${pushed.head_sha}/pulls?per_page=100`, true)
       .filter((pr) => pr.state === 'open');
     requireCondition(matches.length === 1, 'Expected exactly one open PR for the push SHA.');
     number = matches[0].number;
