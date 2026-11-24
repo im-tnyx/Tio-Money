@@ -31,6 +31,7 @@ import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-gro
 import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
+import { wheelProjection, wheelProjectionSamples } from '../../src/shared/ui/wheel-projection';
 import {
   calendarMonths,
   localCalendarToday,
@@ -751,6 +752,32 @@ test('Investment keeps editable day, month and year on the same date row', () =>
   assert.match(form, /value=\{parts\?\.day \?\? value\}/);
 });
 
+test('wheel projection preserves the center and curves and fades symmetrically', () => {
+  const rowHeight = 48;
+  const center = wheelProjection(0, rowHeight);
+  const near = wheelProjection(1, rowHeight);
+  const far = wheelProjection(3, rowHeight);
+  const opposite = wheelProjection(-3, rowHeight);
+
+  assert.deepEqual(center, { translateY: 0, rotateX: 0, opacity: 1, scale: 1 });
+  assert.ok(near.opacity < center.opacity && far.opacity < near.opacity);
+  assert.ok(far.scale < near.scale && near.scale < center.scale);
+  assert.ok(far.rotateX > near.rotateX && far.rotateX < 90);
+  assert.ok(far.translateY > near.translateY && near.translateY > 0);
+  assert.equal(opposite.translateY, -far.translateY);
+  assert.equal(opposite.rotateX, -far.rotateX);
+  assert.equal(opposite.opacity, far.opacity);
+  assert.equal(wheelProjection(4, rowHeight).opacity, 0);
+
+  const samples = wheelProjectionSamples(10, rowHeight);
+  assert.ok(samples.some((sample) => sample.offset === 10 * rowHeight && sample.opacity === 1));
+  for (let index = 1; index < samples.length; index += 1) {
+    const previous = samples[index - 1];
+    const current = samples[index];
+    assert.ok(previous && current && current.offset > previous.offset);
+  }
+});
+
 test('Loan wheels use local Today and retain live valid dates after dismissal', () => {
   const today = '2024-01-31';
   assert.equal(localCalendarToday(new Date(2024, 0, 31, 23, 59)), today);
@@ -805,6 +832,10 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.doesNotMatch(field, /ActionButton|TextInput|AppBottomSheet|onSubmit|onSave/);
   assert.match(wheel, /snapToInterval=\{rowHeight\}/);
   assert.match(wheel, /onScroll=\{/);
+  assert.match(wheel, /offset\.setValue\(event\.nativeEvent\.contentOffset\.y\)/);
+  assert.match(wheel, /rotateX: offset\.interpolate/);
+  assert.match(wheel, /useReducedMotion\(\)/);
+  assert.doesNotMatch(wheel, /contentOffset=\{initialOffset\.current\}/);
   assert.match(wheel, /accessibilityRole="adjustable"/);
   assert.match(popup, /onRequestClose=\{onClose\}/);
   assert.match(popup, /onPress=\{onClose\}/);
