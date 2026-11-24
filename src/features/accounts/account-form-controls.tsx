@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, SvgXml } from 'react-native-svg';
 
+import helpIcon from '@/shared/assets/google-material-icons/help-icon.json';
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
-import { size } from '@/shared/theme/primitives';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 import { AppTextField, type AppTextFieldProps } from '@/shared/ui/app-text-field';
@@ -106,26 +106,19 @@ export function AccountFormRow({
   );
 }
 
+/** Official Material Symbols Outlined `help` wght200, half text-field size. */
 export function AccountFieldInfoMark() {
   const theme = useAppTheme();
   const markSize = theme.iconRoles.textField / 2;
   return (
-    <Svg
+    <SvgXml
+      xml={helpIcon}
       width={markSize}
       height={markSize}
-      viewBox="0 0 24 24"
+      fill={theme.colors.secondaryText}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
-    >
-      <Path
-        d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M9.5 9.2a2.7 2.7 0 0 1 5.1 1.2c0 1.7-2.6 2.1-2.6 3.6 M12 17.2h.01"
-        fill="none"
-        stroke={theme.colors.secondaryText}
-        strokeWidth={size.dp1}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
+    />
   );
 }
 

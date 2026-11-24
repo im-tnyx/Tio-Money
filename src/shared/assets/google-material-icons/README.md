@@ -8,13 +8,13 @@ for the selected tab** (`<name>_wght300_24px.svg`), all at 24px optical size. Th
 icons only**. Appearance mode icons remain weight 200. User-supplied Google Fonts links
 identify icon names, not additional size or weight approvals. Display size stays 24dp.
 
-| Bottom tab | Official icon ID | Unselected source (200) | Selected source (300) |
-| --- | --- | --- | --- |
-| Home | `home` | `home_wght200_24px.svg` | `home_wght300_24px.svg` |
-| Trans. | `book_2` | `book_2_wght200_24px.svg` | `book_2_wght300_24px.svg` |
-| Stats. | `bar_chart_4_bars` | `bar_chart_4_bars_wght200_24px.svg` | `bar_chart_4_bars_wght300_24px.svg` |
-| Account | `account_balance` | `account_balance_wght200_24px.svg` | `account_balance_wght300_24px.svg` |
-| More | `more_horiz` | `more_horiz_wght200_24px.svg` | `more_horiz_wght300_24px.svg` |
+| Bottom tab | Official icon ID   | Unselected source (200)             | Selected source (300)               |
+| ---------- | ------------------ | ----------------------------------- | ----------------------------------- |
+| Home       | `home`             | `home_wght200_24px.svg`             | `home_wght300_24px.svg`             |
+| Trans.     | `book_2`           | `book_2_wght200_24px.svg`           | `book_2_wght300_24px.svg`           |
+| Stats.     | `bar_chart_4_bars` | `bar_chart_4_bars_wght200_24px.svg` | `bar_chart_4_bars_wght300_24px.svg` |
+| Account    | `account_balance`  | `account_balance_wght200_24px.svg`  | `account_balance_wght300_24px.svg`  |
+| More       | `more_horiz`       | `more_horiz_wght200_24px.svg`       | `more_horiz_wght300_24px.svg`       |
 
 All bottom-tab sources are under `symbols/web/<icon-id>/materialsymbolsoutlined/`
 in [Google's repository](https://github.com/google/material-design-icons). The independent
@@ -59,11 +59,11 @@ independent native-runtime problem.
 
 These three additional settings icons are official **Material Symbols Outlined 200-weight** SVGs copied byte-for-byte from Google's upstream repository. They render at the existing 24dp `iconRoleSizes.bottomSheet` size, tinted with the current theme; the radio selection remains a separate right-aligned semantic control. Exact XML is bundled in `src/features/settings/appearance-option-svg.json`, verified against these original SVG files and rendered by `appearance-option-icon.tsx` with the existing `SvgXml` renderer. No new fonts or packages.
 
-| Option | Google icon | Source SVG |
-| --- | --- | --- |
-| System Mode | `routine` | `symbols/web/routine/materialsymbolsoutlined/routine_wght200_24px.svg` |
-| Dark Mode | `dark_mode` | `symbols/web/dark_mode/materialsymbolsoutlined/dark_mode_wght200_24px.svg` |
-| Light Mode | `light_mode` | `symbols/web/light_mode/materialsymbolsoutlined/light_mode_wght200_24px.svg` |
+| Option      | Google icon  | Source SVG                                                                   |
+| ----------- | ------------ | ---------------------------------------------------------------------------- |
+| System Mode | `routine`    | `symbols/web/routine/materialsymbolsoutlined/routine_wght200_24px.svg`       |
+| Dark Mode   | `dark_mode`  | `symbols/web/dark_mode/materialsymbolsoutlined/dark_mode_wght200_24px.svg`   |
+| Light Mode  | `light_mode` | `symbols/web/light_mode/materialsymbolsoutlined/light_mode_wght200_24px.svg` |
 
 The existing Apache 2.0 license applies. Owner-provided Google Fonts links identify the selected icon names; `200` is the approved source weight even if those links display default 400.
 
@@ -95,18 +95,26 @@ at weight 200 and 24px optical size. The source files below come from
 The exact XML is bundled in [payment-mode-icons.json](./payment-mode-icons.json)
 and rendered at 24dp using the theme transfer color.
 
-| Payment type | Source SVG |
-| --- | --- |
-| Debit Card | `symbols/web/credit_card/materialsymbolsoutlined/credit_card_wght200_24px.svg` |
-| UPI | `symbols/web/qr_code_2/materialsymbolsoutlined/qr_code_2_wght200_24px.svg` |
-| Cheque | `symbols/web/checkbook/materialsymbolsoutlined/checkbook_wght200_24px.svg` |
-| Internet Banking | `symbols/web/language/materialsymbolsoutlined/language_wght200_24px.svg` |
+| Payment type     | Source SVG                                                                     |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Debit Card       | `symbols/web/credit_card/materialsymbolsoutlined/credit_card_wght200_24px.svg` |
+| UPI              | `symbols/web/qr_code_2/materialsymbolsoutlined/qr_code_2_wght200_24px.svg`     |
+| Cheque           | `symbols/web/checkbook/materialsymbolsoutlined/checkbook_wght200_24px.svg`     |
+| Internet Banking | `symbols/web/language/materialsymbolsoutlined/language_wght200_24px.svg`       |
 
 The existing [Apache 2.0 license](./LICENSE.txt) applies.
 
 ## Add Account Save action (2026-11-24)
 
 [Save](./save-icon.json) bundles the exact SVG XML served by Google Fonts for
-Material Symbols Outlined `save`, fill 0, weight 300, grade 0 and optical size
-24. The editor top bar renders it at 20dp in the current theme. The existing
+Material Symbols Outlined `save`, fill 0, weight 300, grade 0 and optical size 24. The editor top bar renders it at 20dp in the current theme. The existing
 [Apache 2.0 license](./LICENSE.txt) applies. [Source SVG](https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/save/wght300/24px.svg)
+
+## Loan field info tip (2026-11-24)
+
+[Help](./help-icon.json) and [help.svg](./help.svg) are the exact Material
+Symbols Outlined `help` glyph at weight **200** and 24px optical size from
+[google/material-design-icons](https://github.com/google/material-design-icons/blob/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/web/help/materialsymbolsoutlined/help_wght200_24px.svg)
+(`help_wght200_24px.svg`). Add Account Loan More details captions render it at
+half the text-field icon size via `SvgXml`. The existing
+[Apache 2.0 license](./LICENSE.txt) applies.
