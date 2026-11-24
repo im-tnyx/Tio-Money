@@ -11,6 +11,7 @@ import {
 import {
   bottomSheetTokens,
   buttonTokens,
+  datePickerTokens,
   iconRoleSizes,
   iconTokens,
   navigationTokens,
@@ -45,6 +46,7 @@ export interface AppTheme {
   segmentedControl: typeof segmentedControlTokens;
   bottomSheet: typeof bottomSheetTokens;
   optionPopup: typeof optionPopupTokens;
+  datePicker: typeof datePickerTokens;
   shadows: typeof shadowTokens;
   recovery: typeof recoveryTokens;
 }
@@ -111,6 +113,7 @@ export function AppThemeProvider({
       segmentedControl: segmentedControlTokens,
       bottomSheet: bottomSheetTokens,
       optionPopup: optionPopupTokens,
+      datePicker: datePickerTokens,
       shadows: shadowTokens,
       recovery: recoveryTokens,
     }),

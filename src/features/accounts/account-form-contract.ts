@@ -1,5 +1,7 @@
 import type { CurrencyCode, CurrencyPreferences } from '@/shared/currency/currency-preference';
 import type { TranslationKey } from '@/shared/i18n/strings';
+import type { AppDateFieldModel } from '@/shared/ui/app-date-field';
+import { localCalendarToday, parseCalendarDate } from '@/shared/ui/calendar-date';
 
 export const previewGroups = [
   'cash',
@@ -104,7 +106,8 @@ export type DraftField = {
   [Group in PreviewGroup]: keyof GroupFields<Group>;
 }[PreviewGroup];
 
-export type CalendarDateField = 'startDate' | 'nextDueDate' | 'valuationDate';
+export type LoanDateField = 'startDate' | 'nextDueDate';
+export type CalendarDateField = LoanDateField | 'valuationDate';
 type CalendarDateParts = Readonly<Record<'day' | 'month' | 'year', string>>;
 export type CalendarDatePart = keyof CalendarDateParts;
 
@@ -139,7 +142,11 @@ export function accountCurrencyChoices(
     : null;
 }
 
-export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): AccountDraft {
+export function newAccountDraft(
+  group: PreviewGroup,
+  currency: CurrencyCode,
+  today = localCalendarToday(),
+): AccountDraft {
   const common = { name: '', description: '' };
   switch (group) {
     case 'cash':
@@ -175,8 +182,8 @@ export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): Ac
           originalPrincipal: '',
           outstandingPrincipal: '',
           emiAmount: '',
-          startDate: '',
-          nextDueDate: '',
+          startDate: today,
+          nextDueDate: today,
         },
         direction: 'borrowed',
       };
@@ -331,6 +338,13 @@ export function updateAccountDraft(
   switch (action.type) {
     case 'text':
       if (
+        draft.group === 'loan' &&
+        (action.field === 'startDate' || action.field === 'nextDueDate') &&
+        !parseCalendarDate(action.value)
+      ) {
+        return draft;
+      }
+      if (
         draft.group === 'credit-card' &&
         (action.field === 'statementDate' || action.field === 'dueDate') &&
         (!/^\d{0,2}$/.test(action.value) || action.value === '00' || Number(action.value) > 31)
@@ -342,6 +356,7 @@ export function updateAccountDraft(
         : draft;
     case 'date.part': {
       const { field, part, value } = action;
+      if (draft.group === 'loan') return draft;
       if (!Object.hasOwn(draft.fields, field) || !/^\d{0,4}$/.test(value)) return draft;
       const limit = part === 'month' ? 12 : 31;
       if (part !== 'year' && (value.length > 2 || value === '00' || Number(value) > limit)) {
@@ -395,6 +410,7 @@ export interface AddAccountViewModel {
     | null;
   readonly showWalletFunding: boolean;
   readonly choice: AccountDraftChoice | null;
+  readonly loanDates: Readonly<Record<LoanDateField, AppDateFieldModel>> | null;
   readonly canAddMode: boolean;
   readonly canApplyMode: boolean;
   readonly availableModeTypes: readonly PaymentModeType[];

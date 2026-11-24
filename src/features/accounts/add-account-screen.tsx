@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, Switch } from 'react-native
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
+import { AppDateField } from '@/shared/ui/app-date-field';
 import { AppText } from '@/shared/ui/app-text';
 
 import {
@@ -224,6 +225,7 @@ function AccountFields({
   currencyChoices,
   showWalletFunding,
   choice,
+  loanDates,
   canAddMode,
   onAction,
 }: AddAccountViewModel) {
@@ -240,7 +242,12 @@ function AccountFields({
       {choice ? (
         <AccountDropdown choice={choice} leading={<AccountFormIcon name="options" />} />
       ) : null}
-      <GroupFields draft={draft} showWalletFunding={showWalletFunding} {...inputProps} />
+      <GroupFields
+        draft={draft}
+        showWalletFunding={showWalletFunding}
+        loanDates={loanDates}
+        {...inputProps}
+      />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
       {draft.group === 'credit-card' || draft.group === 'loan' ? (
         <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
@@ -285,10 +292,16 @@ function GroupFields({
   currencySymbol,
   currencyChoices,
   showWalletFunding,
+  loanDates,
   onAction,
 }: Pick<
   AddAccountViewModel,
-  'draft' | 'currencySymbol' | 'currencyChoices' | 'showWalletFunding' | 'onAction'
+  | 'draft'
+  | 'currencySymbol'
+  | 'currencyChoices'
+  | 'showWalletFunding'
+  | 'loanDates'
+  | 'onAction'
 >) {
   const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   switch (draft.group) {
@@ -337,8 +350,20 @@ function GroupFields({
           />
           <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...inputProps} />
           <PaymentFromField />
-          <DraftInput field="startDate" value={draft.fields.startDate} {...inputProps} />
-          <DraftInput field="nextDueDate" value={draft.fields.nextDueDate} {...inputProps} />
+          {loanDates ? (
+            <>
+              <AppDateField
+                label={t('accountLoanStartDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...loanDates.startDate}
+              />
+              <AppDateField
+                label={t('accountLoanNextDueDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...loanDates.nextDueDate}
+              />
+            </>
+          ) : null}
         </>
       );
     case 'investment':

@@ -7,6 +7,8 @@ import { CURRENCY_OPTIONS } from '@/shared/currency/currency-preference';
 import { useCurrencySettings } from '@/shared/currency/currency-provider';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useReducedMotion } from '@/shared/navigation/reduced-motion-provider';
+import type { AppDateFieldModel } from '@/shared/ui/app-date-field';
+import { localCalendarToday } from '@/shared/ui/calendar-date';
 
 import {
   newAccountAddSession,
@@ -28,6 +30,7 @@ import {
   type AccountDraft,
   type AccountDraftChoice,
   type AddAccountScreenViewModel,
+  type LoanDateField,
 } from './account-form-contract';
 
 const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
@@ -129,14 +132,33 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
   if (current !== session) setSession(current);
 
   function dispatch(action: AccountAddAction) {
+    const today = localCalendarToday();
     setSession((previous) =>
-      updateAccountAddSession(reconcile(previous), action, preferences.mainCode, currencies),
+      updateAccountAddSession(reconcile(previous), action, preferences.mainCode, currencies, today),
     );
   }
 
   const group = current.group;
   const draft = group === null ? undefined : current.drafts[group];
   const modeAvailability = draft?.group === 'bank' ? paymentModeAvailability(draft) : null;
+
+  function loanDate(field: LoanDateField, value: string): AppDateFieldModel {
+    const picker = current.datePicker?.field === field ? current.datePicker : null;
+    return {
+      value,
+      open: picker !== null,
+      onOpen: () => {
+        Keyboard.dismiss();
+        dispatch({ type: 'date.open', field });
+      },
+      onClose: () => {
+        if (picker) dispatch({ type: 'date.close', id: picker.id });
+      },
+      onChange: (part, value) => {
+        if (picker) dispatch({ type: 'date.change', id: picker.id, part, value });
+      },
+    };
+  }
 
   return {
     animateSheet: !reduceMotion,
@@ -179,6 +201,13 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
             })) ?? null,
           showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
           choice: draftChoice(draft, current.choicePickerOpen, dispatch),
+          loanDates:
+            draft.group === 'loan'
+              ? {
+                  startDate: loanDate('startDate', draft.fields.startDate),
+                  nextDueDate: loanDate('nextDueDate', draft.fields.nextDueDate),
+                }
+              : null,
           canAddMode: modeAvailability?.canAdd ?? false,
           canApplyMode: modeAvailability?.canApply ?? false,
           availableModeTypes: modeAvailability?.availableTypes ?? [],

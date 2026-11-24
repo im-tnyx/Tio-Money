@@ -1,4 +1,11 @@
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
+import {
+  changeCalendarPart,
+  encodeCalendarDate,
+  localCalendarToday,
+  parseCalendarDate,
+  type CalendarPart,
+} from '@/shared/ui/calendar-date';
 
 import {
   newAccountDraft,
@@ -8,6 +15,7 @@ import {
   type AccountChoiceAction,
   type AccountDraft,
   type AccountFormAction,
+  type LoanDateField,
   type PreviewGroup,
 } from './account-form-contract';
 
@@ -16,6 +24,8 @@ type GroupPickerState = 'pending' | 'open' | 'closed';
 export interface AccountAddSession {
   readonly groupPicker: GroupPickerState;
   readonly choicePickerOpen: boolean;
+  readonly datePicker: { readonly field: LoanDateField; readonly id: number } | null;
+  readonly datePickerEpoch: number;
   readonly group: PreviewGroup | null;
   readonly drafts: Readonly<Partial<Record<PreviewGroup, AccountDraft>>>;
 }
@@ -25,12 +35,22 @@ export type AccountAddAction =
   | { readonly type: 'group.select'; readonly group: PreviewGroup }
   | { readonly type: 'options.open' | 'options.close' }
   | { readonly type: 'options.select'; readonly choice: AccountChoiceAction }
+  | { readonly type: 'date.open'; readonly field: LoanDateField }
+  | { readonly type: 'date.close'; readonly id: number }
+  | {
+      readonly type: 'date.change';
+      readonly id: number;
+      readonly part: CalendarPart;
+      readonly value: number;
+    }
   | { readonly type: 'form'; readonly group: PreviewGroup; readonly action: AccountFormAction };
 
 export function newAccountAddSession(showPickerImmediately = false): AccountAddSession {
   return {
     groupPicker: showPickerImmediately ? 'open' : 'pending',
     choicePickerOpen: false,
+    datePicker: null,
+    datePickerEpoch: 0,
     group: null,
     drafts: {},
   };
@@ -60,6 +80,7 @@ export function updateAccountAddSession(
   action: AccountAddAction,
   mainCode: CurrencyCode,
   currencies: readonly CurrencyCode[],
+  today = localCalendarToday(),
 ): AccountAddSession {
   const active = session.group === null ? undefined : session.drafts[session.group];
   switch (action.type) {
@@ -67,6 +88,7 @@ export function updateAccountAddSession(
       if (
         session.groupPicker === 'open' ||
         session.choicePickerOpen ||
+        session.datePicker ||
         (active?.group === 'bank' && active.modeEditor)
       ) {
         return session;
@@ -79,13 +101,14 @@ export function updateAccountAddSession(
       const { group } = action;
       const drafts = session.drafts[group]
         ? session.drafts
-        : { ...session.drafts, [group]: newAccountDraft(group, mainCode) };
+        : { ...session.drafts, [group]: newAccountDraft(group, mainCode, today) };
       return { ...session, group, groupPicker: 'closed', drafts };
     }
     case 'options.open':
       if (
         session.groupPicker !== 'closed' ||
         session.choicePickerOpen ||
+        session.datePicker ||
         (active?.group !== 'wallet' && active?.group !== 'loan' && active?.group !== 'investment')
       ) {
         return session;
@@ -103,8 +126,41 @@ export function updateAccountAddSession(
         drafts: { ...session.drafts, [draft.group]: draft },
       };
     }
+    case 'date.open': {
+      if (
+        active?.group !== 'loan' ||
+        session.groupPicker !== 'closed' ||
+        session.choicePickerOpen ||
+        session.datePicker
+      ) {
+        return session;
+      }
+      const id = session.datePickerEpoch + 1;
+      return { ...session, datePicker: { field: action.field, id }, datePickerEpoch: id };
+    }
+    case 'date.close':
+      return session.datePicker?.id === action.id ? { ...session, datePicker: null } : session;
+    case 'date.change': {
+      const picker = session.datePicker;
+      if (active?.group !== 'loan' || picker?.id !== action.id) return session;
+      const date = parseCalendarDate(active.fields[picker.field]);
+      if (!date) return session;
+      const value = encodeCalendarDate(changeCalendarPart(date, action.part, action.value));
+      if (value === active.fields[picker.field]) return session;
+      const draft = updateAccountDraft(
+        active,
+        { type: 'text', field: picker.field, value },
+        currencies,
+      );
+      return { ...session, drafts: { ...session.drafts, loan: draft } };
+    }
     case 'form': {
-      if (!active || session.groupPicker !== 'closed' || active.group !== action.group) {
+      if (
+        !active ||
+        session.groupPicker !== 'closed' ||
+        session.datePicker ||
+        active.group !== action.group
+      ) {
         return session;
       }
       const draft = updateAccountDraft(active, action.action, currencies);

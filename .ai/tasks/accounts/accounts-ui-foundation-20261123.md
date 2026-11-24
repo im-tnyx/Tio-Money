@@ -6,12 +6,12 @@
 | Lifecycle | IN_REVIEW |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
-| Current agent | ChatGPT GPT-6.2 (bounded Payment UI and documentation reconciliation checkpoints) |
+| Current agent | ChatGPT GPT-6.2 (bounded Accounts UI and documentation checkpoints) |
 | Previous agent | Codex Cloud, GPT-6 family. Exact variant UNKNOWN_NOT_VERIFIED. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
 | Latest audited base | `6468b62786d56edb1a70b7a5c90146e17566e23b` |
-| Latest audited starting HEAD | `eebbd8e8f1aa717060438a3b568e1a6cf7e7a866` (Loan payment controls checkpoint below) |
+| Latest audited starting HEAD | `bffa1ad2bea5deebbec1b3f049afcb3232e1edaa` (Loan live date wheel checkpoint below) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -41,7 +41,7 @@ Source baseline: [`eebbd8e`](https://github.com/im-tnyx/Tio-Money/commit/eebbd8e
 | Loan | Account Name, Loan Direction, Original Principal, Opening Outstanding Principal, EMI Amount (Optional), From / Payment, Start Date, Next Due Date, Description, Auto Pay |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
 
-**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card and Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Credit Card and Loan alone show Auto Pay after Description, Off and disabled. Investment has neither Payment From nor Auto Pay. Monthly card days begin at 01 and 15 with “of every month”; other date rows use independently editable day/month/year parts.
+**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card and Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Credit Card and Loan alone show Auto Pay after Description, Off and disabled. Investment has neither Payment From nor Auto Pay. Monthly card days begin at 01 and 15 with “of every month”. Loan Start Date and Next Due Date default to local Today and open a reusable anchored Day / short Month / Year wheel popup. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Valuation Date retains the existing editable day/month/year row.
 
 **Selectors.** Wallet Type, Loan Direction and Investment Type open an anchored, rounded popup with a selected checkmark, not a bottom sheet. Outside tap or Back dismisses without selecting. Account Group and the Bank mode editor retain their bottom-sheet flows. Main currency is the initial draft currency; if Sub Currencies are configured, one amount row per eligible form shows horizontally scrollable symbol choices in configured order with a tinted selected state and checked radio accessibility. Currency selection is hidden without Subs or for a bank-linked Wallet. Currency changes clear monetary fields, including EMI, without clearing other draft data. Returning to a funded Wallet retains its funded draft.
 
@@ -439,5 +439,10 @@ The entries below record implementation history at their stated revisions; super
 
 - [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130036055) records the latest owner correction: Loan, not Investment, receives the shared From / Payment field after EMI Amount and Auto Pay after Description. Credit Card stays visually unchanged. Both Loan directions use the same non-editable preview. No real payment, tracking, reminders, selection or finance persistence. Agent ChatGPT GPT-6.2; starting HEAD `eebbd8e8f1aa717060438a3b568e1a6cf7e7a866`, base `6468b62786d56edb1a70b7a5c90146e17566e23b`.
 - Changed paths: `src/features/accounts/add-account-screen.tsx`, `tests/accounts/accounts-preview.test.ts`, `docs/product/ACCOUNT-GROUPS-SPEC.md`, this task record and `.ai/current.md`. Connector-only source inspection; local typecheck, lint, format, tests and device QA NOT_RUN. Independent review DEFERRED. Fresh exact-HEAD CI required. No merge authorization; rollback by scoped revert.
+
+### 2026-11-24 — Loan live date wheel popup
+
+- [Initial technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130177109), [live selection clarification](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130187826), and [short month clarification](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7130210381) record the owner-approved scope. Starting HEAD `bffa1ad2bea5deebbec1b3f049afcb3232e1edaa`; ChatGPT GPT-6.2. Loan only, local Today on draft creation, Jan–Dec labels, scroll applies immediately, no footer buttons, dismiss retains selection, ISO local date with leap-year clamping and preview years 1900–2100. No payment, schedule, persistence or finance policy change.
+- Shared calendar utility, popup placement, controlled popup/date field/wheel components, theme tokens, Loan session/ViewModel and regression tests updated. Existing Card and Investment dates preserved. Connector-only source edits; local typecheck, lint, format, tests and physical-device QA NOT_RUN. Independent review DEFERRED. Fresh exact-HEAD CI required. Scoped revert is rollback. Merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
