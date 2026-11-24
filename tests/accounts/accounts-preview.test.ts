@@ -761,7 +761,7 @@ test('wheel projection preserves the center and curves and fades symmetrically',
   assert.equal(rowHeight * visibleRows, 160);
   assert.equal(padding, 4);
   assert.equal(rowHeight * visibleRows + padding * 2, 168);
-  assert.equal(wheelPickerTokens.anglePerRow, 34);
+  assert.equal(wheelPickerTokens.anglePerRow, 22);
   const center = wheelProjection(0, rowHeight);
   const near = wheelProjection(1, rowHeight);
   const far = wheelProjection(3, rowHeight);
@@ -770,15 +770,20 @@ test('wheel projection preserves the center and curves and fades symmetrically',
   assert.deepEqual(center, { translateY: 0, rotateX: 0, opacity: 1, scale: 1 });
   assert.ok(near.opacity < center.opacity && far.opacity < near.opacity);
   assert.ok(far.scale < near.scale && near.scale < center.scale);
-  assert.equal(near.rotateX, 34);
-  assert.equal(wheelProjection(2, rowHeight).rotateX, 68);
+  assert.equal(near.rotateX, 22);
+  assert.equal(wheelProjection(2, rowHeight).rotateX, 44);
   assert.ok(far.rotateX > near.rotateX && far.rotateX < 90);
   assert.ok(far.translateY > near.translateY && near.translateY > 0);
   assert.equal(opposite.translateY, -far.translateY);
   assert.equal(opposite.rotateX, -far.rotateX);
   assert.equal(opposite.opacity, far.opacity);
   assert.equal(wheelProjection(4, rowHeight).opacity, 0);
-  assert.equal(wheelProjection(3, rowHeight).opacity, 0);
+  // The third neighbor should remain visible close to the viewport edge.
+  const farCenter = Math.abs(far.translateY - 3 * rowHeight);
+  assert.ok(far.opacity > 0.1);
+  assert.ok(farCenter > (rowHeight * visibleRows) / 2 - rowHeight / 2);
+  assert.ok(farCenter < (rowHeight * visibleRows) / 2);
+  assert.equal(wheelProjection(84 / 22, rowHeight).opacity, 0);
   // Remove the native linear displacement: the center follows one fixed-radius arc.
   let previousY = 0;
   for (let distance = 0.125; distance <= 2; distance += 0.125) {
@@ -861,6 +866,8 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.match(wheel, /<Animated\.ScrollView/);
   assert.match(wheel, /onScroll=\{onScroll\}/);
   assert.match(wheel, /Animated\.event/);
+  assert.match(wheel, /offset\.addListener/);
+  assert.match(wheel, /offset\.removeListener/);
   assert.match(wheel, /useNativeDriver: Platform\.OS !== 'web'/);
   assert.doesNotMatch(wheel, /offset\.setValue\(event\.nativeEvent\.contentOffset\.y\)/);
   assert.match(wheel, /shouldAlignWheel\(selected, lastIndex\.current, interacting\.current, echoed\)/);
