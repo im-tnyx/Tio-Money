@@ -106,6 +106,7 @@ function LoanFieldInfoTip({
       align="start"
     >
       <AppText
+        muted
         style={{
           paddingHorizontal: theme.space.md,
           paddingVertical: theme.space.sm,
