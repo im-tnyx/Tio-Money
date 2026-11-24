@@ -33,10 +33,7 @@ import paymentModeIcons from '../../src/shared/assets/google-material-icons/paym
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
 import { wheelProjection, wheelProjectionSamples } from '../../src/shared/ui/wheel-projection';
-import {
-  shouldAlignWheel,
-  shouldAnimateWheelAlignment,
-} from '../../src/shared/ui/wheel-selection';
+import { shouldAlignWheel, shouldAnimateWheelAlignment } from '../../src/shared/ui/wheel-selection';
 import {
   calendarMonths,
   calendarWheelCounts,
@@ -45,8 +42,12 @@ import {
   dayWheelBounds,
   dayWheelCount,
   initialDayWheelIndex,
+  initialMonthWheelIndex,
   localCalendarToday,
+  monthWheelBounds,
+  monthWheelCount,
   nextDayWheelIndex,
+  nextMonthWheelIndex,
   parseCalendarDate,
   selectCalendarWheel,
 } from '../../src/shared/ui/calendar-date';
@@ -871,6 +872,34 @@ test('day wheel retains physical position when only month or year changes', () =
   assert.equal(nextDayWheelIndex(marchIndex, march, feb, 'day'), febIndex);
 });
 
+test('year selection leaves the month detent stable and calendar carry-over moves it', () => {
+  const before = { year: 2026, month: 12, day: 24 };
+  const index = initialMonthWheelIndex(before);
+  const nextYear = { ...before, year: 2027 };
+  assert.equal(nextMonthWheelIndex(index, before, nextYear, 'year'), index);
+  const bounds = monthWheelBounds(nextYear, index);
+  assert.equal(index + bounds.origin, calendarWheelIndex(nextYear, 'month'));
+  assert.equal(calendarWheelLabel('month', index + bounds.origin), 'Dec');
+  assert.ok(bounds.minimum >= 0 && bounds.maximum < monthWheelCount);
+
+  const january = { year: 2028, month: 1, day: 24 };
+  const janIndex = nextMonthWheelIndex(index, nextYear, january, 'month');
+  assert.equal(janIndex, index + 1);
+  assert.equal(nextMonthWheelIndex(janIndex, january, nextYear, 'month'), index);
+
+  const lastDay = { year: 2027, month: 12, day: 31 };
+  const firstDay = { year: 2028, month: 1, day: 1 };
+  assert.equal(nextMonthWheelIndex(index, lastDay, firstDay, 'day'), index + 1);
+  assert.equal(nextMonthWheelIndex(index + 1, firstDay, lastDay, 'day'), index);
+  for (const year of [1900, 2100, 1900]) {
+    const candidate = { ...before, year };
+    const detent = nextMonthWheelIndex(index, before, candidate, 'year');
+    const limits = monthWheelBounds(candidate, detent);
+    assert.equal(detent, index);
+    assert.ok(limits.minimum >= 0 && limits.maximum < monthWheelCount);
+  }
+});
+
 test('wheel controlled echoes cannot interrupt native motion', () => {
   assert.equal(shouldAlignWheel(5, 5, false, false), false);
   assert.equal(shouldAlignWheel(4, 5, true, false), false);
@@ -911,6 +940,7 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.ok(session.datePicker);
   const id = session.datePicker.id;
   const initialDayIndex = session.datePicker.dayIndex;
+  const initialMonthIndex = session.datePicker.monthIndex;
   assert.equal(update(session, { type: 'group.open' }), session);
   assert.equal(update(session, { type: 'options.open' }), session);
   session = update(session, {
@@ -921,6 +951,7 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   });
   assert.equal(dates().startDate, '2024-02-29');
   assert.equal(session.datePicker?.dayIndex, initialDayIndex - 2);
+  assert.equal(session.datePicker?.monthIndex, initialMonthIndex + 1);
   session = update(session, {
     type: 'date.change',
     id,
@@ -929,6 +960,7 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   });
   assert.equal(dates().startDate, '2025-02-28');
   assert.equal(session.datePicker?.dayIndex, initialDayIndex - 3);
+  assert.equal(session.datePicker?.monthIndex, initialMonthIndex + 1);
   assert.equal(dates().nextDueDate, today);
   session = update(session, { type: 'date.close', id });
   assert.equal(dates().startDate, '2025-02-28');
@@ -974,13 +1006,13 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.match(wheel, /Animated\.event/);
   assert.match(wheel, /offset\.addListener/);
   assert.match(wheel, /offset\.removeListener/);
-  assert.match(
-    wheel,
-    /shouldAnimateWheelAlignment\(lastIndex\.current, selected, reduceMotion\)/,
-  );
+  assert.match(wheel, /shouldAnimateWheelAlignment\(lastIndex\.current, selected, reduceMotion\)/);
   assert.match(field, /value=\{physicalDay\}/);
   assert.match(field, /minimumIndex=\{dayBounds\.minimum\}/);
   assert.match(field, /maximumIndex=\{dayBounds\.maximum\}/);
+  assert.match(field, /value=\{physicalMonth\}/);
+  assert.match(field, /minimumIndex=\{monthBounds\.minimum\}/);
+  assert.match(field, /maximumIndex=\{monthBounds\.maximum\}/);
   assert.match(wheel, /if \(!animated\) offset\.setValue/);
   assert.match(wheel, /scrollToOffset\(\{ offset: selected \* rowHeight, animated \}\)/);
   assert.match(wheel, /programmaticTarget\.current = selected/);

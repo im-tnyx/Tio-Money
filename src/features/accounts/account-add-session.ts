@@ -2,8 +2,10 @@ import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import {
   encodeCalendarDate,
   initialDayWheelIndex,
+  initialMonthWheelIndex,
   localCalendarToday,
   nextDayWheelIndex,
+  nextMonthWheelIndex,
   parseCalendarDate,
   selectCalendarWheel,
   type CalendarPart,
@@ -30,6 +32,7 @@ export interface AccountAddSession {
     readonly field: LoanDateField;
     readonly id: number;
     readonly dayIndex: number;
+    readonly monthIndex: number;
   } | null;
   readonly datePickerEpoch: number;
   readonly group: PreviewGroup | null;
@@ -146,7 +149,12 @@ export function updateAccountAddSession(
       const id = session.datePickerEpoch + 1;
       return {
         ...session,
-        datePicker: { field: action.field, id, dayIndex: initialDayWheelIndex(date) },
+        datePicker: {
+          field: action.field,
+          id,
+          dayIndex: initialDayWheelIndex(date),
+          monthIndex: initialMonthWheelIndex(date),
+        },
         datePickerEpoch: id,
       };
     }
@@ -170,6 +178,7 @@ export function updateAccountAddSession(
         datePicker: {
           ...picker,
           dayIndex: nextDayWheelIndex(picker.dayIndex, date, next, action.part),
+          monthIndex: nextMonthWheelIndex(picker.monthIndex, date, next, action.part),
         },
         drafts: { ...session.drafts, loan: draft },
       };

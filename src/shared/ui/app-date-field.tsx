@@ -16,6 +16,9 @@ import {
   dayWheelBounds,
   dayWheelCount,
   initialDayWheelIndex,
+  initialMonthWheelIndex,
+  monthWheelBounds,
+  monthWheelCount,
   parseCalendarDate,
   type CalendarPart,
 } from './calendar-date';
@@ -24,6 +27,7 @@ export interface AppDateFieldModel {
   readonly value: string;
   readonly open: boolean;
   readonly dayIndex?: number | undefined;
+  readonly monthIndex?: number | undefined;
   readonly onOpen: () => void;
   readonly onClose: () => void;
   readonly onChange: (part: CalendarPart, index: number) => void;
@@ -36,6 +40,7 @@ export function AppDateField({
   value,
   open,
   dayIndex,
+  monthIndex,
   onOpen,
   onClose,
   onChange,
@@ -52,6 +57,8 @@ export function AppDateField({
   const month = calendarMonths[date.month - 1];
   const physicalDay = dayIndex ?? initialDayWheelIndex(date);
   const dayBounds = dayWheelBounds(date, physicalDay);
+  const physicalMonth = monthIndex ?? initialMonthWheelIndex(date);
+  const monthBounds = monthWheelBounds(date, physicalMonth);
   const rowHeight = Math.max(
     theme.datePicker.rowHeight,
     Math.ceil(theme.typeScale.section * viewport.fontScale * theme.typography.relativeLineHeight) +
@@ -161,10 +168,12 @@ export function AppDateField({
               <AppWheelPicker
                 key={`month-${wheelKey}`}
                 label={t('accountDateMonth')}
-                count={calendarWheelCounts.month}
-                labelAt={(index) => calendarWheelLabel('month', index)}
-                value={calendarWheelIndex(date, 'month')}
-                onChange={(value) => onChange('month', value)}
+                count={monthWheelCount}
+                minimumIndex={monthBounds.minimum}
+                maximumIndex={monthBounds.maximum}
+                labelAt={(index) => calendarWheelLabel('month', index + monthBounds.origin)}
+                value={physicalMonth}
+                onChange={(index) => onChange('month', index + monthBounds.origin)}
                 rowHeight={rowHeight}
                 visibleRows={visibleRows}
               />
