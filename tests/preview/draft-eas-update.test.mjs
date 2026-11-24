@@ -22,7 +22,6 @@ const pr = {
   head: { ref: 'feat/ui', sha: head, repo: { full_name: repo } },
 };
 const workflow = readFileSync(new URL('../../.github/workflows/tio-money-eas-pr-preview.yml', import.meta.url), 'utf8');
-const codespaces = workflow.slice(workflow.indexOf('  codespaces_live:'), workflow.indexOf('  select:'));
 const eas = workflow.slice(workflow.indexOf('  select:'));
 
 test('manual operation routing enforces the target Draft state at selection, validation and publication', () => {
@@ -38,12 +37,6 @@ test('manual operation routing enforces the target Draft state at selection, val
         '--arg', 'number', '23', predicate], { input: JSON.stringify({ ...pr, draft }) });
       assert.equal(result.status === 0, allowed, `${operation}, Draft=${draft}: ${result.stderr}`);
     }
-  }
-  const codespaceGate = codespaces.match(/jq -e --arg repo "\$GITHUB_REPOSITORY" '([\s\S]+?)' "\$RUNNER_TEMP\/preview-pr\.json"/)[1];
-  for (const draft of [true, false]) {
-    const input = { ...pr, draft, changed_files: 1, labels: [{ name: 'tio-preview' }] };
-    assert.equal(spawnSync('jq', ['-e', '--arg', 'repo', repo, codespaceGate],
-      { input: JSON.stringify(input) }).status, 0);
   }
   assert.match(workflow, /\n  workflow_run:\n    workflows:\n      - Tio Money preview push signal/);
   assert.match(workflow, /^name: TIO MONEY EXPO PR PREVIEW$/m);

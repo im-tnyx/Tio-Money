@@ -10,8 +10,8 @@
 | Previous agent | ChatGPT GPT-6.2; earlier Codex Cloud, GPT-6 family. Exact prior variants UNKNOWN_NOT_VERIFIED. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
-| Latest audited base | `2698fb3f1988e7a6247974fa3e79a410a6bb5b70` (main after PR #103) |
-| Latest audited HEAD | `9eae9214efd767bcef08d6ff83566f7e21337b53` (merge of Accounts preview with that main) |
+| Latest audited base | `885c861d30d7ebc10cade3cf3f781ffb79732d4b` (main after PR #106) |
+| Latest audited HEAD | First EMI Date fix `7c805e55d90a73c7b08c1383ecac5857630b0d3d`, then this main reconciliation |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -26,7 +26,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 
 ## Current UI snapshot (source verified 2026-11-24)
 
-Source verified at Accounts preview HEAD [`9eae921`](https://github.com/im-tnyx/Tio-Money/commit/9eae9214efd767bcef08d6ff83566f7e21337b53) on base [`2698fb3`](https://github.com/im-tnyx/Tio-Money/commit/2698fb3f1988e7a6247974fa3e79a410a6bb5b70). Behavior includes the independent Wallet form ([`9ad5d80`](https://github.com/im-tnyx/Tio-Money/commit/9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06)), Credit Card payment-picker shell with `paymentSource: null`, Loan date wheels, keyboard-aware form viewport, Group row label, and the main reconciliation in that merge. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
+Source verified at Accounts preview First EMI Date fix [`7c805e5`](https://github.com/im-tnyx/Tio-Money/commit/7c805e55d90a73c7b08c1383ecac5857630b0d3d) on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/885c861d30d7ebc10cade3cf3f781ffb79732d4b) after this reconciliation. Behavior includes the independent Wallet form ([`9ad5d80`](https://github.com/im-tnyx/Tio-Money/commit/9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06)), Credit Card payment-picker shell with `paymentSource: null`, Loan First EMI Date only (no Next Due), keyboard-aware form viewport, and Group row label. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
 
 **Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Group row can reopen it. Six built-in groups have forms; Insurance is informational and custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
 
@@ -570,5 +570,11 @@ The entries below record implementation history at their stated revisions; super
 - Owner direction in chat: keep the existing Loan form layout; do not introduce the expandable redesign yet. Ask for First EMI Date; drop Next Due Date because today is known and next due can be derived later. Fix Borrowed path first; Given remains on the shared Loan form for now.
 - Preview change: Loan draft keeps one calendar wheel field (`startDate` keyed, labeled First EMI Date, default local Today). Remove `nextDueDate` from the draft, ViewModel, screen and regressions. Outstanding/Original/EMI/Payment/Auto Pay unchanged. No finance calculation of next due or outstanding.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; independent review DEFERRED; merge authorization NOT_GRANTED.
+
+### 2026-11-24 — Reconcile with main after PR #106
+
+- Owner requested safe reconciliation: Draft #97 was four commits behind main. Cursor Cloud (Composer) merges main [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/885c861d30d7ebc10cade3cf3f781ffb79732d4b) (PR #106 Codespaces preview eligibility gate) into `feat/accounts-ui-foundation-20261123` at prior HEAD `7c805e55d90a73c7b08c1383ecac5857630b0d3d` with a normal two-parent merge. No force-push.
+- The only conflict was `.ai/current.md`. Accounts UI history and the RFC #105 preview-privilege index entry are both retained. Accounts application source for First EMI Date and finance gates is unchanged by the merge; preview workflow files match main.
+- Exact-HEAD CI required after publish. Independent review DEFERRED; device QA pending; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
