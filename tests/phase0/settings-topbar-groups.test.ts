@@ -18,7 +18,7 @@ test('Settings uses reusable token-owned top bar and preserves all five bottom t
   assert.match(more, /<AppText variant="section">\{t\('appearance'\)\}<\/AppText>/);
   assert.match(more, /<AppText variant="section">\{t\('currency'\)\}<\/AppText>/);
   assert.match(bar, /height: theme\.navigation\.topBarHeight/);
-  assert.match(bar, /width=\{theme\.iconRoles\.topBar\}/);
+  assert.match(bar, /round \? theme.navigation.editorActionIconSize : theme.iconRoles.topBar/);
   assert.match(bar, /backgroundColor: theme\.colors\.card/);
   assert.match(bar, /textAlign: 'center'/);
   assert.match(tabs, /label: 'More'/);

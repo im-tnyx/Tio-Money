@@ -189,7 +189,7 @@ export function AddAccountScreen({
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: theme.space.lg, gap: theme.space.lg }}
+          contentContainerStyle={{ padding: theme.space.md, gap: theme.space.sm }}
         >
           <AccountGroupField value={groupLabel} onPress={onOpenGroupPicker} />
           {form ? <AccountFields key={form.draft.group} {...form} /> : null}
