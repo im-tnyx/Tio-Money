@@ -26,6 +26,8 @@ export const iconRoleSizes = {
 export const navigationTokens = {
   origin: size.dp0,
   topBarHeight: size.dp50,
+  editorActionDiameter: size.dp36,
+  editorActionIconSize: size.dp20,
   itemHeight: size.dp48,
   borderWidth: size.dp1,
   iconLabelGap: size.dp0,

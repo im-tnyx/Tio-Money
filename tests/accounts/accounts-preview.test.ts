@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
@@ -26,7 +27,10 @@ import {
 } from '../../src/features/accounts/account-form-contract';
 import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-group-templates';
 import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
+import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
+import { buttonTokens, navigationTokens } from '../../src/shared/theme/component-tokens';
+import { space } from '../../src/shared/theme/tokens';
 
 const currencies = draftCurrencies({ mainCode: 'INR', subCodes: ['USD', 'JPY'] });
 
@@ -577,7 +581,12 @@ test('main form aligns icons and wraps Description from one line with its label 
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
 
   assert.match(form, /const description = field === 'description'/);
-  assert.match(form, /contentContainerStyle=\{\{ padding: theme.space.lg,/);
+  assert.match(
+    form,
+    /contentContainerStyle=\{\{ padding: theme.space.md, gap: theme.space.sm \}\}/,
+  );
+  assert.equal(space.md, 16);
+  assert.equal(space.sm, 12);
   assert.match(controls, /const iconColumnWidth = theme.iconRoles.textField/);
   assert.match(controls, /marginLeft: iconColumnWidth \+ iconGap/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
@@ -693,7 +702,18 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   assert.match(form, /icon: 'save',[\s\S]*?accessibilityLabel: t\('save'\),[\s\S]*?disabled: true/);
   assert.match(bar, /name=\{editing \? 'close' : 'back'\} round=\{editing\}/);
   assert.match(bar, /borderRadius: theme.radius.pill/);
-  assert.match(bar, /disabled=\{action.disabled \|\| !action.onPress\}/);
+  assert.match(bar, /width: theme.navigation.editorActionDiameter/);
+  assert.match(bar, /borderColor: theme.colors.border/);
+  assert.match(bar, /disabled = action.disabled \|\| !action.onPress/);
+  assert.match(bar, /disabled=\{disabled\}/);
+  assert.match(bar, /<SvgXml\s+xml=\{saveIcon\}/);
+  assert.equal(navigationTokens.editorActionDiameter, 36);
+  assert.equal(navigationTokens.editorActionIconSize, 20);
+  assert.equal(buttonTokens.minimumHeight, 48);
+  assert.equal(
+    createHash('sha256').update(saveIcon).digest('hex'),
+    'e69aaafbec041e88b97abb50b5c83acf5d689099f5aadb6ad36d7154da1683f9',
+  );
   assert.match(
     form,
     /<AccountGroupField value=\{groupLabel\} onPress=\{onOpenGroupPicker\}[\s\S]*?<AccountFields/,
@@ -710,6 +730,9 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
   assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
+  assert.match(picker, /rowHeight = theme.space.xxl/);
+  assert.match(picker, /touchInset = \(theme.buttons.minimumHeight - rowHeight\) \/ 2/);
+  assert.match(picker, /hitSlop=\{\{ top: touchInset, bottom: touchInset \}\}/);
   assert.match(picker, /accessibilityState=\{\{ disabled: !onSelect, selected \}\}/);
   assert.doesNotMatch(manage, /actions=|onAdd|AppBottomSheet/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');

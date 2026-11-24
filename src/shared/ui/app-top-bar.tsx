@@ -1,6 +1,7 @@
 import { Pressable, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, SvgXml } from 'react-native-svg';
 
+import saveIcon from '@/shared/assets/google-material-icons/save-icon.json';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
@@ -16,52 +17,67 @@ export interface AppTopBarAction {
 
 const iconPaths = {
   back: 'm15 18-6-6 6-6',
-  close: 'm6 6 12 12M18 6 6 18',
+  close: 'm5.5 5.5 13 13m0-13-13 13',
   add: 'M12 5v14M5 12h14',
-  save: 'M5 3h12l4 4v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 0v6h9V3M7 21v-7h10v7',
   eye: 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z',
 } as const;
 
 function TopBarIcon({
   name,
   round,
+  muted = false,
 }: {
   readonly name: AppTopBarAction['icon'] | 'back' | 'close';
   readonly round: boolean;
+  readonly muted?: boolean;
 }) {
   const theme = useAppTheme();
-  const icon = (
-    <Svg
-      width={theme.iconRoles.topBar}
-      height={theme.iconRoles.topBar}
-      viewBox="0 0 24 24"
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
-      <Path
-        d={iconPaths[name === 'eye-off' ? 'eye' : name]}
-        stroke={theme.colors.primaryText}
-        strokeWidth={theme.icons.stroke}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+  const color = muted ? theme.colors.secondaryText : theme.colors.primaryText;
+  const iconSize = round ? theme.navigation.editorActionIconSize : theme.iconRoles.topBar;
+  const icon =
+    name === 'save' ? (
+      <SvgXml
+        xml={saveIcon}
+        width={iconSize}
+        height={iconSize}
+        fill={color}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
       />
-      {name === 'eye-off' ? (
+    ) : (
+      <Svg
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 24 24"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
         <Path
-          d="M3 3l18 18"
-          stroke={theme.colors.primaryText}
+          d={iconPaths[name === 'eye-off' ? 'eye' : name]}
+          stroke={color}
           strokeWidth={theme.icons.stroke}
+          fill="none"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
-      ) : null}
-    </Svg>
-  );
+        {name === 'eye-off' ? (
+          <Path
+            d="M3 3l18 18"
+            stroke={color}
+            strokeWidth={theme.icons.stroke}
+            strokeLinecap="round"
+          />
+        ) : null}
+      </Svg>
+    );
   return round ? (
     <View
       style={{
-        width: theme.space.xxxl,
-        height: theme.space.xxxl,
+        width: theme.navigation.editorActionDiameter,
+        height: theme.navigation.editorActionDiameter,
         borderRadius: theme.radius.pill,
+        borderWidth: theme.navigation.borderWidth,
+        borderColor: theme.colors.border,
         backgroundColor: theme.colors.elevated,
         alignItems: 'center',
         justifyContent: 'center',
@@ -142,32 +158,35 @@ export function AppTopBar({
           paddingRight: editing ? theme.space.xs : undefined,
         }}
       >
-        {actions.map((action) => (
-          <Pressable
-            key={action.key}
-            accessibilityRole="button"
-            accessibilityLabel={action.accessibilityLabel}
-            accessibilityHint={action.accessibilityHint}
-            accessibilityState={{
-              disabled: action.disabled || !action.onPress,
-              selected: action.selected ?? false,
-            }}
-            disabled={action.disabled || !action.onPress}
-            onPress={action.onPress}
-            style={{
-              width: theme.buttons.minimumHeight,
-              minHeight: theme.buttons.minimumHeight,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity:
-                action.disabled || !action.onPress
-                  ? theme.buttons.disabledOpacity
-                  : theme.buttons.enabledOpacity,
-            }}
-          >
-            <TopBarIcon name={action.icon} round={editing} />
-          </Pressable>
-        ))}
+        {actions.map((action) => {
+          const disabled = action.disabled || !action.onPress;
+          return (
+            <Pressable
+              key={action.key}
+              accessibilityRole="button"
+              accessibilityLabel={action.accessibilityLabel}
+              accessibilityHint={action.accessibilityHint}
+              accessibilityState={{
+                disabled,
+                selected: action.selected ?? false,
+              }}
+              disabled={disabled}
+              onPress={action.onPress}
+              style={{
+                width: theme.buttons.minimumHeight,
+                minHeight: theme.buttons.minimumHeight,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity:
+                  disabled && !editing
+                    ? theme.buttons.disabledOpacity
+                    : theme.buttons.enabledOpacity,
+              }}
+            >
+              <TopBarIcon name={action.icon} round={editing} muted={editing && disabled} />
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );

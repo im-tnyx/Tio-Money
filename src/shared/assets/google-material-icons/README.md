@@ -103,3 +103,10 @@ and rendered at 24dp using the theme transfer color.
 | Internet Banking | `symbols/web/language/materialsymbolsoutlined/language_wght200_24px.svg` |
 
 The existing [Apache 2.0 license](./LICENSE.txt) applies.
+
+## Add Account Save action (2026-11-24)
+
+[Save](./save-icon.json) bundles the exact SVG XML served by Google Fonts for
+Material Symbols Outlined `save`, fill 0, weight 300, grade 0 and optical size
+24. The editor top bar renders it at 20dp in the current theme. The existing
+[Apache 2.0 license](./LICENSE.txt) applies. [Source SVG](https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/save/wght300/24px.svg)

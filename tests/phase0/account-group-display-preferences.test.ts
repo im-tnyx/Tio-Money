@@ -80,7 +80,7 @@ test('group screen stays dumb, uses two tokenized header actions and no financia
   assert.match(screen, /state\.showDescriptions \? 'eye' : 'eye-off'/);
   assert.match(screen, /disabled: !state\.canAdd/);
   assert.match(bar, /height: theme\.navigation\.topBarHeight/);
-  assert.match(bar, /width=\{theme\.iconRoles\.topBar\}/);
+  assert.match(bar, /round \? theme.navigation.editorActionIconSize : theme.iconRoles.topBar/);
   assert.match(viewModel, /accountGroupPreferenceStore\.write/);
   assert.match(viewModel, /setDraftError/);
   assert.match(store, /expo-sqlite\/kv-store/);

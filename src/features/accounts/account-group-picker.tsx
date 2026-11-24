@@ -16,14 +16,17 @@ export function AccountGroupField({
   readonly onPress: () => void;
 }) {
   const theme = useAppTheme();
+  const rowHeight = theme.space.xxl;
+  const touchInset = (theme.buttons.minimumHeight - rowHeight) / 2;
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={t('accountGroup')}
       accessibilityValue={{ text: t(value) }}
+      hitSlop={{ top: touchInset, bottom: touchInset }}
       onPress={onPress}
       style={{
-        minHeight: theme.buttons.minimumHeight,
+        minHeight: rowHeight,
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.space.sm,
