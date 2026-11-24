@@ -29,7 +29,11 @@ import { BUILT_IN_ACCOUNT_GROUPS } from '../../src/features/settings/account-gro
 import paymentModeIcons from '../../src/shared/assets/google-material-icons/payment-mode-icons.json';
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
-import { buttonTokens, navigationTokens } from '../../src/shared/theme/component-tokens';
+import {
+  buttonTokens,
+  navigationTokens,
+  textFieldTokens,
+} from '../../src/shared/theme/component-tokens';
 import { space } from '../../src/shared/theme/tokens';
 
 const currencies = draftCurrencies({ mainCode: 'INR', subCodes: ['USD', 'JPY'] });
@@ -686,7 +690,7 @@ test('small account captions align above their inputs while icons align beside t
   );
   assert.equal(space.md, 16);
   assert.equal(space.sm, 12);
-  assert.equal(space.xxs, 4);
+  assert.equal(textFieldTokens.captionGap, 2);
   assert.match(row, /const rowHeight = minimumHeight \?\? theme.textField.minimumHeight/);
   assert.match(row, /flexDirection: 'row',\s+alignItems: 'center'/);
   assert.match(
@@ -697,7 +701,7 @@ test('small account captions align above their inputs while icons align beside t
     controls.indexOf('export function AccountField'),
     controls.indexOf('export function AmountCurrencyChoices'),
   );
-  assert.match(field, /<View style=\{\{ gap: theme.space.xxs \}\}>/);
+  assert.match(field, /<View style=\{\{ gap: theme.textField.captionGap \}\}>/);
   assert.match(
     field,
     /labelAsPlaceholder \? null : \([\s\S]*?<AppText[\s\S]*?variant="caption"\s+muted[\s\S]*?marginStart: iconWidth \+ columnGap[\s\S]*?\{t\(label\)\}[\s\S]*?flexDirection: 'row'/,

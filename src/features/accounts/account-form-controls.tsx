@@ -170,7 +170,7 @@ export function AccountField({
     const iconWidth = theme.iconRoles.textField;
     const columnGap = theme.space.sm;
     return (
-      <View style={{ gap: theme.space.xxs }}>
+      <View style={{ gap: theme.textField.captionGap }}>
         {labelAsPlaceholder ? null : (
           <AppText
             variant="caption"
