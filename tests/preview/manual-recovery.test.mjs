@@ -44,8 +44,8 @@ test('selected port is used for the local source-map probe', () => {
   const manifest = { launchAsset: { url: 'https://example.on.expo.app/index.bundle?platform=ios&dev=true' } };
   assert.equal(metroMapUrl(manifest, 'ios', 8083), 'http://127.0.0.1:8083/index.map?platform=ios&dev=true');
   const probe = read('.github/scripts/verify-codespace-served-source.mjs');
-  assert.match(probe, /const port = requirePreviewListener\(\)/);
-  assert.match(probe, /if \(requirePreviewListener\(\) !== port\)/);
+  assert.match(probe, /const listener = await requirePreviewListener\(\)/);
+  assert.match(probe, /await requirePreviewListener\(listener\)/);
 });
 
 test('startup diagnostics emit fixed categories without leaking raw log content', () => {

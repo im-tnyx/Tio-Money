@@ -1,4 +1,4 @@
-name: TIO MONEY EXPO PR REVIEW
+name: TIO MONEY EXPO PR PREVIEW
 
 # Manual operations are owner-dispatched from trusted main. The unprivileged
 # push signal can invoke only the Codespaces job.
@@ -6,17 +6,18 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Owner PR number (EAS requires non-Draft; Codespaces allows Draft)
+        description: Owner PR number (choose the operation matching its Draft status)
         required: true
         type: string
       operation:
-        description: Live Expo Go, OTA update or internal preview build
+        description: Live Expo Go, reviewed OTA, Draft PR OTA or internal preview build
         required: true
         default: codespaces_live
         type: choice
         options:
           - codespaces_live
           - publish_update
+          - publish_draft_update
           - build_preview
       platform:
         description: Android, iOS or both (build requires signing and app identifiers)
@@ -310,13 +311,19 @@ jobs:
               exit 1
             fi
           fi
-          for attempt in $(seq 1 120); do
-            gh api "/user/codespaces/${codespace}" > "$selected_json"
+          deadline=$((SECONDS + 600))
+          while (( SECONDS < deadline )); do
+            remaining=$((deadline - SECONDS))
+            if ! timeout --kill-after=1s "${remaining}s" gh api "/user/codespaces/${codespace}" > "$selected_json"; then
+              if (( SECONDS >= deadline )); then break; fi
+              echo "::error::Dedicated preview Codespace availability check failed."
+              exit 1
+            fi
             # Re-check identity after waking and immediately before SSH.
             node .github/scripts/verify-pr-preview-codespace.mjs \
               "$selected_json" "$PREFERRED_CODESPACE" "$PREFERRED_CODESPACE_ID" >/dev/null
             state="$(jq -r '.state // empty' "$selected_json")"
-            if [[ "$state" == "Available" ]]; then
+            if [[ "$state" == "Available" ]] && (( SECONDS < deadline )); then
               printf 'name=%s\n' "$codespace" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -324,9 +331,10 @@ jobs:
               echo "::error::Codespace was deleted."
               exit 1
             fi
-            sleep 5
+            remaining=$((deadline - SECONDS))
+            if (( remaining > 0 )); then sleep "$((remaining < 5 ? remaining : 5))"; fi
           done
-          echo "::error::Dedicated preview Codespace not available after 10 minutes."
+          echo "::error title=START_TIMEOUT::Dedicated preview Codespace not available after 10 minutes of verified polling."
           exit 1
       - name: Reuse an already healthy exact-SHA preview
         id: existing
@@ -462,7 +470,7 @@ jobs:
             < "$RUNNER_TEMP/trusted-metro-source-probe.mjs"
 
   select:
-    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'publish_draft_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
       pull-requests: read
@@ -482,7 +490,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$TARGET_OPERATION" in
-            publish_update|build_preview) ;;
+            publish_update|publish_draft_update|build_preview) ;;
             *) echo "::error::Invalid preview operation"; exit 1 ;;
           esac
           case "$TARGET_PLATFORM" in
@@ -494,9 +502,9 @@ jobs:
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
-          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
-            .state == "open" and
-            .draft == false and
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg operation "$TARGET_OPERATION" --arg number "$PR_NUMBER" '
+            .state == "open" and (.number | tostring) == $number and
+            (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
             .user.login == "im-tnyx" and
             .head.repo.full_name == $repo and
             .base.repo.full_name == $repo and
@@ -504,9 +512,9 @@ jobs:
             .head.sha != null and .base.sha != null
           ' "$RUNNER_TEMP/pr.json" >/dev/null; then
             if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
-              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+              echo "::error title=Draft PR not eligible::Draft PRs qualify only for Draft OTA or Live Expo Go Preview, and must meet that operation's selection rules."
             else
-              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+              echo "::error title=Invalid PR selection::EAS requires an open, owner-authored same-repository PR targeting main with the Draft status required by the operation."
             fi
             exit 1
           fi
@@ -524,7 +532,10 @@ jobs:
 
   validate:
     needs: select
-    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    outputs:
+      draft_artifact_id: ${{ steps.draft_bundle.outputs.artifact-id }}
+      draft_runtime_fingerprints: ${{ steps.draft_runtime.outputs.fingerprints }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'publish_draft_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
       pull-requests: read
@@ -543,7 +554,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$TARGET_OPERATION" in
-            publish_update|build_preview) ;;
+            publish_update|publish_draft_update|build_preview) ;;
             *) echo "::error::Invalid preview operation"; exit 1 ;;
           esac
           case "$TARGET_PLATFORM" in
@@ -555,9 +566,9 @@ jobs:
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
-          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
-            .state == "open" and
-            .draft == false and
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg operation "$TARGET_OPERATION" --arg number "$PR_NUMBER" '
+            .state == "open" and (.number | tostring) == $number and
+            (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
             .user.login == "im-tnyx" and
             .head.repo.full_name == $repo and
             .base.repo.full_name == $repo and
@@ -565,9 +576,9 @@ jobs:
             .head.sha != null and .base.sha != null
           ' "$RUNNER_TEMP/pr.json" >/dev/null; then
             if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
-              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+              echo "::error title=Draft PR not eligible::Draft PRs qualify only for Draft OTA or Live Expo Go Preview, and must meet that operation's selection rules."
             else
-              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+              echo "::error title=Invalid PR selection::EAS requires an open, owner-authored same-repository PR targeting main with the Draft status required by the operation."
             fi
             exit 1
           fi
@@ -609,6 +620,10 @@ jobs:
                 c.updates?.url !== "https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1") {
               throw Error("Refusing to publish from a changed Expo project identity");
             }
+            if (process.env.TARGET_OPERATION === "publish_draft_update" &&
+                (c.runtimeVersion?.policy !== "fingerprint" || c.ios?.runtimeVersion || c.android?.runtimeVersion)) {
+              throw Error("Draft OTA requires the approved native fingerprint runtime policy.");
+            }
           '
           # Reviewed PRs may also carry tests and Markdown task/documentation
           # records. These paths do not change the Expo runtime or build config.
@@ -617,7 +632,7 @@ jobs:
           scope="$RUNNER_TEMP/verify-eas-preview-scope.mjs"
           # GITHUB_SHA is the trusted main dispatch revision, separate from the PR checkout.
           git show "${GITHUB_SHA}:.github/scripts/verify-eas-preview-scope.mjs" > "$scope"
-          node "$scope" "$PR_BASE_SHA" "$PR_SHA"
+          node "$scope" "$PR_BASE_SHA" "$PR_SHA" "$TARGET_OPERATION"
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
@@ -657,6 +672,49 @@ jobs:
       - name: Install locked project dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Resolve native Draft OTA fingerprints without Expo credentials
+        id: draft_runtime
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          EXPO_NO_DOTENV: '1'
+          EXPO_NO_TELEMETRY: '1'
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          helper="$RUNNER_TEMP/draft-eas-update.mjs"
+          git show "${GITHUB_SHA}:.github/scripts/draft-eas-update.mjs" > "$helper"
+          fingerprints="$(node "$helper" resolve-runtime "$TARGET_PLATFORM")"
+          printf 'fingerprints=%s\n' "$fingerprints" >> "$GITHUB_OUTPUT"
+
+      - name: Export Draft OTA bundle without Expo credentials
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          CI: 'true'
+          EXPO_NO_DOTENV: '1'
+          EXPO_NO_TELEMETRY: '1'
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_PLATFORM" in
+            android|ios) platforms=(--platform "$TARGET_PLATFORM") ;;
+            all) platforms=(--platform ios --platform android) ;;
+            *) echo "::error::Invalid Draft OTA platform"; exit 1 ;;
+          esac
+          node_modules/.bin/expo export --output-dir "$RUNNER_TEMP/tio-draft-export" "${platforms[@]}"
+
+      - name: Store the exact Draft OTA export
+        if: inputs.operation == 'publish_draft_update'
+        id: draft_bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tio-draft-ota-${{ needs.select.outputs.head_sha }}-${{ inputs.platform }}
+          path: |
+            ${{ runner.temp }}/tio-draft-export/metadata.json
+            ${{ runner.temp }}/tio-draft-export/_expo/static/js
+            ${{ runner.temp }}/tio-draft-export/assets
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Validate preview source and dependencies
         run: |
           npm run check
@@ -664,7 +722,7 @@ jobs:
 
   preview:
     needs: [select, validate]
-    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'publish_draft_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
       pull-requests: read
@@ -685,7 +743,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$TARGET_OPERATION" in
-            publish_update|build_preview) ;;
+            publish_update|publish_draft_update|build_preview) ;;
             *) echo "::error::Invalid preview operation"; exit 1 ;;
           esac
           case "$TARGET_PLATFORM" in
@@ -697,9 +755,9 @@ jobs:
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
-          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
-            .state == "open" and
-            .draft == false and
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg operation "$TARGET_OPERATION" --arg number "$PR_NUMBER" '
+            .state == "open" and (.number | tostring) == $number and
+            (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
             .user.login == "im-tnyx" and
             .head.repo.full_name == $repo and
             .base.repo.full_name == $repo and
@@ -707,9 +765,9 @@ jobs:
             .head.sha != null and .base.sha != null
           ' "$RUNNER_TEMP/pr.json" >/dev/null; then
             if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
-              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+              echo "::error title=Draft PR not eligible::Draft PRs qualify only for Draft OTA or Live Expo Go Preview, and must meet that operation's selection rules."
             else
-              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+              echo "::error title=Invalid PR selection::EAS requires an open, owner-authored same-repository PR targeting main with the Draft status required by the operation."
             fi
             exit 1
           fi
@@ -752,6 +810,10 @@ jobs:
                 c.updates?.url !== "https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1") {
               throw Error("Refusing to publish from a changed Expo project identity");
             }
+            if (process.env.TARGET_OPERATION === "publish_draft_update" &&
+                (c.runtimeVersion?.policy !== "fingerprint" || c.ios?.runtimeVersion || c.android?.runtimeVersion)) {
+              throw Error("Draft OTA requires the approved native fingerprint runtime policy.");
+            }
           '
           # Reviewed PRs may also carry tests and Markdown task/documentation
           # records. These paths do not change the Expo runtime or build config.
@@ -760,7 +822,7 @@ jobs:
           scope="$RUNNER_TEMP/verify-eas-preview-scope.mjs"
           # GITHUB_SHA is the trusted main dispatch revision, separate from the PR checkout.
           git show "${GITHUB_SHA}:.github/scripts/verify-eas-preview-scope.mjs" > "$scope"
-          node "$scope" "$PR_BASE_SHA" "$PR_SHA"
+          node "$scope" "$PR_BASE_SHA" "$PR_SHA" "$TARGET_OPERATION"
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
@@ -839,21 +901,53 @@ jobs:
           NODE
           "$EAS_CLI_ROOT/node_modules/.bin/eas" --version
 
+      - name: Require the exact Draft OTA artifact identifier
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          ARTIFACT_ID: ${{ needs.validate.outputs.draft_artifact_id }}
+        run: |
+          if ! [[ "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Validated Draft OTA artifact ID is missing or invalid."
+            exit 1
+          fi
+
+      - name: Download the validated Draft OTA export from this run
+        if: inputs.operation == 'publish_draft_update'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.validate.outputs.draft_artifact_id }}
+          path: ${{ runner.temp }}/tio-draft-export
+          merge-multiple: true
+
+      - name: Verify Draft OTA export metadata and file containment
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          TARGET_PLATFORM: ${{ inputs.platform }}
+          DRAFT_RUNTIME_FINGERPRINTS: ${{ needs.validate.outputs.draft_runtime_fingerprints }}
+        run: |
+          set -euo pipefail
+          helper="$RUNNER_TEMP/draft-eas-update.mjs"
+          git show "${GITHUB_SHA}:.github/scripts/draft-eas-update.mjs" > "$helper"
+          node "$helper" bundle "$RUNNER_TEMP/tio-draft-export" "$TARGET_PLATFORM"
+          node "$helper" verify-runtime "$TARGET_PLATFORM"
+
       - name: Revalidate immutable PR and source scope before EAS
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
           PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$PR_SHA"
           worktree="$(git status --porcelain=v1 --untracked-files=normal)"
           test -z "$worktree"
-          node "$RUNNER_TEMP/verify-eas-preview-scope.mjs" "$PR_BASE_SHA" "$PR_SHA"
+          node "$RUNNER_TEMP/verify-eas-preview-scope.mjs" "$PR_BASE_SHA" "$PR_SHA" "$TARGET_OPERATION"
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
-            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$PR_SHA" --arg base "$PR_BASE_SHA" '
-              .state == "open" and .draft == false and .user.login == "im-tnyx" and
+            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$PR_SHA" --arg base "$PR_BASE_SHA" --arg operation "$TARGET_OPERATION" '
+              .state == "open" and .user.login == "im-tnyx" and
+              (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
               .head.repo.full_name == $repo and .base.repo.full_name == $repo and
               .base.ref == "main" and .head.sha == $head and .base.sha == $base
             ' >/dev/null
@@ -863,12 +957,15 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          GH_TOKEN: ${{ github.token }}
           TARGET_OPERATION: ${{ inputs.operation }}
           TARGET_PLATFORM: ${{ inputs.platform }}
+          DRAFT_RUNTIME_FINGERPRINTS: ${{ needs.validate.outputs.draft_runtime_fingerprints }}
         run: |
           set -euo pipefail
           case "$TARGET_OPERATION" in
-            publish_update|build_preview) ;;
+            publish_update|publish_draft_update|build_preview) ;;
             *) echo "::error::Invalid preview operation"; exit 1 ;;
           esac
           case "$TARGET_PLATFORM" in
@@ -880,8 +977,47 @@ jobs:
             exit 1
           fi
           eas="$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas"
-          if [[ "$TARGET_OPERATION" == "publish_update" ]]; then
-            "$eas" update \
+          if [[ "$TARGET_OPERATION" == "publish_draft_update" ]]; then
+            helper="$RUNNER_TEMP/draft-eas-update.mjs"
+            branch="$(env -u EXPO_TOKEN node "$helper" branch "$PR_NUMBER")"
+            env -u GH_TOKEN node "$helper" isolation "$eas" "$branch" before
+            # Check the Draft state and immutable pair again after the Expo reads.
+            # The GitHub and Expo services cannot make this check and publish atomic.
+            test "$(git rev-parse HEAD)" = "$PR_SHA"
+            test -z "$(git status --porcelain=v1 --untracked-files=normal)"
+            env -u EXPO_TOKEN gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
+              env -u EXPO_TOKEN node "$helper" selection "$PR_NUMBER" "$GITHUB_REPOSITORY" "$PR_SHA" "$PR_BASE_SHA"
+            output="$RUNNER_TEMP/tio-draft-update-result.json"
+            publish_status=0
+            env -u GH_TOKEN "$eas" update \
+              --branch "$branch" \
+              --message "Tio Money Draft PR #${PR_NUMBER} (${PR_SHA})" \
+              --environment preview --platform "$TARGET_PLATFORM" \
+              --skip-bundler --input-dir "$RUNNER_TEMP/tio-draft-export" \
+              --json --non-interactive > "$output" 2> "$RUNNER_TEMP/tio-draft-update-errors.log" || publish_status=$?
+            # Read the isolation state even when the CLI fails after a possible server-side write.
+            post_status=0
+            if ! env -u GH_TOKEN node "$helper" isolation "$eas" "$branch" after; then
+              echo "::error title=Draft OTA isolation::Post-publication isolation could not be confirmed. Inspect the named branch and channel mappings in Expo before retrying or sharing."
+              printf '%s\n' 'Post-publication isolation failed. Inspect the branch and channel mappings in Expo.' >> "$GITHUB_STEP_SUMMARY"
+              post_status=1
+            fi
+            if (( publish_status != 0 )); then
+              echo "::error::Draft OTA publication did not return success. Check the isolated EAS branch before retrying."
+              exit 1
+            fi
+            if ! env -u EXPO_TOKEN -u GH_TOKEN node "$helper" summary "$output" "$PR_NUMBER" "$PR_SHA" "$TARGET_PLATFORM" >> "$GITHUB_STEP_SUMMARY"; then
+              echo "::error::Draft OTA result verification failed after publication. Inspect the isolated branch and runtime diagnostics before retrying."
+              post_status=1
+            fi
+            if ! env -u EXPO_TOKEN gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
+              env -u EXPO_TOKEN node "$helper" selection "$PR_NUMBER" "$GITHUB_REPOSITORY" "$PR_SHA" "$PR_BASE_SHA"; then
+              echo "::error::Draft eligibility could not be confirmed after publication. Inspect the run diagnostics and any update metadata in the summary."
+              post_status=1
+            fi
+            exit "$post_status"
+          elif [[ "$TARGET_OPERATION" == "publish_update" ]]; then
+            env -u GH_TOKEN "$eas" update \
               --branch pr-preview \
               --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
               --environment preview \
@@ -890,7 +1026,7 @@ jobs:
           else
             # Remote EAS signing must already be configured; never prompt,
             # initialize a new EAS project, auto-submit or create production builds.
-            "$eas" build \
+            env -u GH_TOKEN "$eas" build \
               --profile preview \
               --platform "$TARGET_PLATFORM" \
               --non-interactive \
