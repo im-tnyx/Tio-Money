@@ -91,3 +91,14 @@ Each requested platform receives its own result. PASS requires at least one affe
 The trusted worker rechecks the selected PR and approved source scope before privileged work. GitHub eligibility and the downstream operation are separate requests. A later GitHub state change cannot replace the immutable SHA being used.
 
 An eligible owner push synchronizes the authenticated exact commit before Metro delivers any Fast Refresh event. The trusted worker preserves the managed Metro PID and tunnel for compatible runtime inputs and verifies both after synchronization. A dependency or startup-input change requires verified-owned recovery before runtime files change. A legacy record without a runtime fingerprint requires the same recovery. A stale selection or unverified listener fails closed. If the tunnel cannot be confirmed after a compatible sync, the worker reports failure and leaves the existing process in place.
+
+
+## Workflow authorization boundary
+
+A read-only runner checks the manual request or the GitHub push signal and
+verifies the live PR and immutable changed-file scope. Only a successful
+explicit approval selects the trusted Codespaces environment. The trusted job
+checks the approved base and head again before using the Codespaces credential,
+and rechecks live eligibility before remote changes. The signal carries no
+authorization artifacts. Rejected requests do not enter the shared preview
+concurrency group.
