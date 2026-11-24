@@ -700,7 +700,8 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(choices, /info-icon\.json/);
   assert.match(choices, /SvgXml[\s\S]*?xml=\{infoIcon\}/);
   assert.match(choices, /info\?: ReactNode/);
-  assert.match(screen, /preferredWidth=\{theme\.space\.xxxl \* 5\}/);
+  assert.match(screen, /preferredWidth=\{theme\.optionPopup\.width \+ theme\.space\.xxxl \* 2\}/);
+  assert.match(screen, /align="start"/);
   const infoIcon = JSON.parse(
     readFileSync('src/shared/assets/google-material-icons/info-icon.json', 'utf8'),
   );
@@ -1293,6 +1294,31 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     accounts + form + choices + bankModes + picker,
     /expo-router|useState|useEffect|sqlite|\/domain\/|\/data\/|fetch\(/i,
   );
+});
+
+test('field info popup prefers start alignment under the tip mark', () => {
+  const insets = { top: 32, right: 14, bottom: 24, left: 10 };
+  const viewport = { width: 400, height: 730 };
+  const fits = popupPosition({ x: 132, y: 280, width: 16, height: 16 }, viewport, insets, {
+    margin: 8,
+    gap: 4,
+    preferredWidth: 240,
+    preferredHeight: 120,
+    align: 'start',
+  });
+  assert.equal(fits.width, 240);
+  assert.equal(fits.left, 132);
+  assert.ok('top' in fits);
+  assert.equal(fits.top, 300);
+  const wide = popupPosition({ x: 132, y: 280, width: 16, height: 16 }, viewport, insets, {
+    margin: 8,
+    gap: 4,
+    preferredWidth: 320,
+    preferredHeight: 120,
+    align: 'start',
+  });
+  assert.equal(wide.width, 320);
+  assert.equal(wide.left, 58);
 });
 
 test('date popup stays above the field and fits only complete rows', () => {

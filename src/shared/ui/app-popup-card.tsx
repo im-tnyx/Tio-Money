@@ -4,7 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
-import { popupPosition, type PopupAnchor, type PopupPlacement } from './popup-position';
+import {
+  popupPosition,
+  type PopupAlign,
+  type PopupAnchor,
+  type PopupPlacement,
+} from './popup-position';
 
 /** Controlled popup: only native anchor geometry is local presentation state. */
 export function AppPopupCard({
@@ -19,6 +24,7 @@ export function AppPopupCard({
   preferredHeight,
   minimumHeight = 0,
   placement = 'auto',
+  align = 'end',
   children,
 }: {
   readonly trigger: ReactNode;
@@ -32,6 +38,7 @@ export function AppPopupCard({
   readonly preferredHeight: number;
   readonly minimumHeight?: number;
   readonly placement?: PopupPlacement;
+  readonly align?: PopupAlign;
   readonly children: ReactNode | ((availableContentHeight: number) => ReactNode);
 }) {
   const theme = useAppTheme();
@@ -50,6 +57,7 @@ export function AppPopupCard({
     preferredWidth: width,
     preferredHeight: height,
     placement,
+    align,
   };
 
   function measure(requestOpen = false) {

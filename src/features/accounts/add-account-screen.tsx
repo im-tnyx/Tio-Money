@@ -100,9 +100,10 @@ function LoanFieldInfoTip({
       open={open}
       onOpen={onOpen}
       onClose={onClose}
-      preferredWidth={theme.space.xxxl * 5}
-      preferredHeight={theme.space.xxxl * 4}
+      preferredWidth={theme.optionPopup.width + theme.space.xxxl * 2}
+      preferredHeight={theme.space.xxxl * 3}
       placement="auto"
+      align="start"
     >
       <AppText
         style={{
