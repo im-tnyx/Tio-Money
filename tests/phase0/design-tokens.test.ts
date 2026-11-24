@@ -82,6 +82,10 @@ test('one root theme provider resolves the selected preference and system colors
   assert.match(provider, /resolveAppearanceScheme\(settings\.preference, systemScheme\)/);
   assert.match(provider, /palettes\[scheme\]/);
   assert.doesNotMatch(provider, /AsyncStorage|setColorScheme/);
+  assert.equal(palettes.light.wheelSelection, '#E6E8EF');
+  assert.equal(palettes.dark.wheelSelection, '#3B4658');
+  assert.equal(palettes.dark.segmentedTrack, '#272A31');
+  assert.notEqual(palettes.dark.wheelSelection, palettes.dark.segmentedTrack);
   assert.notEqual(palettes.light.canvas, palettes.dark.canvas);
   assert.notEqual(palettes.light.primaryText, palettes.dark.primaryText);
   for (const palette of Object.values(palettes)) {
