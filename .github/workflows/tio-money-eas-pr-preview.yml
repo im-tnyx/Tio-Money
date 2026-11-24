@@ -87,7 +87,6 @@ jobs:
     timeout-minutes: 25
     environment: tio-money-codespaces-trusted
     permissions:
-      actions: read
       contents: read
       pull-requests: read
       issues: read

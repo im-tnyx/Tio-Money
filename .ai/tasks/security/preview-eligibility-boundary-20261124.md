@@ -8,3 +8,5 @@
 - Rollback before merge is leaving the draft unmerged. A future deployed rollback requires separate authorization and should preserve fail-closed admission or pause only the Codespaces routes while retaining EAS and required CI.
 
 Local validation used Node 24.22.3 and npm 11.19.1. The app suite passed 132/132, and preview passed 129 with the one CI-only signature test skipped locally. Governance passed 29 tests, Markdown links, actionlint and diff checks. A read-only replay using #97's recorded signal and current GitHub metadata approved its exact head and base. That replay made no Codespaces requests.
+
+The trusted job retains its existing read permission set. Only the isolated eligibility job receives Actions metadata read access. After admission the trusted job reuses the authenticated event in the same run and independently reads live PR, label and compare data.
