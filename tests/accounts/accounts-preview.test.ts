@@ -755,9 +755,11 @@ test('Investment keeps editable day, month and year on the same date row', () =>
 });
 
 test('wheel projection preserves the center and curves and fades symmetrically', () => {
-  const { rowHeight, visibleRows } = datePickerTokens;
+  const { rowHeight, visibleRows, padding } = datePickerTokens;
   assert.equal(rowHeight, 32);
   assert.equal(rowHeight * visibleRows, 160);
+  assert.equal(padding, 4);
+  assert.equal(rowHeight * visibleRows + padding * 2, 168);
   assert.equal(wheelPickerTokens.anglePerRow, 34);
   const center = wheelProjection(0, rowHeight);
   const near = wheelProjection(1, rowHeight);

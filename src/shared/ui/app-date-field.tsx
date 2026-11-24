@@ -64,7 +64,11 @@ export function AppDateField({
   );
   const usableHeight = Math.max(
     1,
-    viewport.height - insets.top - insets.bottom - theme.space.xs * 4,
+    viewport.height -
+      insets.top -
+      insets.bottom -
+      theme.space.xs * 2 -
+      theme.datePicker.padding * 2,
   );
   const rowHeight = Math.min(desiredRowHeight, usableHeight);
   const visibleRows =
@@ -85,7 +89,7 @@ export function AppDateField({
       onOpen={onOpen}
       onClose={onClose}
       preferredWidth={theme.datePicker.width}
-      preferredHeight={wheelHeight + theme.space.xs * 2}
+      preferredHeight={wheelHeight + theme.datePicker.padding * 2}
       trigger={
         <View style={{ gap: theme.textField.captionGap }}>
           <AppText
@@ -126,7 +130,7 @@ export function AppDateField({
         </View>
       }
     >
-      <View style={{ padding: theme.space.xs }}>
+      <View style={{ padding: theme.datePicker.padding }}>
         <View style={{ height: wheelHeight, flexDirection: 'row' }}>
           <View
             pointerEvents="none"
