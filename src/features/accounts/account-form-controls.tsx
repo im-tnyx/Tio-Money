@@ -168,11 +168,7 @@ export function AccountField({
               gap: theme.space.xxs,
             }}
           >
-            <AppText
-              variant="caption"
-              muted
-              style={{ flexShrink: 1, includeFontPadding: false }}
-            >
+            <AppText variant="caption" muted style={{ flexShrink: 1, includeFontPadding: false }}>
               {t(label)}
             </AppText>
             {info}

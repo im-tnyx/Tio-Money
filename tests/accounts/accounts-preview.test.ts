@@ -703,11 +703,7 @@ test('Loan More details field info opens only while expanded and clears on colla
   let draft = newAccountDraft('loan', 'INR');
   assert.ok(draft.group === 'loan');
   assert.equal(
-    updateAccountDraft(
-      draft,
-      { type: 'fieldInfo.open', field: 'originalPrincipal' },
-      currencies,
-    ),
+    updateAccountDraft(draft, { type: 'fieldInfo.open', field: 'originalPrincipal' }, currencies),
     draft,
   );
   draft = updateAccountDraft(draft, { type: 'moreDetails.toggle' }, currencies);

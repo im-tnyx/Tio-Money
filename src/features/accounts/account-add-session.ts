@@ -23,9 +23,7 @@ import {
   type PreviewGroup,
 } from './account-form-contract';
 
-function withoutLoanFieldInfo(
-  drafts: AccountAddSession['drafts'],
-): AccountAddSession['drafts'] {
+function withoutLoanFieldInfo(drafts: AccountAddSession['drafts']): AccountAddSession['drafts'] {
   const loan = drafts.loan;
   return loan?.group === 'loan' && loan.fieldInfo !== null
     ? { ...drafts, loan: { ...loan, fieldInfo: null } }
