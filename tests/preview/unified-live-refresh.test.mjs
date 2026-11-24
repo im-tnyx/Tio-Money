@@ -10,6 +10,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
 const manual = read('.github/workflows/tio-money-eas-pr-preview.yml');
 const worker = manual.slice(manual.indexOf('  codespaces_live:'), manual.indexOf('  select:'));
+const eligibility = manual.slice(manual.indexOf('  codespaces_eligibility:'), manual.indexOf('  codespaces_live:'));
 const recheck = read('.github/scripts/recheck-codespaces-preview.sh');
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const check = read('.github/scripts/check-pr-codespaces-preview.sh');
@@ -22,7 +23,7 @@ test('one manual entry routes four operations with isolated environments and sec
   assert.equal((manual.match(/^  workflow_dispatch:$/gm) || []).length, 1);
   assert.doesNotMatch(manual, /^  (?:workflow_call|push|pull_request_target):$/m);
   assert.match(manual, /default: codespaces_live\s+type: choice\s+options:\s+- codespaces_live\s+- publish_update\s+- publish_draft_update\s+- build_preview/);
-  assert.match(worker, /github.event_name == 'workflow_dispatch'\s*&&\s*inputs.operation == 'codespaces_live'/);
+  assert.match(eligibility, /github.event_name == 'workflow_dispatch'\s*&&\s*inputs.operation == 'codespaces_live'/);
   assert.doesNotMatch(manual, /secrets: inherit/);
   assert.doesNotMatch(worker, /secrets\.EXPO_TOKEN/);
   assert.match(manual, /environment: tio-money-eas-preview-trusted/);
@@ -30,7 +31,6 @@ test('one manual entry routes four operations with isolated environments and sec
   assert.match(manual, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.match(worker, /GH_TOKEN: \$\{\{ secrets\.CODESPACES_TOKEN \}\}/);
   assert.match(manual, /pr_number:\s+description: [^\n]+\s+required: true\s+type: string/);
-  assert.match(worker, /if \[\[ ! "\$INPUT_PR" =~ \^\[1-9\]\[0-9\]\*\$ \]\]/);
   assert.match(manual, /android\|ios\|all/);
   assert.match(worker, /android\|ios\|all/);
   const selection = manual.slice(manual.indexOf('  select:'), manual.indexOf('  validate:'));
@@ -64,11 +64,7 @@ test('one manual entry routes four operations with isolated environments and sec
 
 test('push signal reaches Codespaces only; EAS safeguards and scope remain', () => {
   assert.match(manual, /workflow_run:\s+workflows:\s+- Tio Money preview push signal/);
-  assert.match(worker, /workflow_run\.event == 'push'/);
-  assert.match(worker, /workflow_run\.head_repository\.full_name == 'im-tnyx\/Tio-Money'/);
   assert.match(worker, /github\.run_attempt == '1'/);
-  assert.match(worker, /Exactly one open PR may carry tio-preview/);
-  assert.match(worker, /compare\/\$\{PR_BASE_SHA\}\.\.\.\$\{PR_SHA\}/);
   assert.match(recheck, /src\/\*\|assets\/\*\|tests\/\*\|docs\/\*/);
   assert.match(manual, /\.draft == false/);
   assert.match(manual, /Missing approved android\.package/);

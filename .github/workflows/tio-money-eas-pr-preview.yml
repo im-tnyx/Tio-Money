@@ -41,175 +41,79 @@ permissions:
   issues: read
 
 concurrency:
-  group: ${{ (github.event_name == 'workflow_run' || inputs.operation == 'codespaces_live') && 'tio-money-codespaces-pr-preview' || 'tio-money-eas-pr-preview' }}
+  group: ${{ (github.event_name == 'workflow_run' || inputs.operation == 'codespaces_live') && format('tio-money-preview-eligibility-{0}', github.run_id) || 'tio-money-eas-pr-preview' }}
   cancel-in-progress: false
 
 jobs:
-  codespaces_live:
+  codespaces_eligibility:
     if: >-
-      github.ref == 'refs/heads/main' &&
-      github.run_attempt == '1' &&
-      (
-        (github.event_name == 'workflow_dispatch' &&
-         inputs.operation == 'codespaces_live' &&
-         github.actor == 'im-tnyx' &&
-         github.triggering_actor == 'im-tnyx') ||
-        (github.event_name == 'workflow_run' &&
-         github.event.workflow_run.event == 'push' &&
-         github.event.workflow_run.conclusion == 'success' &&
-         github.event.workflow_run.head_repository.full_name == 'im-tnyx/Tio-Money' &&
-         github.event.workflow_run.actor.login == 'im-tnyx' &&
-         github.event.workflow_run.head_branch != 'main')
-      )
+      github.ref == 'refs/heads/main' && github.run_attempt == '1' &&
+      (github.event_name == 'workflow_run' ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'codespaces_live'))
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    environment: tio-money-codespaces-trusted
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      approved: ${{ steps.pr.outputs.approved }}
+      pr_number: ${{ steps.pr.outputs.pr_number }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+      base_sha: ${{ steps.pr.outputs.base_sha }}
+      merge_base: ${{ steps.pr.outputs.merge_base }}
     steps:
-      - name: Resolve exactly one owner-selected immutable PR head
-        id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_PR: ${{ inputs.pr_number }}
-          INPUT_PLATFORM: ${{ inputs.platform }}
-          PUSH_SHA: ${{ github.event.workflow_run.head_sha }}
-          PUSH_BRANCH: ${{ github.event.workflow_run.head_branch }}
-        run: |
-          set -euo pipefail
-          selected=""
-          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
-            case "$INPUT_PLATFORM" in
-              android|ios|all) ;;
-              *) echo "::error::Invalid Expo Go platform selection."; exit 1 ;;
-            esac
-            if [[ ! "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]; then
-              echo "::error::PR number must be positive."
-              exit 1
-            fi
-            selected="$INPUT_PR"
-          else
-            if [[ ! "$PUSH_SHA" =~ ^[0-9a-f]{40}$ || -z "$PUSH_BRANCH" ]]; then
-              echo "::error::Untrusted or malformed push metadata."
-              exit 1
-            fi
-            mapfile -t matches < <(
-              gh api --paginate "repos/${GITHUB_REPOSITORY}/commits/${PUSH_SHA}/pulls?per_page=100" \
-                --jq '.[] | select(.state == "open") | .number'
-            )
-            if [[ "${#matches[@]}" -eq 0 ]]; then
-              echo "No open PR for this owner push; no preview change."
-              exit 0
-            fi
-            if [[ "${#matches[@]}" -ne 1 ]]; then
-              echo "::error::Ambiguous PRs for immutable push SHA; refusing preview."
-              exit 1
-            fi
-            selected="${matches[0]}"
-          fi
-
-          # This request retains the existing READ-ONLY GITHUB_TOKEN; on denial,
-          # emit only GitHub's documented non-secret permission diagnostic headers.
-          # Never print a credential, request Authorization header or API body.
-          pr_headers="$RUNNER_TEMP/preview-pr-api-headers.txt"
-          # Keep the bearer token out of curl process argv and disk files.
-          # Pass the Authorization header through an ephemeral stdin curl config.
-          pr_status="$(printf 'header = "Authorization: Bearer %s"\n' "$GH_TOKEN" |
-            curl --config - --silent --show-error --max-time 20 \
-              --header "Accept: application/vnd.github+json" \
-              --header "X-GitHub-Api-Version: 2022-11-28" \
-              --dump-header "$pr_headers" \
-              --output "$RUNNER_TEMP/preview-pr.json" \
-              --write-out '%{http_code}' \
-              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${selected}")"
-          if [[ "$pr_status" != "200" ]]; then
-            echo "::error::Selected PR read returned HTTP ${pr_status}; Codespace activation denied."
-            # Values are explicitly character-filtered and length-bounded to
-            # avoid log control-sequence injection by untrusted API responses.
-            awk -F ':' '
-              {
-                name = tolower($1)
-                if (name != "x-accepted-github-permissions" &&
-                    name != "x-github-request-id" &&
-                    name != "x-github-api-version-selected") next
-                value = substr($0, index($0, ":") + 1)
-                gsub(/[^[:alnum:]._,;= -]/, "?", value)
-                print "GitHub API diagnostic " name ":" substr(value, 1, 240)
-              }
-            ' "$pr_headers"
-            exit 1
-          fi
-          jq -e --arg repo "$GITHUB_REPOSITORY" '
-            .state == "open" and .number > 0 and
-            .changed_files > 0 and .changed_files <= 100 and
-            .user.login == "im-tnyx" and
-            .head.repo.full_name == $repo and
-            .base.repo.full_name == $repo and
-            .base.ref == "main" and
-            .head.ref != "main" and
-            (.head.sha | test("^[0-9a-f]{40}$")) and
-            (.base.sha | test("^[0-9a-f]{40}$")) and
-            any(.labels[]?; .name == "tio-preview")
-          ' "$RUNNER_TEMP/preview-pr.json" >/dev/null || {
-            if [[ "$EVENT_NAME" != "workflow_dispatch" ]]; then
-              echo "Push does not target a labeled owner-authored main-bound PR; skipping."
-              exit 0
-            fi
-            echo "::error::Only an open owner-authored main-bound PR with the tio-preview label may be selected."
-            exit 1
-          }
-
-          pr_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/preview-pr.json")"
-          base_sha="$(jq -r '.base.sha' "$RUNNER_TEMP/preview-pr.json")"
-          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
-            if [[ "$PUSH_SHA" != "$pr_sha" ||
-                  "$PUSH_BRANCH" != "$(jq -r '.head.ref' "$RUNNER_TEMP/preview-pr.json")" ]]; then
-              echo "::error::PR moved after push or branch mismatch; refusing stale code."
-              exit 1
-            fi
-          fi
-
-          gh api --paginate "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=tio-preview&per_page=100" \
-            --jq '.[] | select(.pull_request != null) | .number' > "$RUNNER_TEMP/active-preview-prs.txt"
-          mapfile -t active < "$RUNNER_TEMP/active-preview-prs.txt"
-          if [[ "${#active[@]}" -ne 1 || "${active[0]:-}" != "$selected" ]]; then
-            echo "::error::Exactly one open PR may carry tio-preview. Remove the label from other PRs."
-            exit 1
-          fi
-
-          printf 'selected=true\npr_number=%s\nhead_sha=%s\nbase_sha=%s\n' \
-            "$selected" "$pr_sha" "$base_sha" >> "$GITHUB_OUTPUT"
-          echo "Approved exact preview source: PR #$selected at $pr_sha"
-
       - name: Checkout trusted main-branch validation and sync scripts
-        if: steps.pr.outputs.selected == 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Restrict exact captured PR revision to source-only UI changes
-        id: scope
-        if: steps.pr.outputs.selected == 'true'
+      - name: Evaluate live preview eligibility
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
-          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
-          PR_SHA: ${{ steps.pr.outputs.head_sha }}
-          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
-        run: |
-          set -euo pipefail
-          count=0
-          rejected=0
-          # A moving /pulls/{number}/files endpoint cannot attest the SHA
-          # chosen earlier. Fetch the diff from the immutable base/head pair.
-          gh api "repos/${GITHUB_REPOSITORY}/compare/${PR_BASE_SHA}...${PR_SHA}?per_page=100" \
-            > "$RUNNER_TEMP/immutable-pr-compare.json"
-          # A pushed revision or changed PR state after capture must fail.
-          bash .github/scripts/recheck-codespaces-preview.sh
-          merge_base="$(jq -er '.merge_base_commit.sha | select(test("^[0-9a-f]{40}$"))' "$RUNNER_TEMP/immutable-pr-compare.json")"
-          echo "merge_base=$merge_base" >> "$GITHUB_OUTPUT"
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: node .github/scripts/authorize-codespaces-preview.mjs
+
+  codespaces_live:
+    needs: codespaces_eligibility
+    if: >-
+      github.ref == 'refs/heads/main' && github.run_attempt == '1' &&
+      needs.codespaces_eligibility.result == 'success' &&
+      needs.codespaces_eligibility.outputs.approved == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: tio-money-codespaces-trusted
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      issues: read
+    concurrency:
+      group: tio-money-codespaces-pr-preview
+      cancel-in-progress: false
+    steps:
+      - name: Checkout trusted main-branch validation and sync scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Revalidate live eligibility against approved immutable PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          APPROVED_PR: ${{ needs.codespaces_eligibility.outputs.pr_number }}
+          APPROVED_HEAD: ${{ needs.codespaces_eligibility.outputs.head_sha }}
+          APPROVED_BASE: ${{ needs.codespaces_eligibility.outputs.base_sha }}
+          APPROVED_MERGE_BASE: ${{ needs.codespaces_eligibility.outputs.merge_base }}
+        run: node .github/scripts/authorize-codespaces-preview.mjs --revalidate
 
       - name: Prepare exact immutable PR source bundle
-        if: steps.pr.outputs.selected == 'true'
+        if: steps.pr.outputs.approved == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
@@ -238,7 +142,7 @@ jobs:
             exit 1
           fi
       - name: Prepare trusted Metro programs for SSH streaming
-        if: steps.pr.outputs.selected == 'true'
+        if: steps.pr.outputs.approved == 'true'
         run: |
           set -euo pipefail
           ownership="$(base64 -w0 .github/scripts/preflight-pr-codespaces-preview.mjs)"
@@ -254,9 +158,18 @@ jobs:
             cat .github/scripts/sync-pr-codespaces-preview.sh
           } > "$RUNNER_TEMP/trusted-metro-sync.sh"
 
+      - name: Check live PR immediately before enabling the Codespaces credential
+        if: steps.pr.outputs.approved == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+        run: bash .github/scripts/recheck-codespaces-preview.sh
+
       - name: Discover and start only the verified preview-only Codespace
         id: codespace
-        if: steps.pr.outputs.selected == 'true'
+        if: steps.pr.outputs.approved == 'true'
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           PREFERRED_CODESPACE: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE }}
@@ -338,7 +251,7 @@ jobs:
           exit 1
       - name: Reuse an already healthy exact-SHA preview
         id: existing
-        if: steps.pr.outputs.selected == 'true'
+        if: steps.pr.outputs.approved == 'true'
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
@@ -376,7 +289,7 @@ jobs:
           esac
 
       - name: Sync exact PR source and bring up Expo Go tunnel
-        if: steps.pr.outputs.selected == 'true' && steps.existing.outputs.no_op != 'true'
+        if: steps.pr.outputs.approved == 'true' && steps.existing.outputs.no_op != 'true'
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
@@ -444,7 +357,7 @@ jobs:
             < "$RUNNER_TEMP/trusted-metro-sync.sh"
 
       - name: Verify served Metro source and healthy tunnel
-        if: steps.pr.outputs.selected == 'true'
+        if: steps.pr.outputs.approved == 'true'
         env:
           GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
           CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
@@ -455,7 +368,7 @@ jobs:
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
           PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
           TARGET_PR: ${{ steps.pr.outputs.pr_number }}
-          MERGE_BASE: ${{ steps.scope.outputs.merge_base }}
+          MERGE_BASE: ${{ steps.pr.outputs.merge_base }}
         run: |
           set -euo pipefail
           if [[ "$EVENT_NAME" == "workflow_run" ]]; then TARGET_PLATFORM=all; fi

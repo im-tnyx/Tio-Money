@@ -7,6 +7,13 @@ gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=t
   ' >/dev/null
 gh api "repos/${GITHUB_REPOSITORY}/pulls/${TARGET_PR}" \
   > "$RUNNER_TEMP/preview-pr-after-paths.json"
+jq -e --argjson number "$TARGET_PR" '
+  .number == $number and
+  .user.id == 271889561 and
+  .head.repo.id == 1462654174 and
+  .base.repo.id == 1462654174 and
+  .base.repo.full_name == "im-tnyx/Tio-Money"
+' "$RUNNER_TEMP/preview-pr-after-paths.json" >/dev/null
 node .github/scripts/verify-pr-preview-pr-snapshot.mjs \
   "$RUNNER_TEMP/preview-pr.json" \
   "$RUNNER_TEMP/immutable-pr-compare.json" \
