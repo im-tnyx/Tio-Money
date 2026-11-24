@@ -164,7 +164,6 @@ export function AddAccountScreen({
       title: t('chooseAccountGroup'),
       dismissAccessibilityLabel: t('closeAccountGroupPicker'),
       onDismiss: onCloseGroupPicker,
-      showCloseButton: true,
       children: <AccountGroupOptions choices={groupChoices} />,
     };
   } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
@@ -211,7 +210,6 @@ export function AddAccountScreen({
         title={sheet?.title ?? t('chooseAccountGroup')}
         dismissAccessibilityLabel={sheet?.dismissAccessibilityLabel ?? t('closeAccountGroupPicker')}
         onDismiss={sheet?.onDismiss ?? onCloseGroupPicker}
-        showCloseButton={sheet?.showCloseButton}
       >
         {sheet?.children}
       </AppBottomSheet>

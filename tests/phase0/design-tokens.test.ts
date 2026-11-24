@@ -60,6 +60,7 @@ test('physical values have one owner and all reusable roles alias them', () => {
 
 test('one shared icon size serves bottom nav and every future reusable component role', () => {
   assert.equal(iconTokens.size, size.dp24);
+  assert.equal(iconTokens.emptyStateSize, size.dp48);
   assert.equal(iconTokens.stroke, size.dp2);
   assert.equal(iconTokens.fineStroke, size.dp1_5);
   assert.deepEqual(Object.keys(iconRoleSizes).sort(), [
