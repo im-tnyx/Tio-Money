@@ -33,7 +33,7 @@ export function AppTextField({
         borderColor: invalid ? theme.colors.expense : theme.colors.border,
         borderRadius: theme.radius.sm,
         color: theme.colors.primaryText,
-        backgroundColor: theme.colors.canvas,
+        backgroundColor: borderless ? 'transparent' : theme.colors.canvas,
         fontSize,
         fontWeight: textSize === 'title' ? theme.typography.mediumWeight : undefined,
         lineHeight: growsWithText ? lineHeight : undefined,

@@ -343,19 +343,14 @@ export interface AccountGroupChoice {
   readonly label: TranslationKey;
   readonly detail: TranslationKey;
   readonly status?: TranslationKey;
-  readonly checked: boolean;
   readonly onSelect?: () => void;
 }
 
 export interface AddAccountSheetViewModel {
-  readonly visible: boolean;
   readonly animate: boolean;
-  readonly form: AddAccountViewModel | null;
-  readonly selectedLabel: TranslationKey;
-  readonly groupPicker: {
-    readonly choices: readonly AccountGroupChoice[];
-    readonly onDismiss: () => void;
-  } | null;
-  readonly onOpenGroupPicker: () => void;
+  readonly content:
+    | { readonly kind: 'group'; readonly choices: readonly AccountGroupChoice[] }
+    | { readonly kind: 'form'; readonly form: AddAccountViewModel }
+    | null;
   readonly onDismiss: () => void;
 }
