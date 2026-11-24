@@ -5,6 +5,7 @@ import Svg, { Path, SvgXml } from 'react-native-svg';
 import infoIcon from '@/shared/assets/google-material-icons/info-icon.json';
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import { t, type TranslationKey } from '@/shared/i18n/strings';
+import { size } from '@/shared/theme/primitives';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 import { AppTextField, type AppTextFieldProps } from '@/shared/ui/app-text-field';
@@ -106,15 +107,14 @@ export function AccountFormRow({
   );
 }
 
-/** Official Material Symbols Outlined `info` wght200, half text-field size. */
+/** Official Material Symbols Outlined `info` wght200 at 16 dp. */
 export function AccountFieldInfoMark() {
   const theme = useAppTheme();
-  const markSize = theme.iconRoles.textField / 2;
   return (
     <SvgXml
       xml={infoIcon}
-      width={markSize}
-      height={markSize}
+      width={size.dp16}
+      height={size.dp16}
       fill={theme.colors.secondaryText}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"

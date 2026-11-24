@@ -696,7 +696,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled \}\}/);
   assert.match(choices, /disabled=\{disabled\}/);
   assert.match(choices, /function AccountFieldInfoMark/);
-  assert.match(choices, /theme\.iconRoles\.textField \/ 2/);
+  assert.match(choices, /width=\{size\.dp16\}/);
   assert.match(choices, /info-icon\.json/);
   assert.match(choices, /SvgXml[\s\S]*?xml=\{infoIcon\}/);
   assert.match(choices, /info\?: ReactNode/);
