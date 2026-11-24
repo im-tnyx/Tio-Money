@@ -307,7 +307,12 @@ function AccountFields({
       {choice ? (
         <AccountDropdown choice={choice} leading={<AccountFormIcon name="options" />} />
       ) : null}
-      <GroupFields draft={draft} paymentSource={paymentSource} loanDates={loanDates} {...inputProps} />
+      <GroupFields
+        draft={draft}
+        paymentSource={paymentSource}
+        loanDates={loanDates}
+        {...inputProps}
+      />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
       {draft.group === 'credit-card' || draft.group === 'loan' ? (
         <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
@@ -372,8 +377,7 @@ function GroupFields({
   loanDates,
   onAction,
   ...inputProps
-}: DraftInputControls &
-  Pick<AddAccountViewModel, 'draft' | 'paymentSource' | 'loanDates'>) {
+}: DraftInputControls & Pick<AddAccountViewModel, 'draft' | 'paymentSource' | 'loanDates'>) {
   const draftInput = { ...inputProps, onAction };
   switch (draft.group) {
     case 'cash':

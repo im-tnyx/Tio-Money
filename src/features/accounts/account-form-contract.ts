@@ -384,9 +384,7 @@ export function updateAccountDraft(
           }
         : draft;
     case 'fieldInfo.open':
-      return draft.group === 'loan' &&
-        draft.moreDetailsOpen &&
-        draft.fieldInfo !== action.field
+      return draft.group === 'loan' && draft.moreDetailsOpen && draft.fieldInfo !== action.field
         ? { ...draft, fieldInfo: action.field }
         : draft;
     case 'fieldInfo.close':
