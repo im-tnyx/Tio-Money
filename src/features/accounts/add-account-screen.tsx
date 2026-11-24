@@ -1,9 +1,8 @@
-import { Switch, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Switch, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
-import { ActionButton } from '@/shared/ui/action-button';
 import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
 import { AppText } from '@/shared/ui/app-text';
 
@@ -11,10 +10,9 @@ import {
   investmentKinds,
   loanDirections,
   walletKinds,
-  type AddAccountSheetViewModel,
+  type AddAccountScreenViewModel,
   type AddAccountViewModel,
   type DraftField,
-  type PreviewGroup,
 } from './account-form-contract';
 import {
   AccountChoices,
@@ -22,17 +20,9 @@ import {
   AmountCurrencyChoices,
   UnavailableAccountChoice,
 } from './account-form-controls';
-import { AccountGroupOptions } from './account-group-picker';
+import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
+import { AccountPage } from './account-page';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
-
-const titleKeys: Record<PreviewGroup, TranslationKey> = {
-  cash: 'addCashAccount',
-  bank: 'addBankAccount',
-  'credit-card': 'addCardAccount',
-  wallet: 'addWalletAccount',
-  loan: 'addLoanAccount',
-  investment: 'addInvestmentAccount',
-};
 
 const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
 const walletLabels = {
@@ -149,13 +139,27 @@ function DraftInput({
   );
 }
 
-export function AddAccountSheet({ content, animate, onDismiss }: AddAccountSheetViewModel) {
+export function AddAccountScreen({
+  form,
+  groupLabel,
+  groupChoices,
+  animateSheet,
+  onOpenGroupPicker,
+  onCloseGroupPicker,
+  onClose,
+}: AddAccountScreenViewModel) {
   const theme = useAppTheme();
-  const form = content?.kind === 'form' ? content.form : null;
-  const groupPicker = content?.kind === 'group' ? content : null;
-  let overlay: BottomSheetLayer | undefined;
-  if (form?.draft.group === 'bank' && form.draft.modeEditor) {
-    overlay = {
+  let sheet: BottomSheetLayer | undefined;
+  if (groupChoices) {
+    sheet = {
+      title: t('chooseAccountGroup'),
+      dismissAccessibilityLabel: t('closeAccountGroupPicker'),
+      onDismiss: onCloseGroupPicker,
+      showCloseButton: true,
+      children: <AccountGroupOptions choices={groupChoices} />,
+    };
+  } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
+    sheet = {
       title: t(form.draft.modeEditor.id === null ? 'accountModeAdd' : 'accountModeEdit'),
       dismissAccessibilityLabel: t('closeAccountPaymentMode'),
       onDismiss: () => form.onAction({ type: 'mode.cancel' }),
@@ -164,30 +168,45 @@ export function AddAccountSheet({ content, animate, onDismiss }: AddAccountSheet
   }
 
   return (
-    <AppBottomSheet
-      visible={content !== null}
-      animate={animate}
-      slideInOnMount={form !== null}
-      avoidKeyboard
-      expandable={form !== null}
-      showCloseButton
-      title={t(form ? titleKeys[form.draft.group] : 'chooseAccountGroup')}
-      dismissAccessibilityLabel={t(form ? 'closeAddAccount' : 'closeAccountGroupPicker')}
-      onDismiss={onDismiss}
-      overlay={overlay}
+    <AccountPage
+      editing
+      title={t('addAccount')}
+      backLabel={t('closeAddAccount')}
+      onBack={onClose}
+      actions={[
+        {
+          key: 'save',
+          icon: 'save',
+          accessibilityLabel: t('save'),
+          accessibilityHint: t('accountSaveUnavailable'),
+          disabled: true,
+        },
+      ]}
     >
-      {groupPicker ? (
-        <AccountGroupOptions choices={groupPicker.choices} />
-      ) : form ? (
-        <View style={{ padding: theme.space.lg, gap: theme.space.lg }}>
-          <AccountFields {...form} />
-          <View style={{ gap: theme.space.xxs }}>
-            <AppText muted>{t('accountSaveUnavailable')}</AppText>
-            <ActionButton label={t('save')} disabled />
-          </View>
-        </View>
-      ) : null}
-    </AppBottomSheet>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ padding: theme.space.lg, gap: theme.space.lg }}
+        >
+          <AccountGroupField value={groupLabel} onPress={onOpenGroupPicker} />
+          {form ? <AccountFields key={form.draft.group} {...form} /> : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <AppBottomSheet
+        visible={sheet !== undefined}
+        animate={animateSheet}
+        avoidKeyboard
+        title={sheet?.title ?? t('chooseAccountGroup')}
+        dismissAccessibilityLabel={sheet?.dismissAccessibilityLabel ?? t('closeAccountGroupPicker')}
+        onDismiss={sheet?.onDismiss ?? onCloseGroupPicker}
+        showCloseButton={sheet?.showCloseButton}
+      >
+        {sheet?.children}
+      </AppBottomSheet>
+    </AccountPage>
   );
 }
 

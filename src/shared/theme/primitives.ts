@@ -57,5 +57,4 @@ export const opacity = {
 /** Time-based motion primitives; separate from spatial dp primitives. */
 export const motion = {
   tabCrossfadeDurationMs: 160,
-  bottomSheetEntranceDurationMs: 300,
 } as const;

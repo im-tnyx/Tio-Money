@@ -1,1 +1,1 @@
-export { AccountsRoute, ManageAccountsRoute } from './accounts-route';
+export { AccountsRoute, AddAccountRoute, ManageAccountsRoute } from './accounts-route';

@@ -4,17 +4,9 @@ import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 
-import type { AddAccountSheetViewModel } from './account-form-contract';
 import { AccountPage } from './account-page';
-import { AddAccountSheet } from './add-account-screen';
 
-export function AccountsScreen({
-  addAccount,
-  onAdd,
-}: {
-  readonly addAccount: AddAccountSheetViewModel;
-  readonly onAdd: () => void;
-}) {
+export function AccountsScreen({ onAdd }: { readonly onAdd: () => void }) {
   const theme = useAppTheme();
   return (
     <AccountPage
@@ -28,7 +20,6 @@ export function AccountsScreen({
       >
         <AppText muted>{t('accountsDataUnavailable')}</AppText>
       </ScrollView>
-      <AddAccountSheet {...addAccount} />
     </AccountPage>
   );
 }

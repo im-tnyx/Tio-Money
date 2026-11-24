@@ -4,11 +4,10 @@ import { test } from 'node:test';
 
 import { bottomSheetTokens } from '../../src/shared/theme/component-tokens';
 import { getBottomSheetHeightLimits } from '../../src/shared/ui/bottom-sheet-geometry';
-import { motion, opacity, size } from '../../src/shared/theme/primitives';
+import { opacity, size } from '../../src/shared/theme/primitives';
 import { radius, space } from '../../src/shared/theme/tokens';
 
 test('shared bottom-sheet geometry aliases central primitives and semantic tokens', () => {
-  assert.equal(bottomSheetTokens.entranceDurationMs, motion.bottomSheetEntranceDurationMs);
   assert.equal(bottomSheetTokens.topCornerRadius, radius.xl);
   assert.equal(bottomSheetTokens.topCornerRadius, size.dp24);
   assert.equal(bottomSheetTokens.collapsedViewportFraction, 0.9);
@@ -49,7 +48,7 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(shared, /borderTopLeftRadius: sheet\.topCornerRadius/);
   assert.match(shared, /borderTopRightRadius: sheet\.topCornerRadius/);
   assert.match(shared, /overflow: 'hidden'/);
-  const surface = shared.split('<AnimatedSafeAreaView')[1]?.split('>')[0] ?? '';
+  const surface = shared.split('<SafeAreaView')[1]?.split('>')[0] ?? '';
   assert.doesNotMatch(surface, /borderTopWidth|borderTopColor|borderLeftWidth|borderRightWidth/);
   assert.match(shared, /handleWidth/);
   assert.match(shared, /handleTopMargin/);
@@ -108,28 +107,8 @@ test('an overlay shares the modal and viewport while only the top layer receives
   assert.match(shared, /pointerEvents=\{overlay \? 'none' : 'auto'\}/);
   assert.match(shared, /accessibilityElementsHidden=\{overlay !== undefined\}/);
   assert.match(shared, /importantForAccessibility=\{overlay \? 'no-hide-descendants' : 'auto'\}/);
-  assert.match(shared, /renderLayer\(\s*\{ title,[^}]*?children \},[\s\S]*?renderLayer\(overlay\)/);
+  assert.match(shared, /renderLayer\(\{\s*title,[\s\S]*?children,[\s\S]*?renderLayer\(overlay\)/);
   assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
-});
-
-test('an opted-in sheet slides from its measured height on entry and respects disabled motion', () => {
-  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
-  assert.equal(bottomSheetTokens.entranceDurationMs, 300);
-  assert.match(shared, /slideInOnMount = false/);
-  assert.match(shared, /animate && slideInOnMount/);
-  assert.match(shared, /key=\{layer.title\}/);
-  assert.match(shared, /animateEntrance \? new Animated.Value\(windowHeight\) : null/);
-  assert.match(shared, /if \(entranceOffset && !entranceReady && height > 0\)/);
-  assert.match(shared, /if \(animateEntrance\) entranceOffset.setValue\(height\)/);
-  assert.match(shared, /if \(!animateEntrance\) \{\s+entranceOffset.setValue\(0\)/);
-  assert.match(shared, /if \(!entranceReady\) return;/);
-  assert.match(
-    shared,
-    /Animated.timing\(entranceOffset, \{\s+toValue: 0,[\s\S]*?useNativeDriver: true/,
-  );
-  assert.match(shared, /duration: sheet.entranceDurationMs,\s+easing: Easing.inOut\(Easing.sin\)/);
-  assert.match(shared, /return \(\) => entrance.stop\(\)/);
-  assert.match(shared, /<AnimatedSafeAreaView[\s\S]*?translateY: entranceOffset/);
 });
 
 test('iOS keyboard underlay paints the full native keyboard area without moving the sheet', () => {
