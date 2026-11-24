@@ -1170,6 +1170,9 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   const bar = readFileSync('src/shared/ui/app-top-bar.tsx', 'utf8');
   const manage = accounts.slice(accounts.indexOf('export function ManageAccountsScreen'));
   assert.match(accounts, /icon: 'add'.*onPress: onAdd/);
+  const tab = accounts.slice(0, accounts.indexOf('export function ManageAccountsScreen'));
+  assert.doesNotMatch(tab, /accountsDataUnavailable|<AppText/);
+  assert.match(manage, /manageAccountsUnavailable/);
   assert.match(route, /router.navigate\('\/add-account'\)/);
   assert.match(route, /<AddAccountScreen \{\.\.\.useAddAccountViewModel\(\)\}/);
   assert.match(
