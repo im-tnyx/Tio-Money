@@ -33,6 +33,7 @@
 - [Group-first Add Account PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123331800) opens the picker before the selected form. The form has transparent borderless fields and omits the Group row and preview sentence. Exact published HEAD and checks are recorded in RFC #96.
 - [Add Account entrance PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123681685) slides the selected form upward in the existing modal and respects Reduced Motion. Exact published HEAD and checks are recorded in RFC #96.
 - [Add Account timing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123925491) slows the selected form to a 300 ms ease-in-out slide. The group picker uses the native modal slide. Exact published HEAD and checks are recorded in RFC #96.
+- [Add Account screen PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7124239053) opens the editor screen before the Group picker, restores switching between group drafts and moves disabled Save into the top bar. Exact published HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

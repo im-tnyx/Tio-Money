@@ -87,8 +87,8 @@ test('Settings and Accounts detail routes preregister the same native Stack moti
   assert.match(root, /<Stack\.Screen name="currency\/sub" options=\{motion\.detail\} \/>/);
   assert.match(root, /<Stack\.Screen name="currency\/sub-detail" options=\{motion\.detail\} \/>/);
   assert.match(root, /<Stack\.Screen name="manage-accounts" options=\{motion\.detail\} \/>/);
-  assert.doesNotMatch(root, /<Stack\.Screen name="add-account/);
-  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 5);
+  assert.match(root, /<Stack\.Screen name="add-account" options=\{motion\.detail\}/);
+  assert.equal(root.match(/options=\{motion\.detail\}/g)?.length, 6);
   assert.doesNotMatch(root, /animation: ['"](?:fade|slide_from_right)['"]|animationDuration: \d+/);
 
   const subRoute = readFileSync('src/features/settings/sub-currency-route.tsx', 'utf8');

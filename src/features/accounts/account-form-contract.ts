@@ -343,14 +343,16 @@ export interface AccountGroupChoice {
   readonly label: TranslationKey;
   readonly detail: TranslationKey;
   readonly status?: TranslationKey;
+  readonly selected?: boolean;
   readonly onSelect?: () => void;
 }
 
-export interface AddAccountSheetViewModel {
-  readonly animate: boolean;
-  readonly content:
-    | { readonly kind: 'group'; readonly choices: readonly AccountGroupChoice[] }
-    | { readonly kind: 'form'; readonly form: AddAccountViewModel }
-    | null;
-  readonly onDismiss: () => void;
+export interface AddAccountScreenViewModel {
+  readonly animateSheet: boolean;
+  readonly groupLabel: TranslationKey;
+  readonly groupChoices: readonly AccountGroupChoice[] | null;
+  readonly form: AddAccountViewModel | null;
+  readonly onOpenGroupPicker: () => void;
+  readonly onCloseGroupPicker: () => void;
+  readonly onClose: () => void;
 }

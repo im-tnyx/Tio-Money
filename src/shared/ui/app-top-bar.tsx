@@ -6,11 +6,72 @@ import { AppText } from '@/shared/ui/app-text';
 
 export interface AppTopBarAction {
   readonly key: string;
-  readonly icon: 'add' | 'eye' | 'eye-off';
+  readonly icon: 'add' | 'eye' | 'eye-off' | 'save';
   readonly accessibilityLabel: string;
-  readonly onPress: () => void;
+  readonly accessibilityHint?: string;
+  readonly onPress?: () => void;
   readonly disabled?: boolean;
   readonly selected?: boolean;
+}
+
+const iconPaths = {
+  back: 'm15 18-6-6 6-6',
+  close: 'm6 6 12 12M18 6 6 18',
+  add: 'M12 5v14M5 12h14',
+  save: 'M5 3h12l4 4v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm2 0v6h9V3M7 21v-7h10v7',
+  eye: 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z',
+} as const;
+
+function TopBarIcon({
+  name,
+  round,
+}: {
+  readonly name: AppTopBarAction['icon'] | 'back' | 'close';
+  readonly round: boolean;
+}) {
+  const theme = useAppTheme();
+  const icon = (
+    <Svg
+      width={theme.iconRoles.topBar}
+      height={theme.iconRoles.topBar}
+      viewBox="0 0 24 24"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Path
+        d={iconPaths[name === 'eye-off' ? 'eye' : name]}
+        stroke={theme.colors.primaryText}
+        strokeWidth={theme.icons.stroke}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {name === 'eye-off' ? (
+        <Path
+          d="M3 3l18 18"
+          stroke={theme.colors.primaryText}
+          strokeWidth={theme.icons.stroke}
+          strokeLinecap="round"
+        />
+      ) : null}
+    </Svg>
+  );
+  return round ? (
+    <View
+      style={{
+        width: theme.space.xxxl,
+        height: theme.space.xxxl,
+        borderRadius: theme.radius.pill,
+        backgroundColor: theme.colors.elevated,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {icon}
+    </View>
+  ) : (
+    icon
+  );
 }
 
 /** Presentation-only shared page header; host screen owns the OS safe-area inset. */
@@ -19,11 +80,13 @@ export function AppTopBar({
   onBack,
   backAccessibilityLabel,
   actions = [],
+  editing = false,
 }: {
   readonly title: string;
   readonly onBack?: () => void;
   readonly backAccessibilityLabel?: string;
   readonly actions?: readonly AppTopBarAction[];
+  readonly editing?: boolean;
 }) {
   const theme = useAppTheme();
   const sideWidth = Math.max(
@@ -50,27 +113,14 @@ export function AppTopBar({
             onPress={onBack}
             style={{
               minHeight: theme.buttons.minimumHeight,
-              paddingLeft: theme.space.sm,
+              paddingLeft: editing ? 0 : theme.space.sm,
+              width: editing ? theme.buttons.minimumHeight : undefined,
+              marginLeft: editing ? theme.space.xs : undefined,
               justifyContent: 'center',
-              alignItems: 'flex-start',
+              alignItems: editing ? 'center' : 'flex-start',
             }}
           >
-            <Svg
-              width={theme.iconRoles.topBar}
-              height={theme.iconRoles.topBar}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-            >
-              <Path
-                d="m15 18-6-6 6-6"
-                stroke={theme.colors.primaryText}
-                strokeWidth={theme.icons.stroke}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </Svg>
+            <TopBarIcon name={editing ? 'close' : 'back'} round={editing} />
           </Pressable>
         ) : null}
       </View>
@@ -89,6 +139,7 @@ export function AppTopBar({
           flexDirection: 'row',
           justifyContent: 'flex-end',
           alignItems: 'center',
+          paddingRight: editing ? theme.space.xs : undefined,
         }}
       >
         {actions.map((action) => (
@@ -96,50 +147,25 @@ export function AppTopBar({
             key={action.key}
             accessibilityRole="button"
             accessibilityLabel={action.accessibilityLabel}
+            accessibilityHint={action.accessibilityHint}
             accessibilityState={{
-              disabled: action.disabled ?? false,
+              disabled: action.disabled || !action.onPress,
               selected: action.selected ?? false,
             }}
-            disabled={action.disabled}
+            disabled={action.disabled || !action.onPress}
             onPress={action.onPress}
             style={{
               width: theme.buttons.minimumHeight,
               minHeight: theme.buttons.minimumHeight,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: action.disabled
-                ? theme.buttons.disabledOpacity
-                : theme.buttons.enabledOpacity,
+              opacity:
+                action.disabled || !action.onPress
+                  ? theme.buttons.disabledOpacity
+                  : theme.buttons.enabledOpacity,
             }}
           >
-            <Svg
-              width={theme.iconRoles.topBar}
-              height={theme.iconRoles.topBar}
-              viewBox="0 0 24 24"
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-            >
-              <Path
-                d={
-                  action.icon === 'add'
-                    ? 'M12 5v14M5 12h14'
-                    : 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z'
-                }
-                stroke={theme.colors.primaryText}
-                strokeWidth={theme.icons.stroke}
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {action.icon === 'eye-off' ? (
-                <Path
-                  d="M3 3l18 18"
-                  stroke={theme.colors.primaryText}
-                  strokeWidth={theme.icons.stroke}
-                  strokeLinecap="round"
-                />
-              ) : null}
-            </Svg>
+            <TopBarIcon name={action.icon} round={editing} />
           </Pressable>
         ))}
       </View>

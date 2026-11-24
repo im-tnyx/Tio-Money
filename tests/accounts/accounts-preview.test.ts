@@ -4,6 +4,7 @@ import { test } from 'node:test';
 
 import {
   newAccountAddSession,
+  presentInitialAccountGroupPicker,
   reconcileAccountAddCurrencies,
   updateAccountAddSession,
   type AccountAddAction,
@@ -54,66 +55,85 @@ function updateSession(session: AccountAddSession, action: AccountAddAction) {
   return updateAccountAddSession(session, action, 'INR', currencies);
 }
 
-test('Add Account starts in the picker with no draft and accepts the first supported choice', () => {
-  const picker = newAccountAddSession();
-  assert.deepEqual(picker, { phase: 'group' });
-  assert.equal(
-    updateSession(picker, { type: 'form', group: 'bank', action: { type: 'mode.open' } }),
-    picker,
-  );
+test('the first Group picker waits for entry and late transition events do not reopen it', () => {
+  const opening = newAccountAddSession();
+  assert.equal(opening.groupPicker, 'pending');
+  assert.equal(opening.group, null);
+  assert.deepEqual(opening.drafts, {});
+  assert.equal(updateSession(opening, { type: 'group.select', group: 'cash' }), opening);
+  const picker = presentInitialAccountGroupPicker(opening);
+  assert.equal(picker.groupPicker, 'open');
+  assert.equal(newAccountAddSession(true).groupPicker, 'open');
+  const dismissed = updateSession(picker, { type: 'group.close' });
+  assert.equal(dismissed.group, null);
+  assert.equal(presentInitialAccountGroupPicker(dismissed), dismissed);
   for (const { id: group } of BUILT_IN_ACCOUNT_GROUPS) {
     if (!isPreviewGroup(group)) continue;
     const form = updateSession(picker, { type: 'group.select', group });
-    assert.deepEqual(form, { phase: 'form', draft: newAccountDraft(group, 'INR') });
+    assert.deepEqual(form, {
+      groupPicker: 'closed',
+      group,
+      drafts: { [group]: newAccountDraft(group, 'INR') },
+    });
     assert.equal(updateSession(form, { type: 'group.select', group: 'cash' }), form);
+    assert.equal(presentInitialAccountGroupPicker(form), form);
   }
 });
 
-test('currency reconciliation clears amounts and preserves the chosen form and its other fields', () => {
+test('changing and dismissing Group retains separate drafts and guards inactive currencies', () => {
   const actions: readonly AccountAddAction[] = [
     { type: 'group.select', group: 'bank' },
     { type: 'form', group: 'bank', action: { type: 'text', field: 'name', value: 'Travel' } },
     { type: 'form', group: 'bank', action: { type: 'currency', value: 'USD' } },
     { type: 'form', group: 'bank', action: { type: 'text', field: 'openingAmount', value: '25' } },
+    { type: 'group.open' },
+    { type: 'group.close' },
+    { type: 'group.open' },
     { type: 'group.select', group: 'credit-card' },
+    { type: 'form', group: 'bank', action: { type: 'text', field: 'name', value: 'Stale' } },
     {
       type: 'form',
       group: 'credit-card',
-      action: { type: 'text', field: 'name', value: 'Stale' },
+      action: { type: 'text', field: 'creditLimit', value: '50' },
     },
   ];
-  const edited = actions.reduce(updateSession, newAccountAddSession());
-  if (edited.phase !== 'form') assert.fail();
-  assert.equal(edited.draft.group, 'bank');
-  assert.equal(edited.draft.currency, 'USD');
-  assert.equal(edited.draft.fields.name, 'Travel');
-
-  const bank = reconcileAccountAddCurrencies(edited, 'INR', ['INR']);
-  if (bank.phase !== 'form') assert.fail();
-  assert.equal(bank.draft.currency, 'INR');
-  assert.deepEqual(bank.draft.fields, {
+  const card = actions.reduce(updateSession, newAccountAddSession(true));
+  assert.equal(card.group, 'credit-card');
+  assert.equal(card.drafts.bank?.fields.name, 'Travel');
+  assert.equal(card.drafts.bank?.currency, 'USD');
+  const reconciled = reconcileAccountAddCurrencies(card, 'INR', ['INR']);
+  const readded = reconcileAccountAddCurrencies(reconciled, 'INR', currencies);
+  const bank = updateSession(updateSession(readded, { type: 'group.open' }), {
+    type: 'group.select',
+    group: 'bank',
+  });
+  assert.equal(bank.group, 'bank');
+  assert.equal(bank.drafts.bank?.currency, 'INR');
+  assert.deepEqual(bank.drafts.bank?.fields, {
     name: 'Travel',
     description: '',
     openingAmount: '',
   });
-  assert.equal(reconcileAccountAddCurrencies(bank, 'INR', currencies), bank);
+  assert.equal(bank.drafts['credit-card'], card.drafts['credit-card']);
 });
 
-test('closing the Bank payment overlay discards edits without closing or clearing Add Account', () => {
+test('closing the Bank payment editor discards unapplied changes and preserves the form', () => {
   const actions: readonly AccountAddAction[] = [
     { type: 'group.select', group: 'bank' },
     { type: 'form', group: 'bank', action: { type: 'text', field: 'name', value: 'Everyday' } },
     { type: 'form', group: 'bank', action: { type: 'mode.open' } },
     { type: 'form', group: 'bank', action: { type: 'mode.name', value: 'Unapplied' } },
   ];
-  const editing = actions.reduce(updateSession, newAccountAddSession());
+  const editing = actions.reduce(updateSession, newAccountAddSession(true));
+  assert.equal(updateSession(editing, { type: 'group.open' }), editing);
   const bank = updateSession(editing, {
     type: 'form',
     group: 'bank',
     action: { type: 'mode.cancel' },
   });
-  if (bank.phase !== 'form' || bank.draft.group !== 'bank') assert.fail();
-  const { draft } = bank;
+  const draft = bank.drafts.bank;
+  assert.equal(bank.group, 'bank');
+  if (draft?.group !== 'bank') assert.fail();
   assert.equal(draft.fields.name, 'Everyday');
   assert.equal(draft.modeEditor, null);
   assert.deepEqual(draft.modes, []);
@@ -138,7 +158,7 @@ test('batched text inputs and Wallet kind toggles use the latest draft without l
     description: 'Cash reserve',
   });
   assert.equal(newAccountDraft('wallet', 'INR').fields.name, '');
-  const route = readFileSync('src/features/accounts/use-add-account-sheet.ts', 'utf8');
+  const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(route, /setSession\(\(previous\) =>/);
   assert.match(
     route,
@@ -323,7 +343,7 @@ test('every eligible form defaults to Main and only shows currency choices with 
     assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY'], id);
   }
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  const route = readFileSync('src/features/accounts/use-add-account-sheet.ts', 'utf8');
+  const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(route, /currencyChoices:\s*accountCurrencyChoices\(draft, currencies\)\?\.map/);
   assert.match(
     screen,
@@ -334,7 +354,7 @@ test('every eligible form defaults to Main and only shows currency choices with 
 
 test('one amount row per form carries the inline currency selector and all amounts share its code', () => {
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  const route = readFileSync('src/features/accounts/use-add-account-sheet.ts', 'utf8');
+  const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   const specs = screen.slice(
     screen.indexOf('const fieldSpecs'),
     screen.indexOf('const inputIcons'),
@@ -449,7 +469,7 @@ test('currency changes clear each group’s amounts while retaining all other dr
     assert.deepEqual(accountCurrencyChoices(reconciled, readded), ['JPY', 'USD'], id);
   }
 
-  const route = readFileSync('src/features/accounts/use-add-account-sheet.ts', 'utf8');
+  const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(route, /if \(current !== session\) setSession\(current\)/);
 });
 
@@ -550,14 +570,14 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
 
 test('main form aligns icons and wraps Description from one line with its label inside', () => {
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  const route = readFileSync('src/features/accounts/use-add-account-sheet.ts', 'utf8');
+  const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
 
   const input = readFileSync('src/shared/ui/app-text-field.tsx', 'utf8');
 
   assert.match(form, /const description = field === 'description'/);
-  assert.match(form, /<View style=\{\{ padding: theme.space.lg,/);
+  assert.match(form, /contentContainerStyle=\{\{ padding: theme.space.lg,/);
   assert.match(controls, /const iconColumnWidth = theme.iconRoles.textField/);
   assert.match(controls, /marginLeft: iconColumnWidth \+ iconGap/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
@@ -622,7 +642,7 @@ test('settings routes are distinct and detail routes inherit shared theme motion
   const stack = readFileSync('src/app/_layout.tsx', 'utf8');
   assert.match(more, /case 'account\.groups\.open':\s+router\.push\('\/account-groups'\)/);
   assert.match(more, /case 'account\.manage\.open':\s+router\.push\('\/manage-accounts'\)/);
-  assert.doesNotMatch(stack, /name="add-account/);
+  assert.match(stack, /name="add-account" options=\{motion\.detail\}/);
   assert.match(stack, /name="manage-accounts" options=\{motion\.detail\}/);
   assert.match(stack, /contentStyle: \{ backgroundColor: theme\.colors\.canvas \}/);
 });
@@ -649,51 +669,51 @@ test('Account Settings groups both destinations in one card styled like Currency
   );
 });
 
-test('Accounts plus opens group options first and the resulting form has disabled Save', () => {
+test('Accounts plus opens the editor, which presents Group first and keeps Save in the top bar', () => {
   const accounts = readFileSync('src/features/accounts/accounts-screen.tsx', 'utf8');
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const picker = readFileSync('src/features/accounts/account-group-picker.tsx', 'utf8');
   const route = readFileSync('src/features/accounts/accounts-route.tsx', 'utf8');
-  const controller = readFileSync('src/features/accounts/use-add-account-sheet.ts', 'utf8');
+  const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
+  const bar = readFileSync('src/shared/ui/app-top-bar.tsx', 'utf8');
   const manage = accounts.slice(accounts.indexOf('export function ManageAccountsScreen'));
   assert.match(accounts, /icon: 'add'.*onPress: onAdd/);
-  assert.match(route, /<AccountsScreen addAccount=\{sheet\} onAdd=\{open\}/);
-  assert.doesNotMatch(route, /router\.push/);
-  assert.match(accounts, /<AddAccountSheet \{\.\.\.addAccount\}/);
+  assert.match(route, /router.navigate\('\/add-account'\)/);
+  assert.match(route, /<AddAccountScreen \{\.\.\.useAddAccountViewModel\(\)\}/);
   assert.match(
     controller,
-    /open: \(\) => setSession\(\(previous\) => previous \?\? newAccountAddSession\(\)\)/,
+    /addListener\('transitionEnd',[\s\S]*?!data.closing && navigation.isFocused\(\)[\s\S]*?setSession\(presentInitialAccountGroupPicker\)/,
   );
-  assert.match(controller, /current\?\.phase === 'group'[\s\S]*?group.select/);
-  assert.match(controller, /animate: !reduceMotion/);
-  assert.match(form, /animate=\{animate\}\s+slideInOnMount=\{form !== null\}/);
+  assert.match(controller, /newAccountAddSession\(reduceMotion \|\| Platform.OS === 'web'\)/);
+  assert.match(controller, /animateSheet: !reduceMotion/);
   assert.match(
     form,
-    /<AppBottomSheet[\s\S]*?avoidKeyboard\s+expandable=\{form !== null\}\s+showCloseButton/,
+    /<AccountPage\s+editing\s+title=\{t\('addAccount'\)\}\s+backLabel=\{t\('closeAddAccount'\)\}\s+onBack=\{onClose\}/,
   );
-  assert.match(form, /title=\{t\(form \? titleKeys\[form.draft.group\] : 'chooseAccountGroup'\)\}/);
-  assert.match(form, /overlay=\{overlay\}/);
+  assert.match(form, /icon: 'save',[\s\S]*?accessibilityLabel: t\('save'\),[\s\S]*?disabled: true/);
+  assert.match(bar, /name=\{editing \? 'close' : 'back'\} round=\{editing\}/);
+  assert.match(bar, /borderRadius: theme.radius.pill/);
+  assert.match(bar, /disabled=\{action.disabled \|\| !action.onPress\}/);
   assert.match(
     form,
-    /\{groupPicker \? \(\s*<AccountGroupOptions choices=\{groupPicker.choices\} \/>\s*\) : form \? \([\s\S]*?<AccountFields/,
+    /<AccountGroupField value=\{groupLabel\} onPress=\{onOpenGroupPicker\}[\s\S]*?<AccountFields/,
   );
-  assert.doesNotMatch(form, /AccountGroupField|accountFormPreview|Entries are discarded/);
+  assert.match(
+    form,
+    /title: t\('chooseAccountGroup'\)[\s\S]*?onDismiss: onCloseGroupPicker[\s\S]*?children: <AccountGroupOptions/,
+  );
+  assert.match(
+    form,
+    /<AppBottomSheet\s+visible=\{sheet !== undefined\}\s+animate=\{animateSheet\}\s+avoidKeyboard/,
+  );
+  assert.doesNotMatch(form, /ActionButton|accountFormPreview|Entries are discarded|slideInOnMount/);
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
-  assert.match(form, /dismissAccessibilityLabel: t\('closeAccountPaymentMode'\)/);
-  assert.match(picker, /accessibilityRole="button"/);
-  assert.match(picker, /accessibilityState=\{\{ disabled: !onSelect \}\}/);
-  assert.match(picker, /disabled=\{!onSelect\}/);
+  assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
+  assert.match(picker, /accessibilityState=\{\{ disabled: !onSelect, selected \}\}/);
   assert.doesNotMatch(manage, /actions=|onAdd|AppBottomSheet/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
-  assert.match(form, /<ActionButton label=\{t\('save'\)\} disabled \/>/);
-  assert.match(
-    form,
-    /dismissAccessibilityLabel=\{t\(form \? 'closeAddAccount' : 'closeAccountGroupPicker'\)\}\s+onDismiss=\{onDismiss\}/,
-  );
-  assert.doesNotMatch(form, /accountCancel/);
-  assert.match(form, /accountSaveUnavailable/);
   assert.match(form, /label="accountWalletBank"/);
   assert.match(form, /label="accountPayFrom"/);
   assert.match(choices, /checked: selected/);

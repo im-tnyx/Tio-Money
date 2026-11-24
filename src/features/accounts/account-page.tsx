@@ -9,6 +9,7 @@ export function AccountPage({
   backLabel,
   onBack,
   actions,
+  editing,
   tab = false,
   children,
 }: {
@@ -16,6 +17,7 @@ export function AccountPage({
   readonly backLabel?: string;
   readonly onBack?: () => void;
   readonly actions?: readonly AppTopBarAction[];
+  readonly editing?: boolean;
   readonly tab?: boolean;
   readonly children: ReactNode;
 }) {
@@ -30,6 +32,7 @@ export function AccountPage({
         onBack={onBack}
         backAccessibilityLabel={backLabel}
         actions={actions}
+        editing={editing}
       />
       {children}
     </SafeAreaView>
