@@ -33,7 +33,10 @@ import paymentModeIcons from '../../src/shared/assets/google-material-icons/paym
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
 import { wheelProjection, wheelProjectionSamples } from '../../src/shared/ui/wheel-projection';
-import { shouldAlignWheel } from '../../src/shared/ui/wheel-selection';
+import {
+  shouldAlignWheel,
+  shouldAnimateWheelAlignment,
+} from '../../src/shared/ui/wheel-selection';
 import {
   calendarMonths,
   calendarWheelCounts,
@@ -847,6 +850,16 @@ test('wheel controlled echoes cannot interrupt native motion', () => {
   assert.equal(shouldAlignWheel(4, 5, false, false), true);
 });
 
+test('linked calendar detents animate nearby changes without long virtualized scrolls', () => {
+  assert.equal(shouldAnimateWheelAlignment(1500, 1501, false), true);
+  assert.equal(shouldAnimateWheelAlignment(1501, 1500, false), true);
+  assert.equal(shouldAnimateWheelAlignment(126, 127, false), true);
+  assert.equal(shouldAnimateWheelAlignment(10, 22, false), true);
+  assert.equal(shouldAnimateWheelAlignment(10, 23, false), false);
+  assert.equal(shouldAnimateWheelAlignment(10, 10, false), false);
+  assert.equal(shouldAnimateWheelAlignment(10, 11, true), false);
+});
+
 test('Loan wheels use local Today and retain live valid dates after dismissal', () => {
   const today = '2024-01-31';
   assert.equal(localCalendarToday(new Date(2024, 0, 31, 23, 59)), today);
@@ -930,6 +943,11 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.match(wheel, /Animated\.event/);
   assert.match(wheel, /offset\.addListener/);
   assert.match(wheel, /offset\.removeListener/);
+  assert.match(wheel, /shouldAnimateWheelAlignment\(lastIndex\.current, selected, reduceMotion\)/);
+  assert.match(wheel, /if \(!animated\) offset\.setValue/);
+  assert.match(wheel, /scrollToOffset\(\{ offset: selected \* rowHeight, animated \}\)/);
+  assert.match(wheel, /programmaticTarget\.current = selected/);
+  assert.match(wheel, /if \(target !== null\)/);
   assert.match(wheel, /useNativeDriver: Platform\.OS !== 'web'/);
   assert.doesNotMatch(wheel, /offset\.setValue\(event\.nativeEvent\.contentOffset\.y\)/);
   assert.match(
@@ -1175,6 +1193,7 @@ test('date popup stays above the field and fits only complete rows', () => {
     insets,
     settings,
   );
+  assert.ok('bottom' in full);
   assert.equal(full.bottom, 334);
   assert.equal(full.maxHeight, 356);
   assert.equal(fitPopupRows(Math.min(full.maxHeight, 174) - 14, 32, [5, 3, 1]), 5);
@@ -1185,6 +1204,7 @@ test('date popup stays above the field and fits only complete rows', () => {
     insets,
     settings,
   );
+  assert.ok('bottom' in compact);
   assert.equal(compact.bottom, 574);
   assert.equal(compact.maxHeight, 116);
   assert.equal(fitPopupRows(compact.maxHeight - 14, 32, [5, 3, 1]), 3);
@@ -1195,6 +1215,7 @@ test('date popup stays above the field and fits only complete rows', () => {
     insets,
     settings,
   );
+  assert.ok('bottom' in tight);
   assert.equal(tight.bottom, 638);
   assert.equal(fitPopupRows(tight.maxHeight - 14, 32, [5, 3, 1]), 1);
   assert.equal(fitPopupRows(31, 32, [5, 3, 1]), 0);
