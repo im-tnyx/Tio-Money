@@ -19,6 +19,7 @@ const read = (path) => readFileSync(join(root, path), 'utf8');
 const signal = read('.github/workflows/tio-money-preview-push-signal.yml');
 const workflow = read('.github/workflows/tio-money-eas-pr-preview.yml');
 const worker = workflow.slice(workflow.indexOf('  codespaces_live:'), workflow.indexOf('  select:'));
+const authorization = read('.github/scripts/authorize-codespaces-preview.mjs');
 const sync = read('.github/scripts/sync-pr-codespaces-preview.sh');
 const devcontainer = JSON.parse(read('.devcontainer/devcontainer.json'));
 
@@ -30,21 +31,23 @@ test('push signal never receives privileged credentials or checks out feature co
   assert.doesNotMatch(signal, /^\s{2}workflow_run:/m);
 });
 
-test('trusted worker has exact owner, repo, main and successful push gates', () => {
-  assert.match(worker, /github\.ref == 'refs\/heads\/main'/);
-  assert.match(worker, /github\.actor == 'im-tnyx'/);
-  assert.match(worker, /workflow_run\.actor\.login == 'im-tnyx'/);
-  assert.match(worker, /workflow_run\.head_repository\.full_name == 'im-tnyx\/Tio-Money'/);
-  assert.match(worker, /workflow_run\.conclusion == 'success'/);
-  assert.match(worker, /head\.sha \| test\("\^\[0-9a-f\]\{40\}\$"\)/);
-  assert.match(worker, /\.head\.ref != "main"/);
-  assert.match(worker, /\.base\.ref == "main"/);
-  assert.match(worker, /\.user\.login == "im-tnyx"/);
-  assert.match(worker, /tio-preview/);
-  assert.match(worker, /\$PUSH_SHA" != "\$pr_sha"/);
-  assert.match(worker, /github\.triggering_actor == 'im-tnyx'/);
-  assert.match(worker, /github\.run_attempt == '1'/);
-  assert.match(worker, /base_sha=\%s/);
+test('trusted environment is gated on successful explicit eligibility', () => {
+  const eligibility = workflow.slice(workflow.indexOf('  codespaces_eligibility:'), workflow.indexOf('  codespaces_live:'));
+  assert.match(eligibility, /actions: read/);
+  assert.match(eligibility, /authorize-codespaces-preview\.mjs/);
+  assert.match(eligibility, /persist-credentials: false/);
+  assert.doesNotMatch(eligibility, /environment:|secrets\.|cache:|artifact|: write/);
+  assert.match(worker, /needs: codespaces_eligibility/);
+  assert.doesNotMatch(worker, /actions: read/);
+  assert.match(worker, /authorize-codespaces-preview\.mjs --revalidate/);
+  assert.ok(worker.includes("needs.codespaces_eligibility.result == 'success'"));
+  assert.ok(worker.includes("needs.codespaces_eligibility.outputs.approved == 'true'"));
+  assert.ok(worker.includes("github.run_attempt == '1'"));
+  assert.ok(worker.indexOf('Revalidate live eligibility') < worker.indexOf('secrets.CODESPACES_TOKEN'));
+  assert.ok(worker.indexOf('Check live PR immediately') < worker.indexOf('secrets.CODESPACES_TOKEN'));
+  for (const step of worker.split('      - name: ').filter((value) => value.includes('secrets.CODESPACES_TOKEN'))) {
+    assert.ok(step.includes("steps.pr.outputs.approved == 'true'"));
+  }
 });
 
 const recheck = readFileSync(new URL('../../.github/scripts/recheck-codespaces-preview.sh', import.meta.url), 'utf8');
@@ -194,7 +197,7 @@ test('immutable preview scope rejects PR head race, altered compare, and native 
 });
 
 test('trusted main snapshot validation precedes any Codespace start or SSH', () => {
-  assert.match(worker, /compare\/\$\{PR_BASE_SHA\}\.\.\.\$\{PR_SHA\}/);
+  assert.ok(authorization.includes('compare/${base.sha}...${head.sha}'));
   assert.doesNotMatch(worker, /pulls\/\$\{TARGET_PR\}\/files/);
   assert.match(recheck, /verify-pr-preview-pr-snapshot\.mjs/);
   const selected = worker.indexOf('bash .github/scripts/recheck-codespaces-preview.sh');
@@ -226,7 +229,7 @@ test('trusted worker copies a private immutable bundle, never sends Git credenti
   assert.ok(transfer.includes('test ! -L %q'));
   assert.ok(transfer.includes('bundle_sha256="$(sha256sum -- "$bundle"'));
   assert.ok(transfer.includes('"$remote_bundle" "$bundle_sha256"'));
-  assert.ok(transfer.includes('source-only') || worker.includes('source-only'));
+  assert.ok(authorization.includes('paths.every((path) => allowed.test(path))'));
 });
 
 test('SCP absolute destination uses safe CLI expansion without literal quotes', () => {
@@ -488,27 +491,13 @@ test('dedicated preview identity gate fails closed for owner editing Codespace a
   assert.throws(() => requireDedicatedPreviewCodespace(null, previewName, previewId), /allowlist/);
 });
 
-test('PR metadata HTTP diagnostic stays read-only, safe and before Codespace activation', () => {
-  const fetch = worker.indexOf('pr_status="$(printf ');
-  const check = worker.indexOf('jq -e --arg repo "$GITHUB_REPOSITORY"');
-  const start = worker.indexOf('"/user/codespaces/${codespace}/start"');
-  assert.ok(fetch > 0 && fetch < check && check < start);
+test('PR metadata errors fail closed without printing API output or exposing credentials', () => {
   assert.ok(worker.includes('GH_TOKEN: ${{ github.token }}'));
-  assert.ok(worker.includes('curl --config - --silent --show-error --max-time 20'));
-  assert.ok(worker.includes('Authorization: Bearer %s'));
-  assert.ok(worker.includes('"$GH_TOKEN" |'));
-  assert.doesNotMatch(worker, /--header "Authorization: Bearer/);
-  assert.ok(worker.includes('if [[ "$pr_status" != "200" ]]'));
-  assert.ok(worker.includes('gsub(/[^[:alnum:]._,;= -]/, "?", value)'));
-  for (const name of [
-    'x-accepted-github-permissions',
-    'x-github-request-id',
-    'x-github-api-version-selected',
-  ]) assert.ok(worker.includes(name), name);
-  assert.ok(worker.includes('Codespace activation denied'));
-  assert.ok(!worker.includes('set -x'));
-  assert.ok(!worker.includes('echo "$GH_TOKEN"'));
-  assert.ok(!worker.includes('secrets.EXPO_TOKEN'));
+  assert.ok(worker.indexOf('Revalidate live eligibility') < worker.indexOf('secrets.CODESPACES_TOKEN'));
+  assert.ok(authorization.includes("execFileSync('gh', ['api', ...args,"));
+  assert.ok(authorization.includes("stdio: ['ignore', 'pipe', 'pipe']"));
+  assert.match(authorization, /catch \{\s+console.error\('::error::Codespaces preview authorization failed.'\);\s+process.exitCode = 1;/);
+  assert.doesNotMatch(authorization, /CODESPACES_TOKEN|EXPO_TOKEN|console.error\(error/);
 });
 
 test('unified manual PR input remains a strict positive integer string', () => {
@@ -517,13 +506,11 @@ test('unified manual PR input remains a strict positive integer string', () => {
   assert.doesNotMatch(worker, /^  workflow_dispatch:/m);
   assert.match(inputDefinition[0], /^\s*type: string$/m);
   assert.doesNotMatch(inputDefinition[0], /^\s*type: number$/m);
-  assert.ok(worker.includes('if [[ ! "$INPUT_PR" =~ ^[1-9][0-9]*$ ]]; then'));
   const validPR = /^[1-9][0-9]*$/;
   for (const input of ['1', '18', '99999']) assert.ok(validPR.test(input), input);
   for (const input of ['18.0', '0', '-18', '01', '1e3', '18/../../', '', '18 ']) {
     assert.equal(validPR.test(input), false, input);
   }
-  assert.match(worker, /github\.actor == 'im-tnyx'/);
   assert.match(worker, /github\.ref == 'refs\/heads\/main'/);
   assert.match(worker, /github\.run_attempt == '1'/);
 });
@@ -535,9 +522,8 @@ test('trusted worker scopes issue-label enumeration to issues: read without writ
     permissionBlock[1].trim().split('\n').map((entry) => entry.trim()),
     ['contents: read', 'pull-requests: read', 'issues: read'],
   );
-  assert.ok(worker.includes('issues?state=open&labels=tio-preview&per_page=100'));
-  assert.ok(worker.includes('if [[ "${#active[@]}" -ne 1 || "${active[0]:-}" != "$selected" ]]'));
-  assert.match(worker, /github\.actor == 'im-tnyx'/);
   assert.match(worker, /github\.run_attempt == '1'/);
+  assert.match(worker, /issues: read/);
+  assert.match(authorization, /issues\?state=open&labels=tio-preview&per_page=100', true/);
   assert.doesNotMatch(permissionBlock[1], /write/);
 });

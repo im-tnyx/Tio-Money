@@ -19,7 +19,7 @@ for (const path of WORKFLOWS) {
   test(path + ' uses exact reviewed checkout and no persisted credentials', () => {
     const workflow = readFileSync(join(ROOT, path), 'utf8');
     const matches = [...workflow.matchAll(/^\s*(?:-\s*)?uses:\s*actions\/checkout@([^\s#]+)/gm)];
-    const expected = path.endsWith('tio-money-eas-pr-preview.yml') ? 3 : 1;
+    const expected = path.endsWith('tio-money-eas-pr-preview.yml') ? 4 : 1;
     assert.equal(matches.length, expected, 'Expected reviewed checkout steps: ' + path);
     assert.doesNotMatch(workflow, /allow-unsafe-pr-checkout\s*:/,
       'Never bypass checkout v7 fork-PR restrictions: ' + path);
@@ -42,6 +42,8 @@ test('trusted preview checkout refs and separate authorization remain intact', (
   const eas = workflow.slice(selection);
   const governance = read(WORKFLOWS[0]);
 
+  const eligibility = workflow.slice(workflow.indexOf('  codespaces_eligibility:'), workflow.indexOf('  codespaces_live:'));
+  assert.ok(eligibility.includes('ref: ' + '$' + '{{ github.sha }}'));
   assert.ok(codespaces.includes('ref: ' + '$' + '{{ github.sha }}'));
   assert.ok(eas.includes('ref: ' + '$' + '{{ steps.pr.outputs.head_sha }}'));
   assert.ok(eas.includes('if [[ "$(git rev-parse HEAD)" != "$PR_SHA" ]]'));
