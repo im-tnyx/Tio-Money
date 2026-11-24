@@ -471,9 +471,8 @@ function GroupFields({
       return (
         <>
           <DraftInput
-            field="emiAmount"
-            info={false}
-            value={draft.fields.emiAmount}
+            field="originalPrincipal"
+            value={draft.fields.originalPrincipal}
             {...draftInput}
           />
           {loanDates ? (
@@ -499,9 +498,10 @@ function GroupFields({
           {draft.moreDetailsOpen ? (
             <>
               <DraftInput
-                field="originalPrincipal"
+                field="emiAmount"
+                info={false}
                 currencyControl={false}
-                value={draft.fields.originalPrincipal}
+                value={draft.fields.emiAmount}
                 {...draftInput}
               />
               <DraftInput field="fees" value={draft.fields.fees} {...draftInput} />
