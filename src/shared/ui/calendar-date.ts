@@ -119,3 +119,40 @@ export function selectCalendarWheel(
   const month = part === 'month' ? (index % 12) + 1 : date.month;
   return { year, month, day: Math.min(date.day, calendarDays(year, month)) };
 }
+
+// Physical day detents are independent of the civil ordinal. Reserve one
+// calendar range on either side so ordinary month/year changes never rebase
+// the native scroll position. This is transient popup presentation only.
+export const dayWheelCount = calendarWheelCounts.day * 3;
+
+export function initialDayWheelIndex(date: CalendarDate): number {
+  return calendarWheelCounts.day + calendarWheelIndex(date, 'day');
+}
+
+export function nextDayWheelIndex(
+  previousIndex: number,
+  previous: CalendarDate,
+  next: CalendarDate,
+  part: CalendarPart,
+): number {
+  const ordinal = calendarWheelIndex(next, 'day');
+  const delta =
+    part === 'day' ? ordinal - calendarWheelIndex(previous, 'day') : next.day - previous.day;
+  const index = previousIndex + delta;
+  const origin = ordinal - index;
+  // The full legal date range must remain representable. A reserve rebase is
+  // needed only after cumulative displacement exhausts an entire range.
+  if (origin > 0 || origin + dayWheelCount < calendarWheelCounts.day) {
+    return initialDayWheelIndex(next);
+  }
+  return index;
+}
+
+export function dayWheelBounds(date: CalendarDate, index: number) {
+  const origin = calendarWheelIndex(date, 'day') - index;
+  return {
+    origin,
+    minimum: -origin,
+    maximum: calendarWheelCounts.day - 1 - origin,
+  };
+}

@@ -1,7 +1,9 @@
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import {
   encodeCalendarDate,
+  initialDayWheelIndex,
   localCalendarToday,
+  nextDayWheelIndex,
   parseCalendarDate,
   selectCalendarWheel,
   type CalendarPart,
@@ -24,7 +26,11 @@ type GroupPickerState = 'pending' | 'open' | 'closed';
 export interface AccountAddSession {
   readonly groupPicker: GroupPickerState;
   readonly choicePickerOpen: boolean;
-  readonly datePicker: { readonly field: LoanDateField; readonly id: number } | null;
+  readonly datePicker: {
+    readonly field: LoanDateField;
+    readonly id: number;
+    readonly dayIndex: number;
+  } | null;
   readonly datePickerEpoch: number;
   readonly group: PreviewGroup | null;
   readonly drafts: Readonly<Partial<Record<PreviewGroup, AccountDraft>>>;
@@ -135,8 +141,14 @@ export function updateAccountAddSession(
       ) {
         return session;
       }
+      const date = parseCalendarDate(active.fields[action.field]);
+      if (!date) return session;
       const id = session.datePickerEpoch + 1;
-      return { ...session, datePicker: { field: action.field, id }, datePickerEpoch: id };
+      return {
+        ...session,
+        datePicker: { field: action.field, id, dayIndex: initialDayWheelIndex(date) },
+        datePickerEpoch: id,
+      };
     }
     case 'date.close':
       return session.datePicker?.id === action.id ? { ...session, datePicker: null } : session;
@@ -145,14 +157,22 @@ export function updateAccountAddSession(
       if (active?.group !== 'loan' || picker?.id !== action.id) return session;
       const date = parseCalendarDate(active.fields[picker.field]);
       if (!date) return session;
-      const value = encodeCalendarDate(selectCalendarWheel(date, action.part, action.value));
+      const next = selectCalendarWheel(date, action.part, action.value);
+      const value = encodeCalendarDate(next);
       if (value === active.fields[picker.field]) return session;
       const draft = updateAccountDraft(
         active,
         { type: 'text', field: picker.field, value },
         currencies,
       );
-      return { ...session, drafts: { ...session.drafts, loan: draft } };
+      return {
+        ...session,
+        datePicker: {
+          ...picker,
+          dayIndex: nextDayWheelIndex(picker.dayIndex, date, next, action.part),
+        },
+        drafts: { ...session.drafts, loan: draft },
+      };
     }
     case 'form': {
       if (
