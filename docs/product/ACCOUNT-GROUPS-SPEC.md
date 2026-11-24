@@ -22,7 +22,7 @@
 | User path | Behavior |
 | :--- | :--- |
 | Settings → Account Groups | Browse, explain, order and optionally hide future **built-in** group templates; hiding does not delete accounts |
-| Accounts → + → Add Account | Open the Add Account screen, then present Choose Account Group as a bottom sheet. The top Group row reopens the picker. The Bank payment-mode editor opens above the screen. |
+| Accounts → + → Add Account | Open the Add Account screen, then present Choose Account Group as a bottom sheet. The first form row is labeled **Group** and reopens the picker; its accessible name and the Choose Account Group sheet title remain unchanged. The Bank payment-mode editor opens above the screen. |
 | Edit Account | Preserve stable account ID, ledger classification, old posted events and linked accounts |
 | Archive Account | Hide from ordinary pickers, retain historical ledger and backup/sync identity; reactivation explicit |
 | Group customization | **Future gated design**; free-form custom groups must not invent unsupported ledger semantics |
