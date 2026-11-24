@@ -18,7 +18,6 @@ const rowIcons = {
   card: 'M3 5h18v14H3z M3 10h18 M6 15h4',
   bank: 'm3 9 9-5 9 5H3 M6 9v8 M12 9v8 M18 9v8 M3 20h18',
   autoPay: 'M20 8a8 8 0 1 0 0 8 M20 4v4h-4 M13 7l-4 6h4l-2 4',
-  expand: 'm6 9 6 6 6-6',
 } as const;
 
 export function AccountFormIcon({ name }: { readonly name: keyof typeof rowIcons }) {
@@ -34,7 +33,7 @@ export function AccountFormIcon({ name }: { readonly name: keyof typeof rowIcons
       <Path
         d={rowIcons[name]}
         fill="none"
-        stroke={name === 'expand' ? theme.colors.secondaryText : theme.colors.primaryText}
+        stroke={theme.colors.primaryText}
         strokeWidth={theme.icons.stroke}
         strokeLinecap="round"
         strokeLinejoin="round"

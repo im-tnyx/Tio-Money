@@ -5,6 +5,7 @@ import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
 
 import { AppPopupCard } from './app-popup-card';
+import { AppPopupChevron } from './app-popup-chevron';
 import { AppText } from './app-text';
 import { AppWheelPicker } from './app-wheel-picker';
 import { fitPopupRows } from './popup-position';
@@ -116,9 +117,12 @@ export function AppDateField({
             >
               {day}
             </AppText>
-            <AppText style={{ includeFontPadding: false }}>
+            <AppText style={{ flexShrink: 1, includeFontPadding: false }}>
               {month} {date.year}
             </AppText>
+            <View style={{ marginStart: 'auto' }}>
+              <AppPopupChevron open={open} />
+            </View>
           </View>
         </View>
       }
