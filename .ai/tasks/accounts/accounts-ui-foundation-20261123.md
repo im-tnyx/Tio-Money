@@ -629,4 +629,9 @@ The entries below record implementation history at their stated revisions; super
 - Owner correction: keep EMI Amount on the primary Borrowed form under Loan Amount, not inside More details. More details stays Fees and Interest Rate.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
+### 2026-11-25 — Hide currency on Borrowed EMI
+
+- Owner direction: remove the inline currency strip from Borrowed EMI Amount. Loan Amount keeps currency choices.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

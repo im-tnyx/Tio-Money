@@ -62,6 +62,7 @@
 - [2026-11-25 Remove Borrowed Payment and Auto Pay](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--remove-borrowed-payment-and-auto-pay) drops Payment and Auto Pay from Borrowed; Credit Card keeps both.
 - [2026-11-25 Borrowed Loan Amount above; EMI under More details](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--borrowed-loan-amount-above-emi-under-more-details) briefly put EMI under More details (superseded).
 - [2026-11-25 Borrowed EMI below Loan Amount](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--borrowed-emi-below-loan-amount-not-under-more-details) keeps EMI on the primary form under Loan Amount.
+- [2026-11-25 Hide currency on Borrowed EMI](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--hide-currency-on-borrowed-emi) removes currency buttons from Borrowed EMI; Loan Amount keeps them.
 
 ## 2026-11-24 — Preview workflow privilege boundary (RFC #105)
 
