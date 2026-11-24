@@ -54,75 +54,66 @@ function updateSession(session: AccountAddSession, action: AccountAddAction) {
   return updateAccountAddSession(session, action, 'INR', currencies);
 }
 
-test('Add Account starts without a group and only an open picker accepts a selection', () => {
-  const initial = newAccountAddSession();
-  assert.equal(initial.group, null);
-  assert.equal(en.selectAccountGroup, 'Select');
-  assert.equal(updateSession(initial, { type: 'group.select', group: 'cash' }), initial);
-  const picker = updateSession(initial, { type: 'group.open' });
-  assert.equal(picker.groupPickerOpen, true);
-  assert.deepEqual(updateSession(picker, { type: 'group.close' }), initial);
-  const bank = updateSession(picker, { type: 'group.select', group: 'bank' });
-  assert.equal(bank.groupPickerOpen, false);
-  assert.deepEqual(bank.drafts.bank, newAccountDraft('bank', 'INR'));
-  assert.equal(updateSession(bank, { type: 'group.select', group: 'cash' }), bank);
-  assert.equal(updateSession(bank, { type: 'group.close' }), bank);
+test('Add Account starts in the picker with no draft and accepts the first supported choice', () => {
+  const picker = newAccountAddSession();
+  assert.deepEqual(picker, { phase: 'group' });
+  assert.equal(
+    updateSession(picker, { type: 'form', group: 'bank', action: { type: 'mode.open' } }),
+    picker,
+  );
+  for (const { id: group } of BUILT_IN_ACCOUNT_GROUPS) {
+    if (!isPreviewGroup(group)) continue;
+    const form = updateSession(picker, { type: 'group.select', group });
+    assert.deepEqual(form, { phase: 'form', draft: newAccountDraft(group, 'INR') });
+    assert.equal(updateSession(form, { type: 'group.select', group: 'cash' }), form);
+  }
 });
 
-test('switching groups restores each draft and clears removed currencies even in an inactive draft', () => {
+test('currency reconciliation clears amounts and preserves the chosen form and its other fields', () => {
   const actions: readonly AccountAddAction[] = [
-    { type: 'group.open' },
     { type: 'group.select', group: 'bank' },
     { type: 'form', group: 'bank', action: { type: 'text', field: 'name', value: 'Travel' } },
     { type: 'form', group: 'bank', action: { type: 'currency', value: 'USD' } },
     { type: 'form', group: 'bank', action: { type: 'text', field: 'openingAmount', value: '25' } },
-    { type: 'group.open' },
     { type: 'group.select', group: 'credit-card' },
-    { type: 'form', group: 'bank', action: { type: 'text', field: 'name', value: 'Stale' } },
     {
       type: 'form',
       group: 'credit-card',
-      action: { type: 'text', field: 'creditLimit', value: '50' },
+      action: { type: 'text', field: 'name', value: 'Stale' },
     },
   ];
-  const card = actions.reduce(updateSession, newAccountAddSession());
-  assert.equal(card.drafts.bank?.fields.name, 'Travel');
-  assert.equal(card.drafts['credit-card']?.currency, 'INR');
+  const edited = actions.reduce(updateSession, newAccountAddSession());
+  if (edited.phase !== 'form') assert.fail();
+  assert.equal(edited.draft.group, 'bank');
+  assert.equal(edited.draft.currency, 'USD');
+  assert.equal(edited.draft.fields.name, 'Travel');
 
-  const reconciled = reconcileAccountAddCurrencies(card, 'INR', ['INR']);
-  const bank = updateSession(updateSession(reconciled, { type: 'group.open' }), {
-    type: 'group.select',
-    group: 'bank',
-  });
-  assert.equal(bank.group, 'bank');
-  assert.equal(bank.drafts.bank?.currency, 'INR');
-  assert.deepEqual(bank.drafts.bank?.fields, {
+  const bank = reconcileAccountAddCurrencies(edited, 'INR', ['INR']);
+  if (bank.phase !== 'form') assert.fail();
+  assert.equal(bank.draft.currency, 'INR');
+  assert.deepEqual(bank.draft.fields, {
     name: 'Travel',
     description: '',
     openingAmount: '',
   });
-  assert.equal(bank.drafts['credit-card'], card.drafts['credit-card']);
-  assert.deepEqual(newAccountAddSession().drafts, {});
+  assert.equal(reconcileAccountAddCurrencies(bank, 'INR', currencies), bank);
 });
 
 test('closing the Bank payment overlay discards edits without closing or clearing Add Account', () => {
   const actions: readonly AccountAddAction[] = [
-    { type: 'group.open' },
     { type: 'group.select', group: 'bank' },
     { type: 'form', group: 'bank', action: { type: 'text', field: 'name', value: 'Everyday' } },
     { type: 'form', group: 'bank', action: { type: 'mode.open' } },
     { type: 'form', group: 'bank', action: { type: 'mode.name', value: 'Unapplied' } },
   ];
   const editing = actions.reduce(updateSession, newAccountAddSession());
-  assert.equal(updateSession(editing, { type: 'group.open' }), editing);
   const bank = updateSession(editing, {
     type: 'form',
     group: 'bank',
     action: { type: 'mode.cancel' },
   });
-  const draft = bank.drafts.bank;
-  assert.equal(bank.group, 'bank');
-  if (draft?.group !== 'bank') assert.fail();
+  if (bank.phase !== 'form' || bank.draft.group !== 'bank') assert.fail();
+  const { draft } = bank;
   assert.equal(draft.fields.name, 'Everyday');
   assert.equal(draft.modeEditor, null);
   assert.deepEqual(draft.modes, []);
@@ -553,6 +544,7 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.doesNotMatch(sheetField, /appearance=/);
   assert.match(field, /appearance = 'outlined'/);
   assert.match(field, /borderWidth: borderless \? 0 : theme\.navigation\.borderWidth/);
+  assert.match(field, /backgroundColor: borderless \? 'transparent' : theme\.colors\.canvas/);
   assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
 });
 
@@ -657,7 +649,7 @@ test('Account Settings groups both destinations in one card styled like Currency
   );
 });
 
-test('Accounts plus opens the form sheet with Group above the Name and disabled Save', () => {
+test('Accounts plus opens group options first and the resulting form has disabled Save', () => {
   const accounts = readFileSync('src/features/accounts/accounts-screen.tsx', 'utf8');
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const picker = readFileSync('src/features/accounts/account-group-picker.tsx', 'utf8');
@@ -668,17 +660,28 @@ test('Accounts plus opens the form sheet with Group above the Name and disabled 
   assert.match(route, /<AccountsScreen addAccount=\{sheet\} onAdd=\{open\}/);
   assert.doesNotMatch(route, /router\.push/);
   assert.match(accounts, /<AddAccountSheet \{\.\.\.addAccount\}/);
-  assert.match(controller, /\?\.label \?\? 'selectAccountGroup'/);
+  assert.match(
+    controller,
+    /open: \(\) => setSession\(\(previous\) => previous \?\? newAccountAddSession\(\)\)/,
+  );
+  assert.match(controller, /current\?\.phase === 'group'[\s\S]*?group.select/);
   assert.match(controller, /animate: !reduceMotion/);
-  assert.match(form, /<AccountGroupField[\s\S]*?<AccountFields[\s\S]*?field="name"/);
-  assert.match(form, /<AppBottomSheet[\s\S]*?avoidKeyboard\s+expandable\s+showCloseButton/);
+  assert.match(
+    form,
+    /<AppBottomSheet[\s\S]*?avoidKeyboard\s+expandable=\{form !== null\}\s+showCloseButton/,
+  );
+  assert.match(form, /title=\{t\(form \? titleKeys\[form.draft.group\] : 'chooseAccountGroup'\)\}/);
   assert.match(form, /overlay=\{overlay\}/);
-  assert.match(form, /children: <AccountGroupOptions choices=\{groupPicker.choices\}/);
+  assert.match(
+    form,
+    /\{groupPicker \? \(\s*<AccountGroupOptions choices=\{groupPicker.choices\} \/>\s*\) : form \? \([\s\S]*?<AccountFields/,
+  );
+  assert.doesNotMatch(form, /AccountGroupField|accountFormPreview|Entries are discarded/);
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
   assert.match(form, /dismissAccessibilityLabel: t\('closeAccountPaymentMode'\)/);
-  assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
-  assert.match(picker, /accessibilityState=\{\{ disabled: !onSelect, checked \}\}/);
+  assert.match(picker, /accessibilityRole="button"/);
+  assert.match(picker, /accessibilityState=\{\{ disabled: !onSelect \}\}/);
   assert.match(picker, /disabled=\{!onSelect\}/);
   assert.doesNotMatch(manage, /actions=|onAdd|AppBottomSheet/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
@@ -686,7 +689,7 @@ test('Accounts plus opens the form sheet with Group above the Name and disabled 
   assert.match(form, /<ActionButton label=\{t\('save'\)\} disabled \/>/);
   assert.match(
     form,
-    /dismissAccessibilityLabel=\{t\('closeAddAccount'\)\}\s+onDismiss=\{onDismiss\}/,
+    /dismissAccessibilityLabel=\{t\(form \? 'closeAddAccount' : 'closeAccountGroupPicker'\)\}\s+onDismiss=\{onDismiss\}/,
   );
   assert.doesNotMatch(form, /accountCancel/);
   assert.match(form, /accountSaveUnavailable/);

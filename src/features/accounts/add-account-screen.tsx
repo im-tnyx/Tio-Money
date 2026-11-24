@@ -14,6 +14,7 @@ import {
   type AddAccountSheetViewModel,
   type AddAccountViewModel,
   type DraftField,
+  type PreviewGroup,
 } from './account-form-contract';
 import {
   AccountChoices,
@@ -21,8 +22,17 @@ import {
   AmountCurrencyChoices,
   UnavailableAccountChoice,
 } from './account-form-controls';
-import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
+import { AccountGroupOptions } from './account-group-picker';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
+
+const titleKeys: Record<PreviewGroup, TranslationKey> = {
+  cash: 'addCashAccount',
+  bank: 'addBankAccount',
+  'credit-card': 'addCardAccount',
+  wallet: 'addWalletAccount',
+  loan: 'addLoanAccount',
+  investment: 'addInvestmentAccount',
+};
 
 const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
 const walletLabels = {
@@ -139,26 +149,12 @@ function DraftInput({
   );
 }
 
-export function AddAccountSheet({
-  visible,
-  animate,
-  form,
-  selectedLabel,
-  groupPicker,
-  onOpenGroupPicker,
-  onDismiss,
-}: AddAccountSheetViewModel) {
+export function AddAccountSheet({ content, animate, onDismiss }: AddAccountSheetViewModel) {
   const theme = useAppTheme();
+  const form = content?.kind === 'form' ? content.form : null;
+  const groupPicker = content?.kind === 'group' ? content : null;
   let overlay: BottomSheetLayer | undefined;
-  if (groupPicker) {
-    overlay = {
-      title: t('chooseAccountGroup'),
-      dismissAccessibilityLabel: t('closeAccountGroupPicker'),
-      onDismiss: groupPicker.onDismiss,
-      showCloseButton: true,
-      children: <AccountGroupOptions choices={groupPicker.choices} />,
-    };
-  } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
+  if (form?.draft.group === 'bank' && form.draft.modeEditor) {
     overlay = {
       title: t(form.draft.modeEditor.id === null ? 'accountModeAdd' : 'accountModeEdit'),
       dismissAccessibilityLabel: t('closeAccountPaymentMode'),
@@ -169,25 +165,27 @@ export function AddAccountSheet({
 
   return (
     <AppBottomSheet
-      visible={visible}
+      visible={content !== null}
       animate={animate}
       avoidKeyboard
-      expandable
+      expandable={form !== null}
       showCloseButton
-      title={t('addAccount')}
-      dismissAccessibilityLabel={t('closeAddAccount')}
+      title={t(form ? titleKeys[form.draft.group] : 'chooseAccountGroup')}
+      dismissAccessibilityLabel={t(form ? 'closeAddAccount' : 'closeAccountGroupPicker')}
       onDismiss={onDismiss}
       overlay={overlay}
     >
-      <View style={{ padding: theme.space.lg, gap: theme.space.lg }}>
-        <AppText muted>{t('accountFormPreview')}</AppText>
-        <AccountGroupField value={selectedLabel} onPress={onOpenGroupPicker} />
-        {form ? <AccountFields key={form.draft.group} {...form} /> : null}
-        <View style={{ gap: theme.space.xxs }}>
-          <AppText muted>{t('accountSaveUnavailable')}</AppText>
-          <ActionButton label={t('save')} disabled />
+      {groupPicker ? (
+        <AccountGroupOptions choices={groupPicker.choices} />
+      ) : form ? (
+        <View style={{ padding: theme.space.lg, gap: theme.space.lg }}>
+          <AccountFields {...form} />
+          <View style={{ gap: theme.space.xxs }}>
+            <AppText muted>{t('accountSaveUnavailable')}</AppText>
+            <ActionButton label={t('save')} disabled />
+          </View>
         </View>
-      </View>
+      ) : null}
     </AppBottomSheet>
   );
 }

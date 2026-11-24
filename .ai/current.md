@@ -30,6 +30,7 @@
 - [Payment mode limits PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7111930485) caps Bank draft modes by type and places Edit and Delete side by side. Exact HEAD and checks are recorded in RFC #96.
 - [Add Account footer PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7112024624) removes the visible Cancel action. Header Back remains available. Exact HEAD and checks are recorded in RFC #96.
 - [Add Account bottom sheet PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7112159681) opens the form from Accounts +. The Group row and Bank payment editor open above the form in one modal host. Group drafts last until the parent sheet closes. Exact published HEAD and checks are recorded in RFC #96.
+- [Group-first Add Account PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123331800) opens the picker before the selected form. The form has transparent borderless fields and omits the Group row and preview sentence. Exact published HEAD and checks are recorded in RFC #96.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

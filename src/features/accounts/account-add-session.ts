@@ -2,7 +2,6 @@ import type { CurrencyCode } from '@/shared/currency/currency-preference';
 
 import {
   newAccountDraft,
-  previewGroups,
   reconcileAccountDraftCurrency,
   updateAccountDraft,
   type AccountDraft,
@@ -10,19 +9,15 @@ import {
   type PreviewGroup,
 } from './account-form-contract';
 
-export interface AccountAddSession {
-  readonly group: PreviewGroup | null;
-  readonly groupPickerOpen: boolean;
-  readonly drafts: Readonly<Partial<Record<PreviewGroup, AccountDraft>>>;
-}
+export type AccountAddSession =
+  { readonly phase: 'group' } | { readonly phase: 'form'; readonly draft: AccountDraft };
 
 export type AccountAddAction =
-  | { readonly type: 'group.open' | 'group.close' }
   | { readonly type: 'group.select'; readonly group: PreviewGroup }
   | { readonly type: 'form'; readonly group: PreviewGroup; readonly action: AccountFormAction };
 
 export function newAccountAddSession(): AccountAddSession {
-  return { group: null, groupPickerOpen: false, drafts: {} };
+  return { phase: 'group' };
 }
 
 export function reconcileAccountAddCurrencies(
@@ -30,14 +25,9 @@ export function reconcileAccountAddCurrencies(
   mainCode: CurrencyCode,
   currencies: readonly CurrencyCode[],
 ): AccountAddSession {
-  let drafts = session.drafts;
-  for (const group of previewGroups) {
-    const draft = session.drafts[group];
-    if (!draft) continue;
-    const reconciled = reconcileAccountDraftCurrency(draft, mainCode, currencies);
-    if (draft !== reconciled) drafts = { ...drafts, [group]: reconciled };
-  }
-  return drafts === session.drafts ? session : { ...session, drafts };
+  if (session.phase !== 'form') return session;
+  const draft = reconcileAccountDraftCurrency(session.draft, mainCode, currencies);
+  return draft === session.draft ? session : { ...session, draft };
 }
 
 export function updateAccountAddSession(
@@ -46,29 +36,15 @@ export function updateAccountAddSession(
   mainCode: CurrencyCode,
   currencies: readonly CurrencyCode[],
 ): AccountAddSession {
-  const active = session.group === null ? undefined : session.drafts[session.group];
   switch (action.type) {
-    case 'group.open':
-      if (session.groupPickerOpen || (active?.group === 'bank' && active.modeEditor)) {
-        return session;
-      }
-      return { ...session, groupPickerOpen: true };
-    case 'group.close':
-      return session.groupPickerOpen ? { ...session, groupPickerOpen: false } : session;
-    case 'group.select': {
-      if (!session.groupPickerOpen) return session;
-      const group = action.group;
-      const drafts = session.drafts[group]
-        ? session.drafts
-        : { ...session.drafts, [group]: newAccountDraft(group, mainCode) };
-      return { group, groupPickerOpen: false, drafts };
-    }
+    case 'group.select':
+      return session.phase === 'group'
+        ? { phase: 'form', draft: newAccountDraft(action.group, mainCode) }
+        : session;
     case 'form': {
-      if (!active || session.groupPickerOpen || active.group !== action.group) return session;
-      const draft = updateAccountDraft(active, action.action, currencies);
-      return draft === active
-        ? session
-        : { ...session, drafts: { ...session.drafts, [draft.group]: draft } };
+      if (session.phase !== 'form' || session.draft.group !== action.group) return session;
+      const draft = updateAccountDraft(session.draft, action.action, currencies);
+      return draft === session.draft ? session : { ...session, draft };
     }
   }
 }
