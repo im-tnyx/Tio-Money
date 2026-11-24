@@ -1,21 +1,23 @@
-name: TIO MONEY EXPO PR REVIEW
+name: TIO MONEY EXPO PR PREVIEW
 
-# This workflow can only be invoked manually after being reviewed and merged
-# into the trusted default branch. Never add Expo secrets to untrusted PR CI.
+# Manual operations are owner-dispatched from trusted main. The unprivileged
+# push signal can invoke only the Codespaces job.
 on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Open non-Draft owner PR (src/assets, tests and Markdown docs)
+        description: Owner PR number (choose the operation matching its Draft status)
         required: true
         type: string
       operation:
-        description: Publish an OTA update or queue an internal preview build
+        description: Live Expo Go, reviewed OTA, Draft PR OTA or internal preview build
         required: true
-        default: publish_update
+        default: codespaces_live
         type: choice
         options:
+          - codespaces_live
           - publish_update
+          - publish_draft_update
           - build_preview
       platform:
         description: Android, iOS or both (build requires signing and app identifiers)
@@ -27,21 +29,368 @@ on:
           - ios
           - all
 
+  workflow_run:
+    workflows:
+      - Tio Money preview push signal
+    types:
+      - completed
+
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
-  group: tio-money-eas-pr-preview
+  group: ${{ (github.event_name == 'workflow_run' || inputs.operation == 'codespaces_live') && format('tio-money-preview-eligibility-{0}', github.run_id) || 'tio-money-eas-pr-preview' }}
   cancel-in-progress: false
 
 jobs:
-  preview:
-    if: ${{ github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+  codespaces_eligibility:
+    if: >-
+      github.ref == 'refs/heads/main' && github.run_attempt == '1' &&
+      (github.event_name == 'workflow_run' ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'codespaces_live'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      approved: ${{ steps.pr.outputs.approved }}
+      pr_number: ${{ steps.pr.outputs.pr_number }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+      base_sha: ${{ steps.pr.outputs.base_sha }}
+      merge_base: ${{ steps.pr.outputs.merge_base }}
+    steps:
+      - name: Checkout trusted main-branch validation and sync scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Evaluate live preview eligibility
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: node .github/scripts/authorize-codespaces-preview.mjs
+
+  codespaces_live:
+    needs: codespaces_eligibility
+    if: >-
+      github.ref == 'refs/heads/main' && github.run_attempt == '1' &&
+      needs.codespaces_eligibility.result == 'success' &&
+      needs.codespaces_eligibility.outputs.approved == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: tio-money-codespaces-trusted
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    concurrency:
+      group: tio-money-codespaces-pr-preview
+      cancel-in-progress: false
+    steps:
+      - name: Checkout trusted main-branch validation and sync scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Revalidate live eligibility against approved immutable PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          APPROVED_PR: ${{ needs.codespaces_eligibility.outputs.pr_number }}
+          APPROVED_HEAD: ${{ needs.codespaces_eligibility.outputs.head_sha }}
+          APPROVED_BASE: ${{ needs.codespaces_eligibility.outputs.base_sha }}
+          APPROVED_MERGE_BASE: ${{ needs.codespaces_eligibility.outputs.merge_base }}
+        run: node .github/scripts/authorize-codespaces-preview.mjs --revalidate
+
+      - name: Prepare exact immutable PR source bundle
+        if: steps.pr.outputs.approved == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          # Repository contents are read with the scoped Actions token, never
+          # with the Codespaces credential and never in a remote Codespace.
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Invalid immutable preview SHA."
+            exit 1
+          fi
+          gh auth setup-git
+          if [[ "$(git rev-parse --is-shallow-repository)" == "true" ]]; then
+            git fetch --no-tags --unshallow origin
+          fi
+          git fetch --no-tags origin "$TARGET_SHA"
+          test "$(git rev-parse FETCH_HEAD^{commit})" = "$TARGET_SHA"
+          git update-ref refs/tio-preview/selected "$TARGET_SHA"
+          bundle="$RUNNER_TEMP/tio-money-preview.bundle"
+          git bundle create "$bundle" refs/tio-preview/selected
+          git bundle verify "$bundle"
+          bundle_bytes="$(stat -c '%s' -- "$bundle")"
+          if (( bundle_bytes < 1 || bundle_bytes > 134217728 )); then
+            rm -f -- "$bundle"
+            echo "::error::Immutable preview bundle exceeds the 128 MiB transfer limit."
+            exit 1
+          fi
+      - name: Prepare trusted Metro programs for SSH streaming
+        if: steps.pr.outputs.approved == 'true'
+        run: |
+          set -euo pipefail
+          ownership="$(base64 -w0 .github/scripts/preflight-pr-codespaces-preview.mjs)"
+          sed "s|../.github/scripts/preflight-pr-codespaces-preview.mjs|data:text/javascript;base64,$ownership|" \
+            scripts/start-codespace-expo.mjs > "$RUNNER_TEMP/trusted-metro-starter.mjs"
+          sed "s|\./preflight-pr-codespaces-preview.mjs|data:text/javascript;base64,$ownership|" \
+            .github/scripts/verify-codespace-served-source.mjs > "$RUNNER_TEMP/trusted-metro-source-probe.mjs"
+          {
+            printf "%s\n" 'run_trusted_metro_sync() {' \
+              "  node --input-type=module - --sync-selected \"\$1\" \"\$2\" \"\$3\" <<'TRUSTED_METRO_STARTER'"
+            cat "$RUNNER_TEMP/trusted-metro-starter.mjs"
+            printf "%s\n" 'TRUSTED_METRO_STARTER' '}'
+            cat .github/scripts/sync-pr-codespaces-preview.sh
+          } > "$RUNNER_TEMP/trusted-metro-sync.sh"
+
+      - name: Check live PR immediately before enabling the Codespaces credential
+        if: steps.pr.outputs.approved == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+        run: bash .github/scripts/recheck-codespaces-preview.sh
+
+      - name: Discover and start only the verified preview-only Codespace
+        id: codespace
+        if: steps.pr.outputs.approved == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          PREFERRED_CODESPACE: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE }}
+          PREFERRED_CODESPACE_ID: ${{ vars.TIO_MONEY_PREVIEW_CODESPACE_ID }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "::error::Missing CODESPACES_TOKEN in the main-restricted environment."
+            exit 1
+          fi
+          if [[ -z "$PREFERRED_CODESPACE" ]]; then
+            echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE to the name of a separate preview-only Codespace."
+            exit 1
+          fi
+          if [[ ! "$PREFERRED_CODESPACE" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ || ${#PREFERRED_CODESPACE} -gt 128 ]]; then
+            echo "::error::Invalid preview Codespace name; refusing to query or start it."
+            exit 1
+          fi
+          # Owner identified this as their editing Codespace. Never wake/sync it.
+          if [[ "$PREFERRED_CODESPACE" == "automatic-orbit-jjxwq55wqr5gcj7gj" ]]; then
+            echo "::error::Editing Codespace is explicitly disallowed for automated preview."
+            exit 1
+          fi
+          if [[ ! "$PREFERRED_CODESPACE_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Configure TIO_MONEY_PREVIEW_CODESPACE_ID to the dedicated Codespace's immutable GitHub numeric ID."
+            exit 1
+          fi
+          selected_json="$RUNNER_TEMP/dedicated-preview-codespace.json"
+          gh api "/user/codespaces/${PREFERRED_CODESPACE}" > "$selected_json"
+          # Read-only identity gate: exact name + immutable ID + preview-only
+          # display name + owner/repository. No wake or remote mutation before it.
+          node .github/scripts/verify-pr-preview-codespace.mjs \
+            "$selected_json" "$PREFERRED_CODESPACE" "$PREFERRED_CODESPACE_ID"
+          codespace="$PREFERRED_CODESPACE"
+          state="$(jq -r '.state // empty' "$selected_json")"
+          if [[ "$state" != "Available" ]]; then
+            env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+            # GitHub Codespaces can transition to running after the initial GET
+            # but before POST /start. Only the exact known already-running 409
+            # is idempotent; every other API failure still aborts this job.
+            start_failure=""
+            if start_failure="$(gh api --method POST "/user/codespaces/${codespace}/start" 2>&1 >/dev/null)"; then
+              :
+            elif [[ "$start_failure" == "gh: The codespace is already running (HTTP 409)" ]]; then
+              echo "Codespace start raced with another transition; rechecking verified availability."
+            else
+              echo "::error::Dedicated Codespace start API failed; refusing to bypass an unexpected failure."
+              exit 1
+            fi
+          fi
+          deadline=$((SECONDS + 600))
+          while (( SECONDS < deadline )); do
+            remaining=$((deadline - SECONDS))
+            if ! timeout --kill-after=1s "${remaining}s" gh api "/user/codespaces/${codespace}" > "$selected_json"; then
+              if (( SECONDS >= deadline )); then break; fi
+              echo "::error::Dedicated preview Codespace availability check failed."
+              exit 1
+            fi
+            # Re-check identity after waking and immediately before SSH.
+            node .github/scripts/verify-pr-preview-codespace.mjs \
+              "$selected_json" "$PREFERRED_CODESPACE" "$PREFERRED_CODESPACE_ID" >/dev/null
+            state="$(jq -r '.state // empty' "$selected_json")"
+            if [[ "$state" == "Available" ]] && (( SECONDS < deadline )); then
+              printf 'name=%s\n' "$codespace" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [[ "$state" == "Deleted" ]]; then
+              echo "::error::Codespace was deleted."
+              exit 1
+            fi
+            remaining=$((deadline - SECONDS))
+            if (( remaining > 0 )); then sleep "$((remaining < 5 ? remaining : 5))"; fi
+          done
+          echo "::error title=START_TIMEOUT::Dedicated preview Codespace not available after 10 minutes of verified polling."
+          exit 1
+      - name: Reuse an already healthy exact-SHA preview
+        id: existing
+        if: steps.pr.outputs.approved == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+          TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          # Main-owned read-only gate also supports older approved PRs whose
+          # starter predates --preflight. It never executes PR code here.
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+          mode=""
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then mode="--manual"; fi
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - "$mode" \
+            < .github/scripts/preflight-pr-codespaces-preview.mjs
+          result="$(gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            bash -s -- "$TARGET_SHA" < .github/scripts/check-pr-codespaces-preview.sh)"
+          case "$result" in
+            *EXACT_SHA)
+              if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+                echo 'no_op=false' >> "$GITHUB_OUTPUT"
+              elif gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+                node --input-type=module - --status < "$RUNNER_TEMP/trusted-metro-starter.mjs"; then
+                echo 'no_op=true' >> "$GITHUB_OUTPUT"
+              else
+                echo 'no_op=false' >> "$GITHUB_OUTPUT"
+              fi
+              ;;
+            *REFRESH_REQUIRED) echo 'no_op=false' >> "$GITHUB_OUTPUT" ;;
+            *) echo '::error::Unexpected Codespace probe result.'; exit 1 ;;
+          esac
+
+      - name: Sync exact PR source and bring up Expo Go tunnel
+        if: steps.pr.outputs.approved == 'true' && steps.existing.outputs.no_op != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+          TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+        run: |
+          set -euo pipefail
+          # The Codespaces credential only establishes SSH, never fetches Git
+          # objects and is never forwarded into the remote environment.
+          if [[ ! "$TARGET_SHA" =~ ^[0-9a-f]{40}$ || ! "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Invalid immutable SHA or run identifier."
+            exit 1
+          fi
+          bundle="$RUNNER_TEMP/tio-money-preview.bundle"
+          test -s "$bundle"
+          remote_dir="/tmp/tio-money-preview-${TARGET_SHA}-${GITHUB_RUN_ID}"
+          remote_bundle="${remote_dir}/source.bundle"
+          bundle_sha256="$(sha256sum -- "$bundle" | cut -d ' ' -f 1)"
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+          # Use a fresh private directory so SCP cannot follow an attacker-owned
+          # pre-existing destination, and keep credentials on the trusted runner.
+          printf -v remote_prepare_command \
+            'set -eu; umask 077; mkdir -m 700 -- %q' "$remote_dir"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_prepare_command"
+          # The cleanup only targets the directory created above. It is also
+          # attempted when a copy or subsequent validation fails.
+          cleanup_remote_bundle() {
+            local cleanup
+            printf -v cleanup \
+              'set -eu; if [ -d %q ] && [ ! -L %q ] && [ "$(stat -c %%u -- %q)" = "$(id -u)" ]; then rm -f -- %q; rmdir -- %q; fi' \
+              "$remote_dir" "$remote_dir" "$remote_dir" "$remote_bundle" "$remote_dir"
+            gh codespace ssh --codespace "$CODESPACE_NAME" -- "$cleanup" >/dev/null 2>&1 || true
+          }
+          trap cleanup_remote_bundle EXIT
+          # Official Codespaces file-copy transport, rather than piping bundle
+          # bytes through a remote-shell command's stdin.
+          # GitHub CLI's default SCP literal path quoting can become part of
+          # the destination filename with SFTP (observed run #92). --expand
+          # avoids literal quote wrapping. This is safe ONLY for the fixed
+          # path built from the validated hex TARGET_SHA and numeric RUN_ID.
+          gh codespace cp --expand -c "$CODESPACE_NAME" "$bundle" "remote:$remote_bundle"
+          rm -f -- "$bundle"
+          # SCP can preserve the source mode; enforce the exact remote mode
+          # only after verifying a regular, non-symlink user-owned file.
+          printf -v remote_finalize_command \
+            'set -eu; test -f %q; test ! -L %q; test "$(stat -c %%u -- %q)" = "$(id -u)"; chmod 600 -- %q' \
+            "$remote_bundle" "$remote_bundle" "$remote_bundle" "$remote_bundle"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "$remote_finalize_command"
+          # Recheck immediately before the worktree mutation. The remote sync
+          # script stays on trusted main and independently checks the worktree.
+          mode=""
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then mode="--manual"; fi
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - "$mode" \
+            < .github/scripts/preflight-pr-codespaces-preview.mjs
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+          # Trusted main script verifies private-dir ownership, file size,
+          # permissions, SHA-256, Git bundle and exact selected PR commit.
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            bash -s -- "$TARGET_SHA" "$TARGET_PR" "$remote_bundle" "$bundle_sha256" "$mode" \
+            < "$RUNNER_TEMP/trusted-metro-sync.sh"
+
+      - name: Verify served Metro source and healthy tunnel
+        if: steps.pr.outputs.approved == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CODESPACES_TOKEN }}
+          CODESPACE_NAME: ${{ steps.codespace.outputs.name }}
+          TARGET_SHA: ${{ steps.pr.outputs.head_sha }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_READ_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_PR: ${{ steps.pr.outputs.pr_number }}
+          MERGE_BASE: ${{ steps.pr.outputs.merge_base }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then TARGET_PLATFORM=all; fi
+          case "$TARGET_PLATFORM" in android|ios|all) ;; *) exit 1 ;; esac
+          env -u PR_READ_TOKEN GH_TOKEN="$PR_READ_TOKEN" bash .github/scripts/recheck-codespaces-preview.sh
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - --status < "$RUNNER_TEMP/trusted-metro-starter.mjs"
+          # The probe is from trusted main and is streamed over SSH. No PR
+          # script is executed on this privileged Actions runner.
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- \
+            node --input-type=module - -- "$TARGET_SHA" "$TARGET_PLATFORM" "$MERGE_BASE" \
+            < "$RUNNER_TEMP/trusted-metro-source-probe.mjs"
+
+  select:
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'publish_draft_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    environment: tio-money-eas-preview-trusted
-
+    outputs:
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+      base_sha: ${{ steps.pr.outputs.base_sha }}
     steps:
       - name: Validate owner-authored PR and immutable source head
         id: pr
@@ -53,7 +402,7 @@ jobs:
         run: |
           set -euo pipefail
           case "$TARGET_OPERATION" in
-            publish_update|build_preview) ;;
+            publish_update|publish_draft_update|build_preview) ;;
             *) echo "::error::Invalid preview operation"; exit 1 ;;
           esac
           case "$TARGET_PLATFORM" in
@@ -65,9 +414,9 @@ jobs:
             exit 1
           fi
           gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
-          if ! jq -e --arg repo "$GITHUB_REPOSITORY" '
-            .state == "open" and
-            .draft == false and
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg operation "$TARGET_OPERATION" --arg number "$PR_NUMBER" '
+            .state == "open" and (.number | tostring) == $number and
+            (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
             .user.login == "im-tnyx" and
             .head.repo.full_name == $repo and
             .base.repo.full_name == $repo and
@@ -75,13 +424,82 @@ jobs:
             .head.sha != null and .base.sha != null
           ' "$RUNNER_TEMP/pr.json" >/dev/null; then
             if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
-              echo "::error title=Draft PR not eligible::PR #${PR_NUMBER} is still Draft. EAS OTA/build requires a reviewed non-Draft PR. Use the trusted Codespaces preview for draft UI review."
+              echo "::error title=Draft PR not eligible::Draft PRs qualify only for Draft OTA or Live Expo Go Preview, and must meet that operation's selection rules."
             else
-              echo "::error title=Invalid PR selection::EAS requires an open, non-Draft, owner-authored same-repository PR targeting main."
+              echo "::error title=Invalid PR selection::EAS requires an open, owner-authored same-repository PR targeting main with the Draft status required by the operation."
             fi
             exit 1
           fi
-          echo "head_sha=$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+          selected_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")"
+          if [[ ! "$selected_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Selected PR SHA malformed"
+            exit 1
+          fi
+          if [[ ! "$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Selected base SHA malformed"
+            exit 1
+          fi
+          echo "head_sha=$selected_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+
+  validate:
+    needs: select
+    outputs:
+      draft_artifact_id: ${{ steps.draft_bundle.outputs.artifact-id }}
+      draft_runtime_fingerprints: ${{ steps.draft_runtime.outputs.fingerprints }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'publish_draft_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Validate owner-authored PR and immutable source head
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          SELECTED_SHA: ${{ needs.select.outputs.head_sha }}
+          SELECTED_BASE: ${{ needs.select.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_OPERATION" in
+            publish_update|publish_draft_update|build_preview) ;;
+            *) echo "::error::Invalid preview operation"; exit 1 ;;
+          esac
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
+          esac
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::PR number must be a positive integer string"
+            exit 1
+          fi
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg operation "$TARGET_OPERATION" --arg number "$PR_NUMBER" '
+            .state == "open" and (.number | tostring) == $number and
+            (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
+            .user.login == "im-tnyx" and
+            .head.repo.full_name == $repo and
+            .base.repo.full_name == $repo and
+            .base.ref == "main" and
+            .head.sha != null and .base.sha != null
+          ' "$RUNNER_TEMP/pr.json" >/dev/null; then
+            if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
+              echo "::error title=Draft PR not eligible::Draft PRs qualify only for Draft OTA or Live Expo Go Preview, and must meet that operation's selection rules."
+            else
+              echo "::error title=Invalid PR selection::EAS requires an open, owner-authored same-repository PR targeting main with the Draft status required by the operation."
+            fi
+            exit 1
+          fi
+          if [[ "$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_SHA" ||
+                "$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_BASE" ]]; then
+            echo "::error::PR advanced since trusted selection; refusing unvalidated source"
+            exit 1
+          fi
+          echo "head_sha=$SELECTED_SHA" >> "$GITHUB_OUTPUT"
           echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
 
       - name: Checkout immutable PR head
@@ -114,24 +532,19 @@ jobs:
                 c.updates?.url !== "https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1") {
               throw Error("Refusing to publish from a changed Expo project identity");
             }
+            if (process.env.TARGET_OPERATION === "publish_draft_update" &&
+                (c.runtimeVersion?.policy !== "fingerprint" || c.ios?.runtimeVersion || c.android?.runtimeVersion)) {
+              throw Error("Draft OTA requires the approved native fingerprint runtime policy.");
+            }
           '
           # Reviewed PRs may also carry tests and Markdown task/documentation
           # records. These paths do not change the Expo runtime or build config.
           # Native/tooling/dependency/signing changes must land in a separately
           # reviewed PR before executing any source with an Expo token here.
-          native_change=0
-          while IFS= read -r -d '' path; do
-            case "$path" in
-              src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;
-              *)
-                native_change=1
-                ;;
-            esac
-          done < <(git diff --name-only -z "$PR_BASE_SHA...$PR_SHA")
-          if [[ "$native_change" -ne 0 ]]; then
-            echo "::error title=Preview change scope::EAS permits app source/assets, tests and Markdown documentation/AI task records only. Native, tooling, dependency and other config changes require separate review and merge before OTA/build."
-            exit 1
-          fi
+          scope="$RUNNER_TEMP/verify-eas-preview-scope.mjs"
+          # GITHUB_SHA is the trusted main dispatch revision, separate from the PR checkout.
+          git show "${GITHUB_SHA}:.github/scripts/verify-eas-preview-scope.mjs" > "$scope"
+          node "$scope" "$PR_BASE_SHA" "$PR_SHA" "$TARGET_OPERATION"
           # A preview build must not prompt CI to invent app identifiers or
           # sign with undeclared credentials. No EXPO_TOKEN is available here.
           if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
@@ -171,10 +584,196 @@ jobs:
       - name: Install locked project dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Resolve native Draft OTA fingerprints without Expo credentials
+        id: draft_runtime
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          EXPO_NO_DOTENV: '1'
+          EXPO_NO_TELEMETRY: '1'
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          helper="$RUNNER_TEMP/draft-eas-update.mjs"
+          git show "${GITHUB_SHA}:.github/scripts/draft-eas-update.mjs" > "$helper"
+          fingerprints="$(node "$helper" resolve-runtime "$TARGET_PLATFORM")"
+          printf 'fingerprints=%s\n' "$fingerprints" >> "$GITHUB_OUTPUT"
+
+      - name: Export Draft OTA bundle without Expo credentials
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          CI: 'true'
+          EXPO_NO_DOTENV: '1'
+          EXPO_NO_TELEMETRY: '1'
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_PLATFORM" in
+            android|ios) platforms=(--platform "$TARGET_PLATFORM") ;;
+            all) platforms=(--platform ios --platform android) ;;
+            *) echo "::error::Invalid Draft OTA platform"; exit 1 ;;
+          esac
+          node_modules/.bin/expo export --output-dir "$RUNNER_TEMP/tio-draft-export" "${platforms[@]}"
+
+      - name: Store the exact Draft OTA export
+        if: inputs.operation == 'publish_draft_update'
+        id: draft_bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tio-draft-ota-${{ needs.select.outputs.head_sha }}-${{ inputs.platform }}
+          path: |
+            ${{ runner.temp }}/tio-draft-export/metadata.json
+            ${{ runner.temp }}/tio-draft-export/_expo/static/js
+            ${{ runner.temp }}/tio-draft-export/assets
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Validate preview source and dependencies
         run: |
           npm run check
           npx expo install --check
+
+  preview:
+    needs: [select, validate]
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.operation == 'publish_update' || inputs.operation == 'publish_draft_update' || inputs.operation == 'build_preview') && github.actor == 'im-tnyx' && github.triggering_actor == 'im-tnyx' && github.run_attempt == '1' && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: tio-money-eas-preview-trusted
+
+    steps:
+      - name: Validate owner-authored PR and immutable source head
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          VALIDATED_SHA: ${{ needs.select.outputs.head_sha }}
+          SELECTED_BASE: ${{ needs.select.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          case "$TARGET_OPERATION" in
+            publish_update|publish_draft_update|build_preview) ;;
+            *) echo "::error::Invalid preview operation"; exit 1 ;;
+          esac
+          case "$TARGET_PLATFORM" in
+            android|ios|all) ;;
+            *) echo "::error::Invalid OTA platform; expected android, ios, or all"; exit 1 ;;
+          esac
+          if ! [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::PR number must be a positive integer string"
+            exit 1
+          fi
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" > "$RUNNER_TEMP/pr.json"
+          if ! jq -e --arg repo "$GITHUB_REPOSITORY" --arg operation "$TARGET_OPERATION" --arg number "$PR_NUMBER" '
+            .state == "open" and (.number | tostring) == $number and
+            (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
+            .user.login == "im-tnyx" and
+            .head.repo.full_name == $repo and
+            .base.repo.full_name == $repo and
+            .base.ref == "main" and
+            .head.sha != null and .base.sha != null
+          ' "$RUNNER_TEMP/pr.json" >/dev/null; then
+            if [[ "$(jq -r '.draft' "$RUNNER_TEMP/pr.json")" == "true" ]]; then
+              echo "::error title=Draft PR not eligible::Draft PRs qualify only for Draft OTA or Live Expo Go Preview, and must meet that operation's selection rules."
+            else
+              echo "::error title=Invalid PR selection::EAS requires an open, owner-authored same-repository PR targeting main with the Draft status required by the operation."
+            fi
+            exit 1
+          fi
+          selected_sha="$(jq -r '.head.sha' "$RUNNER_TEMP/pr.json")"
+          if [[ "$selected_sha" != "$VALIDATED_SHA" ||
+                "$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" != "$SELECTED_BASE" ]]; then
+            echo "::error::PR advanced since secretless validation; refusing stale EAS operation"
+            exit 1
+          fi
+          echo "head_sha=$selected_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$(jq -r '.base.sha' "$RUNNER_TEMP/pr.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout immutable PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.pr.outputs.head_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate source, app identity and source-only preview scope
+        env:
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+          TARGET_PLATFORM: ${{ inputs.platform }}
+        run: |
+          set -euo pipefail
+          if [[ "$(git rev-parse HEAD)" != "$PR_SHA" ]]; then
+            echo "::error::Checked-out source does not equal selected PR head"
+            exit 1
+          fi
+          if [[ ! "$PR_SHA" =~ ^[0-9a-f]{40}$ || ! "$PR_BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Selected PR SHA malformed"
+            exit 1
+          fi
+          node -e '
+            const c = require("./app.json").expo;
+            if (c.owner !== "tnyx-23" || c.slug !== "tio-money" ||
+                c.extra?.eas?.projectId !== "722e6857-1159-4414-a024-6a4351e7d3e1" ||
+                c.updates?.url !== "https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1") {
+              throw Error("Refusing to publish from a changed Expo project identity");
+            }
+            if (process.env.TARGET_OPERATION === "publish_draft_update" &&
+                (c.runtimeVersion?.policy !== "fingerprint" || c.ios?.runtimeVersion || c.android?.runtimeVersion)) {
+              throw Error("Draft OTA requires the approved native fingerprint runtime policy.");
+            }
+          '
+          # Reviewed PRs may also carry tests and Markdown task/documentation
+          # records. These paths do not change the Expo runtime or build config.
+          # Native/tooling/dependency/signing changes must land in a separately
+          # reviewed PR before executing any source with an Expo token here.
+          scope="$RUNNER_TEMP/verify-eas-preview-scope.mjs"
+          # GITHUB_SHA is the trusted main dispatch revision, separate from the PR checkout.
+          git show "${GITHUB_SHA}:.github/scripts/verify-eas-preview-scope.mjs" > "$scope"
+          node "$scope" "$PR_BASE_SHA" "$PR_SHA" "$TARGET_OPERATION"
+          # A preview build must not prompt CI to invent app identifiers or
+          # sign with undeclared credentials. No EXPO_TOKEN is available here.
+          if [[ "$TARGET_OPERATION" == "build_preview" ]]; then
+            TARGET_PLATFORM="$TARGET_PLATFORM" node <<'NODE'
+          const expo = require('./app.json').expo;
+          const eas = require('./eas.json');
+          const profile = eas.build?.preview;
+          const onlyPreview = Object.keys(eas.build || {}).length === 1;
+          if (!profile || !onlyPreview ||
+              profile.distribution !== 'internal' ||
+              profile.channel !== 'pr-preview' ||
+              profile.android?.buildType !== 'apk' ||
+              !['remote', undefined].includes(profile.credentialsSource) ||
+              !['remote', undefined].includes(profile.android?.credentialsSource) ||
+              !['remote', undefined].includes(profile.ios?.credentialsSource) ||
+              eas.cli?.version !== '27.4.1') {
+            throw Error('Refusing non-internal, non-preview or unreviewed EAS build configuration');
+          }
+          const platform = process.env.TARGET_PLATFORM;
+          if (['android', 'all'].includes(platform) &&
+              !/^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$/.test(expo.android?.package || '')) {
+            throw Error('Missing approved android.package; configure it in a separately reviewed PR before building');
+          }
+          if (['ios', 'all'].includes(platform) &&
+              !/^[A-Za-z][A-Za-z0-9-]*(?:\.[A-Za-z][A-Za-z0-9-]*)+$/.test(expo.ios?.bundleIdentifier || '')) {
+            throw Error('Missing approved ios.bundleIdentifier; configure it in a separately reviewed PR before building');
+          }
+          NODE
+          fi
+
+      - name: Setup Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.16.0
+          cache: npm
+
+      - name: Install locked project dependencies
+        # No dependency lifecycle hook may persist into the EXPO_TOKEN step.
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Install committed and verify EAS CLI without Expo credentials
         env:
@@ -214,17 +813,71 @@ jobs:
           NODE
           "$EAS_CLI_ROOT/node_modules/.bin/eas" --version
 
+      - name: Require the exact Draft OTA artifact identifier
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          ARTIFACT_ID: ${{ needs.validate.outputs.draft_artifact_id }}
+        run: |
+          if ! [[ "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::Validated Draft OTA artifact ID is missing or invalid."
+            exit 1
+          fi
+
+      - name: Download the validated Draft OTA export from this run
+        if: inputs.operation == 'publish_draft_update'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.validate.outputs.draft_artifact_id }}
+          path: ${{ runner.temp }}/tio-draft-export
+          merge-multiple: true
+
+      - name: Verify Draft OTA export metadata and file containment
+        if: inputs.operation == 'publish_draft_update'
+        env:
+          TARGET_PLATFORM: ${{ inputs.platform }}
+          DRAFT_RUNTIME_FINGERPRINTS: ${{ needs.validate.outputs.draft_runtime_fingerprints }}
+        run: |
+          set -euo pipefail
+          helper="$RUNNER_TEMP/draft-eas-update.mjs"
+          git show "${GITHUB_SHA}:.github/scripts/draft-eas-update.mjs" > "$helper"
+          node "$helper" bundle "$RUNNER_TEMP/tio-draft-export" "$TARGET_PLATFORM"
+          node "$helper" verify-runtime "$TARGET_PLATFORM"
+
+      - name: Revalidate immutable PR and source scope before EAS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          TARGET_OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$PR_SHA"
+          worktree="$(git status --porcelain=v1 --untracked-files=normal)"
+          test -z "$worktree"
+          node "$RUNNER_TEMP/verify-eas-preview-scope.mjs" "$PR_BASE_SHA" "$PR_SHA" "$TARGET_OPERATION"
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
+            jq -e --arg repo "$GITHUB_REPOSITORY" --arg head "$PR_SHA" --arg base "$PR_BASE_SHA" --arg operation "$TARGET_OPERATION" '
+              .state == "open" and .user.login == "im-tnyx" and
+              (if $operation == "publish_draft_update" then .draft == true else .draft == false end) and
+              .head.repo.full_name == $repo and .base.repo.full_name == $repo and
+              .base.ref == "main" and .head.sha == $head and .base.sha == $base
+            ' >/dev/null
+
       - name: Publish OTA or queue internal preview build (owner dispatch only)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           PR_NUMBER: ${{ inputs.pr_number }}
           PR_SHA: ${{ steps.pr.outputs.head_sha }}
+          PR_BASE_SHA: ${{ steps.pr.outputs.base_sha }}
+          GH_TOKEN: ${{ github.token }}
           TARGET_OPERATION: ${{ inputs.operation }}
           TARGET_PLATFORM: ${{ inputs.platform }}
+          DRAFT_RUNTIME_FINGERPRINTS: ${{ needs.validate.outputs.draft_runtime_fingerprints }}
         run: |
           set -euo pipefail
           case "$TARGET_OPERATION" in
-            publish_update|build_preview) ;;
+            publish_update|publish_draft_update|build_preview) ;;
             *) echo "::error::Invalid preview operation"; exit 1 ;;
           esac
           case "$TARGET_PLATFORM" in
@@ -236,8 +889,47 @@ jobs:
             exit 1
           fi
           eas="$RUNNER_TEMP/tio-money-verified-eas-cli/node_modules/.bin/eas"
-          if [[ "$TARGET_OPERATION" == "publish_update" ]]; then
-            "$eas" update \
+          if [[ "$TARGET_OPERATION" == "publish_draft_update" ]]; then
+            helper="$RUNNER_TEMP/draft-eas-update.mjs"
+            branch="$(env -u EXPO_TOKEN node "$helper" branch "$PR_NUMBER")"
+            env -u GH_TOKEN node "$helper" isolation "$eas" "$branch" before
+            # Check the Draft state and immutable pair again after the Expo reads.
+            # The GitHub and Expo services cannot make this check and publish atomic.
+            test "$(git rev-parse HEAD)" = "$PR_SHA"
+            test -z "$(git status --porcelain=v1 --untracked-files=normal)"
+            env -u EXPO_TOKEN gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
+              env -u EXPO_TOKEN node "$helper" selection "$PR_NUMBER" "$GITHUB_REPOSITORY" "$PR_SHA" "$PR_BASE_SHA"
+            output="$RUNNER_TEMP/tio-draft-update-result.json"
+            publish_status=0
+            env -u GH_TOKEN "$eas" update \
+              --branch "$branch" \
+              --message "Tio Money Draft PR #${PR_NUMBER} (${PR_SHA})" \
+              --environment preview --platform "$TARGET_PLATFORM" \
+              --skip-bundler --input-dir "$RUNNER_TEMP/tio-draft-export" \
+              --json --non-interactive > "$output" 2> "$RUNNER_TEMP/tio-draft-update-errors.log" || publish_status=$?
+            # Read the isolation state even when the CLI fails after a possible server-side write.
+            post_status=0
+            if ! env -u GH_TOKEN node "$helper" isolation "$eas" "$branch" after; then
+              echo "::error title=Draft OTA isolation::Post-publication isolation could not be confirmed. Inspect the named branch and channel mappings in Expo before retrying or sharing."
+              printf '%s\n' 'Post-publication isolation failed. Inspect the branch and channel mappings in Expo.' >> "$GITHUB_STEP_SUMMARY"
+              post_status=1
+            fi
+            if (( publish_status != 0 )); then
+              echo "::error::Draft OTA publication did not return success. Check the isolated EAS branch before retrying."
+              exit 1
+            fi
+            if ! env -u EXPO_TOKEN -u GH_TOKEN node "$helper" summary "$output" "$PR_NUMBER" "$PR_SHA" "$TARGET_PLATFORM" >> "$GITHUB_STEP_SUMMARY"; then
+              echo "::error::Draft OTA result verification failed after publication. Inspect the isolated branch and runtime diagnostics before retrying."
+              post_status=1
+            fi
+            if ! env -u EXPO_TOKEN gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" |
+              env -u EXPO_TOKEN node "$helper" selection "$PR_NUMBER" "$GITHUB_REPOSITORY" "$PR_SHA" "$PR_BASE_SHA"; then
+              echo "::error::Draft eligibility could not be confirmed after publication. Inspect the run diagnostics and any update metadata in the summary."
+              post_status=1
+            fi
+            exit "$post_status"
+          elif [[ "$TARGET_OPERATION" == "publish_update" ]]; then
+            env -u GH_TOKEN "$eas" update \
               --branch pr-preview \
               --message "Tio Money manual preview PR #${PR_NUMBER} (${PR_SHA:0:7})" \
               --environment preview \
@@ -246,7 +938,7 @@ jobs:
           else
             # Remote EAS signing must already be configured; never prompt,
             # initialize a new EAS project, auto-submit or create production builds.
-            "$eas" build \
+            env -u GH_TOKEN "$eas" build \
               --profile preview \
               --platform "$TARGET_PLATFORM" \
               --non-interactive \

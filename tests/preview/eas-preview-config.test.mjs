@@ -81,18 +81,18 @@ test('EAS CLI has its own committed full dependency lock and registry integritie
 
 test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated', () => {
   const text = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
-  assert.match(text, /^name: TIO MONEY EXPO PR REVIEW$/m);
+  assert.match(text, /^name: TIO MONEY EXPO PR PREVIEW$/m);
   assert.match(text, /workflow_dispatch:/);
-  const dispatchInputs = text.split('workflow_dispatch:')[1].split('\npermissions:')[0];
+  const dispatchInputs = text.split('workflow_dispatch:')[1].split('\n  workflow_run:')[0];
   assert.deepEqual(
     [...dispatchInputs.matchAll(/^      ([a-z_]+):$/gm)].map((match) => match[1]),
     ['pr_number', 'operation', 'platform'],
   );
-  assert.match(dispatchInputs, /      pr_number:\n        description: Open non-Draft owner PR \(src\/assets, tests and Markdown docs\)\n        required: true\n        type: string\n/);
+  assert.match(dispatchInputs, /      pr_number:\n        description: Owner PR number \(choose the operation matching its Draft status\)\n        required: true\n        type: string\n/);
   assert.doesNotMatch(dispatchInputs, /^\s*type: number$/m);
   assert.match(
     dispatchInputs,
-    /      operation:\n        description: Publish an OTA update or queue an internal preview build\n        required: true\n        default: publish_update\n        type: choice\n        options:\n          - publish_update\n          - build_preview\n/,
+    /      operation:\n        description: Live Expo Go, reviewed OTA, Draft PR OTA or internal preview build\n        required: true\n        default: codespaces_live\n        type: choice\n        options:\n          - codespaces_live\n          - publish_update\n          - publish_draft_update\n          - build_preview\n/,
   );
   assert.match(
     dispatchInputs,
@@ -100,7 +100,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   );
   assert.match(text, /case "\$TARGET_PLATFORM" in\s*\n\s*android\|ios\|all\)/);
   assert.match(text, /--platform "\$TARGET_PLATFORM"/);
-  assert.match(text, /case "\$TARGET_OPERATION" in\s*\n\s*publish_update\|build_preview\)/);
+  assert.match(text, /case "\$TARGET_OPERATION" in\s*\n\s*publish_update\|publish_draft_update\|build_preview\)/);
   assert.match(text, /TARGET_OPERATION: \$\{\{ inputs\.operation \}\}/);
   assert.match(text, /if \[\[ "\$TARGET_OPERATION" == "build_preview" \]\]/);
   assert.match(text, /const onlyPreview = Object\.keys\(eas\.build \|\| \{\}\)\.length === 1/);
@@ -119,7 +119,8 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.doesNotMatch(text, /--profile production|--auto-submit|\beas init\b/);
   assert.doesNotMatch(text, /^\s+push:\s*$/m);
   assert.doesNotMatch(text, /^\s+pull_request:\s*$/m);
-  assert.doesNotMatch(text, /workflow_run:/);
+  const easJobs = text.slice(text.indexOf('  select:'));
+  assert.doesNotMatch(easJobs, /workflow_run|secrets\.CODESPACES_TOKEN/);
   assert.match(text, /github\.actor == 'im-tnyx'/);
   assert.match(text, /github\.triggering_actor == 'im-tnyx'/);
   assert.match(text, /github\.run_attempt == '1'/);
@@ -128,7 +129,10 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.doesNotMatch(text, /eas-cli@latest/);
   assert.match(text, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
-  assert.match(text, /actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/);
+  for (const job of [text.slice(text.indexOf('  validate:'), text.indexOf('  preview:')),
+    text.slice(text.indexOf('  preview:'))]) {
+    assert.match(job, /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version: 22\.16\.0\n +cache: npm/);
+  }
   assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
   assert.ok(text.includes('--registry=https://registry.npmjs.org'));
@@ -136,21 +140,18 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /npm ci --prefix/);
   assert.ok(text.includes('cp .github/preview-eas-cli/package-lock.json'));
   assert.doesNotMatch(text, /npm install --prefix/);
-  assert.ok(text.includes('src/*|assets/*'));
-  assert.match(text, /native_change=0/);
   assert.match(text, /npm audit signatures/);
   assert.match(text, /--ignore-scripts/);
   assert.match(text, /--branch pr-preview/);
   assert.match(text, /--environment preview/);
   assert.doesNotMatch(text, /--branch production|--channel production/);
-  assert.match(text, /native_change=0/);
   assert.match(text, /\.head\.repo\.full_name == \$repo/);
   assert.match(text, /\.user\.login == "im-tnyx"/);
 });
 
 test('manual EAS PR number stays a strict positive integer string without relaxing publish gates', () => {
   const workflow = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
-  const metadata = workflow.split('workflow_dispatch:')[1].split('\npermissions:')[0];
+  const metadata = workflow.split('workflow_dispatch:')[1].split('\n  workflow_run:')[0];
   assert.match(metadata, /      pr_number:\n(?:        [^\n]+\n){3}/);
   assert.match(metadata, /      pr_number:\n        description: [^\n]+\n        required: true\n        type: string\n/);
   assert.doesNotMatch(metadata, /^\s*type: number$/m);
@@ -167,14 +168,12 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
   assert.match(workflow, /github\.run_attempt == '1'/);
   assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
   assert.ok(workflow.includes('.draft == false'));
+  assert.match(workflow, /git show "\$\{GITHUB_SHA\}:\.github\/scripts\/verify-eas-preview-scope\.mjs"/);
   assert.ok(workflow.includes('if ! jq -e --arg repo "$GITHUB_REPOSITORY"'));
   assert.ok(workflow.includes('::error title=Draft PR not eligible::'));
   assert.ok(workflow.includes('::error title=Invalid PR selection::'));
-  assert.ok(workflow.includes('::error title=Preview change scope::'));
   assert.ok(workflow.includes('.head.repo.full_name == $repo'));
   assert.ok(workflow.includes('.base.ref == "main"'));
-  assert.ok(workflow.includes('src/*|assets/*'));
-  assert.ok(workflow.includes('native_change=0'));
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
   assert.doesNotMatch(workflow, /pull_request_target/);
@@ -182,21 +181,15 @@ test('manual EAS PR number stays a strict positive integer string without relaxi
 
 test('EAS preview permits normal tracked task/docs/tests with strict config exclusions', () => {
   const workflow = readFileSync(join(ROOT, '.github/workflows/tio-money-eas-pr-preview.yml'), 'utf8');
-  const scope = workflow.split('case "$path" in\n')[1]?.split('\n')[0].trim();
-  assert.equal(scope, 'src/*|assets/*|tests/*|docs/*.md|.ai/*.md|README.md|DESIGN.md|CHANGELOG.md) ;;');
-  assert.ok(workflow.includes('if [[ "$native_change" -ne 0 ]]'));
-  assert.ok(workflow.includes('::error title=Preview change scope::'));
   assert.ok(workflow.includes('.draft == false'));
+  assert.match(workflow, /git show "\$\{GITHUB_SHA\}:\.github\/scripts\/verify-eas-preview-scope\.mjs"/);
   assert.ok(workflow.includes("github.actor == 'im-tnyx'"));
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
 });
 
-// The nonprivileged Phase 0 runner must also use the reviewed immutable
-// setup-node commit, without enabling automatic PR dependency caching.
-test('Phase 0 setup-node uses the reviewed pinned v7.1.0 SHA without automatic package cache', () => {
+test('Phase 0 pins setup-node, keeps the project runtime and disables automatic caching', () => {
   const workflow = readFileSync(join(ROOT, '.github/workflows/phase-0-checks.yml'), 'utf8');
-  assert.match(workflow, /actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1/);
-  assert.doesNotMatch(workflow, /uses: actions\/setup-node@v[0-9]/);
-  assert.match(workflow, /^\s+package-manager-cache: false$/m);
+  assert.match(workflow, /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version-file: \.nvmrc\n +package-manager-cache: false/);
+  assert.doesNotMatch(workflow, /^ +cache:/m);
 });

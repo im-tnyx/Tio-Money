@@ -1,0 +1,88 @@
+# TM-OPS-UNIFIED-EXPO-LIVE-REFRESH-20261123-001 — Unified manual Expo preview and persistent Metro
+
+| Field | Verified value |
+|---|---|
+| Repository / RFC | `im-tnyx/Tio-Money`; [Issue #87](https://github.com/im-tnyx/Tio-Money/issues/87) |
+| Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7090616033), 2026-11-23 UTC, acting architect ChatGPT/GPT-6; owner request transcribed from conversation, not GitHub-authenticated merge approval |
+| State / agent | `VALIDATING`; ChatGPT/GPT-6; prior verified agent `UNKNOWN_NOT_VERIFIED` |
+| Branch / base | `feat/unified-expo-preview-live-refresh` from verified main `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6` |
+| PR / merge | [Draft PR #88](https://github.com/im-tnyx/Tio-Money/pull/88); owner merge authorization `NOT_GRANTED`; privileged dispatch `NOT_GRANTED` |
+| Review | `DEFERRED`; independent security review strongly recommended before merge; no passing human review claimed |
+| Started / checkpoint | 2026-11-23T03:16:52Z / 2026-11-23T03:25:24Z |
+
+## Scoped implementation and boundaries
+
+The existing `TIO MONEY EXPO PR REVIEW` form adds default `codespaces_live` with the original EAS operations and platform choices. A reusable Codespaces worker handles manual calls and the existing automatic push signal; there is no independent Codespaces manual dispatch. The two jobs retain separate environment secrets. The worker continues exact owner/main/attempt, immutable PR snapshot, unique label, source allowlist, dedicated Codespace identity, authenticated Git bundle and exact 409 idempotency checks. No PR script runs on the privileged Actions runner. The managed starter reuses healthy Metro and its tunnel on a new UI revision, recovers an unhealthy process only after ownership verification and rejects invalid ownership. A trusted local Metro source-map probe compares served tracked app source with Git HEAD. A same-SHA healthy dispatch avoids remote sync and dependency install.
+
+Changed paths: `.github/workflows/tio-money-eas-pr-preview.yml`, `.github/workflows/tio-money-codespaces-pr-preview.yml`, `.github/scripts/sync-pr-codespaces-preview.sh`, `.github/scripts/check-pr-codespaces-preview.sh`, `.github/scripts/verify-codespace-served-source.mjs`, `scripts/start-codespace-expo.mjs`, `tests/preview/{eas-preview-config,pr-codespaces-workflow,codespace-expo,unified-live-refresh}.test.mjs`, `docs/{EAS-PREVIEW-UPDATES,PR-CODESPACES-PREVIEW,CODESPACES-LIVE-PREVIEW}.md`, this task and additive `.ai/current.md` checkpoint. No lockfile, app, EAS signing, secret/settings or native change.
+
+Alternative `git pull --ff-only` cannot attest the detached preview SHA. Retain verified immutable Git bundle. Rollback: do not merge the draft PR, or an explicitly authorized ordinary revert. If a PID record, ownership, source map, changed PR or worktree is ambiguous, fail closed and investigate privately. Old PRs that have not incorporated the new managed starter may require a safe source-only update from reviewed main before `--preflight` can run; never bypass the ownership gate.
+
+## Validation checkpoint (local connector-materialized subset)
+
+- `node --test tests/preview/codespace-expo.test.mjs tests/preview/unified-live-refresh.test.mjs`: 14/14 PASS on current local edits, mocked/static only.
+- `node --test tests/preview/pr-codespaces-workflow.test.mjs tests/preview/codespace-expo.test.mjs`: 24/25; one filesystem fixture failed because sandbox `/tmp` is unavailable, not a workflow execution result. Recheck in full GitHub CI.
+- Python PyYAML BaseLoader parsed all three relevant workflow files; `bash -n` on both shell scripts and `node --check` on starter/source probe PASS. GitHub Actions schema semantics still require CI.
+- `npm run check`: attempted locally, failed before typecheck because `tsc` is absent in the partial materialization. `npm run preview:test`: attempted locally, failed with missing root/EAS lockfiles and `/tmp` fixture in this partial materialization. **NOT_VERIFIED on a complete checkout** until exact-HEAD CI.
+- Real Codespace, Metro process, tunnel URL, Expo Go Android/iPhone display and HMR: **NOT_RUN**; expressly prohibited here. Source-map route and behavior need an authorized live run after merge before claiming physical success.
+
+No `Co-authored-by:` trailers permitted. GitHub commit-range and exact-HEAD CI/review to be appended after PR creation. Owner-specific merge authorization is still required and is not present. Issue #71/PR #65 supply-chain holds are separate and unchanged.
+
+### 2026-11-23T03:29:00Z — First PR HEAD and corrective probe design
+
+- First branch HEAD `48df52e6c03eb697fe10be9665d434d7a957d3ae`, Draft PR #88, base `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`, 15 changed files, one commit with no forbidden co-author trailer. GitHub run 45106182759 Governance and 45106182841 Phase 0 both reported FAILURE with zero job steps available through connector; job logs returned BlobNotFound 404. Do **not** claim tests executed or diagnose the cause from this evidence. Push signal also showed failure; no Codespace action is inferred.
+- Correction under RFC scope: derive the Metro source-map request from the selected platform's locally returned Expo Go manifest launch bundle URL, preserve exact transform/query settings, rewrite to loopback only after a strict bundle path/platform check, and compare source content to Git HEAD. This avoids assuming a hardcoded Expo Router transform route. Focused mocked tests PASS; live manifest/source-map response and Expo Go still NOT_RUN.
+- Remaining: commit correction, recheck exact HEAD/CI and record review disposition. A red CI with inaccessible failure details blocks Ready for Review/merge; independent human security review DEFERRED.
+
+### 2026-11-23T03:33:37Z — Exact-HEAD CI blocker and fail-closed probe refinement
+
+- PR #88 second HEAD `d619d4f2c5411ce30b443d2f3b83875969ddd712`: Governance run 45106535742 and Phase 0 run 45106535777 both reported FAILURE with zero exposed steps; connector logs/annotations unavailable, so cause `UNVERIFIED`. The older PR #84 exact HEAD had green checks, which does not explain this failure. No workflow rerun or privileged dispatch performed.
+- Source probe now bounds both local manifest and map responses, rejects source-map paths no longer tracked in selected Git HEAD, and ignores dependency package `src` paths. Synthetic source-map and workflow tests: 14/14 PASS locally. This is not evidence that a real Expo Go client refreshed.
+- Security review disposition: self-inspected credential separation, immutable bundle/source allowlist, owner/main/first-attempt guards, exact 409, clean checkout and PID ownership; **independent human security review DEFERRED**. Blocking findings: exact-HEAD required checks red without accessible diagnostics; real SDK 58 manifest/map compatibility, remote PID preservation, signed tunnel continuity and physical-device HMR NOT_VERIFIED. Keep PR Draft and do not merge or activate it.
+
+### 2026-11-23T03:40:39Z — Owner-requested ordinary CI rerun
+
+- On exact HEAD `8b32b157654d3eb5cdea6720d64eacf231df22de`, reran only failed unprivileged GitHub runs. Governance 45106750974 attempt 2 **SUCCESS**, including commit attribution and Markdown links. Phase 0 45106750801 attempt 2 **FAILURE** at `npm run check` → lint: `Buffer` undefined in the trusted source probe (error) and unused `tmpdir` in an updated preview test (warning). Typecheck and install passed; format, tests and Metro smoke were skipped after lint. No privileged workflow dispatch or Codespace operation.
+- Scoped source correction imports `Buffer` from `node:buffer` and removes the unused test import. Recheck new exact HEAD and full checks after this change. The prior zero-step failure was not a completed test run; attempt 2 supplies the actionable lint diagnosis. Independent security review remains DEFERRED; live-device validation NOT_RUN.
+
+### 2026-11-23 — PR #88 security review correction
+
+- Owner-requested scoped audit at HEAD `53265db7a87a4a0a080c189107e45390048f0165`; RFC addendum and technical PROCEED in [PR #88 discussion](https://github.com/im-tnyx/Tio-Money/pull/88#issuecomment-7091132864). Main remains `d200ed24117d525fe7a9af7cf8b2e6d4e75317c6`. No review comments predated this self-audit.
+- Blocking compatibility finding: the trusted worker invoked `--preflight` on an old approved PR starter which did not implement that flag. Main-streamed read-only preflight now validates record ownership and the port before a same-SHA probe and again before source sync. Older healthy managed Metro remains reusable; older unhealthy starter may fail closed. No unowned process termination or destructive Git operation added.
+- Blocking EAS isolation finding: PR-authored tests previously executed on the same runner that later received `EXPO_TOKEN`. Validation now runs without EAS environment secrets; fresh EAS runner rechecks current immutable SHA, source scope, project identity and signing, then installs locked dependencies with lifecycle scripts disabled before the token-bearing final step. Codespaces environment and automatic-push route unchanged.
+- Local focused mocked/static `node --test tests/preview/unified-live-refresh.test.mjs tests/preview/codespace-expo.test.mjs`: 15/15 PASS. `node --check` new trusted preflight, `bash -n` two scripts and PyYAML parse PASS. `npm run check` attempted and stopped at missing `tsc` in the partial connector materialization. `npm run preview:test` attempted: 36/38 PASS; two EAS lockfile fixtures unavailable because the local subset lacks `package-lock.json` and `.github/preview-eas-cli` (not a source-test failure). Full checkout checks, actual workflow schema and exact-HEAD GitHub CI pending this commit. Live Codespace/EAS/device verification NOT_RUN, explicitly prohibited; independent human security review DEFERRED.
+
+### 2026-11-23T04:01Z — Exact-HEAD regression test correction
+
+- First correction HEAD `977381147e4cdaaf1e8ca5c475d7c68bb18f9c63`: Governance [45109224842](https://github.com/im-tnyx/Tio-Money/actions/runs/45109224842) PASS. Phase 0 [45109224878](https://github.com/im-tnyx/Tio-Money/actions/runs/45109224878) FAIL at existing checkout-pin regression, which assumed one checkout per workflow; the new EAS workflow correctly has one immutable checkout in each of two isolated jobs. TypeScript, lint, format and primary unit tests passed to that point; later checks skipped on failure.
+- Scoped test correction asserts both EAS checkout actions use the approved pinned SHA with `persist-credentials: false`, validates no environment secret in the test job and requires revalidation on the publish job. With unchanged governance and Phase 0 workflow fixtures materialized locally, `node --test tests/preview/checkout-pin-security.test.mjs tests/preview/unified-live-refresh.test.mjs` 10/10 PASS. Recheck full exact-HEAD CI after committing; no privileged workflow dispatched.
+
+### 2026-11-23 — Trusted selection output isolation
+
+- HEAD `9fecd759b699b195c915f140866f0563ff303c21` Governance [45109465565](https://github.com/im-tnyx/Tio-Money/actions/runs/45109465565) and Phase 0 [45109465511](https://github.com/im-tnyx/Tio-Money/actions/runs/45109465511) both PASS with actual steps including full `npm run check` and Android/iOS Metro smoke on the GitHub PR merge tree associated with that head. This does not execute the changed privileged workflow.
+- Final security pass identified the validation job's SHA output as sharing a runner with PR tests. A new secretless selection job records the SHA before any PR checkout; the secretless validation job and fresh EAS runner each re-fetch the PR and require the selection SHA. The test runner has no job output that the publish job consumes. This prevents PR test processes from altering the trusted selection output. EAS operation remains unexecuted and Draft PR stays unmerged.
+
+### 2026-11-23 — Branch reconciliation
+
+- The owner requested alignment of draft PR #88 with latest main in project chat on 2026-11-23. Technical decision: proceed with a two-parent branch sync under [RFC #87](https://github.com/im-tnyx/Tio-Money/issues/87), preserving both preview changes and main's documentation and app changes. The observed inputs were PR HEAD `1b68936930ed0c627ca525ed6972885ba1336d5e` and main `d8badc8bee842a20db9ea5c5866cb5db4b1e77a5`.
+- Resolved the conflict in `.ai/current.md` by retaining both task histories and adding the current checkpoint. Git combined the changes in `docs/CODESPACES-LIVE-PREVIEW.md`; the other two preview docs received trailing blank-line cleanup. Preview workflow, scripts, tests and main app source are preserved.
+- Open findings from the source review cover EAS scope validation (High), loopback redirects, Metro listener ownership, worktree status and stale PR checks, and source-map coverage (Medium). Independent review DEFERRED. The sync has no approval for PR merge, preview execution, EAS publish or build. Verify required CI on the resulting HEAD and retain Draft while findings are open.
+- Pre-push validation: `git diff --cached --check d8badc8` and `python3 scripts/ai_context.py check-links` passed. `python3 scripts/ai_context.py check-commits --base d8badc8 --head HEAD` passed for the seven prior PR commits. `node --test tests/preview/*.test.mjs` reported 58 passed, 1 skipped and 2 local environment failures (installed Expo fixture and hardcoded /tmp fixture). Full required GitHub CI and live device acceptance were not verified locally.
+
+### 2026-11-23 — Security remediation decision and validation
+
+- Owner chose strict fail-closed served revision verification in project chat. [RFC #87 technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094088569) and [five-finding addendum](https://github.com/im-tnyx/Tio-Money/pull/88#issuecomment-7093998358) scope work to Draft PR #88 on `feat/unified-expo-preview-live-refresh`, starting from `34ec497c08e8f8c8a1eb933fd68acecd126efde5`. Implementing agent ChatGPT/GPT-6.
+- EAS validation and publishing load the same scope checker from the trusted workflow revision, validate complete bounded NUL-delimited diff records and both rename/copy endpoints, and pin both selected SHAs. The publish runner rechecks scope and current PR eligibility after dependency and signature work. Expo credentials remain confined to the final EAS step. Codespaces rechecks unique label, current PR and approved immutable scope before the existing privileged operations using the read-only repository credential. GitHub metadata reads and downstream operations cannot be made atomic. Changes after the last check can only act on the already selected immutable input.
+- Trusted worker streams ownership-aware starter and source probes, including for an older approved checkout. Recorded process identity and the Linux listening socket must agree. HTTP redirects and unverifiable worktree state fail closed. The source probe compares affected modules that are present per selected platform and reports UNVERIFIED for graphs with no affected module, including absent lazy/platform modules. A stale module fails verification. No verification result triggers a restart.
+- Separate agent security review checks isolation, immutable inputs, listener ownership and fail-closed outcomes. Independent human review remains DEFERRED. Physical-device, privileged Codespaces and live EAS acceptance remain NOT_RUN. If validation fails, keep the branch Draft. Use a separately authorized normal revert if rollback is needed.
+
+### 2026-11-23 — Gate 10 automated review fixes
+
+- [RFC #87 Gate 10 PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7094686330) records owner-directed scope on the existing PR branch from `3226b2f0027c96383bc12940a29315ebaedc2b76`. The EAS selector exports both immutable SHAs; both consumers reject stale inputs.
+- The streamed trusted starter holds its existing lock across runtime compatibility verification, authenticated detached checkout, dependency installation as needed, and any owned recovery. Its managed record binds PID/start ticks to a runtime fingerprint. A compatible healthy run checks the same PID and private tunnel identity after source sync. An incompatible or legacy unstamped owned process is stopped before mutating runtime inputs. Unowned or ambiguous processes fail closed.
+- Consecutive owner UI pushes use the existing unprivileged signal and trusted worker. Stale queued selections are rejected. Same-SHA healthy no-op, fail-closed Android/iOS source verification and privilege boundaries remain. Review evidence is scoped to source and secretless CI. Live Codespaces, physical Android/iOS Fast Refresh and EAS are NOT_VERIFIED. No merge or privileged execution authorized.
+
+### 2026-11-23 — Consolidate the preview Actions entry
+
+- [Owner-directed technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/87#issuecomment-7095354699) scopes a follow-up from main `b930e8825ffa857958049a81af9972b211e42418`. Active agent ChatGPT/GPT-6. Inline the Codespaces worker into the existing named workflow; retain the secretless push signal, trusted main event, job-specific environment and immutable code sync. EAS publish/build remain manual-only and retain their separate gates.
+- Routing regressions cover manual operation isolation, pinning, runtime and trusted push eligibility. Live Codespaces, physical Android/iOS Fast Refresh and live EAS remain NOT_VERIFIED. No environment change, privileged dispatch, direct main write or merge is authorized. Rollback through a separately authorized normal revert PR.

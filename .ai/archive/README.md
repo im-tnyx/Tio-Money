@@ -2,7 +2,7 @@
 
 An **open PR is not a completed task**. Archive only after externally verified terminal state (for merge tasks: actual PR merge, target SHA and explicit owner approval), preserving agent/checkpoint history and remaining known risks.
 
-Moving `.ai/tasks/<area>/<slug>.md` to `.ai/archive/<year>/<slug>.md` changes how its **outbound relative links** resolve. Incoming links from `.ai/current.md`, `.ai/agents/registry.md`, `docs/DECISIONS.md` and any other Markdown files also need rewriting; changing the index alone is **insufficient**.
+Moving `.ai/tasks/<area>/<slug>.md` to `.ai/archive/<year>/<slug>.md` changes how its **outbound relative links** resolve. Incoming links from `.ai/current.md`, `.ai/agents/registry.md`, `docs/governance/DECISIONS.md` and any other Markdown files also need rewriting; changing the index alone is **insufficient**.
 
 ## Supported reference-style Markdown links and fail-closed behavior
 

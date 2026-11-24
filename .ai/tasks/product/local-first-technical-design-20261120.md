@@ -9,7 +9,7 @@
 | Previous agent for this new task | UNKNOWN_NOT_VERIFIED |
 | Persistent RFC | [Issue #15](https://github.com/im-tnyx/Tio-Money/issues/15) |
 | Technical decision | **PROCEED for documentation-only drafting**, agent-recorded, based on owner current-chat "Go"; no authenticated GitHub-owner merge approval |
-| Owner decisions source | [TM-DEC-006–009](../../../docs/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) in **PR #14**, since merged into `main` 2026-11-20 |
+| Owner decisions source | [TM-DEC-006–009](../../../docs/governance/DECISIONS.md#tm-dec-006--local-first-delivery-order-and-backup-boundary) in **PR #14**, since merged into `main` 2026-11-20 |
 | Historical stacked PR A base | At task creation, [PR #14](https://github.com/im-tnyx/Tio-Money/pull/14) was Draft at `659915ba8c9766082ccc945809b8879df3b5b6ce`; **it later squash-merged to `main` at `582893d0915622623f8c6b3fb9da0f1bbb0a4a60`** |
 | Main at task start | `fd154db417b1979d39f855317f252eed37c36e9d` |
 | Working branch | `docs/local-first-finance-architecture-20261120`, originally from PR #14 head; **reconciled with new `main` by non-force merge commit and PR #16 base retarget to `main`** on 2026-11-20 (verify live GitHub state) |
@@ -21,7 +21,7 @@
 
 **Purpose:** align future Stage 1 local-only app's user flows, dynamic group screens, canonical ledger/schema conceptual design and modular architecture with PR A six groups, Main + optional Sub Currency refresh-on-use and staged storage/identity plan.
 
-**Allowed paths:** `docs/02-USER-FLOWS.md`, `docs/03-SCREEN-SPEC.md`, `docs/04-DATABASE-DESIGN.md`, `docs/05-TECH-ARCHITECTURE.md`, this task and an additive compact `.ai/current.md` handoff. **No docs/DECISIONS.md, PRD or PR A branch edits**.
+**Allowed paths:** `docs/product/USER-FLOWS.md`, `docs/design/SCREEN-SPEC.md`, `docs/architecture/DATABASE-DESIGN.md`, `docs/architecture/TECH-ARCHITECTURE.md`, this task and an additive compact `.ai/current.md` handoff. **No docs/governance/DECISIONS.md, PRD or PR A branch edits**.
 
 **Excluded:** all application code, actual migrations/SQL applied to devices, UI changes, dependency installation, CI/workflows/permissions, provider integration, financial data upload, real autopay, cryptographic key setup, Supabase project creation, main direct writes, merge, auto-merge and branch deletion.
 
@@ -85,7 +85,7 @@
 ### 2026-11-20 — Manual re-review finding: legacy account-screen wording
 
 - **Reviewer:** current working architecture/documentation agent ChatGPT GPT-6; **not independent human approval**. Prior Codex review was requested on `53886aed3e28c9402cfb8f9402e536c8f8f638af`; its outcome must be considered **stale if the new commit advances HEAD**. A fresh re-review is needed on the new HEAD.
-- **Finding:** future SCREEN 06 in `docs/03-SCREEN-SPEC.md` still listed funded Wallets alone and a universal opening amount even though merged PR #14's [Account Groups](../../../docs/08-ACCOUNT-GROUPS-SPEC.md) specifies Bank-linked Wallet **reference metadata without any opening journal or second Bank asset**. The Phase 0 PR #1 merge status in two older screen/architecture blurbs was also stale.
+- **Finding:** future SCREEN 06 in `docs/design/SCREEN-SPEC.md` still listed funded Wallets alone and a universal opening amount even though merged PR #14's [Account Groups](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) specifies Bank-linked Wallet **reference metadata without any opening journal or second Bank asset**. The Phase 0 PR #1 merge status in two older screen/architecture blurbs was also stale.
 - **Fix:** explicitly include reference Wallets in future Accounts inventory, use **group-conditional opening** fields and linked Bank selector, preserve linked Bank on reference archive, and update historical PR #1 status without claiming device QA. No bottom navigation, app code, database migration or PR #22 branch modification.
 - **Evidence:** new-HEAD CI, Codex review, Markdown links, changed-file scope and branch status must be **reverified**; pre-fix `53886aed...` tests were **3/3 green**, but do not apply to subsequent edits.
 - **Authority:** user asked PR #16 reconciliation, new CI and review—not merge. Owner merge authorization remains **NOT_GRANTED**.
@@ -93,7 +93,7 @@
 ### 2026-11-20 — Codex P1 review finding and guarded valuation contract
 
 - **Exact review:** [Codex automated PR #16 review](https://github.com/im-tnyx/Tio-Money/pull/16), P1 inline thread `PRRT_kwDOVy5U3s66FxtB` (comment `4645396323`) at HEAD `0b80af9a6d959e682ec0ece3dc1ff45c59223957`. Finding: a non-posting market-value input was described as changing **Net Worth estimate**, conflicting with the immutable balanced-journal-derived Net Worth invariant in `AGENTS.md`.
-- **Correction:** in `docs/04-DATABASE-DESIGN.md` and `docs/05-TECH-ARCHITECTURE.md`, make two metrics explicit: **canonical Net Worth from posted assets/liabilities** (investment at booked cost absent an approved valuation posting) versus **separate dated, unposted Portfolio market-value estimate**. No market-price update can change canonical Net Worth, earnings, original amount or journal. Any future recognized valuation effect requires **approved balanced valuation entries + historical/reporting ADR**, still BLOCKED for implementation.
+- **Correction:** in `docs/architecture/DATABASE-DESIGN.md` and `docs/architecture/TECH-ARCHITECTURE.md`, make two metrics explicit: **canonical Net Worth from posted assets/liabilities** (investment at booked cost absent an approved valuation posting) versus **separate dated, unposted Portfolio market-value estimate**. No market-price update can change canonical Net Worth, earnings, original amount or journal. Any future recognized valuation effect requires **approved balanced valuation entries + historical/reporting ADR**, still BLOCKED for implementation.
 - **Coverage:** acceptance `TM-DB-VAL-001` and `TM-ARCH-010` test separation. No code, schema changes, cloud operations or tab/navigation edits.
 - **Review disposition:** this P1 is **addressed in documentation subject to exact-new-HEAD validation and reviewer thread disposition**. Do **not** claim reviewer `APPROVED` or independent sign-off. Rerun PR CI/Code Review on new commit; any findings after that must be evaluated.
 - **Owner request:** PR #16 safe reconciliation, CI and review only. **No PR #16 merge authorization.**
@@ -101,7 +101,7 @@
 ### 2026-11-20 — Final merge-gate preparation: two P3 documentation findings
 
 - **Owner instruction:** move PR #16 to the **merge gate** after review; this is **not** authorization to execute a merge. PR author/owner submitted a GitHub `COMMENTED` review at previous HEAD `b81f4813a43af9de408eeddf1a850752ce64b7ca`; it was not a formal `APPROVED` review. A separate automated Codex review at that HEAD reported no new findings, but GitHub subsequently received two unresolved **P3** inline comments.
-- **Finding one:** [review thread](https://github.com/im-tnyx/Tio-Money/pull/16) on `docs/03-SCREEN-SPEC.md` (GitHub thread `PRRT_kwDOVy5U3s66G1Bn`, comment `4645852180`) identified a legacy statement that the Phase 0 source existed only in an unmerged feature branch. Corrected to `main`/merged PR #1, **without claiming full iPhone/SQLite device QA**.
+- **Finding one:** [review thread](https://github.com/im-tnyx/Tio-Money/pull/16) on `docs/design/SCREEN-SPEC.md` (GitHub thread `PRRT_kwDOVy5U3s66G1Bn`, comment `4645852180`) identified a legacy statement that the Phase 0 source existed only in an unmerged feature branch. Corrected to `main`/merged PR #1, **without claiming full iPhone/SQLite device QA**.
 - **Finding two:** `PRRT_kwDOVy5U3s66G1Bv`, comment `4645852198`, identified the top task table as incorrectly listing `RECONCILING`/Draft although PR #16 was already **OPEN / Ready for Review**, `main`-based with green prior-HEAD CI. Updated the current lifecycle and review field; older dated snapshots remain historical.
 - **Scope:** the Screen Spec, this task and compact `.ai/current.md` only. No account/FX behavior, ledger code, database migration, production config, protected bottom tabs, PR #22 branch or `main` updates.
 - **Next evidence:** exact new-HEAD GitHub Actions, link/anchor validation, review-thread author-side replies/dispositions and fresh automated Codex summary. Do not equate thread resolution with independent approval.

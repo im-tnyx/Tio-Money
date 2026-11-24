@@ -2,6 +2,10 @@
 
 **Read first:** [AGENTS.md](../AGENTS.md), [current task index](../.ai/current.md), the [discussion/RFC guide](../.ai/discussions/README.md), relevant [feature boundaries](../.ai/core/feature-boundaries.md), and the [canonical docs](../docs/00-INDEX.md). This is a *review protocol*, not permission to implement, merge, change rulesets or deploy. Review the actual current GitHub diff, not just a PR description.
 
+## Cursor Bugbot (advisory)
+
+When enabled, the GitHub App **Cursor** publishes the check **`Cursor Bugbot`** and may comment as `cursor[bot]`. Repo tuning is [`.cursor/BUGBOT.md`](../.cursor/BUGBOT.md) and [`.cursor/config/bugbot.yaml`](../.cursor/config/bugbot.yaml), read from the PR **base** branch (usually `main`). Those files do not turn the check on. The owner enables it in Cursor Dashboard → Automations → Bugbot for `im-tnyx/Tio-Money`, and confirms the GitHub Cursor app includes this repository. A Bugbot review is a bot `COMMENTED` result: it is not GitHub `APPROVED` and it is not merge authorization ([TM-DEC-002](../docs/governance/DECISIONS.md#tm-dec-002--independent-review-optional-by-default), [TM-DEC-003](../docs/governance/DECISIONS.md#tm-dec-003--owner-authorized-agent-merge)). After enablement, a human can comment `bugbot run` or `cursor review` to request another pass. This guide does not add `Cursor Bugbot` as a required status check.
+
 ## A. Pre-review verification
 
 1. Verify repository, target `main`, head branch and exact **HEAD commit SHA**; inspect full PR changed paths/diff, outstanding threads, reviews, security controls and actually reported checks.

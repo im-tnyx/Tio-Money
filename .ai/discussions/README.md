@@ -2,7 +2,7 @@
 
 > **Discussion is a required entry gate.** Every substantive task needs a durable RFC and documented decision to proceed before implementation. **Explicit owner implementation approval is optional**; material restricted-operation decisions still need their applicable authority. **Owner merge approval is always mandatory.**
 
-[Root agent contract](../../AGENTS.md) · [Task lifecycle](../tasks/README.md) · [RFC template](TEMPLATE.md) · [Owner decisions](../../docs/DECISIONS.md)
+[Root agent contract](../../AGENTS.md) · [Task lifecycle](../tasks/README.md) · [RFC template](TEMPLATE.md) · [Owner decisions](../../docs/governance/DECISIONS.md)
 
 ## Discussion-first procedure
 
@@ -16,7 +16,7 @@
 
 ## Scope of the current V2 update
 
-**Latest owner decisions:** [TM-DEC-002 and TM-DEC-003](../../docs/DECISIONS.md) supersede earlier **mandatory** independent-review/owner-approved-review-deferral wording and blanket implications that agents cannot merge. [Authorized agent merge preflight](../../.github/POST-MERGE-SYNC.md#authorized-agent-merge-preflight-before-any-merge) is required after **specific owner permission**. **This historical governance policy update was not itself permission to merge PR #2; PR #2 was separately authorized later and is now merged. No future PR is authorized by that fact.**
+**Latest owner decisions:** [TM-DEC-002 and TM-DEC-003](../../docs/governance/DECISIONS.md) supersede earlier **mandatory** independent-review/owner-approved-review-deferral wording and blanket implications that agents cannot merge. [Authorized agent merge preflight](../../.github/POST-MERGE-SYNC.md#authorized-agent-merge-preflight-before-any-merge) is required after **specific owner permission**. **This historical governance policy update was not itself permission to merge PR #2; PR #2 was separately authorized later and is now merged. No future PR is authorized by that fact.**
 
 The [V2 RFC](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6986950549) and [owner chat authorization recorded on PR #2](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987125950) describe this governance-only bounded task. The latter is **agent-transcribed**, not a GitHub-owner-authored approval. Owner **merge approval was pending at that earlier checkpoint**; after separate PR-specific permission, GitHub verifies PR #2 merged on 2026-11-19 at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. The [later owner policy refinement](https://github.com/im-tnyx/Tio-Money/pull/2#issuecomment-6987299176) makes owner implementation signoff optional for future ordinary tasks; it does not revoke this task's already-granted Stage B permission.
 

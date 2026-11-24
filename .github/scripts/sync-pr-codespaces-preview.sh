@@ -9,11 +9,11 @@ readonly target_sha="${1:-}"
 readonly pr_number="${2:-}"
 readonly bundle_path="${3:-}"
 readonly expected_bundle_sha256="${4:-}"
-readonly cache_dir="${HOME}/.cache/tio-money-expo-preview"
-readonly dependency_marker="${cache_dir}/preview-dependency-manifests.sha256"
+readonly mode="${5:-}"
 
 if [[ ! "$target_sha" =~ ^[0-9a-f]{40}$ || ! "$pr_number" =~ ^[1-9][0-9]*$ ||
-      ! "$expected_bundle_sha256" =~ ^[0-9a-f]{64}$ ]]; then
+      ! "$expected_bundle_sha256" =~ ^[0-9a-f]{64}$ ||
+      ( -n "$mode" && "$mode" != '--manual' ) ]]; then
   echo "Refusing preview: exact SHA, numeric PR and trusted SHA-256 are required." >&2
   exit 1
 fi
@@ -33,7 +33,11 @@ if [[ "$actual_remote" != "$expected_remote" &&
   exit 1
 fi
 
-if [[ -n "$(git status --porcelain=v1 --untracked-files=normal)" ]]; then
+if ! worktree="$(git status --porcelain=v1 --untracked-files=normal)"; then
+  echo 'Refusing preview: unable to verify worktree status.' >&2
+  exit 1
+fi
+if [[ -n "$worktree" ]]; then
   echo "Refusing preview: Codespace has unsaved work. Commit/push or save it safely first." >&2
   exit 1
 fi
@@ -93,28 +97,6 @@ if [[ "$fetched_sha" != "$target_sha" ]]; then
   exit 1
 fi
 
-if [[ "$before_sha" != "$target_sha" ]]; then
-  # Stop only this project's verified managed Metro (never pkill other servers).
-  node scripts/start-codespace-expo.mjs --stop
-  # This is a preview-only checkout. No force, reset, stash, deletion or push.
-  git -c advice.detachedHead=false switch --detach "$target_sha"
-fi
-
-# A preview may already contain dependencies from another branch. Reinstall
-# only when manifests differ, or when npm's lock state is absent.
-mkdir -p "$cache_dir"
-current_hash="$(sha256sum package.json package-lock.json | sha256sum | cut -d ' ' -f 1)"
-stored_hash=""
-if [[ -f "$dependency_marker" ]]; then stored_hash="$(cat "$dependency_marker")"; fi
-
-if [[ "$current_hash" != "$stored_hash" || ! -f node_modules/.package-lock.json ]]; then
-  echo "Installing preview dependencies from the committed lockfile."
-  npm ci --no-audit --no-fund
-  printf '%s\n' "$current_hash" > "$dependency_marker"
-fi
-
-# The current branch's managed starter checks the exact Expo CLI account and
-# the real signed tunnel. It never outputs a signed Expo Go deep link.
-node scripts/start-codespace-expo.mjs
-node scripts/start-codespace-expo.mjs --status
-echo "Tio Money PR #${pr_number} preview serving exact source ${target_sha}."
+# Only the trusted streamed starter may mutate the checkout or managed Metro.
+# It rechecks FETCH_HEAD, HEAD, worktree and listener under its startup lock.
+run_trusted_metro_sync "$before_sha" "$target_sha" "$mode"
