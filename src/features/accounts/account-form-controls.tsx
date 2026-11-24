@@ -48,13 +48,11 @@ export function AccountFormRow({
   leading,
   children,
   minimumHeight,
-  multiline = false,
 }: {
   readonly label: TranslationKey;
   readonly leading: ReactNode;
   readonly children: ReactNode;
   readonly minimumHeight?: number;
-  readonly multiline?: boolean;
 }) {
   const theme = useAppTheme();
   const rowHeight = minimumHeight ?? theme.textField.minimumHeight;
@@ -63,7 +61,7 @@ export function AccountFormRow({
       style={{
         minHeight: rowHeight,
         flexDirection: 'row',
-        alignItems: multiline ? 'flex-start' : 'center',
+        alignItems: 'center',
         gap: theme.space.sm,
       }}
     >
@@ -167,10 +165,43 @@ export function AccountField({
 
   if (leading) {
     return (
-      <AccountFormRow label={label} leading={leading} multiline={props.multiline}>
+      <View
+        style={{
+          minHeight: theme.textField.minimumHeight,
+          flexDirection: 'row',
+          alignItems: props.multiline ? 'flex-start' : 'center',
+          gap: theme.space.sm,
+        }}
+      >
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={{
+            width: theme.iconRoles.textField,
+            minHeight: theme.textField.minimumHeight,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {leading}
+        </View>
         <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
+        {labelAsPlaceholder ? null : (
+          <AppText
+            muted
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={{
+              maxWidth: trailing ? '34%' : '50%',
+              textAlign: 'right',
+              includeFontPadding: false,
+            }}
+          >
+            {t(label)}
+          </AppText>
+        )}
         {trailing}
-      </AccountFormRow>
+      </View>
     );
   }
 
@@ -205,7 +236,7 @@ export function AmountCurrencyChoices({
       style={{
         flexGrow: 0,
         width: options.length * theme.buttons.minimumHeight,
-        maxWidth: '66%',
+        maxWidth: '32%',
       }}
     >
       {options.map((option) => {

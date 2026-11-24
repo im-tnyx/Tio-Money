@@ -37,6 +37,7 @@
 - [Add Account spacing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7124570281) sets 16 dp editor padding, 12 dp field gaps and 36 dp round header backgrounds. [Save uses the owner-selected weight 300 SVG](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7124614466). Exact published HEAD and checks are recorded in RFC #96.
 - [Inline Add Account rows PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-follow-up-decision--proceed) places Loan Direction, Wallet Type and Investment Type in right-side dropdowns and puts Payment From above Statement Date. The [task checkpoint](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--inline-add-account-rows) records validation and remaining device QA.
 - [Account Group restoration PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-correction--proceed) restores the original Group row above the form and verifies the Add Account top bar against the prior layout.
+- [Add Account input placement PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-input-placement-correction--proceed) restores the text input immediately after its icon and keeps the other controls on their established rows.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

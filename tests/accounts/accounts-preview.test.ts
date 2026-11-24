@@ -455,12 +455,12 @@ test('inline currency boxes follow the input, scroll horizontally and keep check
 
   assert.match(
     controls,
-    /<View style=\{\{ flex: 1, minWidth: '0%' \}\}>\{input\}<\/View>\s+\{trailing\}/,
+    /<View style=\{\{ flex: 1, minWidth: '0%' \}\}>\{input\}<\/View>[\s\S]*?\{trailing\}/,
   );
   assert.match(choices, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
   assert.match(
     choices,
-    /width: options.length \* theme.buttons.minimumHeight,[\s\S]*?maxWidth: '66%'/,
+    /width: options.length \* theme.buttons.minimumHeight,[\s\S]*?maxWidth: '32%'/,
   );
   assert.match(choices, /options\.map\(\(option\) =>/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected \}\}/);
@@ -632,7 +632,7 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
 });
 
-test('account form keeps the icon, label and input in one row and Description can grow', () => {
+test('account inputs sit immediately after their icons and Description can grow', () => {
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
@@ -649,18 +649,18 @@ test('account form keeps the icon, label and input in one row and Description ca
   assert.equal(space.md, 16);
   assert.equal(space.sm, 12);
   assert.match(row, /const rowHeight = minimumHeight \?\? theme.textField.minimumHeight/);
-  assert.match(row, /flexDirection: 'row',\s+alignItems: multiline \? 'flex-start' : 'center'/);
+  assert.match(row, /flexDirection: 'row',\s+alignItems: 'center'/);
   assert.match(
     row,
     /importantForAccessibility="no-hide-descendants"[\s\S]*?\{leading\}[\s\S]*?\{t\(label\)\}[\s\S]*?\{children\}/,
   );
   assert.match(
     controls,
-    /<AccountFormRow label=\{label\} leading=\{leading\} multiline=\{props.multiline\}>/,
+    /alignItems: props.multiline \? 'flex-start' : 'center'[\s\S]*?\{leading\}\s*<\/View>\s*<View[^>]*>\{input\}<\/View>[\s\S]*?\{t\(label\)\}/,
   );
   assert.match(controls, /d=\{rowIcons\[name\]\}[\s\S]*?theme\.colors\.primaryText/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
-  assert.match(form, /leading=\{leading\}[\s\S]*?textAlign="right"/);
+  assert.match(form, /leading=\{leading\}[\s\S]*?textAlign="left"/);
   assert.match(
     form,
     /multiline=\{description\}[\s\S]*?submitBehavior=\{description \? 'blurAndSubmit'/,
@@ -669,7 +669,8 @@ test('account form keeps the icon, label and input in one row and Description ca
     form,
     /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<AccountFormIcon/,
   );
-  assert.match(form, /if \(date\) return t\('accountReferenceDatePlaceholder'\)/);
+  assert.match(form, /labelAsPlaceholder=\{field === 'name' \|\| description\}/);
+  assert.match(form, /placeholder=\{date \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/);
   assert.match(input, /const growsWithText = borderless && props.multiline/);
   assert.match(input, /includeFontPadding: borderless \? false : undefined/);
   assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);
