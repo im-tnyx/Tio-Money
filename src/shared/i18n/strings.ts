@@ -75,6 +75,7 @@ export const en = {
   accountInvestmentValuation: 'Estimated Valuation',
   accountInvestmentValuationDate: 'Valuation Date',
   accountInvestmentValuationHint: 'A dated estimate separate from booked cost.',
+  closeDatePicker: 'Close date picker',
   accountDateDay: 'Day',
   accountDateMonth: 'Month',
   accountDateYear: 'Year',

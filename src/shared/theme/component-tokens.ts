@@ -83,6 +83,14 @@ export const optionPopupTokens = {
   shadowOpacity: opacity.fabShadow,
 } as const;
 
+export const datePickerTokens = {
+  width: size.dp100 * 3 + space.md,
+  rowHeight: size.dp48,
+  visibleRows: 5,
+  compactRows: 3,
+  minimumRows: 1,
+} as const;
+
 export const shadowTokens = {
   fab: {
     elevation: size.dp6,

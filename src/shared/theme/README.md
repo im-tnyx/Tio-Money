@@ -753,6 +753,10 @@ dismiss callback from the Add Account view model.
 The [Accounts preview tests](../../../tests/accounts/accounts-preview.test.ts)
 cover placement, dismissal wiring and option selection.
 
+## Shared date wheel popup — PR #97 (2026-11-24)
+
+Loan date fields use [AppDateField](../ui/app-date-field.tsx), [AppWheelPicker](../ui/app-wheel-picker.tsx) and [AppPopupCard](../ui/app-popup-card.tsx). Date selection is controlled by the Accounts session. The popup uses the same rounded theme surface and safe viewport placement geometry as AccountDropdown. Date picker roles in component-tokens.ts own the wheel width, row height and visible row count; compact viewports reduce the visible rows. Short English month names, live updates and no confirmation footer are the current owner-approved UI contract.
+
 ## Shared ActionButton visual height — 2026-11-22 (owner RFC #79 refinement)
 
 The canonical `src/shared/ui/action-button.tsx` defaults to a **42dp painted

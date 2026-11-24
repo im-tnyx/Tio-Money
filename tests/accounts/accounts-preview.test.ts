@@ -32,6 +32,11 @@ import paymentModeIcons from '../../src/shared/assets/google-material-icons/paym
 import saveIcon from '../../src/shared/assets/google-material-icons/save-icon.json';
 import { en } from '../../src/shared/i18n/strings';
 import {
+  calendarMonths,
+  localCalendarToday,
+  parseCalendarDate,
+} from '../../src/shared/ui/calendar-date';
+import {
   buttonTokens,
   navigationTokens,
   textFieldTokens,
@@ -83,6 +88,8 @@ test('the first Group picker waits for entry and late transition events do not r
     assert.deepEqual(form, {
       groupPicker: 'closed',
       choicePickerOpen: false,
+      datePicker: null,
+      datePickerEpoch: 0,
       group,
       drafts: { [group]: newAccountDraft(group, 'INR') },
     });
@@ -600,7 +607,11 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     const rendered = [...section.matchAll(/<DraftInput\s+field="([^"]+)"/g)].map(
       (match) => match[1],
     );
-    assert.deepEqual(rendered, expectedFields[id], id);
+    assert.deepEqual(
+      rendered,
+      id === 'loan' ? expectedFields.loan.slice(0, 3) : expectedFields[id],
+      id,
+    );
     assert.deepEqual(
       Object.keys(newAccountDraft(id, 'INR').fields).sort(),
       [...expectedFields[id], 'name', 'description'].sort(),
@@ -625,7 +636,10 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(groupFields, /field="creditLimit"[^>]*\/>\s*<PaymentFromField \/>/);
   assert.match(groupFields, /<PaymentFromField \/>\s*<DraftInput field="statementDate"/);
   assert.match(groupFields, /field="emiAmount"[^>]*\/>\s*<PaymentFromField \/>/);
-  assert.match(groupFields, /<PaymentFromField \/>\s*<DraftInput field="startDate"/);
+  assert.match(
+    groupFields,
+    /<PaymentFromField \/>\s*\{loanDates \? \([\s\S]*?<AppDateField[\s\S]*?loanDates.startDate[\s\S]*?loanDates.nextDueDate/,
+  );
   const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
   assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
   assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);
@@ -696,12 +710,8 @@ test('Credit Card dates edit monthly days and Loan and Investment dates keep the
   assert.match(form, /keyboardType=\{date \? 'number-pad'/);
 });
 
-test('Loan and Investment edit the day, month and year independently on the same date row', () => {
-  const forms = [
-    { group: 'loan', field: 'startDate' },
-    { group: 'loan', field: 'nextDueDate' },
-    { group: 'investment', field: 'valuationDate' },
-  ] as const;
+test('Investment keeps editable day, month and year on the same date row', () => {
+  const forms = [{ group: 'investment', field: 'valuationDate' }] as const;
 
   for (const { group, field } of forms) {
     const draft = replay(group, [
@@ -739,6 +749,61 @@ test('Loan and Investment edit the day, month and year independently on the same
     /<CalendarDateMonthAndYear[\s\S]*?type: 'date.part', field, part: 'month'[\s\S]*?type: 'date.part', field, part: 'year'/,
   );
   assert.match(form, /value=\{parts\?\.day \?\? value\}/);
+});
+
+test('Loan wheels use local Today and retain live valid dates after dismissal', () => {
+  const today = '2024-01-31';
+  assert.equal(localCalendarToday(new Date(2024, 0, 31, 23, 59)), today);
+  assert.equal(calendarMonths[8], 'Sep');
+  assert.equal(parseCalendarDate('2025-02-29'), null);
+  const update = (session: AccountAddSession, action: AccountAddAction) =>
+    updateAccountAddSession(session, action, 'INR', currencies, today);
+  let session = update(newAccountAddSession(true), { type: 'group.select', group: 'loan' });
+  const dates = () => {
+    const loan = session.drafts.loan;
+    assert.ok(loan?.group === 'loan');
+    return loan.fields;
+  };
+  assert.equal(dates().startDate, today);
+  assert.equal(dates().nextDueDate, today);
+  session = update(session, { type: 'date.open', field: 'startDate' });
+  assert.ok(session.datePicker);
+  const id = session.datePicker.id;
+  assert.equal(update(session, { type: 'group.open' }), session);
+  assert.equal(update(session, { type: 'options.open' }), session);
+  session = update(session, { type: 'date.change', id, part: 'month', value: 2 });
+  assert.equal(dates().startDate, '2024-02-29');
+  session = update(session, { type: 'date.change', id, part: 'year', value: 2025 });
+  assert.equal(dates().startDate, '2025-02-28');
+  assert.equal(dates().nextDueDate, today);
+  session = update(session, { type: 'date.close', id });
+  assert.equal(dates().startDate, '2025-02-28');
+  session = update(session, { type: 'date.open', field: 'nextDueDate' });
+  assert.equal(update(session, { type: 'date.change', id, part: 'day', value: 1 }), session);
+  assert.equal(update(session, { type: 'date.close', id }), session);
+  assert.ok(session.datePicker);
+  const nextId = session.datePicker.id;
+  session = update(session, { type: 'date.change', id: nextId, part: 'month', value: 9 });
+  assert.equal(dates().nextDueDate, '2024-09-30');
+  session = update(session, { type: 'date.close', id: nextId });
+  session = update(session, { type: 'group.open' });
+  session = update(session, { type: 'group.select', group: 'cash' });
+  assert.equal(update(session, { type: 'date.open', field: 'startDate' }), session);
+  session = update(session, { type: 'group.open' });
+  session = update(session, { type: 'group.select', group: 'loan' });
+  assert.equal(dates().startDate, '2025-02-28');
+  assert.equal(dates().nextDueDate, '2024-09-30');
+
+  const field = readFileSync('src/shared/ui/app-date-field.tsx', 'utf8');
+  const wheel = readFileSync('src/shared/ui/app-wheel-picker.tsx', 'utf8');
+  const popup = readFileSync('src/shared/ui/app-popup-card.tsx', 'utf8');
+  assert.equal(field.match(/<AppWheelPicker/g)?.length, 3);
+  assert.doesNotMatch(field, /ActionButton|TextInput|AppBottomSheet|onSubmit|onSave/);
+  assert.match(wheel, /snapToInterval=\{rowHeight\}/);
+  assert.match(wheel, /onScroll=\{/);
+  assert.match(wheel, /accessibilityRole="adjustable"/);
+  assert.match(popup, /onRequestClose=\{onClose\}/);
+  assert.match(popup, /onPress=\{onClose\}/);
 });
 
 test('main Add Account fields opt into borderless input and the Bank mode sheet stays outlined', () => {
