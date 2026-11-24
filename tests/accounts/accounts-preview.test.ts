@@ -466,7 +466,7 @@ test('one amount row per form carries the inline currency selector and all amoun
   assert.deepEqual(controllingFields, [
     'openingAmount',
     'creditLimit',
-    'outstandingPrincipal',
+    'emiAmount',
     'investedCost',
   ]);
   assert.match(card, /field="outstanding"[^>]*?\{\.\.\.inputProps\}/);
@@ -528,7 +528,7 @@ test('currency changes clear each group’s amounts while retaining all other dr
     bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit'],
     wallet: ['openingAmount'],
-    loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount'],
+    loan: ['originalPrincipal', 'fees', 'emiAmount'],
     investment: ['investedCost', 'valuation'],
   } satisfies Record<PreviewGroup, readonly DraftField[]>;
 
@@ -593,8 +593,12 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
     wallet: ['openingAmount'],
-    loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount', 'startDate'],
+    loan: ['emiAmount', 'originalPrincipal', 'fees', 'interestRate', 'startDate'],
     investment: ['investedCost', 'valuation', 'valuationDate'],
+  } satisfies Record<PreviewGroup, readonly string[]>;
+  const expectedRendered = {
+    ...expectedFields,
+    loan: ['emiAmount', 'originalPrincipal', 'fees', 'interestRate'],
   } satisfies Record<PreviewGroup, readonly string[]>;
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const groupFields = screen.slice(screen.indexOf('function GroupFields'));
@@ -611,16 +615,15 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     const rendered = [...section.matchAll(/<DraftInput\s+field="([^"]+)"/g)].map(
       (match) => match[1],
     );
-    assert.deepEqual(
-      rendered,
-      id === 'loan' ? expectedFields.loan.slice(0, 3) : expectedFields[id],
-      id,
-    );
+    assert.deepEqual(rendered, expectedRendered[id], id);
     assert.deepEqual(
       Object.keys(newAccountDraft(id, 'INR').fields).sort(),
       [...expectedFields[id], 'name', 'description'].sort(),
     );
   }
+  const loanDraft = newAccountDraft('loan', 'INR');
+  assert.equal(loanDraft.group, 'loan');
+  assert.equal(loanDraft.moreDetailsOpen, false);
   assert.equal(en.accountName, 'Account Name');
   assert.equal(en.accountCardName, 'Card Name');
   assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
@@ -644,6 +647,12 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     groupFields,
     /<PaymentFromField \/>\s*\{loanDates \? \(\s*<AppDateField[\s\S]*?loanDates\.startDate/,
   );
+  assert.match(groupFields, /moreDetails\.toggle/);
+  assert.match(groupFields, /AppPopupChevron open=\{draft\.moreDetailsOpen\}/);
+  assert.match(groupFields, /draft\.moreDetailsOpen \? \([\s\S]*?field="originalPrincipal"/);
+  assert.match(groupFields, /field="fees"/);
+  assert.match(groupFields, /field="interestRate"/);
+  assert.doesNotMatch(groupFields, /outstandingPrincipal|accountLoanOutstandingPrincipal/);
   const investmentSection = groupFields.slice(groupFields.indexOf("case 'investment':"));
   assert.doesNotMatch(investmentSection, /PaymentFromField|accountAutoPay/);
   assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);

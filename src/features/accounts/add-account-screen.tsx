@@ -5,6 +5,7 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
 import { AppDateField } from '@/shared/ui/app-date-field';
 import { AppKeyboardForm } from '@/shared/ui/app-keyboard-form';
+import { AppPopupChevron } from '@/shared/ui/app-popup-chevron';
 import { AppText } from '@/shared/ui/app-text';
 
 import {
@@ -37,12 +38,9 @@ const fieldSpecs = {
   statementDate: { label: 'accountCardStatementDate', date: true, monthly: true },
   dueDate: { label: 'accountCardDueDate', date: true, monthly: true },
   originalPrincipal: { label: 'accountLoanOriginalPrincipal', money: true },
-  outstandingPrincipal: {
-    label: 'accountLoanOutstandingPrincipal',
-    money: true,
-    currencyControl: true,
-  },
-  emiAmount: { label: 'accountLoanEmiAmount', money: true },
+  fees: { label: 'accountLoanFees', money: true },
+  interestRate: { label: 'accountLoanInterestRate' },
+  emiAmount: { label: 'accountLoanEmiAmount', money: true, currencyControl: true },
   startDate: { label: 'accountLoanFirstEmiDate', date: true },
   investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
   valuation: { label: 'accountInvestmentValuation', money: true },
@@ -333,16 +331,6 @@ function GroupFields({
     case 'loan':
       return (
         <>
-          <DraftInput
-            field="originalPrincipal"
-            value={draft.fields.originalPrincipal}
-            {...inputProps}
-          />
-          <DraftInput
-            field="outstandingPrincipal"
-            value={draft.fields.outstandingPrincipal}
-            {...inputProps}
-          />
           <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...inputProps} />
           <PaymentFromField />
           {loanDates ? (
@@ -351,6 +339,30 @@ function GroupFields({
               leading={<AccountFormIcon name="calendar" />}
               {...loanDates.startDate}
             />
+          ) : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('accountLoanMoreDetails')}
+            accessibilityState={{ expanded: draft.moreDetailsOpen }}
+            onPress={() => onAction({ type: 'moreDetails.toggle' })}
+          >
+            <AccountFormRow
+              label="accountLoanMoreDetails"
+              leading={<AccountFormIcon name="options" />}
+            >
+              <AppPopupChevron open={draft.moreDetailsOpen} />
+            </AccountFormRow>
+          </Pressable>
+          {draft.moreDetailsOpen ? (
+            <>
+              <DraftInput
+                field="originalPrincipal"
+                value={draft.fields.originalPrincipal}
+                {...inputProps}
+              />
+              <DraftInput field="fees" value={draft.fields.fees} {...inputProps} />
+              <DraftInput field="interestRate" value={draft.fields.interestRate} {...inputProps} />
+            </>
           ) : null}
         </>
       );
