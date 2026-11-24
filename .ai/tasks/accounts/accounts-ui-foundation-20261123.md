@@ -6,12 +6,12 @@
 | Lifecycle | IN_REVIEW |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
-| Current agent | Cursor Cloud (Composer) — Investment Simple v1 preview |
+| Current agent | Cursor Cloud (Composer) — Credit Card day-only date wheel |
 | Previous agent | Cursor Cloud (Composer) Loan Given/polish; earlier ChatGPT GPT-6.2 / Codex Cloud. Exact prior variants UNKNOWN_NOT_VERIFIED. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
 | Latest audited base | `885c861d30d7ebc10cade3cf3f781ffb79732d4b` (main after PR #106) |
-| Latest audited HEAD | [`db8252d`](https://github.com/im-tnyx/Tio-Money/commit/db8252dab118f78dc4fa26271de891a227bb36fc) (Investment Simple v1) |
+| Latest audited HEAD | Credit Card day-only wheel tip on `feat/accounts-ui-foundation-20261123` (prior [`93ef2ac`](https://github.com/im-tnyx/Tio-Money/commit/93ef2ac3b8d9320ada5c33806ccea2c6ed2c9983)) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -36,13 +36,13 @@ Source verified on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/
 | --- | --- |
 | Cash | Account Name, Opening Amount |
 | Bank Account | Account Name, Opening Amount, Linked Payment Modes |
-| Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Auto Pay |
+| Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date (day-only wheel), Payment Due Date (day-only wheel), Auto Pay |
 | Wallet | Account Name, Opening Amount/Currency |
 | Loan (Borrowed) | Account Name, Loan Direction, Loan Amount (? tip), EMI Amount (Optional), First EMI Date, More details (chevron; expands Fees, Interest Rate with ? tips). No Payment or Auto Pay. |
 | Loan (Given) | Account Name, Loan Direction, Amount Lent, Interest Rate, Start Date, More details (chevron; expands optional Installment with ? tip). No Collect Into, Fees, Payment, or Auto Pay. |
 | Investment | Account Name, Historical Invested Cost, Start Date, Tenure (Optional, months). No Investment Type, Valuation, Valuation Date, Interest, Units/Weight, or funding. |
 
-**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name and Card Name appear as inline placeholders. **Description is omitted from all Add Account create forms** in this preview (draft may still hold an empty description string for later edit). Credit Card alone keeps From / Payment on the main form and Auto Pay after the card fields. Loan (Borrowed and Given) has no Payment or Auto Pay in this preview. Payment rows are non-editable with no Unavailable copy. Switching Loan Direction clears monetary amount fields and closes More details / field info. Monthly card days begin at 01 and 15 with “of every month”. Borrowed Loan uses First EMI Date; Given Loan and Investment use Start Date (same draft `startDate` key, default local Today). Next Due is not collected. The date control opens the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Tenure is an optional months number with a months suffix; Investment Type and valuation fields are removed from the preview draft and UI (not merely hidden).
+**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name and Card Name appear as inline placeholders. **Description is omitted from all Add Account create forms** in this preview (draft may still hold an empty description string for later edit). Credit Card alone keeps From / Payment on the main form and Auto Pay after the card fields. Loan (Borrowed and Given) has no Payment or Auto Pay in this preview. Payment rows are non-editable with no Unavailable copy. Switching Loan Direction clears monetary amount fields and closes More details / field info. Credit Card Billing Cycle Start Date and Payment Due Date use a day-only above-only wheel popup (01–31) with the “of every month” suffix; typing those days is removed. Defaults remain 01 and 15. Borrowed Loan uses First EMI Date; Given Loan and Investment use Start Date (same draft `startDate` key, default local Today). Next Due is not collected. Full calendar date controls open the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Tenure is an optional months number with a months suffix; Investment Type and valuation fields are removed from the preview draft and UI (not merely hidden).
 
 **Selectors.** Loan Direction opens an anchored, rounded popup with a selected checkmark, not a bottom sheet. Outside tap or Back dismisses without selecting. Investment has no option dropdown. Account Group and the Bank mode editor retain their bottom-sheet flows. Main currency is the initial draft currency; if Sub Currencies are configured, one amount row per eligible form shows horizontally scrollable symbol choices in configured order with a tinted selected state and checked radio accessibility. Currency selection is hidden without Subs. Currency changes clear monetary fields, including EMI and Invested Cost, without clearing other draft data.
 
@@ -638,6 +638,12 @@ The entries below record implementation history at their stated revisions; super
 
 - Owner direction: keep Investment create simple for now; type-specific fields come later. Visible fields are Account Name, Historical Invested Cost + currency, Start Date, and optional Tenure (months). Remove Investment Type from the draft and UI entirely (not hide). Drop Estimated Valuation, Valuation Date, valuation hint, Interest, Units/Weight, and funding from this preview.
 - Preview: Investment draft fields are `investedCost`, `startDate` (default Today), `tenure`. Start Date reuses the shared wheel `AppDateField`. Tenure is optional digits with a months suffix. Only Loan Direction remains as an option popup. No finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
+### 2026-11-25 — Credit Card day-only date wheel
+
+- Owner direction: replace Credit Card typed day inputs with the same style of date popup wheel used for Loan/Investment, but with only the Day column (no Month/Year). Keep the “of every month” suffix.
+- Preview: Billing Cycle Start Date and Payment Due Date use `AppDayOfMonthField` (01–31 wheel, above-only popup). Draft values remain padded day strings. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

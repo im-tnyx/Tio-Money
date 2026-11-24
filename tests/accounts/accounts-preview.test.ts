@@ -589,6 +589,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   } satisfies Record<PreviewGroup, readonly string[]>;
   const expectedRendered = {
     ...expectedFields,
+    'credit-card': ['outstanding', 'creditLimit'],
     loan: [
       'originalPrincipal',
       'interestRate',
@@ -665,7 +666,10 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   );
   assert.equal(screen.match(/<PaymentFromField \/>/g)?.length ?? 0, 0);
   assert.match(groupFields, /field="creditLimit"[^>]*\/>\s*<PaymentFromField picker=/);
-  assert.match(groupFields, /picker=\{paymentSource\} \/>\s*<DraftInput field="statementDate"/);
+  assert.match(
+    groupFields,
+    /picker=\{paymentSource\} \/>\s*\{cardDates \? \(\s*<>\s*<AppDayOfMonthField[\s\S]*?accountCardStatementDate[\s\S]*?accountCardDueDate/,
+  );
   assert.match(
     groupFields,
     /field="originalPrincipal"[^>]*\/>\s*<DraftInput\s+field="emiAmount"\s+info=\{false\}\s+currencyControl=\{false\}[\s\S]*?\{loanDates \? \(\s*<AppDateField[\s\S]*?accountLoanFirstEmiDate/,
@@ -804,7 +808,7 @@ test('Loan field info and direction switch keep Borrowed and Given drafts separa
   assert.equal(draft.fieldInfo, null);
 });
 
-test('Credit Card dates edit monthly days and Loan and Investment dates keep their full values', () => {
+test('Credit Card dates use a day-only wheel and Loan and Investment keep full calendar dates', () => {
   const initial = newAccountDraft('credit-card', 'INR');
   assert.ok(initial.group === 'credit-card');
   assert.equal(initial.fields.statementDate, '01');
@@ -821,6 +825,37 @@ test('Credit Card dates edit monthly days and Loan and Investment dates keep the
     assert.ok(changed.group === 'credit-card');
     assert.equal(changed.fields[field], '29');
   }
+
+  const update = (session: AccountAddSession, action: AccountAddAction) =>
+    updateAccountAddSession(session, action, 'INR', currencies);
+  let session = update(newAccountAddSession(true), { type: 'group.select', group: 'credit-card' });
+  session = update(session, { type: 'date.open', field: 'statementDate' });
+  assert.ok(session.datePicker);
+  assert.equal(session.datePicker.field, 'statementDate');
+  assert.equal(session.datePicker.dayIndex, 0);
+  const statementId = session.datePicker.id;
+  session = update(session, {
+    type: 'date.change',
+    id: statementId,
+    part: 'day',
+    value: 28,
+  });
+  const afterStatement = session.drafts['credit-card'];
+  assert.ok(afterStatement?.group === 'credit-card');
+  assert.equal(afterStatement.fields.statementDate, '28');
+  assert.equal(session.datePicker?.dayIndex, 27);
+  session = update(session, { type: 'date.close', id: statementId });
+  session = update(session, { type: 'date.open', field: 'dueDate' });
+  assert.ok(session.datePicker);
+  const dueId = session.datePicker.id;
+  session = update(session, { type: 'date.change', id: dueId, part: 'day', value: 5 });
+  const afterDue = session.drafts['credit-card'];
+  assert.ok(afterDue?.group === 'credit-card');
+  assert.equal(afterDue.fields.dueDate, '05');
+  assert.equal(
+    update(session, { type: 'date.change', id: dueId, part: 'month', value: 1 }),
+    session,
+  );
 
   const loan = replay('loan', [{ type: 'text', field: 'startDate', value: '2026-11-24' }]);
   const investment = replay('investment', [
@@ -845,14 +880,17 @@ test('Credit Card dates edit monthly days and Loan and Investment dates keep the
   );
 
   assert.equal(en.accountCardMonthlySuffix, 'of every month');
+  assert.equal(datePickerTokens.dayPickerWidth, 116);
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
-  assert.deepEqual(
-    [...form.matchAll(/(\w+): \{ label: '[^']+', date: true, monthly: true \}/g)].map(
-      (match) => match[1],
-    ),
-    ['statementDate', 'dueDate'],
-  );
-  assert.match(form, /suffix=\{\s*monthly \? \([\s\S]*?accountCardMonthlySuffix/);
+  const dayField = readFileSync('src/shared/ui/app-day-of-month-field.tsx', 'utf8');
+  const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
+  assert.match(form, /<AppDayOfMonthField[\s\S]*?accountCardStatementDate/);
+  assert.match(form, /<AppDayOfMonthField[\s\S]*?accountCardDueDate/);
+  assert.doesNotMatch(form, /DraftInput field="statementDate"|DraftInput field="dueDate"/);
+  assert.match(dayField, /count=\{monthDayCount\}/);
+  assert.doesNotMatch(dayField, /accountDateMonth|accountDateYear/);
+  assert.match(dayField, /accountCardMonthlySuffix/);
+  assert.match(controller, /cardDates:\s*draft\.group === 'credit-card'/);
   assert.match(form, /keyboardType=\{date \|\| months \? 'number-pad'/);
   assert.match(form, /accountInvestmentTenureMonths/);
 });
