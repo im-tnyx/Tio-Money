@@ -381,4 +381,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Codex verified the existing draft state machine and added safe-viewport placement coverage. The presentation component owns only the anchor measurement. Account Group and Bank payment-mode editor keep their existing sheet flow. The popup uses a tinted surface and no extra native dependencies.
 - Source self-review PERFORMED. Independent review DEFERRED and physical-device visual and interaction QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
 
+### 2026-11-24 — Bank payment mode empty state
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-bank-payment-mode-empty-state--proceed) records the owner’s reference at PR #97 head `c461e0ed000c29ef0665a4622b99a29f48db3fb5`. The Bank draft shows centered link guidance under Linked Payment Modes at zero entries. Applying the first mode displays the list. Removing the last mode restores the guidance.
+- Codex verified the empty and populated states with the existing draft changes and source assertions. TypeScript, lint, Prettier, 159 app tests, 29 governance tests and Markdown links passed locally. Scope includes the Bank presentation, English strings, Accounts tests and the Accounts spec.
+- Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

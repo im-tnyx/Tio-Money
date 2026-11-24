@@ -24,6 +24,9 @@ export const en = {
   accountSaveUnavailable: 'Financial account creation is not enabled yet.',
   accountInsuranceInformational: 'Informational only',
   accountModeSection: 'Linked Payment Modes',
+  accountModeEmptyTitle: 'Link your payment modes',
+  accountModeEmptyDescription:
+    'Add a debit card, UPI or another payment mode for this bank account.',
   accountModeAdd: 'Add Payment Mode',
   accountModeEdit: 'Edit Payment Mode',
   closeAccountPaymentMode: 'Close payment mode editor',
