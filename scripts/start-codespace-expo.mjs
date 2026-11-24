@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
-import { constants, closeSync, existsSync, fstatSync, lstatSync, mkdirSync, openSync, readFileSync, readlinkSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { constants, closeSync, existsSync, fstatSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +9,7 @@ import { TextDecoder } from 'node:util';
 
 import {
   currentBootId, groupListener, inspectManagedMetro, isMobileCommand, listeners, metroGroup,
-  ownedMetro, processStat, readManagedRecordSnapshot, retryOwnership,
+  ownedMetro, processIdentity, processStat, readManagedRecordSnapshot, retryOwnership,
 } from '../.github/scripts/preflight-pr-codespaces-preview.mjs';
 
 export { isMobileCommand };
@@ -60,16 +60,20 @@ export function validWhoami(result, expectedOwner = CONFIGURED_EXPO_OWNER) {
 
 const wait = (ms) => new Promise((done) => setTimeout(done, ms));
 
-function identity(pid) {
-  if (!Number.isSafeInteger(pid) || pid <= 1) return null;
-  try {
-    return {
-      startTicks: parseStartTicks(readFileSync('/proc/' + pid + '/stat', 'utf8')),
-      cwd: resolve(readlinkSync('/proc/' + pid + '/cwd')),
-      command: readFileSync('/proc/' + pid + '/cmdline', 'utf8').replaceAll('\0', ' ').trim(),
-    };
-  } catch {
-    return null;
+export function checkStartupIdentity(pid, startTicks, proc, projectRoot = ROOT, uid = process.getuid()) {
+  if (!proc) return false;
+  if (proc.pid !== pid || proc.startTicks !== startTicks) {
+    throw Error('PID_REUSED: Metro startup PID no longer identifies the spawned process.');
+  }
+  if (proc.uid !== uid || proc.group !== pid || proc.session !== pid || proc.cwd !== projectRoot) {
+    throw Error('START_IDENTITY_UNKNOWN: Metro startup UID, group, session or directory did not match.');
+  }
+  return ownedMetro({ pid, startTicks }, proc, projectRoot);
+}
+
+export function requireStartupIdentity(pid, startTicks, readIdentity = processIdentity) {
+  if (!checkStartupIdentity(pid, startTicks, readIdentity(pid))) {
+    throw Error('START_IDENTITY_UNKNOWN: The original Metro process could not be verified before writing its record.');
   }
 }
 
@@ -470,14 +474,14 @@ async function startAttempt(fingerprint, manual, preferredPort) {
     throw Error('START_FAILED: Unable to launch Metro; inspect the private Codespace log.');
   }
   const started = processStat(child.pid);
-  let proc;
+  let verified = false;
   const idDeadline = Date.now() + 5000;
   while (started && Date.now() < idDeadline && !exited) {
-    proc = identity(child.pid);
-    if (proc && proc.cwd === ROOT && isMobileCommand(proc.command) && proc.startTicks === started.startTicks) break;
+    verified = await retryOwnership(() => checkStartupIdentity(child.pid, started.startTicks, processIdentity(child.pid)));
+    if (verified) break;
     await wait(100);
   }
-  if (!proc || proc.cwd !== ROOT || !proc.startTicks || !isMobileCommand(proc.command)) {
+  if (!verified || exited) {
     if ((exited || !started || started.state === 'Z') && metroGroup(child.pid).size === 0) {
       await portIsFree(port);
       return { reason: 'START_EXITED', category: startupFailure() };
@@ -485,12 +489,15 @@ async function startAttempt(fingerprint, manual, preferredPort) {
     throw Error('START_IDENTITY_UNKNOWN: Could not verify the launched command. Inspect the dedicated Codespace.');
   }
   const record = {
-    pid: child.pid, startTicks: proc.startTicks, bootId: currentBootId(), runtimeFingerprint: fingerprint, port,
+    pid: child.pid, startTicks: started.startTicks, bootId: currentBootId(), runtimeFingerprint: fingerprint, port,
   };
   const pending = join(STATE, 'metro-' + randomUUID() + '.tmp');
   try {
-    writeFileSync(pending, JSON.stringify(record), { flag: 'wx', mode: 0o600 });
-    renameSync(pending, PID_FILE);
+    await retryOwnership(() => {
+      requireStartupIdentity(child.pid, started.startTicks);
+      writeFileSync(pending, JSON.stringify(record), { flag: 'wx', mode: 0o600 });
+      renameSync(pending, PID_FILE);
+    });
   } finally { rmSync(pending, { force: true }); }
   child.unref();
   const deadline = Date.now() + (manual ? MANUAL_START_TIMEOUT_MS : START_TIMEOUT_MS);

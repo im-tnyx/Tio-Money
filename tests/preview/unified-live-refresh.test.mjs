@@ -51,7 +51,7 @@ test('one manual entry routes four operations with isolated environments and sec
   assert.match(validation, /PR advanced since trusted selection/);
   assert.doesNotMatch(validation, /^    environment:|secrets\.EXPO_TOKEN|secrets\.CODESPACES_TOKEN/m);
   assert.match(validation, /npm run check/);
-  assert.match(validation, /outputs:\n      draft_artifact_id: \$\{\{ steps\.draft_bundle\.outputs\.artifact-id \}\}\n    if:/);
+  assert.match(validation, /outputs:\n      draft_artifact_id: \$\{\{ steps\.draft_bundle\.outputs\.artifact-id \}\}\n      draft_runtime_fingerprints: \$\{\{ steps\.draft_runtime\.outputs\.fingerprints \}\}\n    if:/);
   assert.match(publishing, /needs: \[select, validate\]/);
   assert.match(publishing, /VALIDATED_SHA: \$\{\{ needs\.select\.outputs\.head_sha \}\}/);
   assert.ok(publishing.includes('SELECTED_BASE: ${{ needs.select.outputs.base_sha }}'));

@@ -8,6 +8,7 @@ import { test } from 'node:test';
 
 import {
   assertUnmapped, draftBranch, draftSummary, requireDraftBundle, requireDraftSnapshot,
+  requireIsolation, requireRuntimeFingerprints, resolveRuntimeFingerprints,
 } from '../../.github/scripts/draft-eas-update.mjs';
 
 const head = 'a'.repeat(40);
@@ -89,9 +90,42 @@ test('Draft export is secretless and publish only consumes a prebuilt native bun
   assert.match(operation, /env -u GH_TOKEN "\$eas" update[\s\S]+--skip-bundler --input-dir/);
   assert.match(operation, /env -u EXPO_TOKEN gh api[\s\S]+node "\$helper" selection/);
   assert.match(eas, /artifact-ids: \$\{\{ needs\.validate\.outputs\.draft_artifact_id \}\}/);
+  assert.match(eas, /DRAFT_RUNTIME_FINGERPRINTS: \$\{\{ needs\.validate\.outputs\.draft_runtime_fingerprints \}\}/);
+  assert.ok(eas.indexOf('Resolve native Draft OTA fingerprints without Expo credentials') < eas.indexOf('Validate preview source and dependencies'));
+  assert.match(operation, /isolation "\$eas" "\$branch" before[\s\S]+update[\s\S]+isolation "\$eas" "\$branch" after[\s\S]+publish_status != 0/);
   assert.match(eas, /all\) platforms=\(--platform ios --platform android\)/);
   assert.match(eas, /&&[\s\S]+c\.runtimeVersion\?\.policy !== "fingerprint"/);
   assert.ok(eas.indexOf('      - name: Store the exact Draft OTA export') < eas.indexOf('      - name: Validate preview source and dependencies'));
+});
+
+test('post-publication isolation requires the branch and detects mapping changes or inventory failure', () => {
+  const branch = 'pr-draft-23';
+  const row = { name: branch, id: groupId };
+  const mapping = { name: 'production', branchMapping: JSON.stringify({ version: 0, data: [{ branchId: groupId }] }) };
+  const inventory = (branches, channels) => (_eas, command) => command === 'branch:list' ? branches : channels;
+  assert.doesNotThrow(() => requireIsolation('eas', branch, 'before', inventory([], [])));
+  assert.doesNotThrow(() => requireIsolation('eas', branch, 'after', inventory([row], [])));
+  for (const list of [inventory([], []), inventory([row, row], []), inventory([row], [mapping]),
+    () => { throw new Error('Cannot inspect Expo branches and channel mappings.'); }]) {
+    assert.throws(() => requireIsolation('eas', branch, 'after', list),
+      /DRAFT_POST_PUBLISH_ISOLATION_FAILED.*may already exist on pr-draft-23.*before retrying/);
+  }
+});
+
+test('secretless runtime resolution uses the EAS CLI 27.4.1 managed resolver for each native platform', () => {
+  const calls = [];
+  const execute = (cli, args) => {
+    calls.push([cli, ...args]);
+    return { status: 0, stdout: JSON.stringify({ runtimeVersion: args[2] === 'android' ? base : head }) };
+  };
+  assert.deepEqual(resolveRuntimeFingerprints('all', execute), { android: base, ios: head });
+  assert.deepEqual(calls, ['android', 'ios'].map((target) => [
+    'node_modules/.bin/expo-updates', 'runtimeversion:resolve', '--platform', target, '--workflow', 'managed',
+  ]));
+  assert.deepEqual(resolveRuntimeFingerprints('ios', execute), { ios: head });
+  assert.throws(() => resolveRuntimeFingerprints('android', () => ({ status: 1 })), /DRAFT_RUNTIME_RESOLUTION_FAILED/);
+  assert.throws(() => requireRuntimeFingerprints({ android: base }, 'all'), /DRAFT_RUNTIME_EXPECTATION_INVALID/);
+  assert.throws(() => requireRuntimeFingerprints({ android: base, ios: head }, 'android'), /DRAFT_RUNTIME_EXPECTATION_INVALID/);
 });
 
 test('prebuilt artifact enforces platform and rejects traversal and symlink assets', () => {
@@ -128,19 +162,22 @@ test('prebuilt artifact enforces platform and rejects traversal and symlink asse
 test('summary records only verified platform, SHA, runtime and update/group metadata', () => {
   const update = { id: updateId, group: groupId, gitCommitHash: head, branch: 'pr-draft-23',
     platform: 'android', runtimeVersion: base, manifestPermalink: 'https://ignored.example/signed' };
-  for (const [platform, updates] of [['android', [update]], ['ios', [{ ...update, platform: 'ios' }]],
-    ['all', [update, { ...update, platform: 'ios' }]]]) {
-    const summary = draftSummary(updates, '23', head, platform);
+  const ios = { ...update, platform: 'ios', runtimeVersion: head };
+  for (const [platform, updates, expected] of [['android', [update], { android: base }], ['ios', [ios], { ios: head }],
+    ['all', [update, ios], { android: base, ios: head }]]) {
+    const summary = draftSummary(updates, '23', head, platform, expected);
     assert.match(summary, /PR #23.*pr-draft-23/);
-    assert.ok(summary.includes(head) && summary.includes(updateId) && summary.includes(base));
+    assert.ok(summary.includes(head) && summary.includes(updateId) && Object.values(expected).every((hash) => summary.includes(hash)));
     assert.ok(summary.includes(`https://expo.dev/accounts/tnyx-23/projects/tio-money/updates/${groupId}`));
     assert.doesNotMatch(summary, /ignored\.example/);
   }
   for (const candidate of [{ ...update, branch: 'production' }, { ...update, gitCommitHash: base },
     { ...update, runtimeVersion: '0.0.1' }, { ...update, group: 'unsafe' }]) {
-    assert.throws(() => draftSummary([candidate], '23', head, 'android'), /could not be safely verified/);
+    assert.throws(() => draftSummary([candidate], '23', head, 'android', { android: base }), /could not be safely verified/);
   }
-  assert.throws(() => draftSummary([update], '23', head, 'all'), /could not be safely verified/);
+  assert.throws(() => draftSummary([update], '23', head, 'all', { android: base, ios: head }), /could not be safely verified/);
+  assert.throws(() => draftSummary([update, ios], '23', head, 'all', { android: head, ios: base }), /DRAFT_RUNTIME_MISMATCH.*android/);
+  assert.throws(() => draftSummary([update, ios], '23', head, 'all', { android: base, ios: base }), /DRAFT_RUNTIME_MISMATCH.*ios/);
 });
 
 test('Draft scope rejects symlinks and a head carrying config older than the verified base', () => {
