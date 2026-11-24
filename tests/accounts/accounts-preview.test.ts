@@ -511,7 +511,7 @@ test('currency changes clear each group’s amounts while retaining all other dr
     bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit'],
     wallet: ['openingAmount'],
-    loan: ['originalPrincipal', 'outstandingPrincipal'],
+    loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount'],
     investment: ['investedCost', 'valuation'],
   } satisfies Record<PreviewGroup, readonly DraftField[]>;
 
@@ -582,7 +582,7 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
     bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
     wallet: ['provider', 'openingAmount'],
-    loan: ['originalPrincipal', 'outstandingPrincipal', 'startDate', 'nextDueDate'],
+    loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount', 'startDate', 'nextDueDate'],
     investment: ['investedCost', 'valuation', 'valuationDate'],
   } satisfies Record<PreviewGroup, readonly string[]>;
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');

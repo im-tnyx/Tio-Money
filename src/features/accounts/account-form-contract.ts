@@ -70,6 +70,7 @@ interface WalletFields extends OpeningAmountFields {
 interface LoanFields extends CommonFields {
   readonly originalPrincipal: string;
   readonly outstandingPrincipal: string;
+  readonly emiAmount: string;
   readonly startDate: string;
   readonly nextDueDate: string;
 }
@@ -173,6 +174,7 @@ export function newAccountDraft(group: PreviewGroup, currency: CurrencyCode): Ac
           ...common,
           originalPrincipal: '',
           outstandingPrincipal: '',
+          emiAmount: '',
           startDate: '',
           nextDueDate: '',
         },
@@ -232,7 +234,7 @@ function changeCurrency(draft: AccountDraft, currency: CurrencyCode): AccountDra
       return {
         ...draft,
         currency,
-        fields: { ...draft.fields, originalPrincipal: '', outstandingPrincipal: '' },
+        fields: { ...draft.fields, originalPrincipal: '', outstandingPrincipal: '', emiAmount: '' },
       };
     case 'investment':
       return { ...draft, currency, fields: { ...draft.fields, investedCost: '', valuation: '' } };

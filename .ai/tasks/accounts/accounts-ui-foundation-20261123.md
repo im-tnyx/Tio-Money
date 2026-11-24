@@ -387,4 +387,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Codex verified the empty and populated states with the existing draft changes and source assertions. TypeScript, lint, Prettier, 159 app tests, 29 governance tests and Markdown links passed locally. Scope includes the Bank presentation, English strings, Accounts tests and the Accounts spec.
 - Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
 
+### 2026-11-24 — Loan EMI and Add Account polish
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-emi-input--proceed) records the Loan request at PR #97 head `0835840e638b466f847e10b34260344e8dcf8848`. Loan shows an optional EMI Amount after Opening Outstanding Principal using the draft currency. The amount clears on currency changes alongside the principal fields.
+- The previous `0835840` update set the decorative Bank empty-state link icon to 48 dp and removed the Account Group bottom-sheet X. Both PR workflows passed for that revision.
+- Codex verified the Loan form structure and currency reset behavior. Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

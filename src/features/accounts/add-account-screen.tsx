@@ -40,6 +40,7 @@ const fieldSpecs = {
     money: true,
     currencyControl: true,
   },
+  emiAmount: { label: 'accountLoanEmiAmount', money: true },
   startDate: { label: 'accountLoanStartDate', date: true },
   nextDueDate: { label: 'accountLoanNextDueDate', date: true },
   investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
@@ -321,6 +322,7 @@ function GroupFields({
             value={draft.fields.outstandingPrincipal}
             {...inputProps}
           />
+          <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...inputProps} />
           <DraftInput field="startDate" value={draft.fields.startDate} {...inputProps} />
           <DraftInput field="nextDueDate" value={draft.fields.nextDueDate} {...inputProps} />
         </>
