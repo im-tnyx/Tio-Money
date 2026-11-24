@@ -1,6 +1,9 @@
+import { useContext, useEffect, useRef } from 'react';
 import { TextInput, type TextInputProps } from 'react-native';
 
 import { useAppTheme } from '@/shared/theme/theme-provider';
+
+import { KeyboardFormFocusContext } from './keyboard-form-focus';
 
 export type AppTextFieldProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
   readonly appearance?: 'outlined' | 'borderless';
@@ -16,15 +19,37 @@ export function AppTextField({
   ...props
 }: AppTextFieldProps) {
   const theme = useAppTheme();
+  const focusBridge = useContext(KeyboardFormFocusContext);
+  const input = useRef<TextInput>(null);
   const borderless = appearance === 'borderless';
   const minHeight = theme.textField.minimumHeight;
   const growsWithText = borderless && props.multiline;
   const fontSize = theme.typeScale[textSize];
   const lineHeight = Math.ceil(fontSize * theme.typography.relativeLineHeight);
 
+  useEffect(() => {
+    const node = input.current;
+    return () => {
+      if (node) focusBridge?.blur(node);
+    };
+  }, [focusBridge]);
+
   return (
     <TextInput
       {...props}
+      ref={input}
+      onFocus={(event) => {
+        if (input.current) focusBridge?.focus(input.current);
+        props.onFocus?.(event);
+      }}
+      onBlur={(event) => {
+        if (input.current) focusBridge?.blur(input.current);
+        props.onBlur?.(event);
+      }}
+      onContentSizeChange={(event) => {
+        if (input.current && props.multiline) focusBridge?.resize(input.current);
+        props.onContentSizeChange?.(event);
+      }}
       placeholderTextColor={borderless ? theme.colors.inputPlaceholder : theme.colors.secondaryText}
       underlineColorAndroid={borderless ? 'transparent' : props.underlineColorAndroid}
       style={{

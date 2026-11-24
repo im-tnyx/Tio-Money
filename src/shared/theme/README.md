@@ -839,3 +839,7 @@ Bottom Sheet animation and swipe-to-Delete remain correct. If flash persists,
 investigate native window/fragment background and system bars, not a screen-level
 JS animation workaround. This section is authoritative over earlier Android
 slide statements retained above as a decision history.
+
+## Keyboard-aware Add Account forms — PR #97
+
+All six Add Account forms use [AppKeyboardForm](../ui/app-keyboard-form.tsx) with one vertical scroll viewport. The existing iOS keyboard padding and Android native resize are retained; no second keyboard inset is added. Shared [AppTextField](../ui/app-text-field.tsx) reports focus and multiline growth through an optional presentation context. The container measures the focused input and resized viewport, revealing only the necessary distance with the existing theme spacing. Focus changes, keyboard completion and layout changes trigger reevaluation; stale measurements are ignored and listeners/frames are cleaned up. Reduced Motion uses immediate scrolling. The existing Bottom Sheet keyboard contract is unchanged. Native device verification is required.
