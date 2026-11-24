@@ -20,7 +20,6 @@ import {
   AccountFormRow,
   AmountCurrencyChoices,
   CalendarDateMonthAndYear,
-  UnavailableAccountChoice,
 } from './account-form-controls';
 import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
 import { AccountDropdown } from './account-option-popup';
@@ -37,7 +36,6 @@ const fieldSpecs = {
   creditLimit: { label: 'accountCardCreditLimit', money: true, currencyControl: true },
   statementDate: { label: 'accountCardStatementDate', date: true, monthly: true },
   dueDate: { label: 'accountCardDueDate', date: true, monthly: true },
-  provider: { label: 'accountWalletProvider' },
   originalPrincipal: { label: 'accountLoanOriginalPrincipal', money: true },
   outstandingPrincipal: {
     label: 'accountLoanOutstandingPrincipal',
@@ -220,7 +218,6 @@ function AccountFields({
   draft,
   currencySymbol,
   currencyChoices,
-  showWalletFunding,
   choice,
   paymentSource,
   loanDates,
@@ -242,7 +239,6 @@ function AccountFields({
       ) : null}
       <GroupFields
         draft={draft}
-        showWalletFunding={showWalletFunding}
         paymentSource={paymentSource}
         loanDates={loanDates}
         {...inputProps}
@@ -309,7 +305,6 @@ function GroupFields({
   draft,
   currencySymbol,
   currencyChoices,
-  showWalletFunding,
   paymentSource,
   loanDates,
   onAction,
@@ -318,7 +313,6 @@ function GroupFields({
   | 'draft'
   | 'currencySymbol'
   | 'currencyChoices'
-  | 'showWalletFunding'
   | 'paymentSource'
   | 'loanDates'
   | 'onAction'
@@ -327,6 +321,7 @@ function GroupFields({
   switch (draft.group) {
     case 'cash':
     case 'bank':
+    case 'wallet':
       return (
         <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
       );
@@ -340,21 +335,7 @@ function GroupFields({
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
         </>
       );
-    case 'wallet':
-      return (
-        <>
-          <DraftInput field="provider" value={draft.fields.provider} {...inputProps} />
-          {showWalletFunding ? (
-            <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
-          ) : (
-            <UnavailableAccountChoice
-              label="accountWalletBank"
-              leading={<AccountFormIcon name="bank" />}
-              detail="accountWalletBankUnavailable"
-            />
-          )}
-        </>
-      );
+
     case 'loan':
       return (
         <>

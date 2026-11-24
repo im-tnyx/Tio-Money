@@ -25,7 +25,6 @@ import {
   isPreviewGroup,
   loanDirections,
   paymentModeAvailability,
-  walletKinds,
   type AccountChoiceAction,
   type AccountDraft,
   type AccountDraftChoice,
@@ -34,10 +33,6 @@ import {
 } from './account-form-contract';
 
 const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
-const walletLabels = {
-  funded: 'accountWalletFunded',
-  'bank-linked': 'accountWalletLinked',
-} as const;
 const investmentLabels = {
   stocks: 'accountInvestmentStocks',
   mutualFunds: 'accountInvestmentMutualFunds',
@@ -78,11 +73,6 @@ function draftChoice(
   }
 
   switch (draft.group) {
-    case 'wallet':
-      return choice('accountWalletKind', walletKinds, walletLabels, draft.walletKind, (value) => ({
-        type: 'wallet.kind',
-        value,
-      }));
     case 'loan':
       return choice(
         'accountLoanDirection',
@@ -196,12 +186,11 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
           currencySymbol:
             CURRENCY_OPTIONS.find(({ code }) => code === draft.currency)?.symbol ?? draft.currency,
           currencyChoices:
-            accountCurrencyChoices(draft, currencies)?.map((value) => ({
+            accountCurrencyChoices(currencies)?.map((value) => ({
               value,
               label: value,
               symbol: CURRENCY_OPTIONS.find(({ code }) => code === value)?.symbol ?? value,
             })) ?? null,
-          showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
           choice: draftChoice(draft, current.choicePickerOpen, dispatch),
           // RFC #98: real account projection and link policy are not enabled yet.
           paymentSource: null,

@@ -118,7 +118,7 @@ export function updateAccountAddSession(
         session.groupPicker !== 'closed' ||
         session.choicePickerOpen ||
         session.datePicker ||
-        (active?.group !== 'wallet' && active?.group !== 'loan' && active?.group !== 'investment')
+        (active?.group !== 'loan' && active?.group !== 'investment')
       ) {
         return session;
       }

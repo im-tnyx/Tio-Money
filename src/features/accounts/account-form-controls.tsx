@@ -323,6 +323,7 @@ export function AccountChoices({
   readonly compact?: boolean;
 }) {
   const theme = useAppTheme();
+  const compactLabelSize = theme.segmentedControl.compactOptionLabelSize;
   const choices = options.map((option) => {
     const { selected, onSelect } = option;
     const disabled = !onSelect;
@@ -364,10 +365,8 @@ export function AccountChoices({
               muted={disabled || !selected}
               numberOfLines={1}
               style={{
-                fontSize: theme.segmentedControl.compactOptionLabelSize,
-                lineHeight: Math.ceil(
-                  theme.segmentedControl.compactOptionLabelSize * theme.typography.relativeLineHeight,
-                ),
+                fontSize: compactLabelSize,
+                lineHeight: Math.ceil(compactLabelSize * theme.typography.relativeLineHeight),
               }}
             >
               {option.label}
@@ -414,34 +413,6 @@ export function AccountChoices({
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={t(label)}>
       {choices}
-    </View>
-  );
-}
-
-export function UnavailableAccountChoice({
-  label,
-  leading,
-  detail,
-}: {
-  readonly label: TranslationKey;
-  readonly leading: ReactNode;
-  readonly detail: TranslationKey;
-}) {
-  const theme = useAppTheme();
-  return (
-    <View>
-      <AccountFormRow label={label} leading={leading}>
-        <AppText muted numberOfLines={1} style={{ includeFontPadding: false }}>
-          {t('accountOptionUnavailable')}
-        </AppText>
-      </AccountFormRow>
-      <AppText
-        variant="caption"
-        muted
-        style={{ marginStart: theme.iconRoles.textField + theme.space.sm }}
-      >
-        {t(detail)}
-      </AppText>
     </View>
   );
 }
