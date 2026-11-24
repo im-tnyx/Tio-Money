@@ -1,4 +1,5 @@
 export type PopupPlacement = 'auto' | 'above';
+export type PopupAlign = 'start' | 'end';
 
 export interface PopupAnchor {
   readonly x: number;
@@ -22,12 +23,14 @@ export function popupPosition(
     preferredWidth,
     preferredHeight,
     placement = 'auto',
+    align = 'end',
   }: {
     readonly margin: number;
     readonly gap: number;
     readonly preferredWidth: number;
     readonly preferredHeight: number;
     readonly placement?: PopupPlacement;
+    readonly align?: PopupAlign;
   },
 ) {
   const left = insets.left + margin;
@@ -41,10 +44,11 @@ export function popupPosition(
   const aboveSpace = above - top;
   const openAbove =
     placement === 'above' || (belowSpace < preferredHeight && aboveSpace > belowSpace);
+  const alignedLeft = align === 'start' ? anchor.x : anchor.x + anchor.width - width;
 
   return {
     width,
-    left: Math.max(left, Math.min(anchor.x + anchor.width - width, right - width)),
+    left: Math.max(left, Math.min(alignedLeft, right - width)),
     maxHeight: Math.max(0, openAbove ? aboveSpace : belowSpace),
     ...(openAbove ? { bottom: viewport.height - above } : { top: below }),
   };
