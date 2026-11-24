@@ -1,4 +1,5 @@
 import type { CurrencyCode, CurrencyPreferences } from '@/shared/currency/currency-preference';
+import type { TranslationKey } from '@/shared/i18n/strings';
 
 export const previewGroups = [
   'cash',
@@ -334,6 +335,27 @@ export interface AddAccountViewModel {
   readonly canAddMode: boolean;
   readonly canApplyMode: boolean;
   readonly availableModeTypes: readonly PaymentModeType[];
-  readonly animateSheet: boolean;
   readonly onAction: (action: AccountFormAction) => void;
+}
+
+export interface AccountGroupChoice {
+  readonly id: PreviewGroup | 'insurance';
+  readonly label: TranslationKey;
+  readonly detail: TranslationKey;
+  readonly status?: TranslationKey;
+  readonly checked: boolean;
+  readonly onSelect?: () => void;
+}
+
+export interface AddAccountSheetViewModel {
+  readonly visible: boolean;
+  readonly animate: boolean;
+  readonly form: AddAccountViewModel | null;
+  readonly selectedLabel: TranslationKey;
+  readonly groupPicker: {
+    readonly choices: readonly AccountGroupChoice[];
+    readonly onDismiss: () => void;
+  } | null;
+  readonly onOpenGroupPicker: () => void;
+  readonly onDismiss: () => void;
 }

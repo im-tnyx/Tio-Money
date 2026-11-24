@@ -277,4 +277,17 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Changed paths besides the task and index are `src/features/accounts/add-account-screen.tsx` and `tests/accounts/accounts-preview.test.ts`.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual and navigation QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Merge authorization NOT_GRANTED.
 
+### 2026-11-24T05:37Z — Stacked Add Account bottom sheets
+
+- [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7112159681) records the owner’s request against verified starting HEAD `a8a92aa60940ff60c7451694f659bdb21977e0a5` and live `main` `6468b62786d56edb1a70b7a5c90146e17566e23b`. On resuming, GitHub’s timeline showed `im-tnyx` marked #97 Ready for Review at `2026-11-23T20:00:41Z`. Preserve that owner change. The PR was open with no auto-merge request or submitted reviews.
+- Accounts + opens a shared Add Account sheet. Group starts at Select above Account Name. Group choices and the Bank Add/Edit Payment Mode editor use the same native modal host above the retained form. Back, accessibility escape and backdrop dismissal go to the top sheet first. Long forms expand within the top safe area and scroll above the keyboard. Separate in-memory group drafts retain fields, payment modes and their currency guards until Add Account closes. Insurance remains informational. Save and Auto Pay stay disabled.
+- `npm run check` passed TypeScript, ESLint, Prettier, 155 app tests and 71 preview tests. One CI-only signature test skipped locally. `node --import tsx --test --test-isolation=none tests/accounts/accounts-preview.test.ts tests/phase0/{account-group-display-preferences,tab-crossfade,bottom-sheet-layout,shared-bottom-sheet}.test.ts` passed 52 targeted tests. `CI=1 EXPO_OFFLINE=1 EXPO_NO_TELEMETRY=1 node_modules/.bin/expo export --platform android --platform ios --output-dir /tmp/tio97-add-account-sheet-native --max-workers 2` exported both bundles. `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/governance` passed 29 tests. `python3 scripts/ai_context.py check-links` and `git diff --check` passed. See RFC #96 for the exact published SHA, attribution audit and required checks.
+- Changed paths beyond this record and the index:
+  - `docs/product/ACCOUNT-GROUPS-SPEC.md`
+  - `src/app/_layout.tsx` and `src/app/add-account/[group].tsx` (removed route)
+  - `src/features/accounts/account-add-session.ts`, `account-form-contract.ts`, `account-group-picker.tsx`, `account-picker.ts` (removed), `accounts-route.tsx`, `accounts-screen.tsx`, `add-account-route.tsx` (removed), `add-account-screen.tsx`, `bank-payment-modes.tsx`, `index.ts` and `use-add-account-sheet.ts`
+  - `src/shared/i18n/strings.ts` and `src/shared/ui/app-bottom-sheet.tsx`
+  - `tests/accounts/accounts-preview.test.ts` and `tests/phase0/{account-group-display-preferences,bottom-sheet-layout,shared-bottom-sheet,tab-crossfade}.test.ts`
+- Source self-review PERFORMED. Independent review DEFERRED. Physical-device checks for keyboard, safe area, Back, drag and screen-reader focus are pending. Finance RFC #98 remains DECISION_PENDING. Merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

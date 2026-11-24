@@ -107,7 +107,7 @@ test('Add Account Group sheet has only Save; dismissal remains on shared shell',
   assert.doesNotMatch(screen, /variant="secondary"/);
   assert.match(screen, /onDismiss=\{\(\) => onAction\(\{ type: 'custom\.dismiss' \}\)\}/);
   assert.match(screen, /dismissAccessibilityLabel=\{t\('accountGroupsCancel'\)\}/);
-  assert.match(modal, /onRequestClose=\{onDismiss\}/);
+  assert.match(modal, /onRequestClose=\{overlay\?\.onDismiss \?\? onDismiss\}/);
   assert.match(modal, /onAccessibilityEscape=\{onDismiss\}/);
   assert.match(modal, /onPress=\{onDismiss\}/);
   assert.doesNotMatch(screen, /<TextInput|<Modal|style=\{\{[^}]*fontSize:/);
