@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +12,7 @@ import {
   requireDedicatedPreviewCodespace,
 } from '../../.github/scripts/verify-pr-preview-codespace.mjs';
 import { requireImmutablePRChangedPaths } from '../../.github/scripts/verify-pr-preview-pr-snapshot.mjs';
+import { checkedManagedRecord, retryStartup, withStartupLock } from '../../scripts/start-codespace-expo.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -336,55 +338,116 @@ test('privileged Codespaces worker verifies preview-only identity before startin
   assert.equal(worker.match(/node \.github\/scripts\/verify-pr-preview-codespace\.mjs/g)?.length, 2);
 });
 
-test('already-running Codespaces HTTP 409 is the only tolerated start API failure', () => {
+function runCodespaceActivation(dir, { initial = 'Stopped', start = 'ok', poll = 'ready' } = {}) {
   const step = worker.indexOf('      - name: Discover and start only the verified preview-only Codespace');
-  const start = worker.indexOf('          if [[ "$state" != "Available" ]]; then', step);
-  const loop = worker.indexOf('          for attempt in $(seq 1 120); do', start);
-  assert.ok(step >= 0 && start > step && loop > start);
-  const startScript = worker.slice(start, loop);
-  assert.ok(startScript.includes('gh api --method POST "/user/codespaces/${codespace}/start"'));
-  assert.ok(startScript.includes('gh: The codespace is already running (HTTP 409)'));
-  assert.ok(startScript.includes('exit 1'));
-  assert.ok(!startScript.includes('|| true'));
-  assert.ok(worker.indexOf('verify-pr-preview-codespace.mjs', loop) > loop);
-  assert.ok(worker.includes('if [[ "$state" == "Deleted" ]]; then'));
+  const begin = worker.indexOf('          if [[ "$state" != "Available" ]]; then', step);
+  const end = worker.indexOf('      - name: Reuse an already healthy exact-SHA preview', begin);
+  assert.ok(step >= 0 && begin > step && end > begin);
   const script = [
     'set -euo pipefail',
     'codespace=dedicated-preview-only',
+    'PREFERRED_CODESPACE="$codespace"',
+    'PREFERRED_CODESPACE_ID=123456',
+    'selected_json="$TEST_DIR/codespace.json"',
+    'GITHUB_OUTPUT="$TEST_DIR/output"',
+    ': > "$GITHUB_OUTPUT"',
     'state="$INITIAL_STATE"',
     'PR_READ_TOKEN=test-token',
+    'poll_count=0',
     'env() { [[ "$*" == *recheck-codespaces-preview.sh ]]; }',
-    'gh() {',
-    '  [[ "$1" == api && "$2" == --method && "$3" == POST ]] || return 89',
-    '  [[ "$4" == "/user/codespaces/${codespace}/start" ]] || return 90',
-    '  case "$MOCK_RESULT" in',
-    '    ok) return 0 ;;',
-    '    already) echo "gh: The codespace is already running (HTTP 409)" >&2; return 1 ;;',
-    '    other409) echo "gh: The codespace is transitioning (HTTP 409)" >&2; return 1 ;;',
-    '    forbidden) echo "gh: Forbidden (HTTP 403)" >&2; return 1 ;;',
-    '    *) return 91 ;;',
-    '  esac',
+    'sleep() { SECONDS=$((SECONDS + $1)); }',
+    'timeout() {',
+    '  [[ "$1" == --kill-after=1s && "$2" =~ ^[0-9]+s$ ]] || return 87',
+    '  local budget=${2%s}',
+    '  shift 2',
+    '  if [[ "$MOCK_POLL" == "hung" ]]; then',
+    '    SECONDS=$((SECONDS + budget)); return 124',
+    '  fi',
+    '  "$@"',
     '}',
-    startScript,
-    'echo VERIFIED_LOOP_REACHED',
+    'gh() {',
+    '  [[ "$1" == api ]] || return 89',
+    '  if [[ "$2" == --method && "$3" == POST ]]; then',
+    '    [[ "$4" == "/user/codespaces/${codespace}/start" ]] || return 90',
+    '    case "$MOCK_START" in',
+    '      ok) return 0 ;;',
+    '      already) echo "gh: The codespace is already running (HTTP 409)" >&2; return 1 ;;',
+    '      other409) echo "gh: The codespace is transitioning (HTTP 409)" >&2; return 1 ;;',
+    '      forbidden) echo "gh: Forbidden (HTTP 403)" >&2; return 1 ;;',
+    '      *) return 91 ;;',
+    '    esac',
+    '  fi',
+    '  [[ "$2" == "/user/codespaces/${codespace}" ]] || return 92',
+    '  local polled=Starting name="$codespace"',
+    '  poll_count=$((poll_count + 1))',
+    '  case "$MOCK_POLL" in',
+    '    ready) if (( poll_count > 1 )); then polled=Available; fi ;;',
+    '    never) SECONDS=$((SECONDS + 137)) ;;',
+    '    deleted) polled=Deleted ;;',
+    '    foreign) polled=Available; name=wrong-codespace ;;',
+    '    error) return 93 ;;',
+    '  esac',
+    '  printf \'{"name":"%s","id":123456,"state":"%s","display_name":"Tio Money PR Preview Only","repository":{"full_name":"im-tnyx/Tio-Money"},"owner":{"login":"im-tnyx"}}\\n\' "$name" "$polled"',
+    '}',
+    worker.slice(begin, end),
   ].join('\n');
-  const run = (initial, outcome) => spawnSync('bash', ['-c', script], {
-    encoding: 'utf8',
-    env: { ...process.env, INITIAL_STATE: initial, MOCK_RESULT: outcome },
+  const result = spawnSync('bash', ['-c', script], {
+    cwd: root, encoding: 'utf8', timeout: 10_000,
+    env: { ...process.env, TEST_DIR: dir, INITIAL_STATE: initial, MOCK_START: start, MOCK_POLL: poll },
   });
-  const accepted = run('Starting', 'already');
-  assert.equal(accepted.status, 0, accepted.stderr);
-  assert.match(accepted.stdout, /VERIFIED_LOOP_REACHED/);
-  assert.match(accepted.stdout, /rechecking verified availability/);
-  assert.equal(run('Starting', 'ok').status, 0);
-  assert.equal(run('Available', 'forbidden').status, 0, 'already available skips start');
-  for (const bad of ['other409', 'forbidden']) {
-    const rejected = run('Starting', bad);
-    assert.equal(rejected.status, 1, bad);
-    assert.doesNotMatch(rejected.stdout, /VERIFIED_LOOP_REACHED/);
-    assert.match(rejected.stdout, /refusing to bypass an unexpected failure/);
-  }
+  return { ...result, output: readFileSync(join(dir, 'output'), 'utf8') };
+}
+
+test('only the exact already-running 409 can continue to verified availability', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tio-codespace-start-'));
+  try {
+    const accepted = runCodespaceActivation(dir, { initial: 'Starting', start: 'already' });
+    assert.equal(accepted.status, 0, accepted.stderr);
+    assert.match(accepted.stdout, /rechecking verified availability/);
+    assert.equal(accepted.output, 'name=dedicated-preview-only\n');
+    assert.equal(runCodespaceActivation(dir, { initial: 'Available', start: 'forbidden' }).status, 0);
+    for (const start of ['other409', 'forbidden']) {
+      const rejected = runCodespaceActivation(dir, { initial: 'Starting', start });
+      assert.equal(rejected.status, 1);
+      assert.equal(rejected.output, '');
+      assert.match(rejected.stdout, /refusing to bypass an unexpected failure/);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('polling fails closed on elapsed time, hung requests, wrong identity and API errors', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tio-codespace-timeout-'));
+  try {
+    for (const [poll, reason] of [
+      ['never', /START_TIMEOUT/], ['hung', /START_TIMEOUT/],
+      ['foreign', /isolation gate denied/], ['deleted', /was deleted/], ['error', /check failed/],
+    ]) {
+      const result = runCodespaceActivation(dir, { start: 'already', poll });
+      assert.equal(result.status, 1, poll);
+      assert.equal(result.output, '', poll);
+      assert.match(result.stdout + result.stderr, reason, poll);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('stopped Codespace must reach verified Available before manual stale-record recovery starts Metro', { skip: process.platform !== 'linux' }, async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tio-codespace-stale-'));
+  try {
+    const result = runCodespaceActivation(dir);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.output, 'name=dedicated-preview-only\n');
+    const record = join(dir, 'metro.json');
+    writeFileSync(record, JSON.stringify({ pid: 2147483647, startTicks: '123', port: 8083 }), { mode: 0o600 });
+    await withStartupLock(dir, async () => {
+      assert.equal(await checkedManagedRecord(true, record, async (port) => assert.equal(port, 8083)), null);
+      await retryStartup(async () => {
+        assert.equal(existsSync(record), false, 'stale state must be cleared before the startup mock');
+        return null;
+      }, true);
+    });
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
 test('dedicated preview identity gate fails closed for owner editing Codespace and spoofed metadata', () => {
   const previewName = 'dedicated-preview-abc123';
   const previewId = '123456';

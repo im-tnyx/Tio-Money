@@ -1,14 +1,33 @@
 # Tio Money — Expo PR review: OTA updates and internal builds
 
-## Proposed unified entry (RFC #87, feature PR unmerged)
+## Run workflow on main
 
-The existing **TIO MONEY EXPO PR REVIEW** workflow gains `codespaces_live` as its default operation alongside `publish_update` and `build_preview`, with `android`/`ios`/`all` platform choices. For Codespaces, the platform selects a Metro source-map probe on the existing Expo Go tunnel; it does not queue a build or publish an update. The form accepts a strict positive integer PR number. Codespaces permits the selected labeled owner PR to be Draft; EAS continues to require non-Draft, approved source-only paths, exact project identity, signing configuration and the locked EAS CLI signature audit. EAS is never reached by automatic pushes, and its `EXPO_TOKEN` stays confined to its existing separate Environment/job. See [Codespaces preview](PR-CODESPACES-PREVIEW.md) for automatic syncing, recovery, limitations and manual device verification. No live action is authorized by this documentation.
+The [preview workflow proposal](https://github.com/im-tnyx/Tio-Money/issues/102) changes the Actions display name to **TIO MONEY EXPO PR PREVIEW**. The existing [workflow file](../.github/workflows/tio-money-eas-pr-preview.yml) and the automatic Codespaces push signal keep their identifiers. The form takes a positive integer `pr_number` for an open owner-authored PR in this repository targeting `main`. Select `android`, `ios` or `all` (default).
+
+| Operation | Eligible PR | Destination |
+|---|---|---|
+| `codespaces_live` (default) | Draft or ready, with the `tio-preview` label | Existing Expo Go Codespace tunnel and platform source probe |
+| `publish_update` | Ready | EAS Update branch `pr-preview` |
+| `publish_draft_update` | Draft | Unmapped EAS Update branch `pr-draft-<PR_NUMBER>` |
+| `build_preview` | Ready | Existing EAS internal preview build profile |
+
+EAS runs only on an owner manual dispatch from trusted `main`. Selection and validation use read-only GitHub access and no Expo credentials. The separate publishing runner uses the existing trusted Environment and pinned EAS CLI. Its final operation receives `EXPO_TOKEN`. See [Codespaces preview](PR-CODESPACES-PREVIEW.md) for automatic push behavior and live Expo Go verification.
+
+## Load a Draft OTA update
+
+1. Use a separate development build of the existing Tio Money Expo project, with `expo-dev-client` and `expo-updates` already installed. The installed build must match the update's platform and native runtime fingerprint. Confirm the build uses the Tio Money updates project and has development-client support. The current repo does not declare `expo-dev-client` or a development build profile, and a matching device build has not been verified. Provisioning such a native client, if needed, requires separate approval. Adding a native library can change the fingerprint, so use a compatible build/update pair from the approved native baseline.
+2. After a separately authorized Draft OTA publication, open the **Expo group** link in the GitHub Actions summary. Sign in with an Expo account that has access to the project, choose **Preview**, then scan the QR with the device camera or open the matching simulator/emulator with Expo Orbit. In the development build, the signed-in **Extensions** tab also lets you choose the per-PR branch and update. Match the exact group ID so a later push cannot change which update you test. [Expo development build preview guide](https://docs.expo.dev/eas-update/expo-dev-client/)
+3. Check that the selected screen loads on each requested device. The summary records the PR, full SHA, platform, branch, native runtime, update ID and dashboard group URL. The workflow does not edit Expo channel mappings. Expo Go uses `codespaces_live`. An installed build on the shared `pr-preview` channel continues to use its existing channel mapping.
+
+Draft eligibility and the captured head and base are checked again immediately before publish. The action checks the EAS branch and its channel mappings before and after the publish attempt. A mapping detected before publication blocks it. `DRAFT_POST_PUBLISH_ISOLATION_FAILED` means an update may already exist. Inspect the named Expo branch and its channel mappings before retrying or sharing the preview. These are read-only inventory checks. GitHub validation, Expo inventory reads and Expo publication are separate requests and cannot be atomic. A brief change between checks can go undetected, and a failed post-check cannot undo an already published update. Keep the PR Draft and its EAS branch unmapped during publication.
+
+The secretless validation job independently resolves a managed native runtime fingerprint for each requested platform from the locked Expo dependencies. The pinned EAS CLI resolves its own runtimes at publication. The action compares every returned runtime with the matching platform's validated fingerprint. `DRAFT_RUNTIME_MISMATCH` identifies the platform, fingerprint and update group to inspect. An EAS preview environment that changes native configuration can cause a mismatch after the update already exists. The draft bundle is exported without Expo credentials or EAS environment variables. Use Draft OTA for UI changes that do not depend on EAS environment variables at bundle time.
 
 ### Historical 20 November checkpoint
 
 > **Current status: 20 November 2026.** This is the living guide for the **existing** Expo project `@tnyx-23/tio-money`, not Tio-Workspace. GitHub PRs [#4](https://github.com/im-tnyx/Tio-Money/pull/4), [#5](https://github.com/im-tnyx/Tio-Money/pull/5), and [#11](https://github.com/im-tnyx/Tio-Money/pull/11) are **MERGED** into `main`. [PR #12](https://github.com/im-tnyx/Tio-Money/pull/12) is **OPEN / NOT MERGED** and proposes the new operation/platform choices; [PR #10](https://github.com/im-tnyx/Tio-Money/pull/10) is **OPEN / NOT MERGED** and covers a separate privileged Codespaces preview worker. **No merge or EAS dispatch is authorized by this guide.** All of these are live GitHub states checked while updating this guide, not assertions that any build or OTA has been published.
 
-## 1. What the Run workflow form will show
+## Historical PR #12 form proposal
 
 After PR #12 is **separately approved and merged** into trusted `main`, GitHub Actions will display **TIO MONEY EXPO PR REVIEW** with the following inputs:
 
@@ -28,7 +47,7 @@ The two dropdowns are **independent**. `all` selects both Android and iOS for th
 
 **Current `main` differs:** The trusted, already-merged workflow on `main` still has the former name `Tio Money manual EAS PR preview` and only a `pr_number` input. **PR #12 must first pass security review and receive separate owner merge authorization.** Selecting the PR #12 feature branch in the workflow menu is not a workaround for its trusted-main gate.
 
-## 2. Current project build readiness — not yet authorized
+## Internal build prerequisites
 
 The native/internal preview build path is **source-implemented but not operationally ready** because the current `app.json` deliberately has neither:
 
@@ -41,7 +60,7 @@ The existing `eas.json` already specifies `cli.version=27.4.1`, `build.preview.d
 
 **Important policy:** The same restrictive `src/*|assets/*` changed-path allowlist applies to **both** operations. PRs that alter `app.json`, `eas.json`, native directories, dependencies, workflows or tooling must pass their **own** security/merge review first and are **not eligible** as the `pr_number` for this credential-bearing workflow. After such platform configuration is merged, prepare a **separate eligible source-only PR** to test build and OTA against reviewed native settings.
 
-## 3. Existing Expo Go experience is different
+## Existing Expo Go experience
 
 The owner reported and demonstrated that **iPhone Expo Go → Projects → Tio Money** opens the app and displays the Phase 0 five-tab shell. Record this as **OWNER-VERIFIED IPHONE PROJECTS-LAUNCH PASS**, not as proof of an OTA release or EAS Build. Earlier Android Expo Go Phase 0 device acceptance was also owner reported; do not invent device build IDs, SDK/runtime fingerprints or native signing QA.
 
@@ -49,7 +68,7 @@ The **Expo Go Projects / Development Servers** experience can depend on a live a
 
 Do not claim an EAS Update group exists merely because PR #11 was merged or because Expo Go displayed the app. The last screenshot of empty Update groups was historical; **current remote Update groups have not been independently checked for this guide**.
 
-## 4. Security gates and usage sequence
+## Historical PR #12 security gates and usage sequence
 
 1. **Review/merge the workflow source separately.** PR #12 is open; merge requires a fresh, explicit owner instruction identifying `im-tnyx/Tio-Money`, PR #12, and permission to merge after checks and known findings are satisfied. Any new changes must pass GitHub Phase 0 / Governance CI on their exact final SHA. Independent security review of a credential-bearing build/publish workflow is strongly recommended.
 2. **Before first actual build:** approve Android/iOS application identifiers in a separate platform-config PR, merge after independent review, configure the relevant signing credentials in EAS and provision any required iOS internal distribution devices. Verify the exact Tio-Money EAS account/project and expected costs/quotas. Verify `tio-money-eas-preview-trusted` has main-only Environment restrictions and a minimally scoped `EXPO_TOKEN`; these settings are not established by source CI.
@@ -59,7 +78,7 @@ Do not claim an EAS Update group exists merely because PR #11 was merged or beca
 
 The workflow retains owner-only GitHub `actor` and `triggering_actor` checks, `run_attempt == 1`, `main` only, open same-repo PR validation, immutable SHA checkout, app owner/slug/EAS project UUID verification, and the strict PR path policy. GitHub's token is read-only for repo/PR access. `EXPO_TOKEN` is **absent during checkout, dependency installation, source tests and EAS CLI integrity verification** and exists only in the final dispatch operation step. GitHub Actions `checkout` and `setup-node` use immutable commit SHAs and EAS CLI `27.4.1` has an isolated committed npm dependency lock, SHA512 registry integrity checks and `npm audit signatures`. A trusted workflow is still an external distribution surface: the account, remote credentials and server-side behavior require live verification.
 
-## 5. Source of record and historical review notes
+## Source of record and historical review notes
 
 - **Project identity:** Expo owner `tnyx-23`, slug `tio-money`, project ID `722e6857-1159-4414-a024-6a4351e7d3e1` and update URL `https://u.expo.dev/722e6857-1159-4414-a024-6a4351e7d3e1`. These must not drift or be copied from Tio-Workspace.
 - **Historical merged foundation:** [PR #5](https://github.com/im-tnyx/Tio-Money/pull/5) introduced the reviewed `expo-updates` configuration, internal preview profile, manual owner-gated OTA workflow and pinned EAS CLI; its old **OPEN / stacked draft / not on main** status is obsolete. For the chronological P2 fixes (mutable `eas-cli@latest`, retry actor, pinned Actions and committed lock), use [the original task record](../.ai/tasks/preview/eas-preview-updates-20261119.md) and [RFC #3](https://github.com/im-tnyx/Tio-Money/issues/3).
@@ -67,6 +86,6 @@ The workflow retains owner-only GitHub `actor` and `triggering_actor` checks, `r
 - **Separate Codespaces track:** [PR #10](https://github.com/im-tnyx/Tio-Money/pull/10) is a different, privileged main-only preview worker with its own pending security and owner merge gates. It does not control OTA build/update release and must not be silently merged or activated as part of PR #12.
 
 **Rollback:** Keep the app/Expo identity and any production signing unchanged. If the new form/CI policy is incorrect, revert the PR #12 workflow changes through an authorized reviewed GitHub PR; do not force-push `main`, delete credentials, reset another Codespace, or modify Tio-Workspace.
-# PR #88 review correction — EAS runner isolation
+## Historical PR #88 review correction
 
 The unified manual entry selects the owner/non-Draft PR and immutable SHA in a **secretless selection job** without PR checkout. Another secretless runner checks that SHA, project identity, changed-path allowlist, signing conditions, dependency compatibility and tests. A separate fresh runner in `tio-money-eas-preview-trusted` then checks the current PR against the selection job's SHA and repeats the identity, source and signing gates before installing locked dependencies with lifecycle scripts disabled and verifying the committed EAS CLI. PR tests cannot rewrite the selection job's output. `EXPO_TOKEN` is passed only to the final EAS operation step on that runner. Codespaces remains in its own environment and automatic pushes cannot reach either EAS operation. The EAS publishing/building path itself has not been dispatched for this Draft PR; exact-HEAD CI checks workflow source and tests, not a live EAS operation.
