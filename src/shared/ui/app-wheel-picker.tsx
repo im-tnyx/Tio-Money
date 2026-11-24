@@ -104,20 +104,24 @@ export function AppWheelPicker({
     [rowHeight, select],
   );
 
-  // The listener only emits integer selection changes. It never updates the animation value.
-  // Native scroll and native transforms use the same event on Android/iOS.
+  // Native scroll and transforms share an offset. Observe selection separately
+  // after commit; the event factory must not read interaction refs during render.
   const onScroll = useMemo(
     () =>
       Animated.event([{ nativeEvent: { contentOffset: { y: offset } } }], {
         useNativeDriver: Platform.OS !== 'web',
-        listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-          if (interacting.current || (Platform.OS === 'web' && didLayout.current)) {
-            selectFromScroll(event);
-          }
-        },
       }),
-    [offset, selectFromScroll],
+    [offset],
   );
+
+  useEffect(() => {
+    const subscription = offset.addListener(({ value }) => {
+      if (interacting.current || (Platform.OS === 'web' && didLayout.current)) {
+        select(Math.round(value / rowHeight));
+      }
+    });
+    return () => offset.removeListener(subscription);
+  }, [offset, rowHeight, select]);
 
   useEffect(() => {
     const echoed = pendingEchoes.current.delete(selected);
@@ -191,10 +195,7 @@ export function AppWheelPicker({
         contentContainerStyle={{ paddingVertical: padding }}
       >
         {options.map((option, index) => (
-          <Animated.View
-            key={option.value}
-            style={[{ height: rowHeight }, projections[index]]}
-          >
+          <Animated.View key={option.value} style={[{ height: rowHeight }, projections[index]]}>
             <Pressable
               accessible={false}
               onPress={() => selectAndAlign(index)}

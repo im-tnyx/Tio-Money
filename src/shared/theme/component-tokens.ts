@@ -85,7 +85,7 @@ export const optionPopupTokens = {
 
 /** Cylindrical projection roles for reusable scrolling wheels. */
 export const wheelPickerTokens = {
-  anglePerRow: 34,
+  anglePerRow: 22,
   maximumAngle: 84,
   fadeDistance: 4,
   sampleStep: 0.25,
