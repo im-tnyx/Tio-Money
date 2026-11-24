@@ -646,4 +646,10 @@ The entries below record implementation history at their stated revisions; super
 - Preview: Billing Cycle Start Date and Payment Due Date use `AppDayOfMonthField` (01–31 wheel, above-only popup). Draft values remain padded day strings. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
+### 2026-11-25 — Credit Card day wheel loop, width, left align
+
+- Owner direction: Day wheel must loop (31 → 01 → 02…); widen the popup card a bit; position above the field left-aligned like the date popup.
+- Preview: looping `monthDayWheelCount` drum, `dayPickerWidth` 148 dp, `align="start"`. No finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

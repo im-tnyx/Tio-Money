@@ -97,7 +97,7 @@ export const wheelPickerTokens = {
 
 export const datePickerTokens = {
   width: size.dp100 * 3 + space.md,
-  dayPickerWidth: size.dp100 + space.md,
+  dayPickerWidth: size.dp100 + size.dp48,
   rowHeight: size.dp32,
   paddingHorizontal: space.xs,
   paddingVertical: size.dp6,

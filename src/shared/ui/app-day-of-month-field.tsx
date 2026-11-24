@@ -7,10 +7,23 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppPopupCard } from './app-popup-card';
 import { AppText } from './app-text';
 import { AppWheelPicker } from './app-wheel-picker';
-import { encodeMonthDay, monthDayCount, parseMonthDay } from './month-day';
+import {
+  encodeMonthDay,
+  initialMonthDayWheelIndex,
+  monthDayFromWheelIndex,
+  monthDayWheelCount,
+  parseMonthDay,
+} from './month-day';
 import { fitPopupRows } from './popup-position';
 
-export { encodeMonthDay, monthDayCount, parseMonthDay } from './month-day';
+export {
+  encodeMonthDay,
+  initialMonthDayWheelIndex,
+  monthDayFromWheelIndex,
+  monthDayCount,
+  monthDayWheelCount,
+  parseMonthDay,
+} from './month-day';
 
 export interface AppDayOfMonthFieldModel {
   readonly value: string;
@@ -18,7 +31,8 @@ export interface AppDayOfMonthFieldModel {
   readonly dayIndex?: number | undefined;
   readonly onOpen: () => void;
   readonly onClose: () => void;
-  readonly onChange: (day: number) => void;
+  /** Absolute looping wheel index; civil day is derived by modulo 31. */
+  readonly onChange: (wheelIndex: number) => void;
 }
 
 /** Monthly day field: one Day wheel, with an “of every month” display suffix. */
@@ -41,7 +55,7 @@ export function AppDayOfMonthField({
   if (day === null) return null;
 
   const display = encodeMonthDay(day);
-  const physicalDay = dayIndex ?? day - 1;
+  const physicalDay = dayIndex ?? initialMonthDayWheelIndex(day);
   const rowHeight = Math.max(
     theme.datePicker.rowHeight,
     Math.ceil(theme.typeScale.section * viewport.fontScale * theme.typography.relativeLineHeight) +
@@ -64,6 +78,7 @@ export function AppDayOfMonthField({
       onClose={onClose}
       preferredWidth={theme.datePicker.dayPickerWidth}
       placement="above"
+      align="start"
       preferredHeight={rowHeight * theme.datePicker.visibleRows + verticalInsets}
       minimumHeight={rowHeight * theme.datePicker.minimumRows + verticalInsets}
       trigger={
@@ -137,10 +152,10 @@ export function AppDayOfMonthField({
               <AppWheelPicker
                 key={`month-day-${wheelKey}`}
                 label={t('accountDateDay')}
-                count={monthDayCount}
-                labelAt={(index) => encodeMonthDay(index + 1)}
+                count={monthDayWheelCount}
+                labelAt={(index) => encodeMonthDay(monthDayFromWheelIndex(index))}
                 value={physicalDay}
-                onChange={(index) => onChange(index + 1)}
+                onChange={onChange}
                 rowHeight={rowHeight}
                 visibleRows={visibleRows}
               />

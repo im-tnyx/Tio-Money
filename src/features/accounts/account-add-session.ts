@@ -11,7 +11,13 @@ import {
   type CalendarPart,
 } from '@/shared/ui/calendar-date';
 
-import { encodeMonthDay, parseMonthDay } from '@/shared/ui/month-day';
+import {
+  encodeMonthDay,
+  initialMonthDayWheelIndex,
+  monthDayFromWheelIndex,
+  monthDayWheelCount,
+  parseMonthDay,
+} from '@/shared/ui/month-day';
 
 import {
   isCardMonthDayField,
@@ -185,7 +191,7 @@ export function updateAccountAddSession(
           datePicker: {
             field: action.field,
             id,
-            dayIndex: day - 1,
+            dayIndex: initialMonthDayWheelIndex(day),
             monthIndex: 0,
           },
           datePickerEpoch: id,
@@ -204,11 +210,17 @@ export function updateAccountAddSession(
         isCardMonthDayField(picker.field) &&
         action.part === 'day'
       ) {
-        if (!Number.isInteger(action.value) || action.value < 1 || action.value > 31) {
+        if (
+          !Number.isInteger(action.value) ||
+          action.value < 0 ||
+          action.value >= monthDayWheelCount
+        ) {
           return session;
         }
-        const value = encodeMonthDay(action.value);
-        if (value === active.fields[picker.field]) return session;
+        const value = encodeMonthDay(monthDayFromWheelIndex(action.value));
+        if (value === active.fields[picker.field] && picker.dayIndex === action.value) {
+          return session;
+        }
         const draft = updateAccountDraft(
           active,
           { type: 'text', field: picker.field, value },
@@ -216,7 +228,7 @@ export function updateAccountAddSession(
         );
         return {
           ...session,
-          datePicker: { ...picker, dayIndex: action.value - 1 },
+          datePicker: { ...picker, dayIndex: action.value },
           drafts: { ...session.drafts, [draft.group]: draft },
         };
       }
