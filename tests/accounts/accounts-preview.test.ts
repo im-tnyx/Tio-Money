@@ -700,7 +700,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(choices, /info-icon\.json/);
   assert.match(choices, /SvgXml[\s\S]*?xml=\{infoIcon\}/);
   assert.match(choices, /info\?: ReactNode/);
-  assert.match(screen, /preferredWidth=\{theme\.optionPopup\.width \+ theme\.space\.xxxl \* 2\}/);
+  assert.match(screen, /preferredWidth=\{theme\.optionPopup\.width \+ theme\.space\.xl\}/);
   assert.match(screen, /align="start"/);
   const infoIcon = JSON.parse(
     readFileSync('src/shared/assets/google-material-icons/info-icon.json', 'utf8'),
