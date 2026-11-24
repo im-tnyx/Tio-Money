@@ -329,7 +329,6 @@ function AccountFields({
         loanDates={loanDates}
         {...inputProps}
       />
-      <DraftInput field="description" value={draft.fields.description} {...inputProps} />
       {draft.group === 'credit-card' ? <DisabledAutoPay /> : null}
       {draft.group === 'bank' ? (
         <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
