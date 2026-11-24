@@ -42,6 +42,7 @@
 - [Credit Card date rows PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-credit-card-date-rows--proceed) presents the editable monthly days with the reference labels. The caption-to-input gap is 4 dp.
 - Owner follow-up on [PR #97](https://github.com/im-tnyx/Tio-Money/pull/97) sets the Add Account caption-to-input gap to 2 dp.
 - [Loan and Investment date rows PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-and-investment-date-layout--proceed) applies the same date-row layout to Loan and Investment, with editable day, month and year.
+- [Account option popup PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-account-option-popup--proceed) replaces the Wallet, Loan and Investment option sheets with a compact card anchored to the dropdown.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

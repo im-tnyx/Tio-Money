@@ -14,6 +14,7 @@ import {
   iconRoleSizes,
   iconTokens,
   navigationTokens,
+  optionPopupTokens,
   recoveryTokens,
   segmentedControlTokens,
   shadowTokens,
@@ -43,6 +44,7 @@ export interface AppTheme {
   textField: typeof textFieldTokens;
   segmentedControl: typeof segmentedControlTokens;
   bottomSheet: typeof bottomSheetTokens;
+  optionPopup: typeof optionPopupTokens;
   shadows: typeof shadowTokens;
   recovery: typeof recoveryTokens;
 }
@@ -108,6 +110,7 @@ export function AppThemeProvider({
       textField: textFieldTokens,
       segmentedControl: segmentedControlTokens,
       bottomSheet: bottomSheetTokens,
+      optionPopup: optionPopupTokens,
       shadows: shadowTokens,
       recovery: recoveryTokens,
     }),

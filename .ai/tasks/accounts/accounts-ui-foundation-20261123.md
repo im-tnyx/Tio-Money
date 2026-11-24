@@ -375,4 +375,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Codex verified independent component edits and preservation of full date values across currency changes. The transient draft retains partially entered dates. Updated Accounts form controls and contract, English strings, Accounts tests and the group specification.
 - Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
 
+### 2026-11-24 — Replace option sheets with an anchored popup
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-account-option-popup--proceed) records the owner’s reference at PR #97 head `2127e984a11481663c0f734d57db4aa8daa43caa`. Wallet Type, Loan Direction and Investment Type now use a rounded themed popup with a selected checkmark. The card anchors to the row, flips above when space is limited and scrolls when needed. Outside tap and Back dismiss the card and retain the draft.
+- Codex verified the existing draft state machine and added safe-viewport placement coverage. The presentation component owns only the anchor measurement. Account Group and Bank payment-mode editor keep their existing sheet flow. The popup uses a tinted surface and no extra native dependencies.
+- Source self-review PERFORMED. Independent review DEFERRED and physical-device visual and interaction QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
