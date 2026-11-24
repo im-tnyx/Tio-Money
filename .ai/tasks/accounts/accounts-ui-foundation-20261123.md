@@ -349,4 +349,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - The correction touches `src/features/accounts/{account-form-controls,account-group-picker,add-account-screen}.tsx` and `tests/accounts/accounts-preview.test.ts` plus this record and the index. Loan, Wallet and Investment dropdowns and the Credit Card field sequence retain their preview behavior.
 - Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
 
+### 2026-11-24 — Place text inputs directly beside their icons
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-input-placement-correction--proceed) records the owner’s correction at PR #97 head `f1e8cc5ac3c727aaf64527c7b31124da0274b30c`. Codex removed the split column from editable fields. The input starts directly after the icon. Name and Description use their original inline placeholders. Other labels appear in the same row after the input, with currency choices at the end.
+- Changed `src/features/accounts/{account-form-controls,add-account-screen}.tsx`, `src/shared/i18n/strings.ts`, `tests/accounts/accounts-preview.test.ts`, this record and the index. The focused tests verify adjacency, left-aligned text and the existing dropdown and Credit Card order. The top bar and Account Group source match the earlier editor.
+- Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

@@ -71,8 +71,6 @@ export const en = {
   accountReferenceDatePlaceholder: 'YYYY-MM-DD',
   accountCurrencyChangeHint: 'Changing currency clears entered amounts.',
   accountName: 'Account Name',
-  accountNamePlaceholder: 'Enter name',
-  accountOptionalPlaceholder: 'Optional',
   accountOpeningAmount: 'Opening Amount',
   accountDescription: 'Description',
   accountPaymentCapabilities: 'Payment capabilities',

@@ -48,14 +48,6 @@ const fieldSpecs = {
   { label: TranslationKey; money?: boolean; date?: boolean; currencyControl?: boolean }
 >;
 
-function getInputPlaceholder(field: DraftField, money: boolean, date: boolean) {
-  if (date) return t('accountReferenceDatePlaceholder');
-  if (money) return '0';
-  if (field === 'name') return t('accountNamePlaceholder');
-  if (field === 'description' || field === 'provider') return t('accountOptionalPlaceholder');
-  return undefined;
-}
-
 type DraftInputControls = Pick<
   AddAccountViewModel,
   'currencySymbol' | 'currencyChoices' | 'onAction'
@@ -99,6 +91,7 @@ function DraftInput({
       appearance="borderless"
       textSize={field === 'name' || money || date ? 'title' : 'section'}
       label={label ?? spec.label}
+      labelAsPlaceholder={field === 'name' || description}
       leading={leading}
       trailing={
         showCurrency ? (
@@ -112,8 +105,8 @@ function DraftInput({
       }
       value={value}
       keyboardType={money ? 'decimal-pad' : undefined}
-      placeholder={getInputPlaceholder(field, money, date)}
-      textAlign="right"
+      placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}
+      textAlign="left"
       multiline={description}
       returnKeyType={description ? 'done' : undefined}
       submitBehavior={description ? 'blurAndSubmit' : undefined}
