@@ -1236,7 +1236,9 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
   assert.match(picker, /accessibilityLabel=\{t\('accountGroup'\)\}[\s\S]*?accessibilityValue=/);
   assert.match(picker, /minHeight: rowHeight,\s+flexDirection: 'row',\s+alignItems: 'center'/);
-  assert.match(picker, /<AppText muted style=\{\{ flex: 1 \}\}>\s*\{t\('accountGroup'\)\}/);
+  assert.match(picker, /t\('accountGroupFieldLabel'\)/);
+  assert.equal(en.accountGroupFieldLabel, 'Group');
+  assert.equal(en.accountGroup, 'Account Group');
   assert.match(
     picker,
     /<AppText style=\{\{ flexShrink: 1, textAlign: 'right' \}\}>\{t\(value\)\}<\/AppText>\s*<GroupMark \/>/,

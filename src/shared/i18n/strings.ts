@@ -15,6 +15,7 @@ export const en = {
   addAccount: 'Add Account',
   closeAddAccount: 'Close Add Account',
   accountGroup: 'Account Group',
+  accountGroupFieldLabel: 'Group',
   selectAccountGroup: 'Select',
   chooseAccountGroup: 'Choose Account Group',
   closeAccountGroupPicker: 'Close account groups',

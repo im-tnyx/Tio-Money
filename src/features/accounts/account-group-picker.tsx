@@ -33,7 +33,7 @@ export function AccountGroupField({
       }}
     >
       <AppText muted style={{ flex: 1 }}>
-        {t('accountGroup')}
+        {t('accountGroupFieldLabel')}
       </AppText>
       <AppText style={{ flexShrink: 1, textAlign: 'right' }}>{t(value)}</AppText>
       <GroupMark />
