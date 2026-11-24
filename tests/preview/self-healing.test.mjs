@@ -260,7 +260,7 @@ test('stale-record cleanup refuses replaced records, occupied ports and reused P
 
 test('manual recovery and a simultaneous push share the lock, then the push reuses healthy Metro', { skip: process.platform !== 'linux' }, async () => {
   const workflow = readFileSync(new URL('../../.github/workflows/tio-money-eas-pr-preview.yml', import.meta.url), 'utf8');
-  assert.match(workflow, /\(github.event_name == 'workflow_run' \|\| inputs.operation == 'codespaces_live'\) && 'tio-money-codespaces-pr-preview'/);
+  assert.match(workflow, /concurrency:\s+group: tio-money-codespaces-pr-preview\s+cancel-in-progress: false/);
   assert.match(workflow, /cancel-in-progress: false/);
   const dir = mkdtempSync(join(tmpdir(), 'tio-manual-push-'));
   const path = join(dir, 'metro.json');
