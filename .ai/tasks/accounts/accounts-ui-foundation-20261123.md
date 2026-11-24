@@ -369,4 +369,10 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - Follow-up from the owner’s connected conversation reduces only the vertical caption-to-input gap in Add Account from 4 dp to 2 dp. Codex updated `src/shared/theme/component-tokens.ts`, `src/features/accounts/account-form-controls.tsx` and its regression assertion. Native visual QA is pending.
 
 
+### 2026-11-24 — Extend the date layout to Loan and Investment
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-and-investment-date-layout--proceed) records the owner’s request at PR #97 head `8c84f6084944b45081920bab74458a42723d4572`. Loan Start Date, Loan Next Due Date and Investment Valuation Date show prominent day inputs followed by month and year on the same row. The caption gap is 2 dp. Credit Card retains its monthly dates.
+- Codex verified independent component edits and preservation of full date values across currency changes. The transient draft retains partially entered dates. Updated Accounts form controls and contract, English strings, Accounts tests and the group specification.
+- Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

@@ -103,6 +103,19 @@ export type DraftField = {
   [Group in PreviewGroup]: keyof GroupFields<Group>;
 }[PreviewGroup];
 
+export type CalendarDateField = 'startDate' | 'nextDueDate' | 'valuationDate';
+type CalendarDateParts = Readonly<Record<'day' | 'month' | 'year', string>>;
+export type CalendarDatePart = keyof CalendarDateParts;
+
+export function isCalendarDateField(field: DraftField): field is CalendarDateField {
+  return field === 'startDate' || field === 'nextDueDate' || field === 'valuationDate';
+}
+
+export function calendarDateParts(value: string): CalendarDateParts {
+  const [year = '', month = '', day = ''] = value.split('-');
+  return { year, month, day };
+}
+
 export function isPreviewGroup(value: unknown): value is PreviewGroup {
   return previewGroups.some((group) => group === value);
 }
@@ -189,6 +202,12 @@ export type AccountChoiceAction =
 
 export type AccountFormAction =
   | { readonly type: 'text'; readonly field: DraftField; readonly value: string }
+  | {
+      readonly type: 'date.part';
+      readonly field: CalendarDateField;
+      readonly part: CalendarDatePart;
+      readonly value: string;
+    }
   | { readonly type: 'currency'; readonly value: CurrencyCode }
   | AccountChoiceAction
   | PaymentModeAction;
@@ -319,6 +338,20 @@ export function updateAccountDraft(
       return Object.hasOwn(draft.fields, action.field)
         ? withDraftFields(draft, { [action.field]: action.value })
         : draft;
+    case 'date.part': {
+      const { field, part, value } = action;
+      if (!Object.hasOwn(draft.fields, field) || !/^\d{0,4}$/.test(value)) return draft;
+      const limit = part === 'month' ? 12 : 31;
+      if (part !== 'year' && (value.length > 2 || value === '00' || Number(value) > limit)) {
+        return draft;
+      }
+      const previous = (draft.fields as Partial<Record<CalendarDateField, string>>)[field] ?? '';
+      const parts = { ...calendarDateParts(previous) };
+      parts[part] = value;
+      const { year, month, day } = parts;
+      const next = year || month || day ? [year, month, day].join('-') : '';
+      return next === previous ? draft : withDraftFields(draft, { [field]: next });
+    }
     case 'currency':
       return draft.currency !== action.value &&
         accountCurrencyChoices(draft, allowedCurrencies)?.includes(action.value)
