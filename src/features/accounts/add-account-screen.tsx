@@ -1,4 +1,4 @@
-import { Switch } from 'react-native';
+import { Pressable, Switch, View } from 'react-native';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -25,6 +25,8 @@ import {
 import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
 import { AccountDropdown } from './account-option-popup';
 import { AccountPage } from './account-page';
+import { accountPickerBottomSheetLayer } from './account-picker-bottom-sheet';
+import { selectedAccountName, type AccountPickerModel } from './account-picker-contract';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
 
 const fieldSpecs = {
@@ -175,6 +177,8 @@ export function AddAccountScreen({
       onDismiss: () => form.onAction({ type: 'mode.cancel' }),
       children: <BankModeEditor {...form} draft={form.draft} />,
     };
+  } else if (form?.draft.group === 'credit-card') {
+    sheet = accountPickerBottomSheetLayer(form.paymentSource);
   }
 
   return (
@@ -204,6 +208,7 @@ export function AddAccountScreen({
         title={sheet?.title ?? t('chooseAccountGroup')}
         dismissAccessibilityLabel={sheet?.dismissAccessibilityLabel ?? t('closeAccountGroupPicker')}
         onDismiss={sheet?.onDismiss ?? onCloseGroupPicker}
+        {...(sheet?.expandable ? { expandable: true } : {})}
       >
         {sheet?.children}
       </AppBottomSheet>
@@ -217,6 +222,7 @@ function AccountFields({
   currencyChoices,
   showWalletFunding,
   choice,
+  paymentSource,
   loanDates,
   canAddMode,
   onAction,
@@ -237,6 +243,7 @@ function AccountFields({
       <GroupFields
         draft={draft}
         showWalletFunding={showWalletFunding}
+        paymentSource={paymentSource}
         loanDates={loanDates}
         {...inputProps}
       />
@@ -262,8 +269,9 @@ function AccountFields({
   );
 }
 
-function PaymentFromField() {
-  return (
+function PaymentFromField({ picker = null }: { readonly picker?: AccountPickerModel | null }) {
+  const selectedName = selectedAccountName(picker);
+  const field = (
     <AccountField
       label="accountPayFromCaption"
       appearance="borderless"
@@ -273,9 +281,27 @@ function PaymentFromField() {
       accessibilityLabel={t('accountPayFrom')}
       accessibilityState={{ disabled: true }}
       editable={false}
-      value=""
+      value={selectedName ?? ''}
       textAlign="left"
     />
+  );
+  if (!picker || picker.accounts.length === 0) return field;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t('accountPayFrom')}
+      accessibilityValue={{ text: selectedName ?? t('accountPayFromPlaceholder') }}
+      accessibilityState={{ expanded: picker.open }}
+      onPress={picker.onOpen}
+    >
+      <View
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        {field}
+      </View>
+    </Pressable>
   );
 }
 
@@ -284,11 +310,18 @@ function GroupFields({
   currencySymbol,
   currencyChoices,
   showWalletFunding,
+  paymentSource,
   loanDates,
   onAction,
 }: Pick<
   AddAccountViewModel,
-  'draft' | 'currencySymbol' | 'currencyChoices' | 'showWalletFunding' | 'loanDates' | 'onAction'
+  | 'draft'
+  | 'currencySymbol'
+  | 'currencyChoices'
+  | 'showWalletFunding'
+  | 'paymentSource'
+  | 'loanDates'
+  | 'onAction'
 >) {
   const inputProps = { currencySymbol, currencyChoices, currency: draft.currency, onAction };
   switch (draft.group) {
@@ -302,7 +335,7 @@ function GroupFields({
         <>
           <DraftInput field="outstanding" value={draft.fields.outstanding} {...inputProps} />
           <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...inputProps} />
-          <PaymentFromField />
+          <PaymentFromField picker={paymentSource} />
           <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
         </>

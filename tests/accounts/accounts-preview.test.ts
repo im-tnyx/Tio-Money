@@ -26,6 +26,12 @@ import {
   type DraftField,
   type PreviewGroup,
 } from '../../src/features/accounts/account-form-contract';
+import {
+  accountPickerGroups,
+  accountPickerVisible,
+  selectedAccountName,
+  type AccountPickerModel,
+} from '../../src/features/accounts/account-picker-contract';
 import { accountPopupPosition } from '../../src/features/accounts/account-popup-position';
 import { fitPopupRows, popupPosition } from '../../src/shared/ui/popup-position';
 import { focusedFieldScrollOffset } from '../../src/shared/ui/keyboard-form-geometry';
@@ -651,9 +657,9 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     screen.indexOf('function PaymentFromField'),
     screen.indexOf('function GroupFields'),
   );
-  assert.equal(screen.match(/<PaymentFromField \/>/g)?.length, 2);
-  assert.match(groupFields, /field="creditLimit"[^>]*\/>\s*<PaymentFromField \/>/);
-  assert.match(groupFields, /<PaymentFromField \/>\s*<DraftInput field="statementDate"/);
+  assert.equal(screen.match(/<PaymentFromField \/>/g)?.length, 1);
+  assert.match(groupFields, /field="creditLimit"[^>]*\/>\s*<PaymentFromField picker=/);
+  assert.match(groupFields, /picker=\{paymentSource\} \/>\s*<DraftInput field="statementDate"/);
   assert.match(groupFields, /field="emiAmount"[^>]*\/>\s*<PaymentFromField \/>/);
   assert.match(
     groupFields,
@@ -664,7 +670,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);
   assert.match(paymentField, /accessibilityLabel=\{t\('accountPayFrom'\)\}/);
   assert.match(paymentField, /accessibilityState=\{\{ disabled: true \}\}/);
-  assert.match(paymentField, /editable=\{false\}\s+value=""/);
+  assert.match(paymentField, /editable=\{false\}\s+value=\{selectedName \?\? ''\}/);
   assert.doesNotMatch(paymentField, /labelAsPlaceholder|trailing=|onChangeText/);
   assert.doesNotMatch(groupFields, /accountPayFromUnavailable/);
   assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
@@ -1373,4 +1379,47 @@ test('option popup anchors beside the trigger and stays within the safe viewport
   assert.match(popup, /accessibilityLabel=\{t\('closeAccountOptions'\)\}\s+onPress=\{onClose\}/);
   assert.match(popup, /<ScrollView[\s\S]*?<AccountChoices label=\{label\} options=\{options\}/);
   assert.doesNotMatch(popup, /AppBottomSheet|expo-router|useEffect|sqlite|fetch\(/i);
+});
+
+test('payment account picker groups eligible choices and resolves the selected stable ID', () => {
+  const picker: AccountPickerModel = {
+    accounts: [
+      { id: 'bank-test', name: 'Test bank', group: 'bank' },
+      { id: 'cash-test', name: 'Test cash', group: 'cash' },
+    ],
+    selectedId: 'bank-test',
+    open: true,
+    onOpen: () => {},
+    onClose: () => {},
+    onSelect: () => {},
+  };
+  assert.deepEqual(
+    accountPickerGroups(picker.accounts).map(({ group }) => group),
+    ['cash', 'bank'],
+  );
+  assert.equal(selectedAccountName(picker), 'Test bank');
+  assert.equal(selectedAccountName({ ...picker, selectedId: 'cash-test' }), 'Test cash');
+  assert.equal(selectedAccountName({ ...picker, selectedId: 'missing' }), null);
+  assert.equal(selectedAccountName(null), null);
+  assert.equal(accountPickerVisible(picker), true);
+  assert.equal(accountPickerVisible({ ...picker, open: false }), false);
+  assert.equal(accountPickerVisible({ ...picker, accounts: [] }), false);
+  assert.equal(accountPickerVisible(null), false);
+  assert.deepEqual(accountPickerGroups([]), []);
+  assert.equal(accountPickerGroups(picker.accounts.slice(0, 1)).length, 1);
+});
+
+test('credit card payment uses the existing sheet shell and no runtime fixture accounts', () => {
+  const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
+  const picker = readFileSync('src/features/accounts/account-picker-bottom-sheet.tsx', 'utf8');
+  assert.match(controller, /paymentSource: null/);
+  assert.match(screen, /accountPickerBottomSheetLayer\(form\.paymentSource\)/);
+  assert.match(screen, /picker\.accounts\.length === 0/);
+  assert.match(screen, /onPress=\{picker\.onOpen\}/);
+  assert.match(picker, /accountPickerVisible\(picker\)/);
+  assert.match(picker, /picker\.onSelect\(account\.id\)/);
+  assert.match(picker, /checked: selected/);
+  assert.match(picker, /onDismiss: picker\.onClose/);
+  assert.doesNotMatch(picker, /<Modal|<ScrollView|useState|fetch\(/);
 });

@@ -203,6 +203,8 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
             })) ?? null,
           showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded',
           choice: draftChoice(draft, current.choicePickerOpen, dispatch),
+          // RFC #98: real account projection and link policy are not enabled yet.
+          paymentSource: null,
           loanDates:
             draft.group === 'loan'
               ? {
