@@ -59,6 +59,7 @@ export const en = {
   accountLoanGiven: 'Given',
   accountLoanOriginalPrincipal: 'Original Principal',
   accountLoanOutstandingPrincipal: 'Opening Outstanding Principal',
+  accountLoanEmiAmount: 'EMI Amount (Optional)',
   accountLoanStartDate: 'Start Date',
   accountLoanNextDueDate: 'Next Due Date',
   accountInvestmentType: 'Investment Type',

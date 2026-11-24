@@ -44,6 +44,7 @@
 - [Loan and Investment date rows PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-and-investment-date-layout--proceed) applies the same date-row layout to Loan and Investment, with editable day, month and year.
 - [Account option popup PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-account-option-popup--proceed) replaces the Wallet, Loan and Investment option sheets with a compact card anchored to the dropdown.
 - [Bank payment mode empty state PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-bank-payment-mode-empty-state--proceed) shows a link icon and guidance while the draft has no payment modes.
+- [Loan EMI input PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-emi-input--proceed) adds an optional manual amount to the Loan draft.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
