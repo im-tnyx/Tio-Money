@@ -160,14 +160,9 @@ test('changing and dismissing Group retains separate drafts and guards inactive 
   assert.equal(bank.drafts['credit-card'], card.drafts['credit-card']);
 });
 
-test('the three account dropdowns preserve drafts on dismiss and close after one selection', () => {
+test('the two account dropdowns preserve drafts on dismiss and close after one selection', () => {
   const cases = [
     { group: 'loan', field: 'direction', choice: { type: 'loan.direction', value: 'given' } },
-    {
-      group: 'wallet',
-      field: 'walletKind',
-      choice: { type: 'wallet.kind', value: 'bank-linked' },
-    },
     {
       group: 'investment',
       field: 'investmentKind',
@@ -177,6 +172,8 @@ test('the three account dropdowns preserve drafts on dismiss and close after one
   const initial = newAccountAddSession(true);
   const bank = updateSession(initial, { type: 'group.select', group: 'bank' });
   assert.equal(updateSession(bank, { type: 'options.open' }), bank);
+  const wallet = updateSession(initial, { type: 'group.select', group: 'wallet' });
+  assert.equal(updateSession(wallet, { type: 'options.open' }), wallet);
 
   for (const { group, field, choice } of cases) {
     const form = updateSession(initial, { type: 'group.select', group });
@@ -234,31 +231,22 @@ test('closing the Bank payment editor discards unapplied changes and preserves t
   assert.deepEqual(draft.modes, []);
 });
 
-test('batched text inputs and Wallet kind toggles use the latest draft without losing funded details', () => {
+test('batched Wallet text edits preserve independent balance details', () => {
   const draft = replay('wallet', [
     { type: 'text', field: 'name', value: 'Weekend' },
     { type: 'text', field: 'openingAmount', value: '123.45' },
-    { type: 'wallet.kind', value: 'bank-linked' },
-    { type: 'text', field: 'provider', value: 'Provider' },
-    { type: 'wallet.kind', value: 'funded' },
     { type: 'text', field: 'description', value: 'Cash reserve' },
   ]);
   assert.equal(draft.group, 'wallet');
-  if (draft.group !== 'wallet') assert.fail();
-  assert.equal(draft.walletKind, 'funded');
   assert.deepEqual(draft.fields, {
     name: 'Weekend',
     openingAmount: '123.45',
-    provider: 'Provider',
     description: 'Cash reserve',
   });
   assert.equal(newAccountDraft('wallet', 'INR').fields.name, '');
   const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(route, /setSession\(\(previous\) =>/);
-  assert.match(
-    route,
-    /showWalletFunding: draft.group === 'wallet' && draft.walletKind === 'funded'/,
-  );
+  assert.doesNotMatch(route, /walletKind|showWalletFunding/);
 });
 
 test('Bank mode drafts add, edit, cancel and remove using the newest actions and stable row IDs', () => {
@@ -450,12 +438,12 @@ test('every eligible form defaults to Main and only shows currency choices with 
     if (!isPreviewGroup(id)) continue;
     const draft = newAccountDraft(id, 'INR');
     assert.equal(draft.currency, 'INR', id);
-    assert.equal(accountCurrencyChoices(draft, mainOnly), null, id);
-    assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY'], id);
+    assert.equal(accountCurrencyChoices(mainOnly), null, id);
+    assert.deepEqual(accountCurrencyChoices(currencies), ['INR', 'USD', 'JPY'], id);
   }
   const screen = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
-  assert.match(route, /currencyChoices:\s*accountCurrencyChoices\(draft, currencies\)\?\.map/);
+  assert.match(route, /currencyChoices:\s*accountCurrencyChoices\(currencies\)\?\.map/);
   assert.match(
     screen,
     /const showCurrency = 'currencyControl' in spec && currencyChoices !== null/,
@@ -472,7 +460,7 @@ test('one amount row per form carries the inline currency selector and all amoun
   );
   const card = screen.slice(
     screen.indexOf("case 'credit-card':"),
-    screen.indexOf("case 'wallet':"),
+    screen.indexOf("case 'loan':"),
   );
 
   const controllingFields = [...specs.matchAll(/(\w+): \{[^}]*?currencyControl: true/g)].map(
@@ -533,7 +521,7 @@ test('successive currency taps select the requested Sub or Main code', () => {
   for (const code of ['USD', 'JPY', 'INR'] as const) {
     draft = updateAccountDraft(draft, { type: 'currency', value: code }, currencies);
     assert.equal(draft.currency, code);
-    assert.deepEqual(accountCurrencyChoices(draft, currencies), ['INR', 'USD', 'JPY']);
+    assert.deepEqual(accountCurrencyChoices(currencies), ['INR', 'USD', 'JPY']);
   }
 });
 
@@ -579,33 +567,27 @@ test('currency changes clear each group’s amounts while retaining all other dr
     );
     const reconciled = reconcileAccountDraftCurrency(draft, 'JPY', mainOnly);
     assert.deepEqual(reconciled, expected, id);
-    assert.equal(accountCurrencyChoices(reconciled, mainOnly), null, id);
+    assert.equal(accountCurrencyChoices(mainOnly), null, id);
 
     const readded = draftCurrencies({ mainCode: 'JPY', subCodes: ['USD'] });
     assert.equal(reconcileAccountDraftCurrency(reconciled, 'JPY', readded), reconciled, id);
-    assert.deepEqual(accountCurrencyChoices(reconciled, readded), ['JPY', 'USD'], id);
+    assert.deepEqual(accountCurrencyChoices(readded), ['JPY', 'USD'], id);
   }
 
   const route = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(route, /if \(current !== session\) setSession\(current\)/);
 });
 
-test('a Bank-linked Wallet has no currency choice and retains the funded draft when toggled back', () => {
-  const funded = replay('wallet', [
+test('Wallet uses the independent account currency selector and clears amounts on change', () => {
+  const draft = replay('wallet', [
+    { type: 'text', field: 'name', value: 'Wallet balance' },
     { type: 'currency', value: 'USD' },
     { type: 'text', field: 'openingAmount', value: '13.50' },
   ]);
-  const linked = updateAccountDraft(
-    funded,
-    { type: 'wallet.kind', value: 'bank-linked' },
-    currencies,
-  );
-  assert.equal(accountCurrencyChoices(linked, currencies), null);
-  assert.equal(updateAccountDraft(linked, { type: 'currency', value: 'JPY' }, currencies), linked);
-  assert.deepEqual(
-    updateAccountDraft(linked, { type: 'wallet.kind', value: 'funded' }, currencies),
-    funded,
-  );
+  assert.deepEqual(accountCurrencyChoices(currencies), ['INR', 'USD', 'JPY']);
+  const changed = updateAccountDraft(draft, { type: 'currency', value: 'JPY' }, currencies);
+  assert.deepEqual(changed.fields, { name: 'Wallet balance', description: '', openingAmount: '' });
+  assert.equal(changed.currency, 'JPY');
 });
 
 test('group fields render typed drafts and Card and Loan share unavailable payment controls', () => {
@@ -613,7 +595,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     cash: ['openingAmount'],
     bank: ['openingAmount'],
     'credit-card': ['outstanding', 'creditLimit', 'statementDate', 'dueDate'],
-    wallet: ['provider', 'openingAmount'],
+    wallet: ['openingAmount'],
     loan: ['originalPrincipal', 'outstandingPrincipal', 'emiAmount', 'startDate', 'nextDueDate'],
     investment: ['investedCost', 'valuation', 'valuationDate'],
   } satisfies Record<PreviewGroup, readonly string[]>;
@@ -673,7 +655,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.match(paymentField, /editable=\{false\}\s+value=\{selectedName \?\? ''\}/);
   assert.doesNotMatch(paymentField, /labelAsPlaceholder|trailing=|onChangeText/);
   assert.doesNotMatch(groupFields, /accountPayFromUnavailable/);
-  assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
+  assert.doesNotMatch(groupFields, /accountWalletBank|showWalletFunding|field="provider"/);
   assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
   assert.equal(en.accountCardDueDate, 'Payment Due Date');
   assert.equal(en.accountAutoPay, 'Auto Pay');
@@ -1126,7 +1108,8 @@ test('payment mode editor uses compact outlined radios in one horizontal row', (
   assert.match(editor, /const disabled = !availableModeTypes.includes\(value\)/);
   assert.match(choices, /selected && !compact \?/);
   assert.match(choices, /compactOptionHeight/);
-  assert.match(choices, /fontSize: theme.segmentedControl.compactOptionLabelSize/);
+  assert.match(choices, /compactLabelSize = theme.segmentedControl.compactOptionLabelSize/);
+  assert.match(choices, /fontSize: compactLabelSize/);
   assert.equal(segmentedControlTokens.compactOptionLabelSize, 14);
   assert.equal(segmentedControlTokens.compactOptionHeight, 24);
   assert.match(choices, /borderColor: selected \? theme.colors.primaryText : theme.colors.border/);
@@ -1230,7 +1213,7 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   assert.match(form, /<AccountDropdown\s+choice=\{choice\}/);
   assert.match(
     controller,
-    /choice\(\s*'accountWalletKind',[\s\S]*?choice\(\s*'accountLoanDirection',[\s\S]*?choice\(\s*'accountInvestmentType'/,
+    /choice\(\s*'accountLoanDirection',[\s\S]*?choice\(\s*'accountInvestmentType'/,
   );
   assert.match(form, /children: <BankModeEditor/);
   assert.match(form, /onDismiss: \(\) => form.onAction\(\{ type: 'mode.cancel' \}\)/);
@@ -1251,7 +1234,7 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   assert.doesNotMatch(manage, /actions=|onAdd|AppBottomSheet/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
-  assert.match(form, /label="accountWalletBank"/);
+  assert.doesNotMatch(form, /accountWalletBank|accountWalletProvider/);
   assert.match(form, /label="accountPayFromCaption"/);
   assert.match(choices, /checked: selected/);
   assert.match(choices, /m5 12 4 4 10-10/);

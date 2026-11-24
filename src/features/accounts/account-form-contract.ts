@@ -16,7 +16,6 @@ export const previewGroups = [
 export type PreviewGroup = (typeof previewGroups)[number];
 
 export const paymentModeTypes = ['debitCard', 'upi', 'cheque', 'internetBanking'] as const;
-export const walletKinds = ['funded', 'bank-linked'] as const;
 export const loanDirections = ['borrowed', 'given'] as const;
 export const investmentKinds = [
   'stocks',
@@ -35,7 +34,6 @@ const paymentModeLimits = {
   internetBanking: 1,
 } satisfies Record<PaymentModeType, number>;
 
-type WalletKind = (typeof walletKinds)[number];
 type LoanDirection = (typeof loanDirections)[number];
 type InvestmentKind = (typeof investmentKinds)[number];
 
@@ -67,10 +65,6 @@ interface CardFields extends CommonFields {
   readonly dueDate: string;
 }
 
-interface WalletFields extends OpeningAmountFields {
-  readonly provider: string;
-}
-
 interface LoanFields extends CommonFields {
   readonly originalPrincipal: string;
   readonly outstandingPrincipal: string;
@@ -99,7 +93,7 @@ export type AccountDraft =
       readonly modeEditor: ModeEditor | null;
     })
   | Draft<'credit-card', CardFields>
-  | (Draft<'wallet', WalletFields> & { readonly walletKind: WalletKind })
+  | Draft<'wallet', OpeningAmountFields>
   | (Draft<'loan', LoanFields> & { readonly direction: LoanDirection })
   | (Draft<'investment', InvestmentFields> & { readonly investmentKind: InvestmentKind });
 
@@ -130,18 +124,11 @@ export function draftCurrencies(preferences: Pick<CurrencyPreferences, 'mainCode
   return [preferences.mainCode, ...preferences.subCodes];
 }
 
-function hasIndependentCurrency(draft: AccountDraft): boolean {
-  return draft.group !== 'wallet' || draft.walletKind === 'funded';
-}
-
-/** A missing choice list means the entire selector is hidden. */
+/** All six account forms have an independent currency. Hide the selector without Subs. */
 export function accountCurrencyChoices(
-  draft: AccountDraft,
   configuredCurrencies: readonly CurrencyCode[],
 ): readonly CurrencyCode[] | null {
-  return configuredCurrencies.length > 1 && hasIndependentCurrency(draft)
-    ? configuredCurrencies
-    : null;
+  return configuredCurrencies.length > 1 ? configuredCurrencies : null;
 }
 
 export function newAccountDraft(
@@ -169,12 +156,7 @@ export function newAccountDraft(
         fields: { ...common, outstanding: '', creditLimit: '', statementDate: '01', dueDate: '15' },
       };
     case 'wallet':
-      return {
-        group,
-        currency,
-        fields: { ...common, openingAmount: '', provider: '' },
-        walletKind: 'funded',
-      };
+      return { group, currency, fields: { ...common, openingAmount: '' } };
     case 'loan':
       return {
         group,
@@ -207,7 +189,6 @@ type PaymentModeAction =
   | { readonly type: 'mode.remove'; readonly id: number };
 
 export type AccountChoiceAction =
-  | { readonly type: 'wallet.kind'; readonly value: WalletKind }
   | { readonly type: 'loan.direction'; readonly value: LoanDirection }
   | { readonly type: 'investment.kind'; readonly value: InvestmentKind };
 
@@ -373,11 +354,9 @@ export function updateAccountDraft(
     }
     case 'currency':
       return draft.currency !== action.value &&
-        accountCurrencyChoices(draft, allowedCurrencies)?.includes(action.value)
+        accountCurrencyChoices(allowedCurrencies)?.includes(action.value)
         ? changeCurrency(draft, action.value)
         : draft;
-    case 'wallet.kind':
-      return draft.group === 'wallet' ? { ...draft, walletKind: action.value } : draft;
     case 'loan.direction':
       return draft.group === 'loan' ? { ...draft, direction: action.value } : draft;
     case 'investment.kind':
@@ -410,7 +389,6 @@ export interface AddAccountViewModel {
   readonly currencyChoices:
     | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol: string }[]
     | null;
-  readonly showWalletFunding: boolean;
   readonly choice: AccountDraftChoice | null;
   readonly paymentSource: AccountPickerModel | null;
   readonly loanDates: Readonly<Record<LoanDateField, AppDateFieldModel>> | null;

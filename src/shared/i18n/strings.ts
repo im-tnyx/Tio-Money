@@ -51,13 +51,6 @@ export const en = {
   accountAutoPay: 'Auto Pay',
   accountAutoPayUnavailable:
     'Tracking only. Setup is unavailable until the tracking policy is approved. Tio Money never debits your bank account.',
-  accountWalletKind: 'Wallet Type',
-  accountWalletFunded: 'Funded',
-  accountWalletLinked: 'Bank-linked reference',
-  accountWalletProvider: 'Provider',
-  accountWalletBank: 'Linked Bank',
-  accountWalletBankUnavailable:
-    'Bank linking is unavailable. Once linked, the wallet inherits the Bank account’s currency.',
   accountLoanDirection: 'Loan Direction',
   accountLoanBorrowed: 'Borrowed',
   accountLoanGiven: 'Given',
@@ -127,7 +120,7 @@ export const en = {
   accountGroupInvestment: 'Investment',
   accountGroupInvestmentInfo: 'Track holdings and their separate valuations.',
   accountGroupWallet: 'Wallet',
-  accountGroupWalletInfo: 'Track funded or bank-linked wallets without duplicate balances.',
+  accountGroupWalletInfo: 'Track separately held wallet balances.',
   appearance: 'Appearance',
   theme: 'Theme',
   themeHint: 'Choose System, Light or Dark theme.',
