@@ -8,7 +8,151 @@ import { useAppTheme } from '@/shared/theme/theme-provider';
 import { AppText } from '@/shared/ui/app-text';
 import { AppTextField, type AppTextFieldProps } from '@/shared/ui/app-text-field';
 
-import type { AddAccountViewModel } from './account-form-contract';
+import type { AccountOption, AddAccountViewModel } from './account-form-contract';
+
+const rowIcons = {
+  text: 'M5 17 12 4l7 13 M8 12h8 M5 21h14',
+  calendar: 'M4 6h16v14H4z M4 10h16 M8 4v4 M16 4v4 M8 14h1 M12 14h1 M16 14h1',
+  description: 'M4 6h16 M4 10h16 M4 14h16 M4 18h10',
+  group: 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h6v6h-6z',
+  options: 'M5 6h2 M5 12h2 M5 18h2 M11 6h8 M11 12h8 M11 18h8',
+  card: 'M3 5h18v14H3z M3 10h18 M6 15h4',
+  bank: 'm3 9 9-5 9 5H3 M6 9v8 M12 9v8 M18 9v8 M3 20h18',
+  autoPay: 'M20 8a8 8 0 1 0 0 8 M20 4v4h-4 M13 7l-4 6h4l-2 4',
+  expand: 'm6 9 6 6 6-6',
+} as const;
+
+export function AccountFormIcon({ name }: { readonly name: keyof typeof rowIcons }) {
+  const theme = useAppTheme();
+  return (
+    <Svg
+      width={theme.iconRoles.textField}
+      height={theme.iconRoles.textField}
+      viewBox="0 0 24 24"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Path
+        d={rowIcons[name]}
+        fill="none"
+        stroke={name === 'expand' ? theme.colors.secondaryText : theme.colors.primaryText}
+        strokeWidth={theme.icons.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function AccountFormRow({
+  label,
+  leading,
+  children,
+  minimumHeight,
+  multiline = false,
+}: {
+  readonly label: TranslationKey;
+  readonly leading: ReactNode;
+  readonly children: ReactNode;
+  readonly minimumHeight?: number;
+  readonly multiline?: boolean;
+}) {
+  const theme = useAppTheme();
+  const rowHeight = minimumHeight ?? theme.textField.minimumHeight;
+  return (
+    <View
+      style={{
+        minHeight: rowHeight,
+        flexDirection: 'row',
+        alignItems: multiline ? 'flex-start' : 'center',
+        gap: theme.space.sm,
+      }}
+    >
+      <View
+        style={{
+          minHeight: rowHeight,
+          width: '50%',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.space.sm,
+        }}
+      >
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={{ width: theme.iconRoles.textField, alignItems: 'center' }}
+        >
+          {leading}
+        </View>
+        <AppText
+          muted
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{ flex: 1, includeFontPadding: false }}
+        >
+          {t(label)}
+        </AppText>
+      </View>
+      <View
+        style={{
+          flex: 1,
+          minWidth: '0%',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: theme.space.xs,
+        }}
+      >
+        {children}
+      </View>
+    </View>
+  );
+}
+
+export function AccountDropdown({
+  label,
+  value,
+  leading,
+  onPress,
+  expanded,
+  minimumHeight,
+  hitSlop,
+}: {
+  readonly label: TranslationKey;
+  readonly value: TranslationKey;
+  readonly leading: ReactNode;
+  readonly onPress: () => void;
+  readonly expanded?: boolean;
+  readonly minimumHeight?: number;
+  readonly hitSlop?: { readonly top: number; readonly bottom: number };
+}) {
+  const theme = useAppTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t(label)}
+      accessibilityValue={{ text: t(value) }}
+      accessibilityState={{ expanded }}
+      hitSlop={hitSlop}
+      onPress={onPress}
+    >
+      <AccountFormRow
+        label={label}
+        leading={leading}
+        minimumHeight={minimumHeight ?? theme.buttons.minimumHeight}
+      >
+        <AppText
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{ textAlign: 'right', includeFontPadding: false }}
+        >
+          {t(value)}
+        </AppText>
+        <AccountFormIcon name="expand" />
+      </AccountFormRow>
+    </Pressable>
+  );
+}
 
 export function AccountField({
   label,
@@ -30,39 +174,13 @@ export function AccountField({
       placeholder={labelAsPlaceholder ? t(label) : props.placeholder}
     />
   );
+
   if (leading) {
-    const iconColumnWidth = theme.iconRoles.textField;
-    const iconGap = theme.space.sm;
     return (
-      <View style={{ gap: theme.space.xxs }}>
-        {labelAsPlaceholder ? null : (
-          <AppText variant="caption" muted style={{ marginLeft: iconColumnWidth + iconGap }}>
-            {t(label)}
-          </AppText>
-        )}
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: iconGap,
-            alignItems: trailing ? 'center' : 'flex-start',
-          }}
-        >
-          <View
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            style={{
-              width: iconColumnWidth,
-              minHeight: theme.textField.minimumHeight,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {leading}
-          </View>
-          <View style={{ flex: 1 }}>{input}</View>
-          {trailing}
-        </View>
-      </View>
+      <AccountFormRow label={label} leading={leading} multiline={props.multiline}>
+        <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
+        {trailing}
+      </AccountFormRow>
     );
   }
 
@@ -97,7 +215,7 @@ export function AmountCurrencyChoices({
       style={{
         flexGrow: 0,
         width: options.length * theme.buttons.minimumHeight,
-        maxWidth: '50%',
+        maxWidth: '66%',
       }}
     >
       {options.map((option) => {
@@ -146,28 +264,19 @@ export function AmountCurrencyChoices({
   );
 }
 
-export function AccountChoices<Value extends string>({
+export function AccountChoices({
   label,
   options,
-  value,
-  onChange,
   compact = false,
 }: {
   readonly label: TranslationKey;
-  readonly options: readonly {
-    readonly value: Value;
-    readonly label: string;
-    readonly disabled?: boolean;
-    readonly accessibilityHint?: string;
-  }[];
-  readonly value?: Value;
-  readonly onChange?: (value: Value) => void;
+  readonly options: readonly AccountOption[];
   readonly compact?: boolean;
 }) {
   const theme = useAppTheme();
   const choices = options.map((option) => {
-    const selected = value === option.value;
-    const disabled = !onChange || option.disabled === true;
+    const { selected, onSelect } = option;
+    const disabled = !onSelect;
     return (
       <Pressable
         key={option.value}
@@ -176,40 +285,20 @@ export function AccountChoices<Value extends string>({
         accessibilityState={{ checked: selected, disabled }}
         accessibilityHint={option.accessibilityHint}
         disabled={disabled}
-        onPress={onChange && !disabled ? () => onChange(option.value) : undefined}
+        onPress={onSelect}
         style={{
           minWidth: compact ? theme.buttons.minimumHeight : undefined,
           minHeight: theme.buttons.minimumHeight,
-          borderWidth: compact ? theme.buttons.noBorder : theme.buttons.outlineWidth,
-          borderColor: selected ? theme.colors.brand : theme.colors.border,
-          borderRadius: theme.radius.sm,
-          backgroundColor: compact ? 'transparent' : theme.colors.card,
-          paddingHorizontal: compact ? theme.space.xxs : theme.space.md,
+          borderBottomWidth: compact ? theme.buttons.noBorder : theme.navigation.borderWidth,
+          borderBottomColor: theme.colors.border,
+          paddingHorizontal: compact ? theme.space.xxs : theme.space.lg,
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: compact ? 'center' : undefined,
-          opacity: option.disabled ? theme.buttons.disabledOpacity : undefined,
-          gap: theme.space.xxs,
+          justifyContent: compact ? 'center' : 'space-between',
+          opacity: disabled ? theme.buttons.disabledOpacity : undefined,
+          gap: theme.space.sm,
         }}
       >
-        {selected && !compact ? (
-          <Svg
-            width={theme.iconRoles.button}
-            height={theme.iconRoles.button}
-            viewBox="0 0 24 24"
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
-            <Path
-              d="m5 12 4 4 10-10"
-              fill="none"
-              stroke={theme.colors.primaryText}
-              strokeWidth={theme.icons.stroke}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </Svg>
-        ) : null}
         {compact ? (
           <View
             style={{
@@ -229,6 +318,24 @@ export function AccountChoices<Value extends string>({
         ) : (
           <AppText muted={disabled}>{option.label}</AppText>
         )}
+        {selected && !compact ? (
+          <Svg
+            width={theme.iconRoles.button}
+            height={theme.iconRoles.button}
+            viewBox="0 0 24 24"
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <Path
+              d="m5 12 4 4 10-10"
+              fill="none"
+              stroke={theme.colors.primaryText}
+              strokeWidth={theme.icons.stroke}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+        ) : null}
       </Pressable>
     );
   });
@@ -247,31 +354,34 @@ export function AccountChoices<Value extends string>({
   }
 
   return (
-    <View style={{ gap: theme.space.xxs }}>
-      <AppText>{t(label)}</AppText>
-      <View
-        accessibilityRole="radiogroup"
-        accessibilityLabel={t(label)}
-        style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.sm }}
-      >
-        {choices}
-      </View>
+    <View accessibilityRole="radiogroup" accessibilityLabel={t(label)}>
+      {choices}
     </View>
   );
 }
 
 export function UnavailableAccountChoice({
   label,
+  leading,
   detail,
 }: {
   readonly label: TranslationKey;
+  readonly leading: ReactNode;
   readonly detail: TranslationKey;
 }) {
   const theme = useAppTheme();
   return (
-    <View style={{ gap: theme.space.xxs }}>
-      <AppText>{t(label)}</AppText>
-      <AppText variant="caption" muted>
+    <View>
+      <AccountFormRow label={label} leading={leading}>
+        <AppText muted numberOfLines={1} style={{ includeFontPadding: false }}>
+          {t('accountOptionUnavailable')}
+        </AppText>
+      </AccountFormRow>
+      <AppText
+        variant="caption"
+        muted
+        style={{ marginStart: theme.iconRoles.textField + theme.space.sm }}
+      >
         {t(detail)}
       </AppText>
     </View>

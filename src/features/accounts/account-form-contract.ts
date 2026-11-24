@@ -182,12 +182,15 @@ type PaymentModeAction =
   | { readonly type: 'mode.apply' | 'mode.cancel' }
   | { readonly type: 'mode.remove'; readonly id: number };
 
+export type AccountChoiceAction =
+  | { readonly type: 'wallet.kind'; readonly value: WalletKind }
+  | { readonly type: 'loan.direction'; readonly value: LoanDirection }
+  | { readonly type: 'investment.kind'; readonly value: InvestmentKind };
+
 export type AccountFormAction =
   | { readonly type: 'text'; readonly field: DraftField; readonly value: string }
   | { readonly type: 'currency'; readonly value: CurrencyCode }
-  | { readonly type: 'wallet.kind'; readonly value: WalletKind }
-  | { readonly type: 'loan.direction'; readonly value: LoanDirection }
-  | { readonly type: 'investment.kind'; readonly value: InvestmentKind }
+  | AccountChoiceAction
   | PaymentModeAction;
 
 /** Merge only string-valued fields while preserving the draft's discriminant. */
@@ -325,6 +328,23 @@ export function updateAccountDraft(
   }
 }
 
+export interface AccountOption {
+  readonly value: string;
+  readonly label: string;
+  readonly selected: boolean;
+  readonly onSelect?: () => void;
+  readonly accessibilityHint?: string;
+}
+
+export interface AccountDraftChoice {
+  readonly label: TranslationKey;
+  readonly value: TranslationKey;
+  readonly options: readonly AccountOption[];
+  readonly open: boolean;
+  readonly onOpen: () => void;
+  readonly onClose: () => void;
+}
+
 export interface AddAccountViewModel {
   readonly draft: AccountDraft;
   readonly currencySymbol: string;
@@ -332,6 +352,7 @@ export interface AddAccountViewModel {
     | readonly { readonly value: CurrencyCode; readonly label: string; readonly symbol: string }[]
     | null;
   readonly showWalletFunding: boolean;
+  readonly choice: AccountDraftChoice | null;
   readonly canAddMode: boolean;
   readonly canApplyMode: boolean;
   readonly availableModeTypes: readonly PaymentModeType[];

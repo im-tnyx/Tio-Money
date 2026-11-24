@@ -1,5 +1,4 @@
-import { KeyboardAvoidingView, Platform, ScrollView, Switch, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { KeyboardAvoidingView, Platform, ScrollView, Switch } from 'react-native';
 
 import { t, type TranslationKey } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -7,16 +6,16 @@ import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sh
 import { AppText } from '@/shared/ui/app-text';
 
 import {
-  investmentKinds,
-  loanDirections,
-  walletKinds,
   type AddAccountScreenViewModel,
   type AddAccountViewModel,
   type DraftField,
 } from './account-form-contract';
 import {
   AccountChoices,
+  AccountDropdown,
   AccountField,
+  AccountFormIcon,
+  AccountFormRow,
   AmountCurrencyChoices,
   UnavailableAccountChoice,
 } from './account-form-controls';
@@ -24,19 +23,6 @@ import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
 import { AccountPage } from './account-page';
 import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
 
-const loanLabels = { borrowed: 'accountLoanBorrowed', given: 'accountLoanGiven' } as const;
-const walletLabels = {
-  funded: 'accountWalletFunded',
-  'bank-linked': 'accountWalletLinked',
-} as const;
-const investmentLabels = {
-  stocks: 'accountInvestmentStocks',
-  mutualFunds: 'accountInvestmentMutualFunds',
-  fixedDeposit: 'accountInvestmentFixedDeposit',
-  gold: 'accountInvestmentGold',
-  ppf: 'accountInvestmentPpf',
-  other: 'accountInvestmentOther',
-} as const;
 const fieldSpecs = {
   name: { label: 'accountName' },
   description: { label: 'accountDescription' },
@@ -62,11 +48,13 @@ const fieldSpecs = {
   { label: TranslationKey; money?: boolean; date?: boolean; currencyControl?: boolean }
 >;
 
-const inputIcons = {
-  text: 'M5 17 12 4l7 13 M8 12h8 M5 21h14',
-  calendar: 'M4 6h16v14H4z M4 10h16 M8 4v4 M16 4v4 M8 14h1 M12 14h1 M16 14h1',
-  description: 'M4 6h16 M4 10h16 M4 14h16 M4 18h10',
-} as const;
+function getInputPlaceholder(field: DraftField, money: boolean, date: boolean) {
+  if (date) return t('accountReferenceDatePlaceholder');
+  if (money) return '0';
+  if (field === 'name') return t('accountNamePlaceholder');
+  if (field === 'description' || field === 'provider') return t('accountOptionalPlaceholder');
+  return undefined;
+}
 
 type DraftInputControls = Pick<
   AddAccountViewModel,
@@ -88,7 +76,6 @@ function DraftInput({
   readonly value: string;
   readonly label?: TranslationKey;
 }) {
-  const theme = useAppTheme();
   const spec = fieldSpecs[field];
   const money = 'money' in spec;
   const showCurrency = 'currencyControl' in spec && currencyChoices !== null;
@@ -96,27 +83,22 @@ function DraftInput({
   const description = field === 'description';
   const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
-    <AppText variant="title" numberOfLines={1} adjustsFontSizeToFit>
+    <AppText
+      variant="title"
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      style={{ includeFontPadding: false }}
+    >
       {currencySymbol}
     </AppText>
   ) : (
-    <Svg width={theme.iconRoles.textField} height={theme.iconRoles.textField} viewBox="0 0 24 24">
-      <Path
-        d={inputIcons[icon]}
-        fill="none"
-        stroke={theme.colors.primaryText}
-        strokeWidth={theme.icons.stroke}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
+    <AccountFormIcon name={icon} />
   );
   return (
     <AccountField
       appearance="borderless"
       textSize={field === 'name' || money || date ? 'title' : 'section'}
       label={label ?? spec.label}
-      labelAsPlaceholder={field === 'name' || description}
       leading={leading}
       trailing={
         showCurrency ? (
@@ -130,7 +112,8 @@ function DraftInput({
       }
       value={value}
       keyboardType={money ? 'decimal-pad' : undefined}
-      placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}
+      placeholder={getInputPlaceholder(field, money, date)}
+      textAlign="right"
       multiline={description}
       returnKeyType={description ? 'done' : undefined}
       submitBehavior={description ? 'blurAndSubmit' : undefined}
@@ -150,6 +133,7 @@ export function AddAccountScreen({
 }: AddAccountScreenViewModel) {
   const theme = useAppTheme();
   let sheet: BottomSheetLayer | undefined;
+  const choice = form?.choice;
   if (groupChoices) {
     sheet = {
       title: t('chooseAccountGroup'),
@@ -157,6 +141,14 @@ export function AddAccountScreen({
       onDismiss: onCloseGroupPicker,
       showCloseButton: true,
       children: <AccountGroupOptions choices={groupChoices} />,
+    };
+  } else if (choice?.open) {
+    sheet = {
+      title: t(choice.label),
+      dismissAccessibilityLabel: t('closeAccountOptions'),
+      onDismiss: choice.onClose,
+      showCloseButton: true,
+      children: <AccountChoices label={choice.label} options={choice.options} />,
     };
   } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
     sheet = {
@@ -191,7 +183,11 @@ export function AddAccountScreen({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ padding: theme.space.md, gap: theme.space.sm }}
         >
-          <AccountGroupField value={groupLabel} onPress={onOpenGroupPicker} />
+          <AccountGroupField
+            value={groupLabel}
+            expanded={groupChoices !== null}
+            onPress={onOpenGroupPicker}
+          />
           {form ? <AccountFields key={form.draft.group} {...form} /> : null}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -215,6 +211,7 @@ function AccountFields({
   currencySymbol,
   currencyChoices,
   showWalletFunding,
+  choice,
   canAddMode,
   onAction,
 }: AddAccountViewModel) {
@@ -228,18 +225,19 @@ function AccountFields({
         value={draft.fields.name}
         {...inputProps}
       />
+      {choice ? (
+        <AccountDropdown
+          label={choice.label}
+          value={choice.value}
+          expanded={choice.open}
+          leading={<AccountFormIcon name="options" />}
+          onPress={choice.onOpen}
+        />
+      ) : null}
       <GroupFields draft={draft} showWalletFunding={showWalletFunding} {...inputProps} />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
       {draft.group === 'credit-card' ? (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: theme.space.sm,
-          }}
-        >
-          <AppText>{t('accountAutoPay')}</AppText>
+        <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
           <Switch
             accessibilityRole="switch"
             accessibilityLabel={t('accountAutoPay')}
@@ -250,7 +248,7 @@ function AccountFields({
             value={false}
             disabled
           />
-        </View>
+        </AccountFormRow>
       ) : null}
       {draft.group === 'bank' ? (
         <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
@@ -281,26 +279,25 @@ function GroupFields({
         <>
           <DraftInput field="outstanding" value={draft.fields.outstanding} {...inputProps} />
           <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...inputProps} />
+          <UnavailableAccountChoice
+            label="accountPayFrom"
+            leading={<AccountFormIcon name="card" />}
+            detail="accountPayFromUnavailable"
+          />
           <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />
-          <UnavailableAccountChoice label="accountPayFrom" detail="accountPayFromUnavailable" />
         </>
       );
     case 'wallet':
       return (
         <>
-          <AccountChoices
-            label="accountWalletKind"
-            options={walletKinds.map((value) => ({ value, label: t(walletLabels[value]) }))}
-            value={draft.walletKind}
-            onChange={(value) => onAction({ type: 'wallet.kind', value })}
-          />
           <DraftInput field="provider" value={draft.fields.provider} {...inputProps} />
           {showWalletFunding ? (
             <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...inputProps} />
           ) : (
             <UnavailableAccountChoice
               label="accountWalletBank"
+              leading={<AccountFormIcon name="bank" />}
               detail="accountWalletBankUnavailable"
             />
           )}
@@ -309,12 +306,6 @@ function GroupFields({
     case 'loan':
       return (
         <>
-          <AccountChoices
-            label="accountLoanDirection"
-            options={loanDirections.map((value) => ({ value, label: t(loanLabels[value]) }))}
-            value={draft.direction}
-            onChange={(value) => onAction({ type: 'loan.direction', value })}
-          />
           <DraftInput
             field="originalPrincipal"
             value={draft.fields.originalPrincipal}
@@ -332,12 +323,6 @@ function GroupFields({
     case 'investment':
       return (
         <>
-          <AccountChoices
-            label="accountInvestmentType"
-            options={investmentKinds.map((value) => ({ value, label: t(investmentLabels[value]) }))}
-            value={draft.investmentKind}
-            onChange={(value) => onAction({ type: 'investment.kind', value })}
-          />
           <DraftInput field="investedCost" value={draft.fields.investedCost} {...inputProps} />
           <DraftInput field="valuation" value={draft.fields.valuation} {...inputProps} />
           <DraftInput field="valuationDate" value={draft.fields.valuationDate} {...inputProps} />

@@ -31,6 +31,8 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 
 Add Account keeps a separate draft for each selected group until the screen closes. Long forms scroll. The top bar has round Close and Save icons. Insurance remains informational and Save stays disabled in the preview.
 
+Each form row aligns its icon and label with the input or selected value. Loan Direction, Wallet Type and Investment Type show the selected value on the right. Tapping the row opens a choice sheet. Dismissing it retains the current value. Credit Card shows Payment From before Statement Date.
+
 ## 02 · Shared create/edit rules
 
 | Field | Requirement |

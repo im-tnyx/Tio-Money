@@ -35,6 +35,7 @@
 - [Add Account timing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7123925491) slows the selected form to a 300 ms ease-in-out slide. The group picker uses the native modal slide. Exact published HEAD and checks are recorded in RFC #96.
 - [Add Account screen PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7124239053) opens the editor screen before the Group picker, restores switching between group drafts and moves disabled Save into the top bar. Exact published HEAD and checks are recorded in RFC #96.
 - [Add Account spacing PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7124570281) sets 16 dp editor padding, 12 dp field gaps and 36 dp round header backgrounds. [Save uses the owner-selected weight 300 SVG](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7124614466). Exact published HEAD and checks are recorded in RFC #96.
+- [Inline Add Account rows PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-follow-up-decision--proceed) places Loan Direction, Wallet Type and Investment Type in right-side dropdowns and puts Payment From above Statement Date. The [task checkpoint](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--inline-add-account-rows) records validation and remaining device QA.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 

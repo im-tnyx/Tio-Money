@@ -37,7 +37,7 @@ export function AppTextField({
         fontSize,
         fontWeight: textSize === 'title' ? theme.typography.mediumWeight : undefined,
         lineHeight: growsWithText ? lineHeight : undefined,
-        includeFontPadding: growsWithText ? false : undefined,
+        includeFontPadding: borderless ? false : undefined,
         // Align the initial height with single-line fields. Native wrapping adds height.
         paddingVertical: growsWithText ? (minHeight - lineHeight) / 2 : undefined,
         // Center single-line Android input; leave multiline editing top aligned.
