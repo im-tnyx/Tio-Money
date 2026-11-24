@@ -1,9 +1,9 @@
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
 import {
-  changeCalendarPart,
   encodeCalendarDate,
   localCalendarToday,
   parseCalendarDate,
+  selectCalendarWheel,
   type CalendarPart,
 } from '@/shared/ui/calendar-date';
 
@@ -145,7 +145,7 @@ export function updateAccountAddSession(
       if (active?.group !== 'loan' || picker?.id !== action.id) return session;
       const date = parseCalendarDate(active.fields[picker.field]);
       if (!date) return session;
-      const value = encodeCalendarDate(changeCalendarPart(date, action.part, action.value));
+      const value = encodeCalendarDate(selectCalendarWheel(date, action.part, action.value));
       if (value === active.fields[picker.field]) return session;
       const draft = updateAccountDraft(
         active,

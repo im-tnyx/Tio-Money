@@ -35,8 +35,12 @@ import { wheelProjection, wheelProjectionSamples } from '../../src/shared/ui/whe
 import { shouldAlignWheel } from '../../src/shared/ui/wheel-selection';
 import {
   calendarMonths,
+  calendarWheelCounts,
+  calendarWheelIndex,
+  calendarWheelLabel,
   localCalendarToday,
   parseCalendarDate,
+  selectCalendarWheel,
 } from '../../src/shared/ui/calendar-date';
 import {
   buttonTokens,
@@ -760,8 +764,8 @@ test('wheel projection preserves the center and curves and fades symmetrically',
   assert.equal(rowHeight, 32);
   assert.equal(rowHeight * visibleRows, 160);
   assert.equal(paddingHorizontal, 8);
-  assert.equal(paddingVertical, 4);
-  assert.equal(rowHeight * visibleRows + paddingVertical * 2, 168);
+  assert.equal(paddingVertical, 6);
+  assert.equal(rowHeight * visibleRows + paddingVertical * 2, 172);
   assert.equal(wheelPickerTokens.anglePerRow, 22);
   const center = wheelProjection(0, rowHeight);
   const near = wheelProjection(1, rowHeight);
@@ -804,6 +808,37 @@ test('wheel projection preserves the center and curves and fades symmetrically',
   }
 });
 
+test('continuous calendar detents carry days and months across years', () => {
+  const end = { year: 2026, month: 12, day: 31 };
+  const next = { year: 2027, month: 1, day: 1 };
+  const dayIndex = calendarWheelIndex(end, 'day');
+  assert.deepEqual(selectCalendarWheel(end, 'day', dayIndex + 1), next);
+  assert.deepEqual(selectCalendarWheel(next, 'day', dayIndex), end);
+  assert.equal(calendarWheelLabel('day', dayIndex + 1), '01');
+  const monthIndex = calendarWheelIndex(end, 'month');
+  assert.equal(calendarWheelLabel('month', monthIndex + 1), 'Jan');
+  assert.deepEqual(selectCalendarWheel(end, 'month', monthIndex + 1), {
+    year: 2027,
+    month: 1,
+    day: 31,
+  });
+  const leap = { year: 2028, month: 2, day: 28 };
+  const leapIndex = calendarWheelIndex(leap, 'day');
+  assert.deepEqual(selectCalendarWheel(leap, 'day', leapIndex + 1), {
+    ...leap,
+    day: 29,
+  });
+  assert.deepEqual(selectCalendarWheel(leap, 'day', leapIndex + 2), {
+    year: 2028,
+    month: 3,
+    day: 1,
+  });
+  assert.equal(selectCalendarWheel(end, 'day', -1), end);
+  assert.equal(selectCalendarWheel(end, 'day', calendarWheelCounts.day), end);
+  assert.equal(calendarWheelCounts.month, 2412);
+  assert.equal(calendarWheelCounts.year, 201);
+});
+
 test('wheel controlled echoes cannot interrupt native motion', () => {
   assert.equal(shouldAlignWheel(5, 5, false, false), false);
   assert.equal(shouldAlignWheel(4, 5, true, false), false);
@@ -835,9 +870,19 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   const id = session.datePicker.id;
   assert.equal(update(session, { type: 'group.open' }), session);
   assert.equal(update(session, { type: 'options.open' }), session);
-  session = update(session, { type: 'date.change', id, part: 'month', value: 2 });
+  session = update(session, {
+    type: 'date.change',
+    id,
+    part: 'month',
+    value: calendarWheelIndex({ year: 2024, month: 2, day: 1 }, 'month'),
+  });
   assert.equal(dates().startDate, '2024-02-29');
-  session = update(session, { type: 'date.change', id, part: 'year', value: 2025 });
+  session = update(session, {
+    type: 'date.change',
+    id,
+    part: 'year',
+    value: calendarWheelIndex({ year: 2025, month: 1, day: 1 }, 'year'),
+  });
   assert.equal(dates().startDate, '2025-02-28');
   assert.equal(dates().nextDueDate, today);
   session = update(session, { type: 'date.close', id });
@@ -847,7 +892,12 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.equal(update(session, { type: 'date.close', id }), session);
   assert.ok(session.datePicker);
   const nextId = session.datePicker.id;
-  session = update(session, { type: 'date.change', id: nextId, part: 'month', value: 9 });
+  session = update(session, {
+    type: 'date.change',
+    id: nextId,
+    part: 'month',
+    value: calendarWheelIndex({ year: 2024, month: 9, day: 1 }, 'month'),
+  });
   assert.equal(dates().nextDueDate, '2024-09-30');
   session = update(session, { type: 'date.close', id: nextId });
   session = update(session, { type: 'group.open' });
@@ -868,7 +918,10 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.doesNotMatch(field, /theme\.colors\.segmentedTrack/);
   assert.doesNotMatch(field, /ActionButton|TextInput|AppBottomSheet|onSubmit|onSave/);
   assert.match(wheel, /snapToInterval=\{rowHeight\}/);
-  assert.match(wheel, /<Animated\.ScrollView/);
+  assert.match(wheel, /<Animated\.FlatList/);
+  assert.match(wheel, /getItemLayout=/);
+  assert.match(wheel, /initialScrollIndex=/);
+  assert.match(wheel, /windowSize=/);
   assert.match(wheel, /onScroll=\{onScroll\}/);
   assert.match(wheel, /Animated\.event/);
   assert.match(wheel, /offset\.addListener/);

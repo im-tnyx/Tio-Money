@@ -16,11 +16,6 @@ import { AppText } from './app-text';
 import { wheelProjectionSamples } from './wheel-projection';
 import { shouldAlignWheel } from './wheel-selection';
 
-export interface WheelOption {
-  readonly value: number;
-  readonly label: string;
-}
-
 function projectRow(offset: Animated.Value, index: number, rowHeight: number) {
   const samples = wheelProjectionSamples(index, rowHeight);
   const inputRange = samples.map((sample) => sample.offset);
@@ -43,10 +38,54 @@ function projectRow(offset: Animated.Value, index: number, rowHeight: number) {
   };
 }
 
-/** Controlled wheel: one native scroll offset drives the complete drum projection. */
+function WheelRow({
+  offset,
+  index,
+  rowHeight,
+  reduceMotion,
+  selected,
+  label,
+  onPress,
+}: {
+  readonly offset: Animated.Value;
+  readonly index: number;
+  readonly rowHeight: number;
+  readonly reduceMotion: boolean;
+  readonly selected: boolean;
+  readonly label: string;
+  readonly onPress: () => void;
+}) {
+  const projection = useMemo(
+    () => (reduceMotion ? undefined : projectRow(offset, index, rowHeight)),
+    [offset, index, rowHeight, reduceMotion],
+  );
+
+  return (
+    <Animated.View style={[{ height: rowHeight }, projection]}>
+      <Pressable
+        accessible={false}
+        onPress={onPress}
+        style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+      >
+        <AppText
+          variant="section"
+          muted={reduceMotion && !selected}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{ includeFontPadding: false }}
+        >
+          {label}
+        </AppText>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+/** Controlled, virtualized drum. Values are absolute detent indices, not display labels. */
 export function AppWheelPicker({
   label,
-  options,
+  count,
+  labelAt,
   value,
   onChange,
   rowHeight,
@@ -54,47 +93,43 @@ export function AppWheelPicker({
   flex = 1,
 }: {
   readonly label: string;
-  readonly options: readonly WheelOption[];
+  readonly count: number;
+  readonly labelAt: (index: number) => string;
   readonly value: number;
-  readonly onChange: (value: number) => void;
+  readonly onChange: (index: number) => void;
   readonly rowHeight: number;
   readonly visibleRows: number;
   readonly flex?: number;
 }) {
   const reduceMotion = useReducedMotion();
-  const scroll = useRef<ComponentRef<typeof Animated.ScrollView>>(null);
-  const selected = Math.max(0, options.findIndex((option) => option.value === value));
+  const scroll = useRef<ComponentRef<typeof Animated.FlatList>>(null);
+  const selected = Math.min(count - 1, Math.max(0, value));
   const lastIndex = useRef(selected);
   const interacting = useRef(false);
   const didLayout = useRef(false);
   const pendingEchoes = useRef(new Set<number>());
-  const selection = useRef({ options, onChange });
-  const [initialOffset] = useState(() => ({ x: 0, y: selected * rowHeight }));
+  const selection = useRef({ count, onChange });
+  const [initialIndex] = useState(selected);
   const [offset] = useState(() => new Animated.Value(selected * rowHeight));
-  const padding = ((visibleRows - 1) / 2) * rowHeight;
-
-  useLayoutEffect(() => {
-    selection.current = { options, onChange };
-  }, [options, onChange]);
-
-  const projections = useMemo(
-    () =>
-      reduceMotion
-        ? []
-        : Array.from({ length: options.length }, (_, index) =>
-            projectRow(offset, index, rowHeight),
-          ),
-    [offset, options.length, reduceMotion, rowHeight],
+  const spacerRows = (visibleRows - 1) / 2;
+  // Explicit spacer rows keep getItemLayout and initialScrollIndex exact. The
+  // virtual list mounts only a small window, even for the entire civil-day range.
+  const items = useMemo(
+    () => Array.from({ length: count + spacerRows * 2 }, (_, index) => index - spacerRows),
+    [count, spacerRows],
   );
 
+  useLayoutEffect(() => {
+    selection.current = { count, onChange };
+  }, [count, onChange]);
+
   const select = useCallback((index: number) => {
-    const { options, onChange } = selection.current;
-    const next = Math.min(options.length - 1, Math.max(0, index));
-    const option = options[next];
-    if (!option || next === lastIndex.current) return;
+    const { count, onChange } = selection.current;
+    const next = Math.min(count - 1, Math.max(0, index));
+    if (next === lastIndex.current) return;
     pendingEchoes.current.add(next);
     lastIndex.current = next;
-    onChange(option.value);
+    onChange(next);
   }, []);
 
   const selectFromScroll = useCallback(
@@ -104,8 +139,6 @@ export function AppWheelPicker({
     [rowHeight, select],
   );
 
-  // Native scroll and transforms share an offset. Observe selection separately
-  // after commit; the event factory must not read interaction refs during render.
   const onScroll = useMemo(
     () =>
       Animated.event([{ nativeEvent: { contentOffset: { y: offset } } }], {
@@ -133,15 +166,15 @@ export function AppWheelPicker({
     pendingEchoes.current.clear();
     lastIndex.current = selected;
     offset.setValue(selected * rowHeight);
-    scroll.current?.scrollTo({ y: selected * rowHeight, animated: false });
+    scroll.current?.scrollToOffset({ offset: selected * rowHeight, animated: false });
   }, [offset, selected, rowHeight]);
 
   function selectAndAlign(index: number) {
     interacting.current = false;
-    const next = Math.min(options.length - 1, Math.max(0, index));
+    const next = Math.min(count - 1, Math.max(0, index));
     select(next);
     offset.setValue(next * rowHeight);
-    scroll.current?.scrollTo({ y: next * rowHeight, animated: false });
+    scroll.current?.scrollToOffset({ offset: next * rowHeight, animated: false });
   }
 
   return (
@@ -149,7 +182,7 @@ export function AppWheelPicker({
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={label}
-      accessibilityValue={{ text: options[selected]?.label }}
+      accessibilityValue={{ text: labelAt(selected) }}
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={({ nativeEvent }) => {
         if (nativeEvent.actionName === 'increment') selectAndAlign(selected + 1);
@@ -157,8 +190,20 @@ export function AppWheelPicker({
       }}
       style={{ flex, minWidth: '0%', height: rowHeight * visibleRows, overflow: 'hidden' }}
     >
-      <Animated.ScrollView
+      <Animated.FlatList
         ref={scroll}
+        data={items}
+        extraData={selected}
+        keyExtractor={(item) => String(item)}
+        getItemLayout={(_, index) => ({
+          length: rowHeight,
+          offset: index * rowHeight,
+          index,
+        })}
+        initialScrollIndex={initialIndex}
+        initialNumToRender={visibleRows * 3}
+        maxToRenderPerBatch={visibleRows * 3}
+        windowSize={5}
         accessible={false}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -168,14 +213,9 @@ export function AppWheelPicker({
         bounces={false}
         overScrollMode="never"
         scrollEventThrottle={16}
-        contentOffset={initialOffset}
         removeClippedSubviews={false}
         onLayout={() => {
-          if (didLayout.current) return;
           didLayout.current = true;
-          if (!interacting.current) {
-            scroll.current?.scrollTo({ y: lastIndex.current * rowHeight, animated: false });
-          }
         }}
         onScrollBeginDrag={() => {
           interacting.current = true;
@@ -189,31 +229,26 @@ export function AppWheelPicker({
           interacting.current = true;
         }}
         onMomentumScrollEnd={(event) => {
-          selectFromScroll(event);
+          if (interacting.current) selectFromScroll(event);
           interacting.current = false;
         }}
-        contentContainerStyle={{ paddingVertical: padding }}
-      >
-        {options.map((option, index) => (
-          <Animated.View key={option.value} style={[{ height: rowHeight }, projections[index]]}>
-            <Pressable
-              accessible={false}
-              onPress={() => selectAndAlign(index)}
-              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <AppText
-                variant="section"
-                muted={reduceMotion && option.value !== value}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                style={{ includeFontPadding: false }}
-              >
-                {option.label}
-              </AppText>
-            </Pressable>
-          </Animated.View>
-        ))}
-      </Animated.ScrollView>
+        renderItem={({ item }) => {
+          if (typeof item !== 'number' || item < 0 || item >= count) {
+            return <View style={{ height: rowHeight }} />;
+          }
+          return (
+            <WheelRow
+              offset={offset}
+              index={item}
+              rowHeight={rowHeight}
+              reduceMotion={reduceMotion}
+              selected={item === selected}
+              label={labelAt(item)}
+              onPress={() => selectAndAlign(item)}
+            />
+          );
+        }}
+      />
     </View>
   );
 }
