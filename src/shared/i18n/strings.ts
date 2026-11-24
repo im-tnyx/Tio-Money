@@ -55,6 +55,7 @@ export const en = {
   accountLoanBorrowed: 'Borrowed',
   accountLoanGiven: 'Given',
   accountLoanOriginalPrincipal: 'Loan Amount',
+  accountLoanAmountLent: 'Amount Lent',
   accountLoanFees: 'Fees',
   accountLoanInterestRate: 'Interest Rate',
   accountLoanMoreDetails: 'More details',
@@ -62,12 +63,25 @@ export const en = {
   closeLoanFieldInfo: 'Close field information',
   accountLoanAmountInfo:
     'Enter the original sanctioned loan amount. This is the contract total before fees were cut.',
+  accountLoanAmountLentInfo:
+    'Enter how much you lent. This is the original principal you gave, not what is still unpaid.',
   accountLoanFeesInfo:
     'Enter processing or other upfront charges deducted when the loan was disbursed, if you know them.',
   accountLoanInterestRateInfo:
     'Enter the interest rate as a percent if you know it. Leave blank when the rate is unknown.',
+  accountLoanGivenInterestRateInfo:
+    'Enter the interest rate you agreed with the borrower, as a percent. Leave blank when unknown.',
+  accountLoanInstallmentInfo:
+    'Optional. Enter a fixed installment only when recovery follows a set schedule.',
+  accountLoanCollectIntoInfo:
+    'Choose where repaid amounts should be collected. Setup stays unavailable until account linking is approved.',
   accountLoanEmiAmount: 'EMI Amount (Optional)',
+  accountLoanInstallmentOptional: 'Installment (Optional)',
   accountLoanFirstEmiDate: 'First EMI Date',
+  accountLoanStartDate: 'Start Date',
+  accountCollectInto: 'Collect Into',
+  accountCollectIntoCaption: 'Into',
+  accountCollectIntoPlaceholder: 'Collection',
   accountInvestmentType: 'Investment Type',
   accountInvestmentStocks: 'Stocks',
   accountInvestmentMutualFunds: 'Mutual Funds',

@@ -6,12 +6,12 @@
 | Lifecycle | IN_REVIEW |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
-| Current agent | Cursor Cloud (Composer) — docs provenance alignment only |
+| Current agent | Cursor Cloud (Composer) — Loan Given v1 preview |
 | Previous agent | ChatGPT GPT-6.2; earlier Codex Cloud, GPT-6 family. Exact prior variants UNKNOWN_NOT_VERIFIED. |
 | Branch | `feat/accounts-ui-foundation-20261123` |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
 | Latest audited base | `885c861d30d7ebc10cade3cf3f781ffb79732d4b` (main after PR #106) |
-| Latest audited HEAD | First EMI Date fix `7c805e55d90a73c7b08c1383ecac5857630b0d3d`, then this main reconciliation |
+| Latest audited HEAD | [`c9ce31a`](https://github.com/im-tnyx/Tio-Money/commit/c9ce31a31ee2e619f8275f6f9396ea8de365beb4) (Loan Given v1) |
 | Review | DEFERRED. No independent review of the draft has been performed. |
 | Merge authorization | NOT_GRANTED |
 | PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
@@ -24,9 +24,9 @@ The Accounts feature owns group selection, transient typed Cash, Bank, Credit Ca
 
 Acceptance before coding: check routing from the Accounts header and Settings, disabled unsupported groups, guarded draft navigation, Main/Sub currency choices, no persistence, unchanged tabs/FAB, and the screen/controller boundary. Run static checks, Expo bundles and governance. Device QA covers Back, keyboard, safe area, reduced motion, theme and accessibility.
 
-## Current UI snapshot (source verified 2026-11-24)
+## Current UI snapshot (source verified 2026-11-25)
 
-Source verified at Accounts preview First EMI Date fix [`7c805e5`](https://github.com/im-tnyx/Tio-Money/commit/7c805e55d90a73c7b08c1383ecac5857630b0d3d) on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/885c861d30d7ebc10cade3cf3f781ffb79732d4b) after this reconciliation. Behavior includes the independent Wallet form ([`9ad5d80`](https://github.com/im-tnyx/Tio-Money/commit/9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06)), Credit Card payment-picker shell with `paymentSource: null`, Loan First EMI Date only (no Next Due), keyboard-aware form viewport, and Group row label. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
+Source verified on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/885c861d30d7ebc10cade3cf3f781ffb79732d4b) after Loan tip polish [`8c178b3`](https://github.com/im-tnyx/Tio-Money/commit/8c178b30d410) and this Loan Given v1 preview. Behavior includes the independent Wallet form ([`9ad5d80`](https://github.com/im-tnyx/Tio-Money/commit/9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06)), Credit Card payment-picker shell with `paymentSource: null`, Borrowed vs Given Loan field sets, keyboard-aware form viewport, and Group row label. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
 
 **Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Group row can reopen it. Six built-in groups have forms; Insurance is informational and custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
 
@@ -38,10 +38,11 @@ Source verified at Accounts preview First EMI Date fix [`7c805e5`](https://githu
 | Bank Account | Account Name, Opening Amount, Description, Linked Payment Modes |
 | Credit Card | Card Name, Opening Outstanding, Total Credit Limit, From / Payment, Billing Cycle Start Date, Payment Due Date, Description, Auto Pay |
 | Wallet | Account Name, Opening Amount/Currency, Description |
-| Loan | Account Name, Loan Direction, EMI Amount (Optional), From / Payment, First EMI Date, More details (chevron; expands Loan Amount, Fees, Interest Rate — each with a ? info tip), Description, Auto Pay |
+| Loan (Borrowed) | Account Name, Loan Direction, EMI Amount (Optional), From / Payment, First EMI Date, More details (chevron; expands Loan Amount, Fees, Interest Rate — each with a ? info tip), Description, Auto Pay |
+| Loan (Given) | Account Name, Loan Direction, Amount Lent, Interest Rate, Start Date, Into / Collection (Collect Into; ? tip), More details (chevron; expands optional Installment with ? tip). No Fees row and no Auto Pay. |
 | Investment | Account Name, Investment Type, Historical Invested Cost, Estimated Valuation, Valuation Date, valuation guidance, Description |
 
-**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. The Credit Card and Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder, is non-editable, and has no visible Unavailable or eligibility copy. No trailing From label. Credit Card and Loan alone show Auto Pay after Description, Off and disabled. Investment has neither Payment From nor Auto Pay. Monthly card days begin at 01 and 15 with “of every month”. Loan uses a single First EMI Date (defaults to local Today); Next Due is not collected because it can be derived later from First EMI and today. The First EMI control opens the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Valuation Date retains the existing editable day/month/year row.
+**Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name, Card Name and Description appear as inline placeholders. Credit Card and Borrowed Loan Payment rows share a visible **From** caption above a title-sized **Payment** placeholder; Given Loan uses **Into** above **Collection**. Both are non-editable and have no visible Unavailable or eligibility copy. Credit Card and Borrowed Loan alone show Auto Pay after Description, Off and disabled. Given Loan and Investment have neither Payment From nor Auto Pay. Switching Loan Direction clears monetary amount fields and closes More details / field info. Monthly card days begin at 01 and 15 with “of every month”. Borrowed Loan uses First EMI Date; Given Loan uses Start Date (same draft `startDate` key, default local Today). Next Due is not collected. The date control opens the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Valuation Date retains the existing editable day/month/year row.
 
 **Selectors.** Loan Direction and Investment Type open an anchored, rounded popup with a selected checkmark, not a bottom sheet. Outside tap or Back dismisses without selecting. Account Group and the Bank mode editor retain their bottom-sheet flows. Main currency is the initial draft currency; if Sub Currencies are configured, one amount row per eligible form shows horizontally scrollable symbol choices in configured order with a tinted selected state and checked radio accessibility. Currency selection is hidden without Subs. Currency changes clear monetary fields, including EMI, without clearing other draft data.
 
@@ -586,5 +587,12 @@ The entries below record implementation history at their stated revisions; super
 
 - Owner direction: show a ? control beside Loan Amount, Fees and Interest Rate captions; tap opens a short popup explaining what to enter. Controller-owned `fieldInfo` on the Loan draft; clears when More details collapses or another picker opens. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; independent review DEFERRED; merge authorization NOT_GRANTED.
+
+### 2026-11-25 — Loan Given v1 preview
+
+- Owner direction in chat: Given is not the same as Borrowed. Setup Given with Amount Lent, Interest Rate, Start Date, Collect Into, and More details → optional Installment only. No Fees and no Auto Pay on Given. Direction switch clears amounts. Borrowed layout stays as-is. Material `info` tips remain on applicable fields; tip open no longer requires More details expanded.
+- Preview change: Loan draft still shares keys; screen branches on `direction === 'given'`. Collect Into reuses the payment-row control with Into/Collection copy and a Collect Into tip. `loan.direction` clears principal/fees/rate/EMI, collapses More details, and closes field info. No finance writes, linking, or Save.
+- Local validation: `npx tsc --noEmit`; Prettier on touched files; `npx tsx --test tests/accounts/accounts-preview.test.ts` (41 pass). Independent review DEFERRED; device QA pending; merge authorization NOT_GRANTED.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

@@ -36,6 +36,8 @@ const loanFieldInfoCopy = {
   originalPrincipal: 'accountLoanAmountInfo',
   fees: 'accountLoanFeesInfo',
   interestRate: 'accountLoanInterestRateInfo',
+  emiAmount: 'accountLoanInstallmentInfo',
+  collectInto: 'accountLoanCollectIntoInfo',
 } as const satisfies Record<LoanFieldInfo, TranslationKey>;
 
 const fieldSpecs = {
@@ -49,6 +51,7 @@ const fieldSpecs = {
   originalPrincipal: {
     label: 'accountLoanOriginalPrincipal',
     money: true,
+    currencyControl: true,
     info: 'originalPrincipal',
   },
   fees: { label: 'accountLoanFees', money: true, info: 'fees' },
@@ -80,21 +83,25 @@ type DraftInputControls = Pick<
 
 function LoanFieldInfoTip({
   field,
+  fieldLabel,
+  bodyKey,
   open,
   onOpen,
   onClose,
 }: {
   readonly field: LoanFieldInfo;
+  readonly fieldLabel: TranslationKey;
+  readonly bodyKey: TranslationKey;
   readonly open: boolean;
   readonly onOpen: () => void;
   readonly onClose: () => void;
 }) {
   const theme = useAppTheme();
-  const body = t(loanFieldInfoCopy[field]);
+  const body = t(bodyKey);
   return (
     <AppPopupCard
       trigger={<AccountFieldInfoMark />}
-      label={t('accountLoanFieldInfo') + ', ' + t(fieldSpecs[field].label)}
+      label={t('accountLoanFieldInfo') + ', ' + t(fieldLabel)}
       value={body}
       dismissLabel={t('closeLoanFieldInfo')}
       open={open}
@@ -128,10 +135,14 @@ function DraftInput({
   currency,
   fieldInfo,
   label,
+  info,
+  infoBody,
 }: DraftInputControls & {
   readonly field: DraftField;
   readonly value: string;
   readonly label?: TranslationKey;
+  readonly info?: LoanFieldInfo | false;
+  readonly infoBody?: TranslationKey;
 }) {
   const spec = fieldSpecs[field];
   const money = 'money' in spec;
@@ -142,7 +153,10 @@ function DraftInput({
   const parts = calendar ? calendarDateParts(value) : null;
   const fieldLabel = label ?? spec.label;
   const description = field === 'description';
-  const infoField = 'info' in spec ? spec.info : undefined;
+  const infoField = info === false ? undefined : (info ?? ('info' in spec ? spec.info : undefined));
+  const infoBodyKey =
+    infoBody ??
+    (infoField && infoField !== 'collectInto' ? loanFieldInfoCopy[infoField] : undefined);
   const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
     <AppText
@@ -165,9 +179,11 @@ function DraftInput({
       labelAsPlaceholder={field === 'name' || description}
       leading={leading}
       info={
-        infoField ? (
+        infoField && infoBodyKey ? (
           <LoanFieldInfoTip
             field={infoField}
+            fieldLabel={fieldLabel}
+            bodyKey={infoBodyKey}
             open={fieldInfo === infoField}
             onOpen={() => onAction({ type: 'fieldInfo.open', field: infoField })}
             onClose={() => onAction({ type: 'fieldInfo.close' })}
@@ -316,7 +332,8 @@ function AccountFields({
         {...inputProps}
       />
       <DraftInput field="description" value={draft.fields.description} {...inputProps} />
-      {draft.group === 'credit-card' || draft.group === 'loan' ? (
+      {draft.group === 'credit-card' ||
+      (draft.group === 'loan' && draft.direction === 'borrowed') ? (
         <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
           <Switch
             accessibilityRole="switch"
@@ -337,28 +354,54 @@ function AccountFields({
   );
 }
 
-function PaymentFromField({ picker = null }: { readonly picker?: AccountPickerModel | null }) {
+function PaymentFromField({
+  picker = null,
+  mode = 'pay',
+  fieldInfo = null,
+  onAction,
+}: {
+  readonly picker?: AccountPickerModel | null;
+  readonly mode?: 'pay' | 'collect';
+  readonly fieldInfo?: LoanFieldInfo | null;
+  readonly onAction?: AddAccountViewModel['onAction'];
+}) {
   const selectedName = selectedAccountName(picker);
+  const collect = mode === 'collect';
+  const caption = collect ? 'accountCollectIntoCaption' : 'accountPayFromCaption';
+  const placeholder = collect ? 'accountCollectIntoPlaceholder' : 'accountPayFromPlaceholder';
+  const accessLabel = collect ? 'accountCollectInto' : 'accountPayFrom';
   const field = (
     <AccountField
-      label="accountPayFromCaption"
+      label={caption}
       appearance="borderless"
       textSize="title"
       leading={<AccountFormIcon name="card" />}
-      placeholder={t('accountPayFromPlaceholder')}
-      accessibilityLabel={t('accountPayFrom')}
+      placeholder={t(placeholder)}
+      accessibilityLabel={t(accessLabel)}
       accessibilityState={{ disabled: true }}
       editable={false}
       value={selectedName ?? ''}
       textAlign="left"
+      info={
+        collect && onAction ? (
+          <LoanFieldInfoTip
+            field="collectInto"
+            fieldLabel="accountCollectInto"
+            bodyKey="accountLoanCollectIntoInfo"
+            open={fieldInfo === 'collectInto'}
+            onOpen={() => onAction({ type: 'fieldInfo.open', field: 'collectInto' })}
+            onClose={() => onAction({ type: 'fieldInfo.close' })}
+          />
+        ) : undefined
+      }
     />
   );
   if (!picker || picker.accounts.length === 0) return field;
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t('accountPayFrom')}
-      accessibilityValue={{ text: selectedName ?? t('accountPayFromPlaceholder') }}
+      accessibilityLabel={t(accessLabel)}
+      accessibilityValue={{ text: selectedName ?? t(placeholder) }}
       accessibilityState={{ expanded: picker.open }}
       onPress={picker.onOpen}
     >
@@ -400,9 +443,64 @@ function GroupFields({
       );
 
     case 'loan':
+      if (draft.direction === 'given') {
+        return (
+          <>
+            <DraftInput
+              field="originalPrincipal"
+              label="accountLoanAmountLent"
+              infoBody="accountLoanAmountLentInfo"
+              value={draft.fields.originalPrincipal}
+              {...draftInput}
+            />
+            <DraftInput
+              field="interestRate"
+              infoBody="accountLoanGivenInterestRateInfo"
+              value={draft.fields.interestRate}
+              {...draftInput}
+            />
+            {loanDates ? (
+              <AppDateField
+                label={t('accountLoanStartDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...loanDates.startDate}
+              />
+            ) : null}
+            <PaymentFromField mode="collect" fieldInfo={draftInput.fieldInfo} onAction={onAction} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('accountLoanMoreDetails')}
+              accessibilityState={{ expanded: draft.moreDetailsOpen }}
+              onPress={() => onAction({ type: 'moreDetails.toggle' })}
+            >
+              <AccountFormRow
+                label="accountLoanMoreDetails"
+                leading={<AccountFormIcon name="options" />}
+              >
+                <AppPopupChevron open={draft.moreDetailsOpen} />
+              </AccountFormRow>
+            </Pressable>
+            {draft.moreDetailsOpen ? (
+              <DraftInput
+                field="emiAmount"
+                label="accountLoanInstallmentOptional"
+                info="emiAmount"
+                infoBody="accountLoanInstallmentInfo"
+                value={draft.fields.emiAmount}
+                {...draftInput}
+              />
+            ) : null}
+          </>
+        );
+      }
       return (
         <>
-          <DraftInput field="emiAmount" value={draft.fields.emiAmount} {...draftInput} />
+          <DraftInput
+            field="emiAmount"
+            info={false}
+            value={draft.fields.emiAmount}
+            {...draftInput}
+          />
           <PaymentFromField />
           {loanDates ? (
             <AppDateField
