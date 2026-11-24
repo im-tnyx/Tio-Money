@@ -393,4 +393,11 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - The previous `0835840` update set the decorative Bank empty-state link icon to 48 dp and removed the Account Group bottom-sheet X. Both PR workflows passed for that revision.
 - Codex verified the Loan form structure and currency reset behavior. Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
 
+### 2026-11-24 — Credit Card Payment field clarification
+
+- [Owner clarification](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7129925352) and [implementation authorization](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7129946299) scope this checkpoint to the Credit Card Payment row. Agent ChatGPT GPT-6.2; previous verified agent Codex Cloud, GPT-6 family, exact variant UNKNOWN_NOT_VERIFIED. Starting HEAD `a5b89f11d029d06cff92a8c1d98e5a861d8c40c1`, base `6468b62786d56edb1a70b7a5c90146e17566e23b`. Prior agent work is preserved.
+- Reuse AccountField with From as the visible caption and Payment as the borderless title-sized placeholder. Keep the existing card icon, field order, and read-only preview. Remove the unavailable value and supporting copy from this row only. Owner also confirms zero caption-to-input gap; the existing shared captionGap token and regression assertion already equal zero and remain unchanged.
+- Changed paths: `src/features/accounts/add-account-screen.tsx`, `src/shared/i18n/strings.ts`, `tests/accounts/accounts-preview.test.ts`, `docs/product/ACCOUNT-GROUPS-SPEC.md`, this task record and `.ai/current.md`.
+- Connector-only source inspection and exact replacement checks; local TypeScript, lint, format, tests and device QA NOT_RUN here. Independent review DEFERRED. Fresh exact-HEAD CI required; see [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks). RFC #98 finance boundary unchanged; merge authorization NOT_GRANTED. Rollback: revert only this scoped commit.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

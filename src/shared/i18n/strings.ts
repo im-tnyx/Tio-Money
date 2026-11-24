@@ -43,6 +43,8 @@ export const en = {
   accountCardDueDate: 'Payment Due Date',
   accountCardMonthlySuffix: 'of every month',
   accountPayFrom: 'Payment From',
+  accountPayFromCaption: 'From',
+  accountPayFromPlaceholder: 'Payment',
   accountPayFromUnavailable: 'Available when eligible Bank accounts exist.',
   accountAutoPay: 'Auto Pay',
   accountAutoPayUnavailable:

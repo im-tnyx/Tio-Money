@@ -611,7 +611,22 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
   assert.equal(en.accountCardStatementDate, 'Billing Cycle Start Date');
   assert.equal(en.accountPayFrom, 'Payment From');
-  assert.match(groupFields, /label="accountPayFrom"[\s\S]*?field="statementDate"/);
+  assert.equal(en.accountPayFromCaption, 'From');
+  assert.equal(en.accountPayFromPlaceholder, 'Payment');
+  assert.match(
+    groupFields,
+    /<AccountField\s+label="accountPayFromCaption"\s+appearance="borderless"\s+textSize="title"/,
+  );
+  const paymentField = groupFields.slice(
+    groupFields.indexOf('label="accountPayFromCaption"'),
+    groupFields.indexOf('field="statementDate"'),
+  );
+  assert.match(paymentField, /placeholder=\{t\('accountPayFromPlaceholder'\)\}/);
+  assert.match(paymentField, /accessibilityLabel=\{t\('accountPayFrom'\)\}/);
+  assert.match(paymentField, /accessibilityState=\{\{ disabled: true \}\}/);
+  assert.match(paymentField, /editable=\{false\}\s+value=""/);
+  assert.doesNotMatch(paymentField, /labelAsPlaceholder|trailing=|onChangeText/);
+  assert.doesNotMatch(groupFields, /accountPayFromUnavailable/);
   assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
   assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
   assert.equal(en.accountCardDueDate, 'Payment Due Date');
@@ -923,7 +938,7 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
   assert.match(form, /label="accountWalletBank"/);
-  assert.match(form, /label="accountPayFrom"/);
+  assert.match(form, /label="accountPayFromCaption"/);
   assert.match(choices, /checked: selected/);
   assert.match(choices, /m5 12 4 4 10-10/);
   assert.doesNotMatch(form + bankModes, /onSave|onSubmit/);

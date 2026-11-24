@@ -285,10 +285,17 @@ function GroupFields({
         <>
           <DraftInput field="outstanding" value={draft.fields.outstanding} {...inputProps} />
           <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...inputProps} />
-          <UnavailableAccountChoice
-            label="accountPayFrom"
+          <AccountField
+            label="accountPayFromCaption"
+            appearance="borderless"
+            textSize="title"
             leading={<AccountFormIcon name="card" />}
-            detail="accountPayFromUnavailable"
+            placeholder={t('accountPayFromPlaceholder')}
+            accessibilityLabel={t('accountPayFrom')}
+            accessibilityState={{ disabled: true }}
+            editable={false}
+            value=""
+            textAlign="left"
           />
           <DraftInput field="statementDate" value={draft.fields.statementDate} {...inputProps} />
           <DraftInput field="dueDate" value={draft.fields.dueDate} {...inputProps} />

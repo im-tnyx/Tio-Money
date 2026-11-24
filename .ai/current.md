@@ -45,6 +45,7 @@
 - [Account option popup PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-account-option-popup--proceed) replaces the Wallet, Loan and Investment option sheets with a compact card anchored to the dropdown.
 - [Bank payment mode empty state PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-bank-payment-mode-empty-state--proceed) shows a link icon and guidance while the draft has no payment modes.
 - [Loan EMI input PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-loan-emi-input--proceed) adds an optional manual amount to the Loan draft.
+- [Credit Card Payment field clarification](https://github.com/im-tnyx/Tio-Money/pull/97#issuecomment-7129925352): From caption above Payment placeholder, zero caption gap retained, no unavailable copy. [Task checkpoint](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-24--credit-card-payment-field-clarification). Fresh CI and native QA pending.
 
 ## 2026-11-23 — Manual Expo preview recovery (RFC #99)
 
