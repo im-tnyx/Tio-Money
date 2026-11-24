@@ -114,6 +114,7 @@ test('an overlay shares the modal and viewport while only the top layer receives
 
 test('an opted-in sheet slides from its measured height on entry and respects disabled motion', () => {
   const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.equal(bottomSheetTokens.entranceDurationMs, 300);
   assert.match(shared, /slideInOnMount = false/);
   assert.match(shared, /animate && slideInOnMount/);
   assert.match(shared, /key=\{layer.title\}/);
@@ -126,6 +127,7 @@ test('an opted-in sheet slides from its measured height on entry and respects di
     shared,
     /Animated.timing\(entranceOffset, \{\s+toValue: 0,[\s\S]*?useNativeDriver: true/,
   );
+  assert.match(shared, /duration: sheet.entranceDurationMs,\s+easing: Easing.inOut\(Easing.sin\)/);
   assert.match(shared, /return \(\) => entrance.stop\(\)/);
   assert.match(shared, /<AnimatedSafeAreaView[\s\S]*?translateY: entranceOffset/);
 });

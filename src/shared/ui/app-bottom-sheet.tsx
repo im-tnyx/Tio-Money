@@ -175,7 +175,7 @@ function SheetSurface({
     const entrance = Animated.timing(entranceOffset, {
       toValue: 0,
       duration: sheet.entranceDurationMs,
-      easing: Easing.out(Easing.cubic),
+      easing: Easing.inOut(Easing.sin),
       useNativeDriver: true,
     });
     entrance.start();
