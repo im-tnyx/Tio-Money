@@ -3,6 +3,8 @@ import type { TranslationKey } from '@/shared/i18n/strings';
 import type { AppDateFieldModel } from '@/shared/ui/app-date-field';
 import { localCalendarToday, parseCalendarDate } from '@/shared/ui/calendar-date';
 
+import type { AccountPickerModel } from './account-picker-contract';
+
 export const previewGroups = [
   'cash',
   'bank',
@@ -410,6 +412,7 @@ export interface AddAccountViewModel {
     | null;
   readonly showWalletFunding: boolean;
   readonly choice: AccountDraftChoice | null;
+  readonly paymentSource: AccountPickerModel | null;
   readonly loanDates: Readonly<Record<LoanDateField, AppDateFieldModel>> | null;
   readonly canAddMode: boolean;
   readonly canApplyMode: boolean;

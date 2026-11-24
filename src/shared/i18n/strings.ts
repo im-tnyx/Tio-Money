@@ -44,6 +44,8 @@ export const en = {
   accountPayFrom: 'Payment From',
   accountPayFromCaption: 'From',
   accountPayFromPlaceholder: 'Payment',
+  choosePaymentAccount: 'Select Account',
+  closePaymentAccountPicker: 'Close account picker',
   accountPayFromUnavailable: 'Available when eligible Bank accounts exist.',
   accountAutoPay: 'Auto Pay',
   accountAutoPayUnavailable:
