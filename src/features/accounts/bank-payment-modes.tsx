@@ -114,8 +114,8 @@ function EmptyBankPaymentModes() {
       }}
     >
       <Svg
-        width={theme.iconRoles.card}
-        height={theme.iconRoles.card}
+        width={theme.icons.emptyStateSize}
+        height={theme.icons.emptyStateSize}
         viewBox="0 0 24 24"
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"

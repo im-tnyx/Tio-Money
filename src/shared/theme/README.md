@@ -723,6 +723,12 @@ only values and intents. Caller domain validation owns the max 40-character
 limit and duplicate handling. No `TextInput`-specific visual constants or
 local modal/button code are allowed in this screen.
 
+## Bank payment mode empty-state icon — PR #97 (2026-11-24)
+
+The decorative link illustration is 48 dp through `iconTokens.emptyStateSize`
+in [`component-tokens.ts`](component-tokens.ts). The icon appears under Linked
+Payment Modes while the Bank draft has no modes.
+
 ## Add Account field captions — PR #97 (2026-11-24)
 
 `textFieldTokens.captionGap` in [`component-tokens.ts`](component-tokens.ts) sets

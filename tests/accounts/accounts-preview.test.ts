@@ -359,6 +359,10 @@ test('linked payment modes show a compact header action and named icon rows with
     empty,
     /<Svg[\s\S]*?accessibilityElementsHidden[\s\S]*?accountModeEmptyTitle[\s\S]*?accountModeEmptyDescription/,
   );
+  assert.match(
+    empty,
+    /width=\{theme.icons.emptyStateSize\}\s+height=\{theme.icons.emptyStateSize\}/,
+  );
   const rows = list.indexOf('draft.modes.map');
   assert.ok(rows >= 0);
   assert.match(
@@ -891,7 +895,10 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     form,
     /<AppBottomSheet\s+visible=\{sheet !== undefined\}\s+animate=\{animateSheet\}\s+avoidKeyboard/,
   );
-  assert.doesNotMatch(form, /ActionButton|accountFormPreview|Entries are discarded|slideInOnMount/);
+  assert.doesNotMatch(
+    form,
+    /ActionButton|accountFormPreview|Entries are discarded|slideInOnMount|showCloseButton/,
+  );
   assert.doesNotMatch(form, /choice\?\.open|children: <AccountChoices/);
   assert.match(form, /<AccountDropdown\s+choice=\{choice\}/);
   assert.match(

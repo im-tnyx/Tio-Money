@@ -8,6 +8,7 @@ import { radius, space } from './tokens';
  */
 export const iconTokens = {
   size: size.dp24,
+  emptyStateSize: size.dp48,
   origin: size.dp0,
   stroke: size.dp2,
   fineStroke: size.dp1_5,
