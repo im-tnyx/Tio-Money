@@ -478,6 +478,7 @@ function GroupFields({
           <DraftInput
             field="emiAmount"
             info={false}
+            currencyControl={false}
             value={draft.fields.emiAmount}
             {...draftInput}
           />
