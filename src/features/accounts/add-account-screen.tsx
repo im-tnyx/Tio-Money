@@ -498,7 +498,6 @@ function GroupFields({
           </Pressable>
           {draft.moreDetailsOpen ? (
             <>
-              <PaymentFromField />
               <DraftInput
                 field="originalPrincipal"
                 currencyControl={false}
@@ -507,7 +506,6 @@ function GroupFields({
               />
               <DraftInput field="fees" value={draft.fields.fees} {...draftInput} />
               <DraftInput field="interestRate" value={draft.fields.interestRate} {...draftInput} />
-              <DisabledAutoPay />
             </>
           ) : null}
         </>

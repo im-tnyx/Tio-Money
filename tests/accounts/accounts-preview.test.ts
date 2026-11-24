@@ -672,7 +672,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     screen.indexOf('function PaymentFromField'),
     screen.indexOf('function GroupFields'),
   );
-  assert.equal(screen.match(/<PaymentFromField \/>/g)?.length, 1);
+  assert.equal(screen.match(/<PaymentFromField \/>/g)?.length ?? 0, 0);
   assert.match(groupFields, /field="creditLimit"[^>]*\/>\s*<PaymentFromField picker=/);
   assert.match(groupFields, /picker=\{paymentSource\} \/>\s*<DraftInput field="statementDate"/);
   assert.match(
@@ -681,7 +681,14 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   );
   assert.match(
     groupFields,
-    /draft\.moreDetailsOpen \? \(\s*<>\s*<PaymentFromField \/>\s*<DraftInput[\s\S]*?field="originalPrincipal"[\s\S]*?<DisabledAutoPay \/>/,
+    /draft\.moreDetailsOpen \? \(\s*<>\s*<DraftInput[\s\S]*?field="originalPrincipal"[\s\S]*?field="fees"[\s\S]*?field="interestRate"/,
+  );
+  assert.doesNotMatch(
+    groupFields.slice(
+      groupFields.indexOf('accountLoanFirstEmiDate'),
+      groupFields.indexOf("case 'investment':"),
+    ),
+    /PaymentFromField|DisabledAutoPay|accountAutoPay/,
   );
   assert.match(groupFields, /moreDetails\.toggle/);
   assert.match(groupFields, /AppPopupChevron open=\{draft\.moreDetailsOpen\}/);
@@ -719,14 +726,13 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
   assert.doesNotMatch(screen, /DraftInput field="description"/);
   assert.match(screen, /function DisabledAutoPay/);
   assert.equal(screen.match(/<Switch\s/g)?.length, 1);
-  assert.equal(screen.match(/<DisabledAutoPay \/>/g)?.length, 2);
+  assert.equal(screen.match(/<DisabledAutoPay \/>/g)?.length, 1);
   const autoPay = screen.match(/<Switch\s[\s\S]*?\/>/)?.[0];
   assert.ok(autoPay);
   assert.match(autoPay, /accessibilityHint=\{t\('accountAutoPayUnavailable'\)\}/);
   assert.match(autoPay, /value=\{false\}\s+disabled\s*\/>/);
   assert.doesNotMatch(autoPay, /onValueChange|onChange|onPress/);
-  assert.match(groupFields, /<DisabledAutoPay \/>/);
-  assert.doesNotMatch(groupFields, /accountTracking/);
+  assert.doesNotMatch(groupFields, /DisabledAutoPay|accountAutoPay|accountTracking/);
   const choices = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   assert.match(choices, /<AppTextField\s+accessibilityLabel=\{t\(label\)\}/);
   assert.match(choices, /accessibilityRole="radiogroup"\s+accessibilityLabel=\{t\(label\)\}/);
