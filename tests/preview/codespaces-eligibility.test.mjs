@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { delimiter, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import { authorizePreview } from '../../.github/scripts/authorize-codespaces-preview.mjs';
 
+const dependabot = { login: 'dependabot[bot]', id: 49699333 };
 const owner = { login: 'im-tnyx', id: 271889561 };
 const repo = { full_name: 'im-tnyx/Tio-Money', id: 1462654174, owner };
 const head = 'a'.repeat(40);
@@ -40,6 +46,7 @@ function fixture(manual = false) {
     'actions/runs/8': sourceRun,
     [`commits/${head}/pulls?per_page=100`]: matches,
     [comparePath]: compare,
+    [`git/ref/heads/${branch}`]: { ref: `refs/heads/${branch}`, object: { sha: head, type: 'commit' } },
     'issues?state=open&labels=tio-preview&per_page=100': active,
   };
   const api = (path, paginate) => {
@@ -62,7 +69,7 @@ for (const manual of [false, true]) {
         f.pr.draft = f.current.draft = draft;
         if (expected) delete f.responses['actions/runs/8'];
         const { captured, compare, ...tuple } = evaluate(f, expected);
-        assert.deepEqual(tuple, approved);
+        assert.deepEqual(tuple, { approved: true, ...approved });
         assert.equal(captured.number, 97);
         assert.equal(compare.base_commit.sha, base);
       }
@@ -70,9 +77,92 @@ for (const manual of [false, true]) {
   });
 }
 
+function asDependabotPush(f) {
+  f.pr.user = dependabot;
+  f.event.workflow_run.actor = dependabot;
+  f.sourceRun.actor = f.sourceRun.triggering_actor = dependabot;
+}
+
+test('ordinary automatic requests emit explicit non-approval without an approval tuple', () => {
+  for (const author of [owner, dependabot]) {
+    const f = fixture();
+    f.pr.user = author;
+    f.pr.labels = [];
+    f.compare.files[0].filename = 'package-lock.json';
+    delete f.responses[comparePath];
+    assert.deepEqual(evaluate(f), { approved: false });
+  }
+  const f = fixture();
+  asDependabotPush(f);
+  f.pr.labels = [];
+  assert.deepEqual(evaluate(f), { approved: false });
+});
+
+test('an owner push without an open PR is a no-op only at the current branch SHA', () => {
+  for (const sha of [head, base]) {
+    const f = fixture();
+    f.matches.length = 0;
+    f.responses[`git/ref/heads/${branch}`].object.sha = sha;
+    if (sha === head) assert.deepEqual(evaluate(f), { approved: false });
+    else assert.throws(() => evaluate(f), /Stale or invalid push ref/);
+  }
+});
+
+test('missing labels fail for manual requests and privileged revalidation', () => {
+  for (const [manual, expected] of [[true, undefined], [false, approved]]) {
+    const f = fixture(manual);
+    f.pr.labels = [];
+    assert.throws(() => evaluate(f, expected), /PR identity or label denied/);
+  }
+});
+
+test('CLI distinguishes approval, successful no-op and API failure in job outputs', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tio-preview-eligibility-'));
+  try {
+    const eventFile = join(dir, 'event.json');
+    const output = join(dir, 'output');
+    const script = fileURLToPath(new URL('../../.github/scripts/authorize-codespaces-preview.mjs', import.meta.url));
+    writeFileSync(join(dir, 'gh'), `#!${process.execPath}
+const path = process.argv.at(-1).replace('repos/im-tnyx/Tio-Money/', '');
+const responses = JSON.parse(process.env.TEST_RESPONSES);
+if (!Object.hasOwn(responses, path)) process.exit(1);
+const value = responses[path];
+process.stdout.write(JSON.stringify(process.argv.includes('--slurp') ? [value] : value));
+`, { mode: 0o700 });
+    for (const outcome of ['approved', 'skip', 'error']) {
+      const f = fixture();
+      if (outcome !== 'approved') f.pr.labels = [];
+      if (outcome !== 'error') f.responses['pulls/97'] = f.pr;
+      writeFileSync(eventFile, JSON.stringify(f.event));
+      writeFileSync(output, '');
+      const result = spawnSync(process.execPath, [script], { env: {
+        PATH: dir + delimiter + process.env.PATH,
+        GITHUB_EVENT_PATH: eventFile, GITHUB_OUTPUT: output,
+        GITHUB_EVENT_NAME: 'workflow_run', GITHUB_REF: 'refs/heads/main', GITHUB_RUN_ATTEMPT: '1',
+        TEST_RESPONSES: JSON.stringify(f.responses),
+      } });
+      assert.equal(result.status, outcome === 'error' ? 1 : 0, outcome);
+      const actual = readFileSync(output, 'utf8');
+      if (outcome === 'approved') assert.match(actual, /^approved=true\npr_number=97\n/);
+      else assert.equal(actual, outcome === 'skip' ? 'approved=false\n' : '');
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 const denials = {
   'Dependabot PR': (f) => { f.pr.user = { login: 'dependabot[bot]', id: 123 }; },
-  'unlabeled owner PR': (f) => { f.pr.labels = []; },
+  'labeled Dependabot push': asDependabotPush,
+  'Dependabot push for another author': (f) => {
+    asDependabotPush(f);
+    f.pr.user = owner;
+    f.pr.labels = [];
+  },
+  'unlabeled stale push': (f) => { f.pr.labels = []; f.pr.head.sha = base; },
+  'unlabeled malformed PR': (f) => { f.pr.labels = []; f.pr.changed_files = null; },
+  'malformed labels': (f) => { f.pr.labels = [{}]; },
+  'malformed PR associations': (f) => { f.matches.push({ number: 98 }); },
   'security workflow change': (f) => { f.compare.files[0].filename = '.github/workflows/signal.yml'; },
   'maintenance lockfile change': (f) => { f.compare.files[0].filename = 'package-lock.json'; },
   'fork PR': (f) => { f.pr.head.repo.id = 123; },
