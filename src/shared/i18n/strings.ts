@@ -12,7 +12,6 @@ export const en = {
   manageAccounts: 'Manage Accounts',
   manageAccountsHint: 'Open financial account management.',
   manageAccountsUnavailable: 'Account management is currently unavailable.',
-  accountsDataUnavailable: 'Saved accounts and balances are currently unavailable.',
   addAccount: 'Add Account',
   closeAddAccount: 'Close Add Account',
   accountGroup: 'Account Group',

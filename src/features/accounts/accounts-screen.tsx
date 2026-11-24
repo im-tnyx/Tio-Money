@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -14,12 +14,7 @@ export function AccountsScreen({ onAdd }: { readonly onAdd: () => void }) {
       title={t('accounts')}
       actions={[{ key: 'add', icon: 'add', accessibilityLabel: t('addAccount'), onPress: onAdd }]}
     >
-      <ScrollView
-        style={{ flex: 1, backgroundColor: theme.colors.canvas }}
-        contentContainerStyle={{ padding: theme.space.lg }}
-      >
-        <AppText muted>{t('accountsDataUnavailable')}</AppText>
-      </ScrollView>
+      <View style={{ flex: 1, backgroundColor: theme.colors.canvas }} />
     </AccountPage>
   );
 }
