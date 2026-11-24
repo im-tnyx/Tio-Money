@@ -164,43 +164,41 @@ export function AccountField({
   );
 
   if (leading) {
+    const iconWidth = theme.iconRoles.textField;
+    const columnGap = theme.space.sm;
     return (
-      <View
-        style={{
-          minHeight: theme.textField.minimumHeight,
-          flexDirection: 'row',
-          alignItems: props.multiline ? 'flex-start' : 'center',
-          gap: theme.space.sm,
-        }}
-      >
-        <View
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          style={{
-            width: theme.iconRoles.textField,
-            minHeight: theme.textField.minimumHeight,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {leading}
-        </View>
-        <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
+      <View style={{ gap: theme.space.xxs }}>
         {labelAsPlaceholder ? null : (
           <AppText
+            variant="caption"
             muted
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={{
-              maxWidth: trailing ? '34%' : '50%',
-              textAlign: 'right',
-              includeFontPadding: false,
-            }}
+            style={{ marginStart: iconWidth + columnGap, includeFontPadding: false }}
           >
             {t(label)}
           </AppText>
         )}
-        {trailing}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: props.multiline ? 'flex-start' : 'center',
+            gap: columnGap,
+          }}
+        >
+          <View
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            style={{
+              width: iconWidth,
+              minHeight: theme.textField.minimumHeight,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {leading}
+          </View>
+          <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
+          {trailing}
+        </View>
       </View>
     );
   }
@@ -236,7 +234,7 @@ export function AmountCurrencyChoices({
       style={{
         flexGrow: 0,
         width: options.length * theme.buttons.minimumHeight,
-        maxWidth: '32%',
+        maxWidth: '50%',
       }}
     >
       {options.map((option) => {

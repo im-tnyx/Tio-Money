@@ -460,7 +460,7 @@ test('inline currency boxes follow the input, scroll horizontally and keep check
   assert.match(choices, /<ScrollView\s+horizontal\s+keyboardShouldPersistTaps="handled"/);
   assert.match(
     choices,
-    /width: options.length \* theme.buttons.minimumHeight,[\s\S]*?maxWidth: '32%'/,
+    /width: options.length \* theme.buttons.minimumHeight,[\s\S]*?maxWidth: '50%'/,
   );
   assert.match(choices, /options\.map\(\(option\) =>/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected \}\}/);
@@ -632,7 +632,7 @@ test('main Add Account fields opt into borderless input and the Bank mode sheet 
   assert.match(field, /underlineColorAndroid=\{borderless \? 'transparent'/);
 });
 
-test('account inputs sit immediately after their icons and Description can grow', () => {
+test('small account captions align above their inputs while icons align beside the value', () => {
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const bankModes = readFileSync('src/features/accounts/bank-payment-modes.tsx', 'utf8');
@@ -654,9 +654,17 @@ test('account inputs sit immediately after their icons and Description can grow'
     row,
     /importantForAccessibility="no-hide-descendants"[\s\S]*?\{leading\}[\s\S]*?\{t\(label\)\}[\s\S]*?\{children\}/,
   );
+  const field = controls.slice(
+    controls.indexOf('export function AccountField'),
+    controls.indexOf('export function AmountCurrencyChoices'),
+  );
   assert.match(
-    controls,
-    /alignItems: props.multiline \? 'flex-start' : 'center'[\s\S]*?\{leading\}\s*<\/View>\s*<View[^>]*>\{input\}<\/View>[\s\S]*?\{t\(label\)\}/,
+    field,
+    /labelAsPlaceholder \? null : \([\s\S]*?<AppText[\s\S]*?variant="caption"\s+muted[\s\S]*?marginStart: iconWidth \+ columnGap[\s\S]*?\{t\(label\)\}[\s\S]*?flexDirection: 'row'/,
+  );
+  assert.match(
+    field,
+    /alignItems: props.multiline \? 'flex-start' : 'center'[\s\S]*?\{leading\}\s*<\/View>\s*<View[^>]*>\{input\}<\/View>\s*\{trailing\}/,
   );
   assert.match(controls, /d=\{rowIcons\[name\]\}[\s\S]*?theme\.colors\.primaryText/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
