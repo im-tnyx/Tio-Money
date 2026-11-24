@@ -154,7 +154,7 @@ export function AccountField({
   readonly leading?: ReactNode;
   readonly trailing?: ReactNode;
   readonly labelAsPlaceholder?: boolean;
-  readonly suffix?: TranslationKey;
+  readonly suffix?: ReactNode;
 }) {
   const theme = useAppTheme();
   const { fontScale } = useWindowDimensions();
@@ -211,7 +211,7 @@ export function AccountField({
               <View style={{ width: theme.typeScale.title * fontScale + theme.space.xs }}>
                 {input}
               </View>
-              <AppText style={{ includeFontPadding: false }}>{t(suffix)}</AppText>
+              {suffix}
             </View>
           ) : (
             <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
@@ -226,6 +226,54 @@ export function AccountField({
     <View style={{ gap: theme.space.xxs }}>
       {labelAsPlaceholder ? null : <AppText>{t(label)}</AppText>}
       {input}
+    </View>
+  );
+}
+
+export function CalendarDateMonthAndYear({
+  label,
+  month,
+  year,
+  onMonthChange,
+  onYearChange,
+}: {
+  readonly label: TranslationKey;
+  readonly month: string;
+  readonly year: string;
+  readonly onMonthChange: (value: string) => void;
+  readonly onYearChange: (value: string) => void;
+}) {
+  const theme = useAppTheme();
+  const { fontScale } = useWindowDimensions();
+
+  return (
+    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: theme.space.xxs }}>
+      <AppText muted>/</AppText>
+      <View style={{ width: theme.typeScale.section * fontScale + theme.space.xs }}>
+        <AppTextField
+          appearance="borderless"
+          textSize="section"
+          accessibilityLabel={t(label) + ', ' + t('accountDateMonth')}
+          keyboardType="number-pad"
+          maxLength={2}
+          placeholder={t('accountDateMonthPlaceholder')}
+          value={month}
+          onChangeText={onMonthChange}
+        />
+      </View>
+      <AppText muted>/</AppText>
+      <View style={{ flex: 1, minWidth: '0%' }}>
+        <AppTextField
+          appearance="borderless"
+          textSize="section"
+          accessibilityLabel={t(label) + ', ' + t('accountDateYear')}
+          keyboardType="number-pad"
+          maxLength={4}
+          placeholder={t('accountDateYearPlaceholder')}
+          value={year}
+          onChangeText={onYearChange}
+        />
+      </View>
     </View>
   );
 }

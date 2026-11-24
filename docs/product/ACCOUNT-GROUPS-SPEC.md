@@ -31,7 +31,7 @@ One user can have many accounts in a group. Local data is primary; no Tio Money 
 
 Add Account keeps a separate draft for each selected group until the screen closes. Long forms scroll. The top bar has round Close and Save icons. Insurance remains informational and Save stays disabled in the preview.
 
-Inputs start to the right of their icons. Small field captions sit above the input at the same left edge. The Name and Description prompts appear inside their fields. Loan Direction, Wallet Type and Investment Type show the selected value on the right. Tapping the row opens a choice sheet. Dismissing it retains the current value. Credit Card shows Payment From before Billing Cycle Start Date. The two Credit Card dates show editable monthly days in the preview, initially 01 and 15.
+Inputs start to the right of their icons. Small field captions sit above the input at the same left edge. The Name and Description prompts appear inside their fields. Loan Direction, Wallet Type and Investment Type show the selected value on the right. Tapping the row opens a choice sheet. Dismissing it retains the current value. Credit Card shows Payment From before Billing Cycle Start Date. The two Credit Card dates show editable monthly days in the preview, initially 01 and 15. Loan Start Date and Next Due Date and Investment Valuation Date use an editable day, month and year in the same row.
 
 ## 02 · Shared create/edit rules
 

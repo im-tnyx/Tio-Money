@@ -13,6 +13,7 @@ import {
 } from '../../src/features/accounts/account-add-session';
 import {
   accountCurrencyChoices,
+  calendarDateParts,
   draftCurrencies,
   isPreviewGroup,
   newAccountDraft,
@@ -651,8 +652,53 @@ test('Credit Card dates edit monthly days and Loan and Investment dates keep the
     ),
     ['statementDate', 'dueDate'],
   );
-  assert.match(form, /suffix=\{monthly \? 'accountCardMonthlySuffix'/);
-  assert.match(form, /keyboardType=\{monthly \? 'number-pad'/);
+  assert.match(form, /suffix=\{\s*monthly \? \([\s\S]*?accountCardMonthlySuffix/);
+  assert.match(form, /keyboardType=\{date \? 'number-pad'/);
+});
+
+test('Loan and Investment edit the day, month and year independently on the same date row', () => {
+  const forms = [
+    { group: 'loan', field: 'startDate' },
+    { group: 'loan', field: 'nextDueDate' },
+    { group: 'investment', field: 'valuationDate' },
+  ] as const;
+
+  for (const { group, field } of forms) {
+    const draft = replay(group, [
+      { type: 'date.part', field, part: 'day', value: '24' },
+      { type: 'date.part', field, part: 'year', value: '2026' },
+      { type: 'date.part', field, part: 'month', value: '11' },
+      { type: 'currency', value: 'USD' },
+    ]);
+    assert.ok(field in draft.fields);
+    assert.equal(Reflect.get(draft.fields, field), '2026-11-24');
+    assert.deepEqual(calendarDateParts(Reflect.get(draft.fields, field)), {
+      day: '24',
+      month: '11',
+      year: '2026',
+    });
+    assert.equal(
+      updateAccountDraft(
+        draft,
+        { type: 'date.part', field, part: 'month', value: '13' },
+        currencies,
+      ),
+      draft,
+    );
+    const cleared = updateAccountDraft(
+      draft,
+      { type: 'date.part', field, part: 'day', value: '' },
+      currencies,
+    );
+    assert.equal(Reflect.get(cleared.fields, field), '2026-11-');
+  }
+
+  const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  assert.match(
+    form,
+    /<CalendarDateMonthAndYear[\s\S]*?type: 'date.part', field, part: 'month'[\s\S]*?type: 'date.part', field, part: 'year'/,
+  );
+  assert.match(form, /value=\{parts\?\.day \?\? value\}/);
 });
 
 test('main Add Account fields opt into borderless input and the Bank mode sheet stays outlined', () => {
@@ -722,10 +768,7 @@ test('small account captions align above their inputs while icons align beside t
     /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<AccountFormIcon/,
   );
   assert.match(form, /labelAsPlaceholder=\{field === 'name' \|\| description\}/);
-  assert.match(
-    form,
-    /placeholder=\{\s*date && !monthly \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/,
-  );
+  assert.match(form, /placeholder=\{calendar \? t\('accountDateDayPlaceholder'\) : money \? '0'/);
   assert.match(input, /const growsWithText = borderless && props.multiline/);
   assert.match(input, /includeFontPadding: borderless \? false : undefined/);
   assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);

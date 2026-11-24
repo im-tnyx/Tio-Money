@@ -6,6 +6,8 @@ import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sh
 import { AppText } from '@/shared/ui/app-text';
 
 import {
+  calendarDateParts,
+  isCalendarDateField,
   type AddAccountScreenViewModel,
   type AddAccountViewModel,
   type DraftField,
@@ -17,6 +19,7 @@ import {
   AccountFormIcon,
   AccountFormRow,
   AmountCurrencyChoices,
+  CalendarDateMonthAndYear,
   UnavailableAccountChoice,
 } from './account-form-controls';
 import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
@@ -79,6 +82,9 @@ function DraftInput({
   const showCurrency = 'currencyControl' in spec && currencyChoices !== null;
   const date = 'date' in spec;
   const monthly = 'monthly' in spec;
+  const calendar = isCalendarDateField(field);
+  const parts = calendar ? calendarDateParts(value) : null;
+  const fieldLabel = label ?? spec.label;
   const description = field === 'description';
   const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
@@ -97,31 +103,48 @@ function DraftInput({
     <AccountField
       appearance="borderless"
       textSize={field === 'name' || money || date ? 'title' : 'section'}
-      label={label ?? spec.label}
+      label={fieldLabel}
+      accessibilityLabel={calendar ? t(fieldLabel) + ', ' + t('accountDateDay') : t(fieldLabel)}
       labelAsPlaceholder={field === 'name' || description}
       leading={leading}
       trailing={
         showCurrency ? (
           <AmountCurrencyChoices
-            fieldLabel={label ?? spec.label}
+            fieldLabel={fieldLabel}
             options={currencyChoices}
             value={currency}
             onChange={(value) => onAction({ type: 'currency', value })}
           />
         ) : undefined
       }
-      value={value}
-      keyboardType={monthly ? 'number-pad' : money ? 'decimal-pad' : undefined}
-      maxLength={monthly ? 2 : undefined}
-      suffix={monthly ? 'accountCardMonthlySuffix' : undefined}
-      placeholder={
-        date && !monthly ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined
+      value={parts?.day ?? value}
+      keyboardType={date ? 'number-pad' : money ? 'decimal-pad' : undefined}
+      maxLength={date ? 2 : undefined}
+      suffix={
+        monthly ? (
+          <AppText style={{ includeFontPadding: false }}>{t('accountCardMonthlySuffix')}</AppText>
+        ) : calendar && parts ? (
+          <CalendarDateMonthAndYear
+            label={fieldLabel}
+            month={parts.month}
+            year={parts.year}
+            onMonthChange={(value) => onAction({ type: 'date.part', field, part: 'month', value })}
+            onYearChange={(value) => onAction({ type: 'date.part', field, part: 'year', value })}
+          />
+        ) : undefined
       }
+      placeholder={calendar ? t('accountDateDayPlaceholder') : money ? '0' : undefined}
       textAlign="left"
       multiline={description}
       returnKeyType={description ? 'done' : undefined}
       submitBehavior={description ? 'blurAndSubmit' : undefined}
-      onChangeText={(next) => onAction({ type: 'text', field, value: next })}
+      onChangeText={(value) =>
+        onAction(
+          calendar
+            ? { type: 'date.part', field, part: 'day', value }
+            : { type: 'text', field, value },
+        )
+      }
     />
   );
 }
