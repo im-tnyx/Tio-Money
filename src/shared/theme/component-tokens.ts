@@ -60,6 +60,7 @@ export const buttonTokens = {
 
 export const textFieldTokens = {
   minimumHeight: size.dp46,
+  captionGap: size.dp2,
 } as const;
 
 /** Rounded segmented selectors use the shared button touch size and existing spacing scale. */

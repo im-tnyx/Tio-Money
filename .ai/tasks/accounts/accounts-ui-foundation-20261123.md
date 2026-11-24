@@ -366,5 +366,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 - [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/pull/97#2026-11-24-credit-card-date-rows--proceed) records the owner’s reference-photo follow-up at PR #97 head `7dd83b1d2070ab80504d84346f0ef4715726f4a7`. The preview shows Billing Cycle Start Date and Payment Due Date as editable monthly days, initially 01 and 15. The caption-to-input gap is 4 dp. Loan and Investment retain full dates.
 - Changed `src/features/accounts/{account-form-contract.ts,account-form-controls.tsx,add-account-screen.tsx}`, `src/shared/i18n/strings.ts`, `tests/accounts/accounts-preview.test.ts`, `docs/product/ACCOUNT-GROUPS-SPEC.md`, this record and the index. Preview day checks cover the initial values, ordinary edits and invalid values. No issuer schedule or payment behavior is inferred from the preview values.
 - Source self-review PERFORMED. Independent review DEFERRED and physical-device visual QA pending. See [PR #97 checks](https://github.com/im-tnyx/Tio-Money/pull/97/checks) for CI.
+- Follow-up from the owner’s connected conversation reduces only the vertical caption-to-input gap in Add Account from 4 dp to 2 dp. Codex updated `src/shared/theme/component-tokens.ts`, `src/features/accounts/account-form-controls.tsx` and its regression assertion. Native visual QA is pending.
+
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
