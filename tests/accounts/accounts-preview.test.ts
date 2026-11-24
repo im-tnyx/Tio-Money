@@ -756,11 +756,12 @@ test('Investment keeps editable day, month and year on the same date row', () =>
 });
 
 test('wheel projection preserves the center and curves and fades symmetrically', () => {
-  const { rowHeight, visibleRows, padding } = datePickerTokens;
+  const { rowHeight, visibleRows, paddingHorizontal, paddingVertical } = datePickerTokens;
   assert.equal(rowHeight, 32);
   assert.equal(rowHeight * visibleRows, 160);
-  assert.equal(padding, 4);
-  assert.equal(rowHeight * visibleRows + padding * 2, 168);
+  assert.equal(paddingHorizontal, 8);
+  assert.equal(paddingVertical, 4);
+  assert.equal(rowHeight * visibleRows + paddingVertical * 2, 168);
   assert.equal(wheelPickerTokens.anglePerRow, 22);
   const center = wheelProjection(0, rowHeight);
   const near = wheelProjection(1, rowHeight);
@@ -861,6 +862,10 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   const wheel = readFileSync('src/shared/ui/app-wheel-picker.tsx', 'utf8');
   const popup = readFileSync('src/shared/ui/app-popup-card.tsx', 'utf8');
   assert.equal(field.match(/<AppWheelPicker/g)?.length, 3);
+  assert.match(field, /backgroundColor: theme\.colors\.wheelSelection/);
+  assert.match(field, /paddingHorizontal: theme\.datePicker\.paddingHorizontal/);
+  assert.match(field, /paddingVertical: theme\.datePicker\.paddingVertical/);
+  assert.doesNotMatch(field, /theme\.colors\.segmentedTrack/);
   assert.doesNotMatch(field, /ActionButton|TextInput|AppBottomSheet|onSubmit|onSave/);
   assert.match(wheel, /snapToInterval=\{rowHeight\}/);
   assert.match(wheel, /<Animated\.ScrollView/);
@@ -870,7 +875,10 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   assert.match(wheel, /offset\.removeListener/);
   assert.match(wheel, /useNativeDriver: Platform\.OS !== 'web'/);
   assert.doesNotMatch(wheel, /offset\.setValue\(event\.nativeEvent\.contentOffset\.y\)/);
-  assert.match(wheel, /shouldAlignWheel\(selected, lastIndex\.current, interacting\.current, echoed\)/);
+  assert.match(
+    wheel,
+    /shouldAlignWheel\(selected, lastIndex\.current, interacting\.current, echoed\)/,
+  );
   assert.match(wheel, /rotateX: offset\.interpolate/);
   assert.match(wheel, /useReducedMotion\(\)/);
   assert.doesNotMatch(wheel, /contentOffset=\{initialOffset\.current\}/);
