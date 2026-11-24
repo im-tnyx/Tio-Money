@@ -587,12 +587,12 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.equal(en.accountName, 'Account Name');
   assert.equal(en.accountCardName, 'Card Name');
   assert.equal(en.accountCardOutstanding, 'Opening Outstanding');
-  assert.equal(en.accountCardStatementDate, 'Statement Date');
+  assert.equal(en.accountCardStatementDate, 'Billing Cycle Start Date');
   assert.equal(en.accountPayFrom, 'Payment From');
   assert.match(groupFields, /label="accountPayFrom"[\s\S]*?field="statementDate"/);
   assert.match(en.accountWalletBankUnavailable, /inherits the Bank account’s currency/);
   assert.equal(en.accountCardCreditLimit, 'Total Credit Limit');
-  assert.equal(en.accountCardDueDate, 'Due Date');
+  assert.equal(en.accountCardDueDate, 'Payment Due Date');
   assert.equal(en.accountAutoPay, 'Auto Pay');
   assert.match(en.accountAutoPayUnavailable, /Tracking only.*never debits/);
   assert.match(
@@ -611,6 +611,44 @@ test('group fields render from the correct typed draft and Card keeps unavailabl
   assert.match(choices, /accessibilityRole="radio"/);
   assert.match(choices, /accessibilityState=\{\{ checked: selected, disabled \}\}/);
   assert.match(choices, /disabled=\{disabled\}/);
+});
+
+test('Credit Card dates edit monthly days and Loan and Investment dates keep their full values', () => {
+  const initial = newAccountDraft('credit-card', 'INR');
+  assert.ok(initial.group === 'credit-card');
+  assert.equal(initial.fields.statementDate, '01');
+  assert.equal(initial.fields.dueDate, '15');
+
+  for (const field of ['statementDate', 'dueDate'] as const) {
+    for (const invalid of ['00', '32', 'abc', '2026-11-24']) {
+      assert.equal(
+        updateAccountDraft(initial, { type: 'text', field, value: invalid }, currencies),
+        initial,
+      );
+    }
+    const changed = updateAccountDraft(initial, { type: 'text', field, value: '29' }, currencies);
+    assert.ok(changed.group === 'credit-card');
+    assert.equal(changed.fields[field], '29');
+  }
+
+  const loan = replay('loan', [{ type: 'text', field: 'startDate', value: '2026-11-24' }]);
+  const investment = replay('investment', [
+    { type: 'text', field: 'valuationDate', value: '2026-11-24' },
+  ]);
+  assert.ok(loan.group === 'loan' && investment.group === 'investment');
+  assert.equal(loan.fields.startDate, '2026-11-24');
+  assert.equal(investment.fields.valuationDate, '2026-11-24');
+
+  assert.equal(en.accountCardMonthlySuffix, 'of every month');
+  const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  assert.deepEqual(
+    [...form.matchAll(/(\w+): \{ label: '[^']+', date: true, monthly: true \}/g)].map(
+      (match) => match[1],
+    ),
+    ['statementDate', 'dueDate'],
+  );
+  assert.match(form, /suffix=\{monthly \? 'accountCardMonthlySuffix'/);
+  assert.match(form, /keyboardType=\{monthly \? 'number-pad'/);
 });
 
 test('main Add Account fields opt into borderless input and the Bank mode sheet stays outlined', () => {
@@ -648,6 +686,7 @@ test('small account captions align above their inputs while icons align beside t
   );
   assert.equal(space.md, 16);
   assert.equal(space.sm, 12);
+  assert.equal(space.xxs, 4);
   assert.match(row, /const rowHeight = minimumHeight \?\? theme.textField.minimumHeight/);
   assert.match(row, /flexDirection: 'row',\s+alignItems: 'center'/);
   assert.match(
@@ -658,13 +697,14 @@ test('small account captions align above their inputs while icons align beside t
     controls.indexOf('export function AccountField'),
     controls.indexOf('export function AmountCurrencyChoices'),
   );
+  assert.match(field, /<View style=\{\{ gap: theme.space.xxs \}\}>/);
   assert.match(
     field,
     /labelAsPlaceholder \? null : \([\s\S]*?<AppText[\s\S]*?variant="caption"\s+muted[\s\S]*?marginStart: iconWidth \+ columnGap[\s\S]*?\{t\(label\)\}[\s\S]*?flexDirection: 'row'/,
   );
   assert.match(
     field,
-    /alignItems: props.multiline \? 'flex-start' : 'center'[\s\S]*?\{leading\}\s*<\/View>\s*<View[^>]*>\{input\}<\/View>\s*\{trailing\}/,
+    /alignItems: props.multiline \? 'flex-start' : 'center'[\s\S]*?\{leading\}\s*<\/View>\s*\{suffix \? \([\s\S]*?\{input\}<\/View>\s*\)\}\s*\{trailing\}/,
   );
   assert.match(controls, /d=\{rowIcons\[name\]\}[\s\S]*?theme\.colors\.primaryText/);
   assert.match(form, /textSize=\{field === 'name' \|\| money \|\| date \? 'title' : 'section'\}/);
@@ -678,7 +718,10 @@ test('small account captions align above their inputs while icons align beside t
     /const leading = money \? \([\s\S]*?\{currencySymbol\}[\s\S]*?<AccountFormIcon/,
   );
   assert.match(form, /labelAsPlaceholder=\{field === 'name' \|\| description\}/);
-  assert.match(form, /placeholder=\{date \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/);
+  assert.match(
+    form,
+    /placeholder=\{\s*date && !monthly \? t\('accountReferenceDatePlaceholder'\) : money \? '0'/,
+  );
   assert.match(input, /const growsWithText = borderless && props.multiline/);
   assert.match(input, /includeFontPadding: borderless \? false : undefined/);
   assert.match(input, /paddingVertical: growsWithText \? \(minHeight - lineHeight\) \/ 2/);

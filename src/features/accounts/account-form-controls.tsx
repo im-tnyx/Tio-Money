@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import type { CurrencyCode } from '@/shared/currency/currency-preference';
@@ -147,14 +147,17 @@ export function AccountField({
   leading,
   trailing,
   labelAsPlaceholder = false,
+  suffix,
   ...props
 }: AppTextFieldProps & {
   readonly label: TranslationKey;
   readonly leading?: ReactNode;
   readonly trailing?: ReactNode;
   readonly labelAsPlaceholder?: boolean;
+  readonly suffix?: TranslationKey;
 }) {
   const theme = useAppTheme();
+  const { fontScale } = useWindowDimensions();
   const input = (
     <AppTextField
       accessibilityLabel={t(label)}
@@ -196,7 +199,23 @@ export function AccountField({
           >
             {leading}
           </View>
-          <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
+          {suffix ? (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.space.xxs,
+              }}
+            >
+              <View style={{ width: theme.typeScale.title * fontScale + theme.space.xs }}>
+                {input}
+              </View>
+              <AppText style={{ includeFontPadding: false }}>{t(suffix)}</AppText>
+            </View>
+          ) : (
+            <View style={{ flex: 1, minWidth: '0%' }}>{input}</View>
+          )}
           {trailing}
         </View>
       </View>

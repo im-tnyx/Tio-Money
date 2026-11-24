@@ -29,8 +29,8 @@ const fieldSpecs = {
   openingAmount: { label: 'accountOpeningAmount', money: true, currencyControl: true },
   outstanding: { label: 'accountCardOutstanding', money: true },
   creditLimit: { label: 'accountCardCreditLimit', money: true, currencyControl: true },
-  statementDate: { label: 'accountCardStatementDate', date: true },
-  dueDate: { label: 'accountCardDueDate', date: true },
+  statementDate: { label: 'accountCardStatementDate', date: true, monthly: true },
+  dueDate: { label: 'accountCardDueDate', date: true, monthly: true },
   provider: { label: 'accountWalletProvider' },
   originalPrincipal: { label: 'accountLoanOriginalPrincipal', money: true },
   outstandingPrincipal: {
@@ -45,7 +45,13 @@ const fieldSpecs = {
   valuationDate: { label: 'accountInvestmentValuationDate', date: true },
 } satisfies Record<
   DraftField,
-  { label: TranslationKey; money?: boolean; date?: boolean; currencyControl?: boolean }
+  {
+    label: TranslationKey;
+    money?: boolean;
+    date?: boolean;
+    monthly?: boolean;
+    currencyControl?: boolean;
+  }
 >;
 
 type DraftInputControls = Pick<
@@ -72,6 +78,7 @@ function DraftInput({
   const money = 'money' in spec;
   const showCurrency = 'currencyControl' in spec && currencyChoices !== null;
   const date = 'date' in spec;
+  const monthly = 'monthly' in spec;
   const description = field === 'description';
   const icon = date ? 'calendar' : description ? 'description' : 'text';
   const leading = money ? (
@@ -104,8 +111,12 @@ function DraftInput({
         ) : undefined
       }
       value={value}
-      keyboardType={money ? 'decimal-pad' : undefined}
-      placeholder={date ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined}
+      keyboardType={monthly ? 'number-pad' : money ? 'decimal-pad' : undefined}
+      maxLength={monthly ? 2 : undefined}
+      suffix={monthly ? 'accountCardMonthlySuffix' : undefined}
+      placeholder={
+        date && !monthly ? t('accountReferenceDatePlaceholder') : money ? '0' : undefined
+      }
       textAlign="left"
       multiline={description}
       returnKeyType={description ? 'done' : undefined}
