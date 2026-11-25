@@ -10,7 +10,6 @@ export function AccountsScreen({ onAdd }: { readonly onAdd: () => void }) {
   const theme = useAppTheme();
   return (
     <AccountPage
-      tab
       title={t('accounts')}
       actions={[{ key: 'add', icon: 'add', accessibilityLabel: t('addAccount'), onPress: onAdd }]}
     >

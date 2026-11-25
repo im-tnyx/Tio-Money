@@ -10,7 +10,6 @@ export function AccountPage({
   onBack,
   actions,
   editing,
-  tab = false,
   children,
 }: {
   readonly title: string;
@@ -18,13 +17,12 @@ export function AccountPage({
   readonly onBack?: () => void;
   readonly actions?: readonly AppTopBarAction[];
   readonly editing?: boolean;
-  readonly tab?: boolean;
   readonly children: ReactNode;
 }) {
   const theme = useAppTheme();
   return (
     <SafeAreaView
-      edges={tab ? ['top', 'left', 'right'] : ['top', 'left', 'right', 'bottom']}
+      edges={['top', 'left', 'right']}
       style={{ flex: 1, backgroundColor: theme.colors.card }}
     >
       <AppTopBar

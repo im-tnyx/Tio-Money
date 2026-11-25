@@ -652,4 +652,10 @@ The entries below record implementation history at their stated revisions; super
 - Preview: looping `monthDayWheelCount` drum; square day card (`width = height`); date and day popups share `align="start"` with icon+gap `alignOffset` so left edges sit on the text column, not the screen edge. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
+### 2026-11-25 — Add Account bottom safe-area strip
+
+- Owner direction: Add Account bottom safe-area band looked wrong; match Main Currency / Account Groups so no horizontal strip shows at the bottom.
+- Preview: `AccountPage` uses `edges={['top', 'left', 'right']}` only (no bottom inset). Removed unused `tab` edge switch. No finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
