@@ -637,7 +637,7 @@ The entries below record implementation history at their stated revisions; super
 ### 2026-11-25 — Investment Simple v1 (remove Type)
 
 - Owner direction: keep Investment create simple for now; type-specific fields come later. Visible fields are Account Name, Historical Invested Cost + currency, Start Date, and optional Tenure (months). Remove Investment Type from the draft and UI entirely (not hide). Drop Estimated Valuation, Valuation Date, valuation hint, Interest, Units/Weight, and funding from this preview.
-- Preview: Investment draft fields are `investedCost`, `startDate` (default Today), `tenure`. Start Date reuses the shared wheel `AppDateField`. Tenure is optional digits with a months suffix. Only Loan Direction remains as an option popup. No finance writes.
+- Preview: Investment draft fields are `investedCost`, `startDate` (default Today), `tenure`. Start Date reuses the shared wheel `AppDateField`. Tenure is optional up to 3 digits with a months suffix (input column scales with `maxLength`). Only Loan Direction remains as an option popup. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
 ### 2026-11-25 — Credit Card day-only date wheel

@@ -971,10 +971,25 @@ test('Investment Start Date uses the shared wheel date field and keeps optional 
     action: { type: 'text', field: 'tenure', value: '12' },
   });
   assert.equal(draft().tenure, '12');
+  session = update(session, {
+    type: 'form',
+    group: 'investment',
+    action: { type: 'text', field: 'tenure', value: '120' },
+  });
+  assert.equal(draft().tenure, '120');
+  session = update(session, {
+    type: 'form',
+    group: 'investment',
+    action: { type: 'text', field: 'tenure', value: '1200' },
+  });
+  assert.equal(draft().tenure, '120');
 
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
+  const controls = readFileSync('src/features/accounts/account-form-controls.tsx', 'utf8');
   const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
   assert.match(form, /case 'investment':[\s\S]*?accountInvestmentStartDate[\s\S]*?field="tenure"/);
+  assert.match(form, /maxLength=\{date \? 2 : months \? 3 : undefined\}/);
+  assert.match(controls, /\(props\.maxLength \?\? 2\) \/ 2/);
   assert.doesNotMatch(form, /accountInvestmentType|field="valuation"|valuationDate/);
   assert.doesNotMatch(controller, /accountInvestmentType|investmentKinds|investment\.kind/);
   assert.match(controller, /draft\.group === 'loan' \|\| draft\.group === 'investment'/);

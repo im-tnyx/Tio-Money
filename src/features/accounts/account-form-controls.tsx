@@ -196,7 +196,13 @@ export function AccountField({
                 gap: theme.space.xxs,
               }}
             >
-              <View style={{ width: theme.typeScale.title * fontScale + theme.space.xs }}>
+              <View
+                style={{
+                  width:
+                    theme.typeScale.title * fontScale * ((props.maxLength ?? 2) / 2) +
+                    theme.space.xs,
+                }}
+              >
                 {input}
               </View>
               {suffix}
