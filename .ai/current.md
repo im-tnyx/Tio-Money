@@ -67,6 +67,12 @@
 - [2026-11-25 Credit Card day-only date wheel](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--credit-card-day-only-date-wheel) replaces typed monthly days with a Day-only popup wheel.
 - [2026-11-25 Credit Card day wheel loop/width/align](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--credit-card-day-wheel-loop-width-left-align) loops 31→01, widens card, left-aligns above the field.
 
+- [2026-11-25 reconciliation after PR #109](tasks/accounts/accounts-ui-foundation-20261123.md#2026-11-25--reconcile-with-main-after-pr-109) brings the EAS npm cache hardening into Draft #97. Exact-HEAD checks are tracked in RFC #96.
+
+## 2026-11-24 — EAS publisher npm cache isolation (RFC #108)
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/108#issuecomment-7142635709) assigns the dedicated draft to Codex. See [task record](tasks/security/eas-npm-cache-isolation-20261125.md). PR #65 remains SECURITY HOLD and Issue #71 remains OPEN.
+
 ## 2026-11-24 — Preview workflow privilege boundary (RFC #105)
 
 - [Gate 3B technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/105#issuecomment-7138757954) scopes a read-only Codespaces admission job and fresh privileged-runner revalidation to a dedicated unlabeled draft. See the [task record](tasks/security/preview-eligibility-boundary-20261124.md). PR #97 remains the active preview. PR #65 remains SECURITY HOLD and Issue #71 remains open.
