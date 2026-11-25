@@ -154,16 +154,18 @@ export function useAddAccountViewModel(): AddAccountScreenViewModel {
       BUILT_IN_ACCOUNT_GROUPS.find(({ id }) => id === group)?.label ?? 'selectAccountGroup',
     groupChoices:
       current.groupPicker === 'open'
-        ? BUILT_IN_ACCOUNT_GROUPS.map(({ id, label, detail }) =>
+        ? BUILT_IN_ACCOUNT_GROUPS.flatMap(({ id, label, detail }) =>
             isPreviewGroup(id)
-              ? {
-                  id,
-                  label,
-                  detail,
-                  selected: id === group,
-                  onSelect: () => dispatch({ type: 'group.select', group: id }),
-                }
-              : { id, label, detail, status: 'accountInsuranceInformational' },
+              ? [
+                  {
+                    id,
+                    label,
+                    detail,
+                    selected: id === group,
+                    onSelect: () => dispatch({ type: 'group.select', group: id }),
+                  },
+                ]
+              : [],
           )
         : null,
     onOpenGroupPicker: () => {

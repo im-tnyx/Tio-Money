@@ -24,28 +24,22 @@ test('Settings uses reusable token-owned top bar and preserves all five bottom t
   assert.match(tabs, /label: 'More'/);
 });
 
-test('Account Groups route is controller-driven and shows seven informational built-ins', () => {
+test('Account Groups route is controller-driven and shows six built-in groups', () => {
   const ids = BUILT_IN_ACCOUNT_GROUPS.map((g) => g.id);
-  assert.deepEqual(ids, [
-    'cash',
-    'bank',
-    'credit-card',
-    'loan',
-    'insurance',
-    'investment',
-    'wallet',
-  ]);
+  assert.deepEqual(ids, ['cash', 'bank', 'credit-card', 'loan', 'investment', 'wallet']);
   assert.equal(ids.length, new Set(ids).size);
   assert.deepEqual(
     BUILT_IN_ACCOUNT_GROUPS.map((g) => en[g.label]),
-    ['Cash', 'Bank Account', 'Credit Card', 'Loan', 'Insurance', 'Investment', 'Wallet'],
+    ['Cash', 'Bank Account', 'Credit Card', 'Loan', 'Investment', 'Wallet'],
   );
-  assert.match(en.accountGroupInsuranceInfo, /not a cash account/);
+  assert.equal(Object.hasOwn(en, 'accountGroupInsurance'), false);
+  assert.equal(Object.hasOwn(en, 'accountInsuranceInformational'), false);
   const route = read('src/features/settings/account-groups-route.tsx');
   const screen = read('src/features/settings/account-groups-screen.tsx');
   const page = read('src/app/account-groups.tsx');
   const more = read('src/features/settings/more-screen.tsx');
   const vm = read('src/features/settings/use-more-view-model.ts');
+  const picker = read('src/features/accounts/use-add-account-view-model.ts');
   assert.match(page, /AccountGroupsRoute/);
   assert.match(route, /useRouter\(\)/);
   assert.match(route, /useAccountGroupsViewModel/);
@@ -54,7 +48,8 @@ test('Account Groups route is controller-driven and shows seven informational bu
   assert.match(more, /action: 'account\.groups\.open', label: 'accountGroups'/);
   assert.match(screen, /<AppTopBar/);
   assert.match(screen, /BUILT_IN_ACCOUNT_GROUPS\.map/);
-  assert.doesNotMatch(screen, /accountGroupsReadOnly|Built-in templates/);
+  assert.doesNotMatch(screen, /accountGroupsReadOnly|Built-in templates|insurance/);
+  assert.doesNotMatch(picker, /accountInsuranceInformational|insurance/);
   assert.match(screen, /actions=\{actions\}/);
   assert.match(screen, /state\.showDescriptions \?/);
   assert.match(screen, /state\.customGroups\.map/);

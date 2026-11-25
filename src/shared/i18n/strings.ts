@@ -22,7 +22,6 @@ export const en = {
   closeAccountOptions: 'Close account options',
   accountOptionUnavailable: 'Unavailable',
   accountSaveUnavailable: 'Financial account creation is not enabled yet.',
-  accountInsuranceInformational: 'Informational only',
   accountModeSection: 'Linked Payment Modes',
   accountModeEmptyTitle: 'Link your payment modes',
   accountModeEmptyDescription:
@@ -136,8 +135,6 @@ export const en = {
   accountGroupCreditCardInfo: 'Track outstanding card balances and billing dates.',
   accountGroupLoan: 'Loan',
   accountGroupLoanInfo: 'Track money borrowed or lent.',
-  accountGroupInsurance: 'Insurance',
-  accountGroupInsuranceInfo: 'Policy tracking planned; this is not a cash account.',
   accountGroupInvestment: 'Investment',
   accountGroupInvestmentInfo: 'Track holdings and their separate valuations.',
   accountGroupWallet: 'Wallet',

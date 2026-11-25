@@ -453,7 +453,7 @@ export interface AddAccountViewModel {
 }
 
 export interface AccountGroupChoice {
-  readonly id: PreviewGroup | 'insurance';
+  readonly id: PreviewGroup;
   readonly label: TranslationKey;
   readonly detail: TranslationKey;
   readonly status?: TranslationKey;

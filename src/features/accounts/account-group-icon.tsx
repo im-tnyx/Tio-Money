@@ -11,10 +11,9 @@ const marks = {
   wallet: 'M3 5h15v3 M3 5v14h18V8H3 M21 11h-6v5h6 M17 13.5h.01',
   loan: 'M4 8h16 M16 4l4 4-4 4 M20 16H4 M8 12l-4 4 4 4',
   investment: 'M4 20h16 M7 17v-4 M12 17V9 M17 17V5',
-  insurance: 'M12 3 4 6v5c0 5 3 8 8 10 5-2 8-5 8-10V6z M8 12l3 3 5-6',
 } as const;
 
-export function AccountGroupIcon({ group }: { readonly group: PreviewGroup | 'insurance' }) {
+export function AccountGroupIcon({ group }: { readonly group: PreviewGroup }) {
   const theme = useAppTheme();
   return (
     <Svg
