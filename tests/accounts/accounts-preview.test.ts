@@ -909,11 +909,13 @@ test('Credit Card dates use a day-only wheel and Loan and Investment keep full c
   assert.equal(loan.fields.startDate, '2026-11-24');
   assert.equal(investment.fields.startDate, '2026-11-24');
   assert.equal(investment.fields.tenure, '12');
-  assert.equal(
-    updateAccountDraft(investment, { type: 'text', field: 'tenure', value: '0' }, currencies)
-      .fields.tenure,
-    '0',
+  const tenureZero = updateAccountDraft(
+    investment,
+    { type: 'text', field: 'tenure', value: '0' },
+    currencies,
   );
+  assert.ok(tenureZero.group === 'investment');
+  assert.equal(tenureZero.fields.tenure, '0');
   assert.equal(
     updateAccountDraft(investment, { type: 'text', field: 'tenure', value: '1200' }, currencies),
     investment,
