@@ -22,7 +22,7 @@
 | TM-ADR-016 | Money amount maximum and destination fee = principal boundary | **BLOCKED PENDING DECISION** | Supported currency cap, overflow handling, zero-receipt warning/rejection and UX fixtures |
 | TM-ADR-017 | Save & Add Another form retention and abandoned-draft UX | **BLOCKED PENDING DECISION** | Owner reset/retention/focus policy; controller-only workflow; no silent draft recovery |
 | TM-ADR-018 | Currency-aware canonical journal / FX transfer | **PARTIAL** | Supported codes, clearing, booked conversion/gain/rounding |
-| TM-ADR-019 | Six groups and reference-only wallets | **DESIGN ACCEPTED** | Migration/subtype schema; historical reconciliation |
+| TM-ADR-019 | Six groups and independent wallets | **DESIGN ACCEPTED** | Migration/subtype schema; historical reconciliation |
 | TM-ADR-020 | Card liability and tracked bill repayment | **PARTIAL** | Issuer statement minimum/due/holds, autopay semantics |
 | TM-ADR-021 | Loan principal and interest | **PARTIAL** | Amortization, day-count, accrual and rounding schedules |
 | TM-ADR-022 | Investment cost, valuation and realization | **PARTIAL** | Lot disposal, realized gains, dividends, revaluation postings |
@@ -71,7 +71,7 @@ Supported account currency is immutable for already-booked journals; user Main/S
 
 ### TM-ADR-019 — group/account model
 
-Cash, Bank and independently **funded** Wallet are ASSET. Bank-linked Wallet is link/reference metadata to an eligible Bank account; it inherits currency and **never** creates independent asset, opening journal, balance, or double Net Worth. Credit Card is LIABILITY, with credit limit **not** money. Given Loan is receivable ASSET; Borrowed Loan is LIABILITY. Historical Investment is ASSET at booked cost, with separately dated **unposted** valuation. Positive historical openings post against opening equity exactly once. Archive a linked Wallet reference without archiving/changing Bank journal. Group label is not an accounting class; plan a versioned typed schema and migration only after tests and owner scope.
+Cash, Bank and independently **funded** Wallet are ASSET. [2026-11-24 owner refinement](https://github.com/im-tnyx/Tio-Money/issues/98#issuecomment-7135648127): new Wallet creation is independent only; Bank-linked UPI remains Bank payment-mode metadata and **never** creates another asset, opening journal, balance or double Net Worth. Earlier reference-only Wallet creation design is superseded; legacy compatibility requires separate review. Credit Card is LIABILITY, with credit limit **not** money. Given Loan is receivable ASSET; Borrowed Loan is LIABILITY. Historical Investment is ASSET at booked cost, with separately dated **unposted** valuation. Positive historical openings post against opening equity exactly once. Group label is not an accounting class; plan a versioned typed schema and migration only after tests and owner scope.
 
 ### TM-ADR-020 — card statements and payments
 
@@ -106,7 +106,7 @@ Owner requires refresh *on currency-dependent use*, not arbitrary 24-hour pollin
 | TM-ADR-T03 | 3 × INR 0.01; JPY zero-minor and 3-minor currency input | Correct native integer units; invalid fractional/scientific/overflow rejected |
 | TM-ADR-T04 | INR-only income, Expense, transfer+fee | Each event debits = credits; transfer principal not income/expense; fee counted once |
 | TM-ADR-T05 | Attempt USD-to-INR journal without accepted FX clearing policy | Explicit rejection, no partial native-currency debit or fabricated conversion |
-| TM-ADR-T06 | Funded Wallet plus bank-linked Wallet reference | Funded asset counted once; reference never duplicates Bank or posts opening |
+| TM-ADR-T06 | Independent Wallet plus Bank UPI payment mode | Wallet counted once; payment mode never duplicates Bank or posts opening |
 | TM-ADR-T07 | Historical Given/Borrowed Loan, card liability, Investment cost | Proper asset/liability/equity classification, zero duplicate funding moves |
 | TM-ADR-T08 | Card repayment, fee, loan principal/interest split | Liability/principal decreases without expense duplication; separately authorized interest as expense |
 | TM-ADR-T09 | Refund ¥ or ₹ original fully/partially and repeat command | Native-currency cap + linked reversal, no Income; duplicate idempotent; cross-currency blocked |

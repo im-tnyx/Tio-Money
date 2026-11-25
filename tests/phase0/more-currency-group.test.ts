@@ -8,17 +8,26 @@ test('TM-CUR-025: More Main/Sub Currency share one card with one inset divider',
   const finish = more.indexOf('{state.error && !state.appearanceSheetVisible', start);
   assert.ok(start >= 0 && finish > start);
   const section = more.slice(start, finish);
+  const cardStyle = more.match(/const settingsCardStyle = \{([\s\S]*?)\} as const/)?.[1];
+  const dividerStyle = more.match(/const settingsDividerStyle = \{([\s\S]*?)\};/)?.[1];
+  assert.ok(cardStyle);
+  assert.ok(dividerStyle);
   assert.equal(section.match(/<Pressable/g)?.length, 2);
-  assert.equal(section.match(/backgroundColor: theme.colors.card/g)?.length, 1);
-  assert.equal(section.match(/borderTopWidth: theme.navigation.borderWidth/g)?.length, 1);
-  assert.equal(section.match(/borderBottomWidth: theme.navigation.borderWidth/g)?.length, 2);
-  assert.match(section, /marginLeft: theme.space.lg/);
-  assert.match(section, /accessible=\{false\}/);
+  assert.equal(section.match(/<View style=\{settingsCardStyle\}>/g)?.length, 1);
+  assert.equal(
+    section.match(/<View accessible=\{false\} style=\{settingsDividerStyle\} \/>/g)?.length,
+    1,
+  );
+  assert.match(cardStyle, /backgroundColor: theme\.colors\.card/);
+  assert.match(cardStyle, /borderTopWidth: theme\.navigation\.borderWidth/);
+  assert.match(cardStyle, /borderBottomWidth: theme\.navigation\.borderWidth/);
+  assert.match(dividerStyle, /marginLeft: theme\.space\.lg/);
+  assert.match(dividerStyle, /borderBottomWidth: theme\.navigation\.borderWidth/);
   assert.match(section, /onAction\(\{ type: 'currency.main.open' \}\)/);
   assert.match(section, /onAction\(\{ type: 'currency.sub.open' \}\)/);
   assert.match(section, /accessibilityLabel=\{t\('currencyMain'\)\}/);
   assert.match(section, /accessibilityLabel=\{t\('currencySub'\)\}/);
   assert.match(section, /\{state.currency.mainCode\}/);
   assert.match(section, /state.currency.subCodes.length === 0/);
-  assert.doesNotMatch(section, /backgroundColor: '#|#[0-9a-fA-F]{6}/);
+  assert.doesNotMatch(section + cardStyle + dividerStyle, /backgroundColor: '#|#[0-9a-fA-F]{6}/);
 });

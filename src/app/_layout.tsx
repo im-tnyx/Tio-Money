@@ -17,7 +17,7 @@ function ThemedStatusBar() {
   return <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />;
 }
 
-/** Pre-register one shared native transition for every Settings detail page before first push. */
+/** Pre-register the shared native transition for detail screens before navigation. */
 function AppNavigationStack() {
   const theme = useAppTheme();
   const motion = useNavigationMotion();
@@ -29,7 +29,9 @@ function AppNavigationStack() {
       }}
     >
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="add-account" options={motion.detail} />
       <Stack.Screen name="account-groups" options={motion.detail} />
+      <Stack.Screen name="manage-accounts" options={motion.detail} />
       <Stack.Screen name="currency/main" options={motion.detail} />
       <Stack.Screen name="currency/sub" options={motion.detail} />
       <Stack.Screen name="currency/sub-detail" options={motion.detail} />
