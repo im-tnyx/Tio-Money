@@ -3,18 +3,18 @@
 | Field | Verified value |
 | --- | --- |
 | Repository | `im-tnyx/Tio-Money` |
-| Lifecycle | IN_REVIEW |
+| Lifecycle | MERGED |
 | RFC | [#96](https://github.com/im-tnyx/Tio-Money/issues/96) |
 | Decision | [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7096382991) for UI only. Finance BLOCKED_PENDING_DECISION. |
-| Current agent | Cursor Cloud (Composer) — Current scope / provenance sync at `faeb141` |
-| Previous agent | Cursor Cloud (Composer) Insurance remove / author rewrite / day-wheel polish; earlier ChatGPT GPT-6.2 / Codex Cloud. Exact prior variants UNKNOWN_NOT_VERIFIED. |
-| Branch | `feat/accounts-ui-foundation-20261123` |
+| Current agent | Cursor Cloud (Composer) — post-merge sync after owner-authorized #97 merge |
+| Previous agent | Cursor Cloud (Composer) tenure/Bugbot polish; earlier ChatGPT GPT-6.2 / Codex Cloud. Exact prior variants UNKNOWN_NOT_VERIFIED. |
+| Branch | `feat/accounts-ui-foundation-20261123` (merged) |
 | Original base and starting HEAD | `f865969d200d70fbc8e84dd6a48d8020a155e42c` |
-| Latest audited base | `66048d6ca3870ac8d971af89e3c45de1f8cfde90` (main after PR #109) |
-| Latest audited HEAD | [`faeb141`](https://github.com/im-tnyx/Tio-Money/commit/faeb14176fa25fffda85ec60212ee5128c062b6b) on `feat/accounts-ui-foundation-20261123` |
-| Review | DEFERRED. No independent review of the draft has been performed. |
-| Merge authorization | NOT_GRANTED |
-| PR | [Draft #97](https://github.com/im-tnyx/Tio-Money/pull/97) |
+| Latest audited base | `66048d6ca3870ac8d971af89e3c45de1f8cfde90` (main before #97) |
+| Latest audited HEAD | PR head [`b8a173e`](https://github.com/im-tnyx/Tio-Money/commit/b8a173e2a9e812088c28eb283515d3582a57b1eb); merge commit [`ad9bdbf`](https://github.com/im-tnyx/Tio-Money/commit/ad9bdbff959820e8e9fc0049dd933cd3482514e7) on `main` |
+| Review | DEFERRED (independent). Bugbot Medium/Low findings fixed and threads resolved before merge. |
+| Merge authorization | GRANTED 2026-11-25 — owner authorized merge of PR #97 into main with CI/protections/blocking findings verified; no bypass. |
+| PR | [#97](https://github.com/im-tnyx/Tio-Money/pull/97) **MERGED** |
 
 ## Scope and ownership
 
@@ -685,5 +685,13 @@ The entries below record implementation history at their stated revisions; super
 
 - Owner asked to correct the stale Current scope (Insurance still listed, Historical Invested Cost, outdated tip/base).
 - Docs-only: refresh task header audited base/HEAD to `66048d6` / `faeb141`, rewrite Current UI snapshot source line (Insurance removed, Amount label, looping day wheels, no bottom safe-area strip), and update the compact index provenance. No application, test, schema or finance runtime change. Draft #97 agent Current scope block also refreshed; merge authorization NOT_GRANTED.
+
+### 2026-11-25 — Owner-authorized merge of PR #97
+
+- Owner authorized merging `im-tnyx/Tio-Money` PR #97 into `main` with CI, protections, review requirements and blocking findings verified; no bypass.
+- Preflight: not draft; `MERGEABLE`/`CLEAN`; required `static` + `Governance` SUCCESS on head `b8a173e`; Bugbot threads resolved; required approving reviews = 0; 0 behind `main`; Cursor authors on range = 0; attribution scan PASS.
+- GitHub state **MERGED** at 2026-11-25T05:52:43Z; `merge_commit_sha` [`ad9bdbf`](https://github.com/im-tnyx/Tio-Money/commit/ad9bdbff959820e8e9fc0049dd933cd3482514e7) (merge method). Method was non-force `gh pr merge --merge`.
+- Residual: GitHub merge commit author is `cursor[bot]` (integration token); rewriting protected `main` would require force-push/bypass and was not done. Independent review still deferred. Native device QA still pending. Finance Save remains gated by [RFC #98](https://github.com/im-tnyx/Tio-Money/issues/98).
+- Next safe step: optional archive of this task after owner confirms; device QA on Accounts Add Account flows.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
