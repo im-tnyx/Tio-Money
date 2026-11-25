@@ -89,7 +89,8 @@ test('only overflowing sheets can expand; short sheets remain at the bottom', ()
   assert.equal(hasOverflowingSheetContent(900, fitHeight), true);
   const shell = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   assert.match(shell, /onContentSizeChange/);
-  assert.match(shell, /const canExpand = hasOverflowingSheetContent/);
+  assert.match(shell, /const hasCollapsedOverflow = hasOverflowingSheetContent/);
+  assert.match(shell, /const canExpand = hasCollapsedOverflow && expandedMax > collapsedMax/);
   assert.match(shell, /const expandedForContent = canExpand && expanded/);
   assert.match(shell, /const draggedForContent = canExpand \? dragHeight : null/);
   assert.match(
@@ -97,14 +98,14 @@ test('only overflowing sheets can expand; short sheets remain at the bottom', ()
     /scrollEnabled=\{hasOverflowingSheetContent\(contentHeight, contentMaxHeight\)\}/,
   );
   assert.match(shell, /\{canExpand \? \(/);
-  assert.match(shell, /key=\{title\}/);
+  assert.match(shell, /key=\{layer.title\}/);
 });
 
 test('short sheets add zero extra space below options; long sheets retain scroll clearance', () => {
   const sheet = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
-  assert.match(sheet, /const canExpand = hasOverflowingSheetContent/);
-  assert.match(sheet, /const scrollBottomPadding = canExpand/);
-  assert.match(sheet, /sheet\.contentBottomPadding : theme\.navigation\.origin/);
+  assert.match(sheet, /const hasCollapsedOverflow = hasOverflowingSheetContent/);
+  assert.match(sheet, /const scrollBottomPadding = hasCollapsedOverflow/);
+  assert.match(sheet, /sheet\.contentBottomPadding\s*:\s*theme\.navigation\.origin/);
   assert.match(sheet, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
   assert.match(sheet, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.doesNotMatch(sheet, /paddingBottom: .*\+ bottomInset/);
