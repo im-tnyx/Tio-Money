@@ -81,15 +81,12 @@ function replay(group: PreviewGroup, actions: readonly AccountFormAction[]) {
   );
 }
 
-test('six approved group templates open a form; Insurance and custom IDs do not', () => {
-  assert.deepEqual(BUILT_IN_ACCOUNT_GROUPS.map(({ id }) => id).filter(isPreviewGroup), [
-    'cash',
-    'bank',
-    'credit-card',
-    'loan',
-    'investment',
-    'wallet',
-  ]);
+test('six built-in groups open a form; unknown IDs do not', () => {
+  assert.deepEqual(
+    BUILT_IN_ACCOUNT_GROUPS.map(({ id }) => id),
+    ['cash', 'bank', 'credit-card', 'loan', 'investment', 'wallet'],
+  );
+  assert.ok(BUILT_IN_ACCOUNT_GROUPS.every(({ id }) => isPreviewGroup(id)));
   for (const invalid of ['insurance', 'custom', ['cash'], {}, undefined]) {
     assert.equal(isPreviewGroup(invalid), false);
   }

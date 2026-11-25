@@ -28,7 +28,7 @@ Acceptance before coding: check routing from the Accounts header and Settings, d
 
 Source verified on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/885c861d30d7ebc10cade3cf3f781ffb79732d4b) after Borrowed EMI currency hide [`1e83255`](https://github.com/im-tnyx/Tio-Money/commit/1e83255e283d88f4c1687bdc3136a9c126a0e61f) and this Investment Simple v1 preview. Behavior includes the independent Wallet form ([`9ad5d80`](https://github.com/im-tnyx/Tio-Money/commit/9ad5d80c2a04c96d0509c1369da1fcc3fe17bf06)), Credit Card payment-picker shell with `paymentSource: null`, Borrowed vs Given Loan field sets, simple Investment fields without Type/Valuation, keyboard-aware form viewport, and Group row label. This section supersedes earlier layout descriptions below; dated checkpoints remain historical evidence, not competing current specifications. See [Account Groups product specification](../../../docs/product/ACCOUNT-GROUPS-SPEC.md) for the separate future finance contract.
 
-**Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Group row can reopen it. Six built-in groups have forms; Insurance is informational and custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
+**Navigation and state.** Accounts header + navigates to Add Account. The initial Choose Account Group bottom sheet opens after the native entrance transition (immediately for web or Reduced Motion); the top Group row can reopen it. Six built-in groups have forms; custom groups do not create accounts here. One transient typed draft per group is retained until the screen closes. Dismissing a picker preserves the draft; closing the editor discards the session. The top bar uses round Close and disabled Save actions. Accounts and Manage Accounts do not show real financial data.
 
 **Current field order** (after the common Account Group row; left to right below means top to bottom in the form):
 
@@ -662,6 +662,12 @@ The entries below record implementation history at their stated revisions; super
 
 - Owner direction: “Historical” is unnecessary on the Investment money field; “Amount” is enough.
 - Preview: `accountInvestmentCost` copy is `Amount`. Draft field remains `investedCost`. No finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
+### 2026-11-25 — Remove Insurance from built-in groups
+
+- Owner direction: remove Insurance from Account Groups and the Add Account group bottom sheet in Draft PR #97.
+- Preview: `BUILT_IN_ACCOUNT_GROUPS` is the six create-capable groups only. Insurance strings/icon/status branch removed. No finance writes or Insurance product design.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)

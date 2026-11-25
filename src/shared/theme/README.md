@@ -2,7 +2,7 @@
 
 The shared React Native / TypeScript theme is the **single owner** of product-visible
 physical sizes, typography, color roles and reusable component visual contracts.
-It draws on the *ownership pattern*, not the Flutter code, of the Tio-World core theme.
+It draws on the _ownership pattern_, not the Flutter code, of the Tio-World core theme.
 
 ## Ownership hierarchy
 
@@ -616,7 +616,7 @@ their left (as the exchange rate is left of Refresh). The Sub detail sheet
 now composes AppSegmentedActionControl, a button-action sibling of the shared
 AppSegmentedControl, using the exact same compactWidth, compactOptionHeight,
 inset, radius, hit slop, track and semantic pill colors. Unlike selectable
-Front/End radio choices, minus/plus remain accessible *buttons* and never
+Front/End radio choices, minus/plus remain accessible _buttons_ and never
 claim a selected value. Each disables correctly at zero/three digits.
 No Main Currency control or shared AppBottomSheet behavior is modified.
 
@@ -670,7 +670,6 @@ other screen. Changes are scoped to gesture arbitration, not the stored
 currency or actual Delete handler. Real-device iPhone test remains required,
 especially for fast gestures beginning at the extreme left edge.
 
-
 ## Shared Settings top bar and Account Groups catalogue — RFC #79 (2026-11-22)
 
 The **Settings** root content replaces the visible More heading with a centered
@@ -689,10 +688,9 @@ shared component after their current screen-specific regression tests.
 Theme; Currency → Main/Sub Currency. The Theme label and bottom-sheet title
 change only visible copy: System/Light/Dark state, local preference keys,
 storage and the shared modal shell are unchanged. The catalogue displays
-seven **informational** built-in labels including **Insurance**, without
-financial-class treatment, active account-creation controls, database writes,
-or invisible placeholders. Insurance data/claims/premiums require a separate
-approved product/ledger design before implementation.
+six built-in labels (Cash, Bank Account, Credit Card, Loan, Investment,
+Wallet), without financial-class treatment beyond preview account creation,
+database writes, or invisible placeholders.
 
 New feature routes compose presentation and controller callbacks, never
 router/database calls from screens. Owner-side Android/iPhone safe-area,
@@ -706,7 +704,7 @@ right: **Eye** (show/hide built-in descriptions) followed by **Add**. Both use
 shared 24dp top-bar icon roles and 48dp touch targets, with symmetric left/right
 header slots preserving the centered 50dp title. Default rows show names only;
 Eye toggles optional caption descriptions. The introductory "Built-in templates"
-paragraph is removed entirely. A maximum of five locally persisted *display-only*
+paragraph is removed entirely. A maximum of five locally persisted _display-only_
 custom names is implemented in a controller, not in presentational screens or
 finance schema; this is not approval of new ledger account classes. User-picked
 Google `home_storage` weight-200 artwork appears ONLY on the main Settings
