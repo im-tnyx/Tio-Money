@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
 import { t } from '@/shared/i18n/strings';
 import { useAppTheme } from '@/shared/theme/theme-provider';
@@ -23,41 +24,68 @@ import {
   shouldExpandBottomSheet,
 } from './bottom-sheet-geometry';
 
-/** Visibility/dismissal remains owned by callers. Unmount resets local drag state. */
+export interface BottomSheetLayer {
+  readonly title: string;
+  readonly dismissAccessibilityLabel: string;
+  readonly onDismiss: () => void;
+  readonly showCloseButton?: boolean;
+  readonly expandable?: boolean;
+  readonly children: ReactNode;
+}
+
+/** Visibility and the optional top layer remain owned by callers. */
 export function AppBottomSheet({
   visible,
   title,
   dismissAccessibilityLabel,
   onDismiss,
+  animate = true,
   children,
   avoidKeyboard = false,
-}: {
+  showCloseButton,
+  expandable,
+  overlay,
+}: BottomSheetLayer & {
   visible: boolean;
-  title: string;
-  dismissAccessibilityLabel: string;
-  onDismiss: () => void;
-  children: ReactNode;
+  animate?: boolean;
   avoidKeyboard?: boolean;
+  overlay?: BottomSheetLayer;
 }) {
-  const surface = visible ? (
+  const renderLayer = (layer: BottomSheetLayer) => (
     <SheetSurface
-      key={title}
-      title={title}
-      dismissAccessibilityLabel={dismissAccessibilityLabel}
-      onDismiss={onDismiss}
+      key={layer.title}
+      {...layer}
       underlayBehindKeyboard={avoidKeyboard && Platform.OS === 'ios'}
       keyboardAvoiding={avoidKeyboard}
-    >
-      {children}
-    </SheetSurface>
+    />
+  );
+  const surface = visible ? (
+    <>
+      <View
+        style={{ flex: 1 }}
+        pointerEvents={overlay ? 'none' : 'auto'}
+        accessibilityElementsHidden={overlay !== undefined}
+        importantForAccessibility={overlay ? 'no-hide-descendants' : 'auto'}
+      >
+        {renderLayer({
+          title,
+          dismissAccessibilityLabel,
+          onDismiss,
+          showCloseButton,
+          expandable,
+          children,
+        })}
+      </View>
+      {overlay ? <View style={StyleSheet.absoluteFill}>{renderLayer(overlay)}</View> : null}
+    </>
   ) : null;
 
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
-      onRequestClose={onDismiss}
+      animationType={animate ? 'slide' : 'none'}
+      onRequestClose={overlay?.onDismiss ?? onDismiss}
       statusBarTranslucent
     >
       {avoidKeyboard ? (
@@ -80,13 +108,11 @@ function SheetSurface({
   dismissAccessibilityLabel,
   onDismiss,
   children,
+  showCloseButton,
+  expandable,
   underlayBehindKeyboard,
   keyboardAvoiding,
-}: {
-  title: string;
-  dismissAccessibilityLabel: string;
-  onDismiss: () => void;
-  children: ReactNode;
+}: BottomSheetLayer & {
   underlayBehindKeyboard: boolean;
   keyboardAvoiding: boolean;
 }) {
@@ -102,7 +128,9 @@ function SheetSurface({
   const currentHeight = useRef(0);
   const dragStartHeight = useRef(0);
 
-  const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet, keyboardAvoiding);
+  // Let long forms expand in a full viewport and use all available room above the keyboard.
+  const skipCollapsedCap = keyboardAvoiding && (!expandable || viewportHeight < windowHeight);
+  const limits = getBottomSheetHeightLimits(viewportHeight, topInset, sheet, skipCollapsedCap);
   const { collapsedMax, expandedMax } = limits;
   // The handle/title never move. Measure only the choices: short sheets stay
   // content-sized at the bottom; overflowing lists may expand when dragged.
@@ -114,10 +142,13 @@ function SheetSurface({
     sheet.headerDividerWidth +
     bottomInset;
   const collapsedContentMaxHeight = Math.max(0, collapsedMax - chromeHeight);
-  const canExpand = hasOverflowingSheetContent(contentHeight, collapsedContentMaxHeight);
+  const hasCollapsedOverflow = hasOverflowingSheetContent(contentHeight, collapsedContentMaxHeight);
+  const canExpand = hasCollapsedOverflow && expandedMax > collapsedMax;
   // SafeAreaView already supplies OS bottom padding. Do not add it again to
   // the list, or short Decimal/Format sheets rise above their content height.
-  const scrollBottomPadding = canExpand ? sheet.contentBottomPadding : theme.navigation.origin;
+  const scrollBottomPadding = hasCollapsedOverflow
+    ? sheet.contentBottomPadding
+    : theme.navigation.origin;
   const expandedForContent = canExpand && expanded;
   const draggedForContent = canExpand ? dragHeight : null;
   const visibleMaxHeight = draggedForContent ?? (expandedForContent ? expandedMax : collapsedMax);
@@ -153,6 +184,8 @@ function SheetSurface({
     >
       <Pressable
         onPress={onDismiss}
+        accessible={!showCloseButton}
+        importantForAccessibility={showCloseButton ? 'no' : 'auto'}
         accessibilityRole="button"
         accessibilityLabel={dismissAccessibilityLabel}
         style={[
@@ -210,7 +243,9 @@ function SheetSurface({
             flexDirection: 'row',
             alignItems: 'center',
             minHeight: sheet.headerMinHeight,
-            paddingHorizontal: sheet.headerHorizontalPadding,
+            paddingHorizontal: showCloseButton
+              ? theme.buttons.minimumHeight
+              : sheet.headerHorizontalPadding,
             borderBottomWidth: sheet.headerDividerWidth,
             borderBottomColor: theme.colors.border,
           }}
@@ -218,6 +253,37 @@ function SheetSurface({
           <AppText variant="section" style={{ flex: 1, textAlign: 'center' }}>
             {title}
           </AppText>
+          {showCloseButton ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={dismissAccessibilityLabel}
+              onPress={onDismiss}
+              style={{
+                position: 'absolute',
+                right: theme.navigation.origin,
+                width: theme.buttons.minimumHeight,
+                minHeight: theme.buttons.minimumHeight,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Svg
+                width={theme.iconRoles.bottomSheet}
+                height={theme.iconRoles.bottomSheet}
+                viewBox="0 0 24 24"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Path
+                  d="m6 6 12 12M18 6 6 18"
+                  fill="none"
+                  stroke={theme.colors.primaryText}
+                  strokeWidth={theme.icons.stroke}
+                  strokeLinecap="round"
+                />
+              </Svg>
+            </Pressable>
+          ) : null}
         </View>
         <ScrollView
           nestedScrollEnabled

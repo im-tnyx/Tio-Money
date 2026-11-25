@@ -35,12 +35,13 @@ test('one shared shell owns modal presentation and both feature and fixture comp
   assert.match(shared, /onDismiss: \(\) => void/);
   assert.match(shared, /dismissAccessibilityLabel: string/);
   assert.match(shared, /<Modal/);
-  assert.match(shared, /animationType="slide"/);
-  assert.match(shared, /onRequestClose=\{onDismiss\}/);
+  assert.match(shared, /animate = true/);
+  assert.match(shared, /animationType=\{animate \? 'slide' : 'none'\}/);
+  assert.match(shared, /onRequestClose=\{overlay\?\.onDismiss \?\? onDismiss\}/);
   assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
   assert.match(shared, /accessibilityViewIsModal/);
   assert.match(shared, /accessibilityLabel=\{dismissAccessibilityLabel\}/);
-  assert.equal(shared.match(/onPress=\{onDismiss\}/g)?.length, 1);
+  assert.equal(shared.match(/onPress=\{onDismiss\}/g)?.length, 2);
   assert.match(shared, /StyleSheet\.absoluteFill/);
   assert.match(shared, /opacity: sheet\.backdropOpacity/);
   assert.match(shared, /maxHeight: draggedForContent/);
@@ -72,7 +73,10 @@ test('one shared shell owns modal presentation and both feature and fixture comp
 test('TM-CUR-047: shared overflowing bottom sheets have reduced spacing without double safe-area', () => {
   const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
   assert.equal(bottomSheetTokens.contentBottomPadding, space.xl);
-  assert.match(shared, /scrollBottomPadding = canExpand \? sheet.contentBottomPadding/);
+  assert.match(
+    shared,
+    /scrollBottomPadding = hasCollapsedOverflow\s*\? sheet.contentBottomPadding/,
+  );
   assert.match(shared, /edges=\{\['bottom', 'left', 'right'\]\}/);
   assert.match(shared, /contentContainerStyle=\{\{ paddingBottom: scrollBottomPadding \}\}/);
 });
@@ -91,7 +95,19 @@ test('Account Groups opt into keyboard avoidance; other sheets stay unchanged', 
   assert.doesNotMatch(appearance, /avoidKeyboard/);
   assert.doesNotMatch(currency, /avoidKeyboard/);
   assert.equal((shared.match(/<SheetSurface/g) ?? []).length, 1);
-  assert.match(shared, /onRequestClose=\{onDismiss\}/);
+  assert.match(shared, /onRequestClose=\{overlay\?\.onDismiss \?\? onDismiss\}/);
+  assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
+});
+
+test('an overlay shares the modal and viewport while only the top layer receives dismissal and accessibility', () => {
+  const shared = readFileSync('src/shared/ui/app-bottom-sheet.tsx', 'utf8');
+  assert.equal(shared.match(/<Modal\b/g)?.length, 1);
+  assert.equal(shared.match(/<KeyboardAvoidingView\b/g)?.length, 1);
+  assert.match(shared, /onRequestClose=\{overlay\?\.onDismiss \?\? onDismiss\}/);
+  assert.match(shared, /pointerEvents=\{overlay \? 'none' : 'auto'\}/);
+  assert.match(shared, /accessibilityElementsHidden=\{overlay !== undefined\}/);
+  assert.match(shared, /importantForAccessibility=\{overlay \? 'no-hide-descendants' : 'auto'\}/);
+  assert.match(shared, /renderLayer\(\{\s*title,[\s\S]*?children,[\s\S]*?renderLayer\(overlay\)/);
   assert.match(shared, /onAccessibilityEscape=\{onDismiss\}/);
 });
 
@@ -142,7 +158,11 @@ test('Bugbot: keyboard-aware geometry is opt-in, and Android input centers only 
   assert.match(shared, /keyboardAvoiding=\{avoidKeyboard\}/);
   assert.match(
     shared,
-    /getBottomSheetHeightLimits\(viewportHeight, topInset, sheet, keyboardAvoiding\)/,
+    /skipCollapsedCap = keyboardAvoiding && \(!expandable \|\| viewportHeight < windowHeight\)/,
+  );
+  assert.match(
+    shared,
+    /getBottomSheetHeightLimits\(viewportHeight, topInset, sheet, skipCollapsedCap\)/,
   );
   assert.match(shared, /behavior=\{Platform\.OS === 'ios' \? 'padding' : 'height'\}/);
   assert.match(shared, /underlayBehindKeyboard=\{avoidKeyboard && Platform\.OS === 'ios'\}/);

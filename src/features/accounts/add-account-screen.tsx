@@ -1,0 +1,550 @@
+import { Pressable, Switch, View } from 'react-native';
+
+import { t, type TranslationKey } from '@/shared/i18n/strings';
+import { useAppTheme } from '@/shared/theme/theme-provider';
+import { AppBottomSheet, type BottomSheetLayer } from '@/shared/ui/app-bottom-sheet';
+import { AppDateField } from '@/shared/ui/app-date-field';
+import { AppDayOfMonthField } from '@/shared/ui/app-day-of-month-field';
+import { AppKeyboardForm } from '@/shared/ui/app-keyboard-form';
+import { AppPopupCard } from '@/shared/ui/app-popup-card';
+import { AppPopupChevron } from '@/shared/ui/app-popup-chevron';
+import { AppText } from '@/shared/ui/app-text';
+
+import {
+  calendarDateParts,
+  isCalendarDateField,
+  type AddAccountScreenViewModel,
+  type AddAccountViewModel,
+  type DraftField,
+  type LoanFieldInfo,
+} from './account-form-contract';
+import {
+  AccountField,
+  AccountFieldInfoMark,
+  AccountFormIcon,
+  AccountFormRow,
+  AmountCurrencyChoices,
+  CalendarDateMonthAndYear,
+} from './account-form-controls';
+import { AccountGroupField, AccountGroupOptions } from './account-group-picker';
+import { AccountDropdown } from './account-option-popup';
+import { AccountPage } from './account-page';
+import { accountPickerBottomSheetLayer } from './account-picker-bottom-sheet';
+import { selectedAccountName, type AccountPickerModel } from './account-picker-contract';
+import { BankModeEditor, BankPaymentModes } from './bank-payment-modes';
+
+const loanFieldInfoCopy = {
+  originalPrincipal: 'accountLoanAmountInfo',
+  fees: 'accountLoanFeesInfo',
+  interestRate: 'accountLoanInterestRateInfo',
+  emiAmount: 'accountLoanInstallmentInfo',
+} as const satisfies Record<LoanFieldInfo, TranslationKey>;
+
+const fieldSpecs = {
+  name: { label: 'accountName' },
+  description: { label: 'accountDescription' },
+  openingAmount: { label: 'accountOpeningAmount', money: true, currencyControl: true },
+  outstanding: { label: 'accountCardOutstanding', money: true },
+  creditLimit: { label: 'accountCardCreditLimit', money: true, currencyControl: true },
+  statementDate: { label: 'accountCardStatementDate', date: true, monthly: true },
+  dueDate: { label: 'accountCardDueDate', date: true, monthly: true },
+  originalPrincipal: {
+    label: 'accountLoanOriginalPrincipal',
+    money: true,
+    currencyControl: true,
+    info: 'originalPrincipal',
+  },
+  fees: { label: 'accountLoanFees', money: true, info: 'fees' },
+  interestRate: { label: 'accountLoanInterestRate', info: 'interestRate' },
+  emiAmount: { label: 'accountLoanEmiAmount', money: true, currencyControl: true },
+  startDate: { label: 'accountLoanFirstEmiDate', date: true },
+  investedCost: { label: 'accountInvestmentCost', money: true, currencyControl: true },
+  tenure: { label: 'accountInvestmentTenure', months: true },
+} satisfies Record<
+  DraftField,
+  {
+    label: TranslationKey;
+    money?: boolean;
+    date?: boolean;
+    monthly?: boolean;
+    months?: boolean;
+    currencyControl?: boolean;
+    info?: LoanFieldInfo;
+  }
+>;
+
+type DraftInputControls = Pick<
+  AddAccountViewModel,
+  'currencySymbol' | 'currencyChoices' | 'onAction'
+> & {
+  readonly currency: AddAccountViewModel['draft']['currency'];
+  readonly fieldInfo: LoanFieldInfo | null;
+};
+
+function LoanFieldInfoTip({
+  field,
+  fieldLabel,
+  bodyKey,
+  open,
+  onOpen,
+  onClose,
+}: {
+  readonly field: LoanFieldInfo;
+  readonly fieldLabel: TranslationKey;
+  readonly bodyKey: TranslationKey;
+  readonly open: boolean;
+  readonly onOpen: () => void;
+  readonly onClose: () => void;
+}) {
+  const theme = useAppTheme();
+  const body = t(bodyKey);
+  return (
+    <AppPopupCard
+      trigger={<AccountFieldInfoMark />}
+      label={t('accountLoanFieldInfo') + ', ' + t(fieldLabel)}
+      value={body}
+      dismissLabel={t('closeLoanFieldInfo')}
+      open={open}
+      onOpen={onOpen}
+      onClose={onClose}
+      preferredWidth={theme.optionPopup.width + theme.space.xl}
+      preferredHeight={theme.space.xxxl * 3}
+      placement="auto"
+      align="start"
+    >
+      <AppText
+        muted
+        style={{
+          paddingHorizontal: theme.space.md,
+          paddingVertical: theme.space.sm,
+          includeFontPadding: false,
+        }}
+      >
+        {body}
+      </AppText>
+    </AppPopupCard>
+  );
+}
+
+function DraftInput({
+  field,
+  value,
+  onAction,
+  currencySymbol,
+  currencyChoices,
+  currency,
+  fieldInfo,
+  label,
+  info,
+  infoBody,
+  currencyControl,
+}: DraftInputControls & {
+  readonly field: DraftField;
+  readonly value: string;
+  readonly label?: TranslationKey;
+  readonly info?: LoanFieldInfo | false;
+  readonly infoBody?: TranslationKey;
+  readonly currencyControl?: boolean;
+}) {
+  const spec = fieldSpecs[field];
+  const money = 'money' in spec;
+  const showCurrency = (currencyControl ?? 'currencyControl' in spec) && currencyChoices !== null;
+  const date = 'date' in spec;
+  const monthly = 'monthly' in spec;
+  const months = 'months' in spec;
+  const calendar = isCalendarDateField(field);
+  const parts = calendar ? calendarDateParts(value) : null;
+  const fieldLabel = label ?? spec.label;
+  const description = field === 'description';
+  const infoField = info === false ? undefined : (info ?? ('info' in spec ? spec.info : undefined));
+  const infoBodyKey = infoBody ?? (infoField ? loanFieldInfoCopy[infoField] : undefined);
+  const icon = date ? 'calendar' : description ? 'description' : 'text';
+  const leading = money ? (
+    <AppText
+      variant="title"
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      style={{ includeFontPadding: false }}
+    >
+      {currencySymbol}
+    </AppText>
+  ) : (
+    <AccountFormIcon name={icon} />
+  );
+  return (
+    <AccountField
+      appearance="borderless"
+      textSize={field === 'name' || money || date || months ? 'title' : 'section'}
+      label={fieldLabel}
+      accessibilityLabel={calendar ? t(fieldLabel) + ', ' + t('accountDateDay') : t(fieldLabel)}
+      labelAsPlaceholder={field === 'name' || description}
+      leading={leading}
+      info={
+        infoField && infoBodyKey ? (
+          <LoanFieldInfoTip
+            field={infoField}
+            fieldLabel={fieldLabel}
+            bodyKey={infoBodyKey}
+            open={fieldInfo === infoField}
+            onOpen={() => onAction({ type: 'fieldInfo.open', field: infoField })}
+            onClose={() => onAction({ type: 'fieldInfo.close' })}
+          />
+        ) : undefined
+      }
+      trailing={
+        showCurrency ? (
+          <AmountCurrencyChoices
+            fieldLabel={fieldLabel}
+            options={currencyChoices}
+            value={currency}
+            onChange={(value) => onAction({ type: 'currency', value })}
+          />
+        ) : undefined
+      }
+      value={parts?.day ?? value}
+      keyboardType={date || months ? 'number-pad' : money ? 'decimal-pad' : undefined}
+      maxLength={date ? 2 : months ? 3 : undefined}
+      suffix={
+        monthly ? (
+          <AppText style={{ includeFontPadding: false }}>{t('accountCardMonthlySuffix')}</AppText>
+        ) : months ? (
+          <AppText style={{ includeFontPadding: false }}>
+            {t('accountInvestmentTenureMonths')}
+          </AppText>
+        ) : calendar && parts ? (
+          <CalendarDateMonthAndYear
+            label={fieldLabel}
+            month={parts.month}
+            year={parts.year}
+            onMonthChange={(value) => onAction({ type: 'date.part', field, part: 'month', value })}
+            onYearChange={(value) => onAction({ type: 'date.part', field, part: 'year', value })}
+          />
+        ) : undefined
+      }
+      placeholder={calendar ? t('accountDateDayPlaceholder') : money || months ? '0' : undefined}
+      textAlign="left"
+      multiline={description}
+      returnKeyType={description ? 'done' : undefined}
+      submitBehavior={description ? 'blurAndSubmit' : undefined}
+      onChangeText={(value) =>
+        onAction(
+          calendar
+            ? { type: 'date.part', field, part: 'day', value }
+            : { type: 'text', field, value },
+        )
+      }
+    />
+  );
+}
+
+export function AddAccountScreen({
+  form,
+  groupLabel,
+  groupChoices,
+  animateSheet,
+  onOpenGroupPicker,
+  onCloseGroupPicker,
+  onClose,
+}: AddAccountScreenViewModel) {
+  let sheet: BottomSheetLayer | undefined;
+  if (groupChoices) {
+    sheet = {
+      title: t('chooseAccountGroup'),
+      dismissAccessibilityLabel: t('closeAccountGroupPicker'),
+      onDismiss: onCloseGroupPicker,
+      children: <AccountGroupOptions choices={groupChoices} />,
+    };
+  } else if (form?.draft.group === 'bank' && form.draft.modeEditor) {
+    sheet = {
+      title: t(form.draft.modeEditor.id === null ? 'accountModeAdd' : 'accountModeEdit'),
+      dismissAccessibilityLabel: t('closeAccountPaymentMode'),
+      onDismiss: () => form.onAction({ type: 'mode.cancel' }),
+      children: <BankModeEditor {...form} draft={form.draft} />,
+    };
+  } else if (form?.draft.group === 'credit-card') {
+    sheet = accountPickerBottomSheetLayer(form.paymentSource);
+  }
+
+  return (
+    <AccountPage
+      editing
+      title={t('addAccount')}
+      backLabel={t('closeAddAccount')}
+      onBack={onClose}
+      actions={[
+        {
+          key: 'save',
+          icon: 'save',
+          accessibilityLabel: t('save'),
+          accessibilityHint: t('accountSaveUnavailable'),
+          disabled: true,
+        },
+      ]}
+    >
+      <AppKeyboardForm>
+        <AccountGroupField value={groupLabel} onPress={onOpenGroupPicker} />
+        {form ? <AccountFields key={form.draft.group} {...form} /> : null}
+      </AppKeyboardForm>
+      <AppBottomSheet
+        visible={sheet !== undefined}
+        animate={animateSheet}
+        avoidKeyboard
+        title={sheet?.title ?? t('chooseAccountGroup')}
+        dismissAccessibilityLabel={sheet?.dismissAccessibilityLabel ?? t('closeAccountGroupPicker')}
+        onDismiss={sheet?.onDismiss ?? onCloseGroupPicker}
+        {...(sheet?.expandable ? { expandable: true } : {})}
+      >
+        {sheet?.children}
+      </AppBottomSheet>
+    </AccountPage>
+  );
+}
+
+function AccountFields({
+  draft,
+  currencySymbol,
+  currencyChoices,
+  choice,
+  paymentSource,
+  loanDates,
+  cardDates,
+  canAddMode,
+  onAction,
+}: AddAccountViewModel) {
+  const fieldInfo = draft.group === 'loan' ? draft.fieldInfo : null;
+  const inputProps = {
+    currencySymbol,
+    currencyChoices,
+    currency: draft.currency,
+    fieldInfo,
+    onAction,
+  };
+  return (
+    <>
+      <DraftInput
+        field="name"
+        label={draft.group === 'credit-card' ? 'accountCardName' : undefined}
+        value={draft.fields.name}
+        {...inputProps}
+      />
+      {choice ? (
+        <AccountDropdown choice={choice} leading={<AccountFormIcon name="options" />} />
+      ) : null}
+      <GroupFields
+        draft={draft}
+        paymentSource={paymentSource}
+        loanDates={loanDates}
+        cardDates={cardDates}
+        {...inputProps}
+      />
+      {draft.group === 'credit-card' ? <DisabledAutoPay /> : null}
+      {draft.group === 'bank' ? (
+        <BankPaymentModes draft={draft} canAddMode={canAddMode} onAction={onAction} />
+      ) : null}
+    </>
+  );
+}
+
+function DisabledAutoPay() {
+  const theme = useAppTheme();
+  return (
+    <AccountFormRow label="accountAutoPay" leading={<AccountFormIcon name="autoPay" />}>
+      <Switch
+        accessibilityRole="switch"
+        accessibilityLabel={t('accountAutoPay')}
+        accessibilityHint={t('accountAutoPayUnavailable')}
+        accessibilityState={{ disabled: true, checked: false }}
+        trackColor={{ false: theme.colors.border }}
+        ios_backgroundColor={theme.colors.border}
+        value={false}
+        disabled
+      />
+    </AccountFormRow>
+  );
+}
+
+function PaymentFromField({ picker = null }: { readonly picker?: AccountPickerModel | null }) {
+  const selectedName = selectedAccountName(picker);
+  const field = (
+    <AccountField
+      label="accountPayFromCaption"
+      appearance="borderless"
+      textSize="title"
+      leading={<AccountFormIcon name="card" />}
+      placeholder={t('accountPayFromPlaceholder')}
+      accessibilityLabel={t('accountPayFrom')}
+      accessibilityState={{ disabled: true }}
+      editable={false}
+      value={selectedName ?? ''}
+      textAlign="left"
+    />
+  );
+  if (!picker || picker.accounts.length === 0) return field;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t('accountPayFrom')}
+      accessibilityValue={{ text: selectedName ?? t('accountPayFromPlaceholder') }}
+      accessibilityState={{ expanded: picker.open }}
+      onPress={picker.onOpen}
+    >
+      <View
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        {field}
+      </View>
+    </Pressable>
+  );
+}
+
+function GroupFields({
+  draft,
+  paymentSource,
+  loanDates,
+  cardDates,
+  onAction,
+  ...inputProps
+}: DraftInputControls &
+  Pick<AddAccountViewModel, 'draft' | 'paymentSource' | 'loanDates' | 'cardDates'>) {
+  const draftInput = { ...inputProps, onAction };
+  switch (draft.group) {
+    case 'cash':
+    case 'bank':
+    case 'wallet':
+      return (
+        <DraftInput field="openingAmount" value={draft.fields.openingAmount} {...draftInput} />
+      );
+    case 'credit-card':
+      return (
+        <>
+          <DraftInput field="outstanding" value={draft.fields.outstanding} {...draftInput} />
+          <DraftInput field="creditLimit" value={draft.fields.creditLimit} {...draftInput} />
+          <PaymentFromField picker={paymentSource} />
+          {cardDates ? (
+            <>
+              <AppDayOfMonthField
+                label={t('accountCardStatementDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...cardDates.statementDate}
+              />
+              <AppDayOfMonthField
+                label={t('accountCardDueDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...cardDates.dueDate}
+              />
+            </>
+          ) : null}
+        </>
+      );
+
+    case 'loan':
+      if (draft.direction === 'given') {
+        return (
+          <>
+            <DraftInput
+              field="originalPrincipal"
+              label="accountLoanAmountLent"
+              infoBody="accountLoanAmountLentInfo"
+              value={draft.fields.originalPrincipal}
+              {...draftInput}
+            />
+            <DraftInput
+              field="interestRate"
+              infoBody="accountLoanGivenInterestRateInfo"
+              value={draft.fields.interestRate}
+              {...draftInput}
+            />
+            {loanDates ? (
+              <AppDateField
+                label={t('accountLoanStartDate')}
+                leading={<AccountFormIcon name="calendar" />}
+                {...loanDates.startDate}
+              />
+            ) : null}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('accountLoanMoreDetails')}
+              accessibilityState={{ expanded: draft.moreDetailsOpen }}
+              onPress={() => onAction({ type: 'moreDetails.toggle' })}
+            >
+              <AccountFormRow
+                label="accountLoanMoreDetails"
+                leading={<AccountFormIcon name="options" />}
+              >
+                <AppPopupChevron open={draft.moreDetailsOpen} />
+              </AccountFormRow>
+            </Pressable>
+            {draft.moreDetailsOpen ? (
+              <DraftInput
+                field="emiAmount"
+                label="accountLoanInstallmentOptional"
+                info="emiAmount"
+                infoBody="accountLoanInstallmentInfo"
+                currencyControl={false}
+                value={draft.fields.emiAmount}
+                {...draftInput}
+              />
+            ) : null}
+          </>
+        );
+      }
+      return (
+        <>
+          <DraftInput
+            field="originalPrincipal"
+            value={draft.fields.originalPrincipal}
+            {...draftInput}
+          />
+          <DraftInput
+            field="emiAmount"
+            info={false}
+            currencyControl={false}
+            value={draft.fields.emiAmount}
+            {...draftInput}
+          />
+          {loanDates ? (
+            <AppDateField
+              label={t('accountLoanFirstEmiDate')}
+              leading={<AccountFormIcon name="calendar" />}
+              {...loanDates.startDate}
+            />
+          ) : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('accountLoanMoreDetails')}
+            accessibilityState={{ expanded: draft.moreDetailsOpen }}
+            onPress={() => onAction({ type: 'moreDetails.toggle' })}
+          >
+            <AccountFormRow
+              label="accountLoanMoreDetails"
+              leading={<AccountFormIcon name="options" />}
+            >
+              <AppPopupChevron open={draft.moreDetailsOpen} />
+            </AccountFormRow>
+          </Pressable>
+          {draft.moreDetailsOpen ? (
+            <>
+              <DraftInput field="fees" value={draft.fields.fees} {...draftInput} />
+              <DraftInput field="interestRate" value={draft.fields.interestRate} {...draftInput} />
+            </>
+          ) : null}
+        </>
+      );
+    case 'investment':
+      return (
+        <>
+          <DraftInput field="investedCost" value={draft.fields.investedCost} {...draftInput} />
+          {loanDates ? (
+            <AppDateField
+              label={t('accountInvestmentStartDate')}
+              leading={<AccountFormIcon name="calendar" />}
+              {...loanDates.startDate}
+            />
+          ) : null}
+          <DraftInput field="tenure" value={draft.fields.tenure} {...draftInput} />
+        </>
+      );
+  }
+}

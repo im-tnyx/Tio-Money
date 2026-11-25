@@ -1,5 +1,8 @@
 import { size } from './primitives';
 
+const lightBrand = '#6049CF';
+const darkBrand = '#A99BFF';
+
 /** Owner-approved existing UI scale: names are stable reusable roles. */
 export type ColorScheme = 'light' | 'dark';
 
@@ -43,15 +46,19 @@ export const typographyTokens = {
 const light = {
   canvas: '#F7F8FC',
   card: '#FFFFFF',
+  optionPopup: '#FFFFFFF5',
   elevated: '#F0F2F8',
   primaryText: '#172033',
   secondaryText: '#5B6578',
+  inputPlaceholder: '#657184',
   border: '#E1E6EE',
+  wheelSelection: '#E6E8EF',
   segmentedTrack: '#E6E8EF',
   segmentedSelected: '#FFFFFF',
   segmentedText: '#172033',
   segmentedSelectedText: '#172033',
-  brand: '#6049CF',
+  brand: lightBrand,
+  brandTint: lightBrand + '29',
   brandText: '#FFFFFF',
   shadow: '#000000',
   income: '#147D66',
@@ -65,15 +72,19 @@ const light = {
 const dark = {
   canvas: '#0C1018',
   card: '#181F2B',
+  optionPopup: '#242D3BF5',
   elevated: '#242D3B',
   primaryText: '#F6F8FC',
   secondaryText: '#B6C0D0',
+  inputPlaceholder: '#818DA0',
   border: '#374254',
+  wheelSelection: '#3B4658',
   segmentedTrack: '#272A31',
   segmentedSelected: '#62666F',
   segmentedText: '#F6F8FC',
   segmentedSelectedText: '#FFFFFF',
-  brand: '#A99BFF',
+  brand: darkBrand,
+  brandTint: darkBrand + '29',
   brandText: '#0C1018',
   shadow: '#000000',
   income: '#5DE0B0',

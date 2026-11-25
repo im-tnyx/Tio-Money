@@ -11,12 +11,15 @@ import {
 import {
   bottomSheetTokens,
   buttonTokens,
+  datePickerTokens,
   iconRoleSizes,
   iconTokens,
   navigationTokens,
+  optionPopupTokens,
   recoveryTokens,
   segmentedControlTokens,
   shadowTokens,
+  textFieldTokens,
 } from './component-tokens';
 import {
   palettes,
@@ -39,8 +42,11 @@ export interface AppTheme {
   iconRoles: typeof iconRoleSizes;
   navigation: typeof navigationTokens;
   buttons: typeof buttonTokens;
+  textField: typeof textFieldTokens;
   segmentedControl: typeof segmentedControlTokens;
   bottomSheet: typeof bottomSheetTokens;
+  optionPopup: typeof optionPopupTokens;
+  datePicker: typeof datePickerTokens;
   shadows: typeof shadowTokens;
   recovery: typeof recoveryTokens;
 }
@@ -103,8 +109,11 @@ export function AppThemeProvider({
       iconRoles: iconRoleSizes,
       navigation: navigationTokens,
       buttons: buttonTokens,
+      textField: textFieldTokens,
       segmentedControl: segmentedControlTokens,
       bottomSheet: bottomSheetTokens,
+      optionPopup: optionPopupTokens,
+      datePicker: datePickerTokens,
       shadows: shadowTokens,
       recovery: recoveryTokens,
     }),

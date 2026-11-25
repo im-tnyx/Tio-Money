@@ -8,7 +8,9 @@ import {
   iconRoleSizes,
   iconTokens,
   navigationTokens,
+  optionPopupTokens,
   shadowTokens,
+  textFieldTokens,
 } from '../../src/shared/theme/component-tokens';
 import { motion, opacity, size } from '../../src/shared/theme/primitives';
 import {
@@ -46,16 +48,21 @@ test('physical values have one owner and all reusable roles alias them', () => {
   assert.equal(navigationTokens.unselectedIconWeight, 200);
   assert.equal(navigationTokens.tabCrossfadeDurationMs, motion.tabCrossfadeDurationMs);
   assert.equal(navigationTokens.detailFadeDurationMs, motion.tabCrossfadeDurationMs);
+  assert.equal(optionPopupTokens.chevronDurationMs, motion.tabCrossfadeDurationMs);
   assert.equal(navigationTokens.tabCrossfadeDurationMs, 160);
   assert.equal(buttonTokens.actionHeight, size.dp42);
+  assert.equal(buttonTokens.smallActionIconSize, size.dp18);
   assert.ok(buttonTokens.actionHeight < buttonTokens.minimumHeight);
   assert.equal(buttonTokens.minimumHeight, size.dp48);
+  assert.equal(textFieldTokens.minimumHeight, size.dp46);
+  assert.equal(buttonTokens.currencyChoiceSize, size.dp36);
   assert.equal(buttonTokens.disabledOpacity, opacity.disabled);
   assert.equal(shadowTokens.fab.opacity, opacity.fabShadow);
 });
 
 test('one shared icon size serves bottom nav and every future reusable component role', () => {
   assert.equal(iconTokens.size, size.dp24);
+  assert.equal(iconTokens.emptyStateSize, size.dp48);
   assert.equal(iconTokens.stroke, size.dp2);
   assert.equal(iconTokens.fineStroke, size.dp1_5);
   assert.deepEqual(Object.keys(iconRoleSizes).sort(), [
@@ -77,8 +84,16 @@ test('one root theme provider resolves the selected preference and system colors
   assert.match(provider, /resolveAppearanceScheme\(settings\.preference, systemScheme\)/);
   assert.match(provider, /palettes\[scheme\]/);
   assert.doesNotMatch(provider, /AsyncStorage|setColorScheme/);
+  assert.equal(palettes.light.wheelSelection, '#E6E8EF');
+  assert.equal(palettes.dark.wheelSelection, '#3B4658');
+  assert.equal(palettes.dark.segmentedTrack, '#272A31');
+  assert.notEqual(palettes.dark.wheelSelection, palettes.dark.segmentedTrack);
   assert.notEqual(palettes.light.canvas, palettes.dark.canvas);
   assert.notEqual(palettes.light.primaryText, palettes.dark.primaryText);
+  for (const palette of Object.values(palettes)) {
+    assert.notEqual(palette.inputPlaceholder, palette.primaryText);
+    assert.notEqual(palette.inputPlaceholder, palette.secondaryText);
+  }
   assert.equal(
     Object.keys(palettes.light).sort().join(','),
     Object.keys(palettes.dark).sort().join(','),
@@ -134,8 +149,8 @@ test('all current and future screen and shared UI surfaces own no raw visual siz
   }
 });
 
-test('route screens are dumb blank UI and shell lifecycle/controller logic is external', () => {
-  const routes = ['index', 'transactions', 'reports', 'accounts'];
+test('route files compose presentation and keep lifecycle/controller logic external', () => {
+  const routes = ['index', 'transactions', 'reports'];
   for (const route of routes) {
     const source = readFileSync(`src/app/(tabs)/${route}.tsx`, 'utf8');
     assert.match(source, /export default BlankScreen/);
