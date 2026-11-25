@@ -131,7 +131,7 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   for (const job of [text.slice(text.indexOf('  validate:'), text.indexOf('  preview:')),
     text.slice(text.indexOf('  preview:'))]) {
-    assert.match(job, /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version: 22\.16\.0\n +cache: npm/);
+    assert.match(job, /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version: 22\.16\.0\n +package-manager-cache: false/);
   }
   assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
