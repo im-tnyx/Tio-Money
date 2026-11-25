@@ -62,6 +62,8 @@ export function AppDayOfMonthField({
       theme.space.xxs,
   );
   const verticalInsets = theme.datePicker.paddingVertical * 2 + theme.navigation.borderWidth * 2;
+  const cardSize = rowHeight * theme.datePicker.visibleRows + verticalInsets;
+  const textColumnOffset = theme.iconRoles.textField + theme.space.sm;
   const rowCounts = [
     theme.datePicker.visibleRows,
     theme.datePicker.compactRows,
@@ -76,10 +78,11 @@ export function AppDayOfMonthField({
       open={open}
       onOpen={onOpen}
       onClose={onClose}
-      preferredWidth={theme.datePicker.dayPickerWidth}
+      preferredWidth={cardSize}
+      preferredHeight={cardSize}
       placement="above"
       align="start"
-      preferredHeight={rowHeight * theme.datePicker.visibleRows + verticalInsets}
+      alignOffset={textColumnOffset}
       minimumHeight={rowHeight * theme.datePicker.minimumRows + verticalInsets}
       trigger={
         <View style={{ gap: theme.textField.captionGap }}>
@@ -87,7 +90,7 @@ export function AppDayOfMonthField({
             variant="caption"
             muted
             style={{
-              marginStart: theme.iconRoles.textField + theme.space.sm,
+              marginStart: textColumnOffset,
               includeFontPadding: false,
             }}
           >

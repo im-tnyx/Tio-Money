@@ -25,6 +25,7 @@ export function AppPopupCard({
   minimumHeight = 0,
   placement = 'auto',
   align = 'end',
+  alignOffset = 0,
   children,
 }: {
   readonly trigger: ReactNode;
@@ -39,6 +40,7 @@ export function AppPopupCard({
   readonly minimumHeight?: number;
   readonly placement?: PopupPlacement;
   readonly align?: PopupAlign;
+  readonly alignOffset?: number;
   readonly children: ReactNode | ((availableContentHeight: number) => ReactNode);
 }) {
   const theme = useAppTheme();
@@ -58,6 +60,7 @@ export function AppPopupCard({
     preferredHeight: height,
     placement,
     align,
+    alignOffset,
   };
 
   function measure(requestOpen = false) {
