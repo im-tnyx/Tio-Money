@@ -919,15 +919,21 @@ test('Credit Card dates use a day-only wheel and Loan and Investment keep full c
   );
 
   assert.equal(en.accountCardMonthlySuffix, 'of every month');
-  assert.equal(datePickerTokens.dayPickerWidth, 148);
+  assert.equal(Object.hasOwn(datePickerTokens, 'dayPickerWidth'), false);
   const form = readFileSync('src/features/accounts/add-account-screen.tsx', 'utf8');
   const dayField = readFileSync('src/shared/ui/app-day-of-month-field.tsx', 'utf8');
   const controller = readFileSync('src/features/accounts/use-add-account-view-model.ts', 'utf8');
+  const popup = readFileSync('src/shared/ui/popup-position.ts', 'utf8');
   assert.match(form, /<AppDayOfMonthField[\s\S]*?accountCardStatementDate/);
   assert.match(form, /<AppDayOfMonthField[\s\S]*?accountCardDueDate/);
   assert.doesNotMatch(form, /DraftInput field="statementDate"|DraftInput field="dueDate"/);
   assert.match(dayField, /count=\{monthDayWheelCount\}/);
+  assert.match(dayField, /preferredWidth=\{cardSize\}/);
+  assert.match(dayField, /preferredHeight=\{cardSize\}/);
   assert.match(dayField, /align="start"/);
+  assert.match(dayField, /alignOffset=\{textColumnOffset\}/);
+  assert.match(dayField, /iconRoles\.textField \+ theme\.space\.sm/);
+  assert.match(popup, /alignOffset/);
   assert.doesNotMatch(dayField, /accountDateMonth|accountDateYear/);
   assert.match(dayField, /accountCardMonthlySuffix/);
   assert.match(controller, /cardDates:\s*draft\.group === 'credit-card'/);
@@ -1181,6 +1187,8 @@ test('Loan wheels use local Today and retain live valid dates after dismissal', 
   const popup = readFileSync('src/shared/ui/app-popup-card.tsx', 'utf8');
   assert.equal(field.match(/<AppWheelPicker/g)?.length, 3);
   assert.match(field, /placement="above"/);
+  assert.match(field, /align="start"/);
+  assert.match(field, /alignOffset=\{textColumnOffset\}/);
   assert.match(field, /fitPopupRows\(/);
   assert.match(popup, /placement === 'above'/);
   assert.match(field, /backgroundColor: theme\.colors\.wheelSelection/);
@@ -1469,6 +1477,15 @@ test('field info popup prefers start alignment under the tip mark', () => {
   assert.equal(fits.left, 132);
   assert.ok('top' in fits);
   assert.equal(fits.top, 300);
+  const inset = popupPosition({ x: 132, y: 280, width: 16, height: 16 }, viewport, insets, {
+    margin: 8,
+    gap: 4,
+    preferredWidth: 160,
+    preferredHeight: 120,
+    align: 'start',
+    alignOffset: 36,
+  });
+  assert.equal(inset.left, 168);
   const wide = popupPosition({ x: 132, y: 280, width: 16, height: 16 }, viewport, insets, {
     margin: 8,
     gap: 4,

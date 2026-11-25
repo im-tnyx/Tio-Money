@@ -65,6 +65,7 @@ export function AppDateField({
       theme.space.xxs,
   );
   const verticalInsets = theme.datePicker.paddingVertical * 2 + theme.navigation.borderWidth * 2;
+  const textColumnOffset = theme.iconRoles.textField + theme.space.sm;
   const rowCounts = [
     theme.datePicker.visibleRows,
     theme.datePicker.compactRows,
@@ -81,6 +82,8 @@ export function AppDateField({
       onClose={onClose}
       preferredWidth={theme.datePicker.width}
       placement="above"
+      align="start"
+      alignOffset={textColumnOffset}
       preferredHeight={rowHeight * theme.datePicker.visibleRows + verticalInsets}
       minimumHeight={rowHeight * theme.datePicker.minimumRows + verticalInsets}
       trigger={
@@ -89,7 +92,7 @@ export function AppDateField({
             variant="caption"
             muted
             style={{
-              marginStart: theme.iconRoles.textField + theme.space.sm,
+              marginStart: textColumnOffset,
               includeFontPadding: false,
             }}
           >

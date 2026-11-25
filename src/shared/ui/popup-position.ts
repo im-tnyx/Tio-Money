@@ -24,6 +24,7 @@ export function popupPosition(
     preferredHeight,
     placement = 'auto',
     align = 'end',
+    alignOffset = 0,
   }: {
     readonly margin: number;
     readonly gap: number;
@@ -31,6 +32,8 @@ export function popupPosition(
     readonly preferredHeight: number;
     readonly placement?: PopupPlacement;
     readonly align?: PopupAlign;
+    /** Shift start-aligned popups right (e.g. past a leading icon). */
+    readonly alignOffset?: number;
   },
 ) {
   const left = insets.left + margin;
@@ -44,7 +47,7 @@ export function popupPosition(
   const aboveSpace = above - top;
   const openAbove =
     placement === 'above' || (belowSpace < preferredHeight && aboveSpace > belowSpace);
-  const alignedLeft = align === 'start' ? anchor.x : anchor.x + anchor.width - width;
+  const alignedLeft = align === 'start' ? anchor.x + alignOffset : anchor.x + anchor.width - width;
 
   return {
     width,
