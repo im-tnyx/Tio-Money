@@ -349,7 +349,7 @@ export function updateAccountDraft(
       if (
         draft.group === 'investment' &&
         action.field === 'tenure' &&
-        (!/^\d{0,3}$/.test(action.value) || action.value === '0')
+        !/^\d{0,3}$/.test(action.value)
       ) {
         return draft;
       }
