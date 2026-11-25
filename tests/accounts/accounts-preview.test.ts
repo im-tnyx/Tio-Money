@@ -910,7 +910,12 @@ test('Credit Card dates use a day-only wheel and Loan and Investment keep full c
   assert.equal(investment.fields.startDate, '2026-11-24');
   assert.equal(investment.fields.tenure, '12');
   assert.equal(
-    updateAccountDraft(investment, { type: 'text', field: 'tenure', value: '0' }, currencies),
+    updateAccountDraft(investment, { type: 'text', field: 'tenure', value: '0' }, currencies)
+      .fields.tenure,
+    '0',
+  );
+  assert.equal(
+    updateAccountDraft(investment, { type: 'text', field: 'tenure', value: '1200' }, currencies),
     investment,
   );
   assert.equal(
@@ -975,6 +980,12 @@ test('Investment Start Date uses the shared wheel date field and keeps optional 
     action: { type: 'text', field: 'tenure', value: '12' },
   });
   assert.equal(draft().tenure, '12');
+  session = update(session, {
+    type: 'form',
+    group: 'investment',
+    action: { type: 'text', field: 'tenure', value: '0' },
+  });
+  assert.equal(draft().tenure, '0');
   session = update(session, {
     type: 'form',
     group: 'investment',
