@@ -670,6 +670,11 @@ The entries below record implementation history at their stated revisions; super
 - Preview: `BUILT_IN_ACCOUNT_GROUPS` is the six create-capable groups only. Insurance strings/icon/status branch removed. No finance writes or Insurance product design.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
+### 2026-11-25 — Rewrite Cursor commit authors (owner-authorized)
+
+- Owner authorized rewriting Cursor-authored commits on PR #97 to owner identity and force-push.
+- Preview: `origin/main..HEAD` Cursor Agent author/committer identities rewritten to `im-tnyx <271889561+im-tnyx@users.noreply.github.com>`; force-with-lease to tip `c636e8e`. Attribution scan PASS (no Co-authored-by). Tree content unchanged. Fresh exact-HEAD CI required; merge authorization NOT_GRANTED.
+
 ### 2026-11-25 — Reconcile with main after PR #109
 
 - [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7151975211) scopes the two-parent merge of main `66048d6ca3870ac8d971af89e3c45de1f8cfde90` into Accounts HEAD `4ee705a55a563d7bfae1d1b2ac0b2c58f93175b9`.
