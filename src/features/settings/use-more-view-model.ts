@@ -21,6 +21,9 @@ export function useMoreViewModel(): {
         case 'account.groups.open':
           router.push('/account-groups');
           break;
+        case 'account.manage.open':
+          router.push('/manage-accounts');
+          break;
         case 'appearance.open':
           setAppearanceSheetVisible(true);
           break;

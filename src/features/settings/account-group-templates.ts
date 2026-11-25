@@ -6,7 +6,6 @@ export const BUILT_IN_ACCOUNT_GROUPS = [
   { id: 'bank', label: 'accountGroupBank', detail: 'accountGroupBankInfo' },
   { id: 'credit-card', label: 'accountGroupCreditCard', detail: 'accountGroupCreditCardInfo' },
   { id: 'loan', label: 'accountGroupLoan', detail: 'accountGroupLoanInfo' },
-  { id: 'insurance', label: 'accountGroupInsurance', detail: 'accountGroupInsuranceInfo' },
   { id: 'investment', label: 'accountGroupInvestment', detail: 'accountGroupInvestmentInfo' },
   { id: 'wallet', label: 'accountGroupWallet', detail: 'accountGroupWalletInfo' },
 ] as const satisfies readonly {

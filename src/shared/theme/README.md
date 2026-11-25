@@ -2,7 +2,7 @@
 
 The shared React Native / TypeScript theme is the **single owner** of product-visible
 physical sizes, typography, color roles and reusable component visual contracts.
-It draws on the *ownership pattern*, not the Flutter code, of the Tio-World core theme.
+It draws on the _ownership pattern_, not the Flutter code, of the Tio-World core theme.
 
 ## Ownership hierarchy
 
@@ -616,7 +616,7 @@ their left (as the exchange rate is left of Refresh). The Sub detail sheet
 now composes AppSegmentedActionControl, a button-action sibling of the shared
 AppSegmentedControl, using the exact same compactWidth, compactOptionHeight,
 inset, radius, hit slop, track and semantic pill colors. Unlike selectable
-Front/End radio choices, minus/plus remain accessible *buttons* and never
+Front/End radio choices, minus/plus remain accessible _buttons_ and never
 claim a selected value. Each disables correctly at zero/three digits.
 No Main Currency control or shared AppBottomSheet behavior is modified.
 
@@ -670,7 +670,6 @@ other screen. Changes are scoped to gesture arbitration, not the stored
 currency or actual Delete handler. Real-device iPhone test remains required,
 especially for fast gestures beginning at the extreme left edge.
 
-
 ## Shared Settings top bar and Account Groups catalogue — RFC #79 (2026-11-22)
 
 The **Settings** root content replaces the visible More heading with a centered
@@ -689,10 +688,9 @@ shared component after their current screen-specific regression tests.
 Theme; Currency → Main/Sub Currency. The Theme label and bottom-sheet title
 change only visible copy: System/Light/Dark state, local preference keys,
 storage and the shared modal shell are unchanged. The catalogue displays
-seven **informational** built-in labels including **Insurance**, without
-financial-class treatment, active account-creation controls, database writes,
-or invisible placeholders. Insurance data/claims/premiums require a separate
-approved product/ledger design before implementation.
+six built-in labels (Cash, Bank Account, Credit Card, Loan, Investment,
+Wallet), without financial-class treatment beyond preview account creation,
+database writes, or invisible placeholders.
 
 New feature routes compose presentation and controller callbacks, never
 router/database calls from screens. Owner-side Android/iPhone safe-area,
@@ -706,7 +704,7 @@ right: **Eye** (show/hide built-in descriptions) followed by **Add**. Both use
 shared 24dp top-bar icon roles and 48dp touch targets, with symmetric left/right
 header slots preserving the centered 50dp title. Default rows show names only;
 Eye toggles optional caption descriptions. The introductory "Built-in templates"
-paragraph is removed entirely. A maximum of five locally persisted *display-only*
+paragraph is removed entirely. A maximum of five locally persisted _display-only_
 custom names is implemented in a controller, not in presentational screens or
 finance schema; this is not approval of new ledger account classes. User-picked
 Google `home_storage` weight-200 artwork appears ONLY on the main Settings
@@ -723,10 +721,49 @@ only values and intents. Caller domain validation owns the max 40-character
 limit and duplicate handling. No `TextInput`-specific visual constants or
 local modal/button code are allowed in this screen.
 
+## Bank payment mode empty-state icon — PR #97 (2026-11-24)
+
+The decorative link illustration is 48 dp through `iconTokens.emptyStateSize`
+in [`component-tokens.ts`](component-tokens.ts). The icon appears under Linked
+Payment Modes while the Bank draft has no modes.
+
+The Linked Payment Modes editor uses 14 sp compact option labels through
+`segmentedControlTokens.compactOptionLabelSize` and the shared typography line
+height ratio. Pill minimum height remains 24 dp and touch height 48 dp. Global
+caption typography is unchanged.
+
+## Add Account field captions — PR #97 (2026-11-24)
+
+`textFieldTokens.captionGap` in [`component-tokens.ts`](component-tokens.ts) sets
+the vertical gap between an Add Account caption and its input row to 0 dp.
+
+## Add Account option popup — PR #97 (2026-11-24)
+
+Investment Type and Loan Direction share
+[`AccountDropdown`](../../features/accounts/account-option-popup.tsx). This Accounts
+component renders an anchored popup and receives its options, selected value and
+dismiss callback from the Add Account view model. The two option popup triggers use [AppPopupChevron](../ui/app-popup-chevron.tsx): right when closed, down when open, with a 90-degree rotation driven by the actual open prop. Its 24 dp size and stroke reuse icon roles, secondary text color comes from the palette, and the 160 ms duration aliases the existing motion primitive. Reduced Motion changes direction immediately. Loan date rows keep only their leading calendar icon and date value, without a trailing chevron. Navigation and bottom-sheet indicators retain their own contract.
+
+- [`optionPopupTokens`](component-tokens.ts) define a preferred width of 240 dp,
+  a 24 dp corner radius and the elevation and shadow settings.
+- The light and dark `optionPopup` palette colors in [`tokens.ts`](tokens.ts)
+  provide the translucent surface. The card uses the standard theme border.
+- [`accountPopupPosition`](../../features/accounts/account-popup-position.ts)
+  clamps the card to the safe viewport and places it above the trigger when that
+  gives the list more room. Long lists scroll. Selecting an option, tapping
+  outside or pressing Back closes the card.
+
+The [Accounts preview tests](../../../tests/accounts/accounts-preview.test.ts)
+cover placement, dismissal wiring and option selection.
+
+## Shared date wheel popup — PR #97 (2026-11-24)
+
+Loan date fields use [AppDateField](../ui/app-date-field.tsx), [AppWheelPicker](../ui/app-wheel-picker.tsx) and [AppPopupCard](../ui/app-popup-card.tsx). Date selection is controlled by the Accounts session. The popup uses the same rounded theme surface and safe viewport geometry as AccountDropdown, but opts into above-only placement anchored to the active date field. It measures before opening, fits 5/3/1 complete rows above the anchor, and never flips below or centers over the field. If even one row cannot fit, scroll the field lower before opening. Date picker roles in component-tokens.ts own the wheel width, 32 dp base row height and five visible rows (160 dp nominal wheel, 8 dp horizontal padding, 6 dp vertical padding, 172 dp padded content excluding border). Font scaling may increase row height; compact viewports reduce the visible rows. Short English month names, live updates, continuous calendar day/month carry-over within 1900–2100, and no confirmation footer are the current owner-approved UI contract. Day and Month wheels use bounded physical detents mapped to civil ordinals by the popup session. Year changes preserve the physical Month index and month label; actual calendar month rollover moves the Month detent by the corresponding delta. Month/year changes preserve the physical Day index when the day is unchanged, and move only by the day clamp difference when necessary. Crossing a month or year does not restart the active list. Only a small render window is mounted. Selection haptics are requested but blocked until the verified Expo package can be installed. The wheel uses a single native-driven virtualized Animated.FlatList offset on Android/iOS (JavaScript fallback on web); fixed-radius camera projection derives depth, rotation, vertical compensation and edge opacity together via `wheelPickerTokens` and [wheel-projection](../ui/wheel-projection.ts). The 22-degree rotation per row, capped at 84 degrees, increases the physical drum radius so the outer rows occupy more of the same viewport. Selection is observed through an effect-managed offset subscription, separate from the native event factory. Rows fade fully at the angular edge. Controlled selection echoes do not realign a moving drum. Linked calendar rollover scrolls neighboring wheels to nearby detents using native animated scroll, without emitting additional date changes. Long jumps beyond 12 rows and Reduced Motion use immediate alignment. The fixed central band uses the dedicated opaque `wheelSelection` semantic color (light `#E6E8EF`, dark `#3B4658`), independent of segmented controls; Reduced Motion disables the cylindrical transforms. Device smoothness and visual parity require native QA.
+
 ## Shared ActionButton visual height — 2026-11-22 (owner RFC #79 refinement)
 
-Every app action rendered by the canonical `src/shared/ui/action-button.tsx`
-uses a **42dp painted surface** (`buttonTokens.actionHeight = size.dp42`).
+The canonical `src/shared/ui/action-button.tsx` defaults to a **42dp painted
+surface** (`buttonTokens.actionHeight = size.dp42`).
 The interactive `Pressable` keeps **at least 48dp accessible touch height**
 (`buttonTokens.minimumHeight = size.dp48`), center-aligning the 42dp surface
 inside it. The visual surface may expand for text scaling; normal buttons
@@ -735,6 +772,23 @@ Existing primary/secondary/ghost, compact, disabled, loading and callbacks
 are unchanged. This is NOT a global shrink of top-bar icon touch targets,
 text fields, bottom sheet headers, navigation or the disabled FAB.
 Real-device touch and text scaling checks remain pending on PR #80.
+
+The Linked Payment Modes header in Draft PR #97 opts into `size="small"` for a
+**32dp painted surface**. Both sizes use the shared 48dp minimum touch target and
+can expand for text scaling.
+
+Linked Payment Modes Edit and Delete use **18dp** icons within **32dp**
+painted circles and keep **48dp** minimum press targets.
+
+Draft PR #97 shows **36 × 36dp** currency boxes at the right end of one amount
+row per form with **48dp** minimum press targets. Borderless fields, outlined fields
+and noninteractive leading icons share a **46dp** minimum height. Description
+expands as text wraps.
+
+Add Account uses muted caption labels and a separate placeholder color in the
+Light and Dark palettes. Entered values and leading field icons use the primary
+foreground. Name, amount and date values use the title size. Description and
+other text use the section size. Outlined fields default to body size.
 
 ## Android white-flash and combined-motion decision — PR #80 (2026-11-23)
 
@@ -788,3 +842,11 @@ Bottom Sheet animation and swipe-to-Delete remain correct. If flash persists,
 investigate native window/fragment background and system bars, not a screen-level
 JS animation workaround. This section is authoritative over earlier Android
 slide statements retained above as a decision history.
+
+## Keyboard-aware Add Account forms — PR #97
+
+All six Add Account forms use [AppKeyboardForm](../ui/app-keyboard-form.tsx) with one vertical scroll viewport. The existing iOS keyboard padding and Android native resize are retained; no second keyboard inset is added. Shared [AppTextField](../ui/app-text-field.tsx) reports focus and multiline growth through an optional presentation context. The container measures the focused input and resized viewport, revealing only the necessary distance with the existing theme spacing. Focus changes, keyboard completion and layout changes trigger reevaluation; stale measurements are ignored and listeners/frames are cleaned up. Reduced Motion uses immediate scrolling. The existing Bottom Sheet keyboard contract is unchanged. Native device verification is required.
+
+## Credit Card payment account picker — PR #97
+
+The reusable account picker uses the existing AppBottomSheet layer and shared AccountGroupIcon. Populated Cash and Bank Account groups show actual account names and selected checkmarks; no separate footer or nested scroll. The caller supplies eligible accounts, selected stable ID, open state and callbacks. A selection callback must validate the current ID and close the sheet. Empty choices cannot open the picker. The current controller supplies null until RFC #98 authorizes a real account read model; no fixture accounts or link persistence ship in the preview. Loan is unchanged.

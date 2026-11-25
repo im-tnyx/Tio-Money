@@ -8,6 +8,7 @@ import { radius, space } from './tokens';
  */
 export const iconTokens = {
   size: size.dp24,
+  emptyStateSize: size.dp48,
   origin: size.dp0,
   stroke: size.dp2,
   fineStroke: size.dp1_5,
@@ -26,6 +27,8 @@ export const iconRoleSizes = {
 export const navigationTokens = {
   origin: size.dp0,
   topBarHeight: size.dp50,
+  editorActionDiameter: size.dp36,
+  editorActionIconSize: size.dp20,
   itemHeight: size.dp48,
   borderWidth: size.dp1,
   iconLabelGap: size.dp0,
@@ -45,6 +48,9 @@ export const navigationTokens = {
 export const buttonTokens = {
   /** Painted ActionButton surface; independent of its accessible touch region. */
   actionHeight: size.dp42,
+  smallActionHeight: size.dp32,
+  smallActionIconSize: size.dp18,
+  currencyChoiceSize: size.dp36,
   minimumHeight: size.dp48,
   noBorder: size.dp0,
   enabledOpacity: opacity.enabled,
@@ -53,14 +59,50 @@ export const buttonTokens = {
   pressedOpacity: opacity.pressed,
 } as const;
 
+export const textFieldTokens = {
+  minimumHeight: size.dp46,
+  captionGap: size.dp0,
+} as const;
+
 /** Rounded segmented selectors use the shared button touch size and existing spacing scale. */
 export const segmentedControlTokens = {
   minimumOptionHeight: buttonTokens.minimumHeight,
   compactWidth: size.dp100 + size.dp20,
   compactOptionHeight: size.dp24,
+  compactOptionLabelSize: size.dp14,
   compactHitSlop: size.dp12,
   inset: space.xxs,
   radius: radius.pill,
+} as const;
+
+export const optionPopupTokens = {
+  chevronDurationMs: motion.tabCrossfadeDurationMs,
+  width: size.dp100 + size.dp100 + space.xxxl,
+  radius: radius.xl,
+  elevation: size.dp6,
+  shadowRadius: size.dp10,
+  shadowOffsetY: size.dp5,
+  shadowOpacity: opacity.fabShadow,
+} as const;
+
+/** Cylindrical projection roles for reusable scrolling wheels. */
+export const wheelPickerTokens = {
+  anglePerRow: 22,
+  maximumAngle: 84,
+  fadeDistance: 4,
+  sampleStep: 0.25,
+  fadePower: 1.35,
+  perspective: size.dp100 * 6,
+} as const;
+
+export const datePickerTokens = {
+  width: size.dp100 * 3 + space.md,
+  rowHeight: size.dp32,
+  paddingHorizontal: space.xs,
+  paddingVertical: size.dp6,
+  visibleRows: 5,
+  compactRows: 3,
+  minimumRows: 1,
 } as const;
 
 export const shadowTokens = {
