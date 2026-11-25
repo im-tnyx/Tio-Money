@@ -152,7 +152,10 @@ export function updateAccountAddSession(
     case 'options.select': {
       if (!session.choicePickerOpen || !active) return session;
       const draft = updateAccountDraft(active, action.choice, currencies);
-      if (draft === active) return session;
+      // Always dismiss on tap, including reselect of the current value (matches Group picker).
+      if (draft === active) {
+        return { ...session, choicePickerOpen: false };
+      }
       return {
         ...session,
         choicePickerOpen: false,
