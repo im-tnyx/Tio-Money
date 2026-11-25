@@ -670,4 +670,10 @@ The entries below record implementation history at their stated revisions; super
 - Preview: `BUILT_IN_ACCOUNT_GROUPS` is the six create-capable groups only. Insurance strings/icon/status branch removed. No finance writes or Insurance product design.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
+### 2026-11-25 — Reconcile with main after PR #109
+
+- [Technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7151975211) scopes the two-parent merge of main `66048d6ca3870ac8d971af89e3c45de1f8cfde90` into Accounts HEAD `4ee705a55a563d7bfae1d1b2ac0b2c58f93175b9`.
+- Preserved both task-index histories and inherited main's EAS npm cache hardening. No Accounts source, financial scope, dependencies or protected-main edits.
+- PR #97 remains Draft and unlabeled. Verify exact-HEAD CI and record it in RFC #96. Device QA and merge approval remain separate.
+
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
