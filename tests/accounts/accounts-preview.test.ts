@@ -1410,6 +1410,10 @@ test('Accounts plus opens the editor, which presents Group first and keeps Save 
     form,
     /<AccountPage\s+editing\s+title=\{t\('addAccount'\)\}\s+backLabel=\{t\('closeAddAccount'\)\}\s+onBack=\{onClose\}/,
   );
+  const page = readFileSync('src/features/accounts/account-page.tsx', 'utf8');
+  assert.match(page, /edges=\{\['top', 'left', 'right'\]\}/);
+  assert.doesNotMatch(page, /'bottom'|tab \?/);
+  assert.doesNotMatch(accounts, /\btab\b/);
   assert.match(form, /icon: 'save',[\s\S]*?accessibilityLabel: t\('save'\),[\s\S]*?disabled: true/);
   assert.match(bar, /name=\{editing \? 'close' : 'back'\} round=\{editing\}/);
   assert.match(bar, /borderRadius: theme.radius.pill/);
