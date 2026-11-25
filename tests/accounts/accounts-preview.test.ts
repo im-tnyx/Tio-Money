@@ -185,6 +185,12 @@ test('Loan Direction dropdown preserves drafts on dismiss and closes after one s
   assert.equal(dismissed.choicePickerOpen, false);
   assert.equal(dismissed.drafts, named.drafts);
   assert.equal(updateSession(dismissed, { type: 'options.select', choice }), dismissed);
+  const reselectCurrent = updateSession(open, {
+    type: 'options.select',
+    choice: { type: 'loan.direction', value: 'borrowed' },
+  });
+  assert.equal(reselectCurrent.choicePickerOpen, false);
+  assert.equal(reselectCurrent.drafts, open.drafts);
   const selected = updateSession(open, { type: 'options.select', choice });
   assert.equal(selected.choicePickerOpen, false);
   assert.equal(updateSession(selected, { type: 'options.select', choice }), selected);
