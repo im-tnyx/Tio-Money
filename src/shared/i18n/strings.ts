@@ -84,7 +84,7 @@ export const en = {
   accountInvestmentGold: 'Gold',
   accountInvestmentPpf: 'PPF',
   accountInvestmentOther: 'Other',
-  accountInvestmentCost: 'Historical Invested Cost',
+  accountInvestmentCost: 'Amount',
   accountInvestmentStartDate: 'Start Date',
   accountInvestmentTenure: 'Tenure (Optional)',
   accountInvestmentTenureMonths: 'months',

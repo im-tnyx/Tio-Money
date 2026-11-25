@@ -41,7 +41,7 @@ The following rules and subsequent accounting examples apply to future finance i
 | :--- | :--- |
 | Name | Required, trimmed, unique **ID** not name; duplicate display names may be allowed if distinguishable |
 | Opening position / amount | **Group-conditional, not universally mandatory.** Cash, Bank and Wallet use a nonnegative opening asset balance; Card uses **opening outstanding liability**; Investment uses **opening cost basis** and a separately dated valuation; Loan uses **opening outstanding principal** with a Given/Borrowed direction. See [Opening contracts](#21--group-specific-opening-contracts) below. |
-| Currency | Default to Main Currency. When Sub Currencies are configured, one amount row per form shows selectable symbols for Main and the configured Subs at its right end. Use Opening Amount, Total Credit Limit, Opening Outstanding Principal or Historical Invested Cost, as applicable. All amount rows in the draft share one selection. Changing it clears entered monetary amounts. Add currencies in Sub Currency settings. |
+| Currency | Default to Main Currency. When Sub Currencies are configured, one amount row per form shows selectable symbols for Main and the configured Subs at its right end. Use Opening Amount, Total Credit Limit, Opening Outstanding Principal or Amount (Investment), as applicable. All amount rows in the draft share one selection. Changing it clears entered monetary amounts. Add currencies in Sub Currency settings. |
 | Description | Optional, plain text, length-limited, escaped on render and excluded from logs |
 | Status | Active/archived; prevent new postings to archived accounts unless restored |
 | Created/updated dates | Stable UTC timestamps; user-facing dates rendered in local timezone |

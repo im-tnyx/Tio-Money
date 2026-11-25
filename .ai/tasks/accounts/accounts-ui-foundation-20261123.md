@@ -40,7 +40,7 @@ Source verified on base [`885c861`](https://github.com/im-tnyx/Tio-Money/commit/
 | Wallet | Account Name, Opening Amount/Currency |
 | Loan (Borrowed) | Account Name, Loan Direction, Loan Amount (? tip), EMI Amount (Optional), First EMI Date, More details (chevron; expands Fees, Interest Rate with ? tips). No Payment or Auto Pay. |
 | Loan (Given) | Account Name, Loan Direction, Amount Lent, Interest Rate, Start Date, More details (chevron; expands optional Installment with ? tip). No Collect Into, Fees, Payment, or Auto Pay. |
-| Investment | Account Name, Historical Invested Cost, Start Date, Tenure (Optional, months). No Investment Type, Valuation, Valuation Date, Interest, Units/Weight, or funding. |
+| Investment | Account Name, Amount, Start Date, Tenure (Optional, months). No Investment Type, Valuation, Valuation Date, Interest, Units/Weight, or funding. |
 
 **Shared field presentation.** Main form inputs use the shared borderless field, 46 dp minimum height, leading icon or currency symbol, and aligned muted captions with **0 dp caption-to-input gap**. Account Name and Card Name appear as inline placeholders. **Description is omitted from all Add Account create forms** in this preview (draft may still hold an empty description string for later edit). Credit Card alone keeps From / Payment on the main form and Auto Pay after the card fields. Loan (Borrowed and Given) has no Payment or Auto Pay in this preview. Payment rows are non-editable with no Unavailable copy. Switching Loan Direction clears monetary amount fields and closes More details / field info. Credit Card Billing Cycle Start Date and Payment Due Date use a day-only above-only wheel popup (01–31) with the “of every month” suffix; typing those days is removed. Defaults remain 01 and 15. Borrowed Loan uses First EMI Date; Given Loan and Investment use Start Date (same draft `startDate` key, default local Today). Next Due is not collected. Full calendar date controls open the reusable above-only anchored Day / short Month / Year wheel popup with native synchronized cylindrical projection, dedicated selection pill, 8 dp horizontal / 6 dp vertical padding and a Reduced Motion fallback. Day/month scroll continuously across calendar boundaries within 1900–2100. Each scroll updates the date draft immediately; outside tap or Back retains the last valid selection. No Save or Done button. Month/year changes clamp invalid days. Investment Tenure is an optional months number with a months suffix; Investment Type and valuation fields are removed from the preview draft and UI (not merely hidden).
 
@@ -267,7 +267,7 @@ The entries below record implementation history at their stated revisions; super
 ### 2026-11-23 — One inline Currency control per form
 
 - [Scoped technical PROCEED](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7110102250) and [single-row clarification](https://github.com/im-tnyx/Tio-Money/issues/96#issuecomment-7110155081) record the owner’s requests against Draft #97 head `f087f29cf67e41ce12d52511b4d20838c787bcbf`.
-- With configured Sub Currencies, one amount row per form shows 36dp symbol boxes to the right of the input. Overflow scrolls and each option has a 48dp target. The other amount symbols track the same draft currency. Credit Card uses Total Credit Limit, Loan uses Opening Outstanding Principal and Investment uses Historical Invested Cost.
+- With configured Sub Currencies, one amount row per form shows 36dp symbol boxes to the right of the input. Overflow scrolls and each option has a 48dp target. The other amount symbols track the same draft currency. Credit Card uses Total Credit Limit, Loan uses Opening Outstanding Principal and Investment uses Amount.
 - Selection remains in configured order and clears prior amounts via the existing guard. Remove the Currency sheet, its transient controller state and the direct Add shortcut. Sub Currency settings remains the entry for adding currencies. The 46dp text field minimum remains in effect.
 - Changed paths include `docs/product/ACCOUNT-GROUPS-SPEC.md`, the Accounts form contract, controls, route and screen, removal of `src/features/accounts/account-currency-picker.tsx`, the two existing Sub Currency settings files from the shortcut, centralized strings and theme files, and the Accounts and design-token regressions.
 - Source self-review PERFORMED. Independent review DEFERRED and native visual and touch QA pending. See [RFC #96](https://github.com/im-tnyx/Tio-Money/issues/96) for published HEAD and checks. Save remains disabled. Merge authorization NOT_GRANTED.
@@ -636,7 +636,7 @@ The entries below record implementation history at their stated revisions; super
 
 ### 2026-11-25 — Investment Simple v1 (remove Type)
 
-- Owner direction: keep Investment create simple for now; type-specific fields come later. Visible fields are Account Name, Historical Invested Cost + currency, Start Date, and optional Tenure (months). Remove Investment Type from the draft and UI entirely (not hide). Drop Estimated Valuation, Valuation Date, valuation hint, Interest, Units/Weight, and funding from this preview.
+- Owner direction: keep Investment create simple for now; type-specific fields come later. Visible fields are Account Name, Amount + currency, Start Date, and optional Tenure (months). Remove Investment Type from the draft and UI entirely (not hide). Drop Estimated Valuation, Valuation Date, valuation hint, Interest, Units/Weight, and funding from this preview.
 - Preview: Investment draft fields are `investedCost`, `startDate` (default Today), `tenure`. Start Date reuses the shared wheel `AppDateField`. Tenure is optional up to 3 digits with a months suffix (input column scales with `maxLength`). Only Loan Direction remains as an option popup. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
@@ -656,6 +656,12 @@ The entries below record implementation history at their stated revisions; super
 
 - Owner direction: Add Account bottom safe-area band looked wrong; match Main Currency / Account Groups so no horizontal strip shows at the bottom.
 - Preview: `AccountPage` uses `edges={['top', 'left', 'right']}` only (no bottom inset). Removed unused `tab` edge switch. No finance writes.
+- Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
+
+### 2026-11-25 — Investment Amount label
+
+- Owner direction: “Historical” is unnecessary on the Investment money field; “Amount” is enough.
+- Preview: `accountInvestmentCost` copy is `Amount`. Draft field remains `investedCost`. No finance writes.
 - Cursor Cloud (Composer) on `feat/accounts-ui-foundation-20261123`. Fresh exact-HEAD CI and device QA required; merge authorization NOT_GRANTED.
 
 [Task guide](../README.md) · [Agent contract](../../../AGENTS.md) · [Discussions](../../discussions/README.md)
