@@ -715,6 +715,7 @@ test('group fields render typed drafts and Card and Loan share unavailable payme
     investmentSection,
     /field="investedCost"[\s\S]*?accountInvestmentStartDate[\s\S]*?field="tenure"/,
   );
+  assert.equal(en.accountInvestmentCost, 'Amount');
   assert.equal(en.accountInvestmentStartDate, 'Start Date');
   assert.equal(en.accountInvestmentTenure, 'Tenure (Optional)');
   assert.equal(en.accountInvestmentTenureMonths, 'months');
