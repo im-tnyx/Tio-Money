@@ -16,7 +16,9 @@ const requireFromProject = createRequire(join(ROOT, 'package.json'));
 // enters firstPhasePreProcess only at >= 2. These version gates deliberately
 // FAIL CLOSED when a dependency changes, until its new semantics are reviewed.
 // This is not an upstream vulnerability patch or an automated alert dismissal.
-const REVIEWED_FINGERPRINT_VERSION = '0.21.10';
+// The 0.22.0 review found that Path.js and Options.js match 0.21.10
+// byte for byte and the nested minimatch version is unchanged.
+const REVIEWED_FINGERPRINT_VERSION = '0.22.0';
 const REVIEWED_MINIMATCH_VERSION = '10.2.6';
 
 test('the installed Expo fingerprint default matcher does not opt into vulnerable globparts preprocessing', () => {
