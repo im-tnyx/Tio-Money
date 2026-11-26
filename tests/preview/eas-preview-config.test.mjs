@@ -129,7 +129,10 @@ test('EAS publishing workflow is manual, owner-gated, nonproduction and isolated
   assert.match(text, /EXPO_TOKEN: \$\{\{ secrets\.EXPO_TOKEN \}\}/);
   assert.doesNotMatch(text, /eas-cli@latest/);
   assert.match(text, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
-  assert.match(text, /actions\/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020/);
+  for (const job of [text.slice(text.indexOf('  validate:'), text.indexOf('  preview:')),
+    text.slice(text.indexOf('  preview:'))]) {
+    assert.match(job, /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version: 22\.16\.0\n +package-manager-cache: false/);
+  }
   assert.doesNotMatch(text, /uses: actions\/(?:checkout|setup-node)@v[0-9]/);
   assert.ok(text.includes('EAS_CLI_VERSION: "27.4.1"'));
   assert.ok(text.includes('--registry=https://registry.npmjs.org'));
@@ -183,4 +186,10 @@ test('EAS preview permits normal tracked task/docs/tests with strict config excl
   assert.ok(workflow.includes("github.actor == 'im-tnyx'"));
   assert.ok(workflow.includes('environment: tio-money-eas-preview-trusted'));
   assert.ok(workflow.includes('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}'));
+});
+
+test('Phase 0 pins setup-node, keeps the project runtime and disables automatic caching', () => {
+  const workflow = readFileSync(join(ROOT, '.github/workflows/phase-0-checks.yml'), 'utf8');
+  assert.match(workflow, /uses: actions\/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version-file: \.nvmrc\n +package-manager-cache: false/);
+  assert.doesNotMatch(workflow, /^ +cache:/m);
 });

@@ -20,10 +20,10 @@ const cacheGuard = revalidate.split('test "$(git rev-parse HEAD)"')[0];
 const publishStepName = 'Publish OTA or queue internal preview build (owner dispatch only)';
 const publish = script(publishing, publishStepName);
 
-test('both jobs retain v4 and Node 22 without restoring or saving Actions npm caches', () => {
+test('both EAS jobs pin v7.1.0 and Node 22 with automatic npm caching disabled', () => {
   for (const job of [validation, publishing]) {
-    assert.match(job, /setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020[\s\S]*?node-version: 22\.16\.0/);
-    assert.doesNotMatch(job, /^\s*(?:cache|cache-dependency-path|package-manager-cache):|actions\/cache@|actions\/cache\//m);
+    assert.match(job, /setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7\.1\.0\n +with:\n +node-version: 22\.16\.0\n +package-manager-cache: false/);
+    assert.doesNotMatch(job, /^\s*(?:cache|cache-dependency-path):|actions\/cache@|actions\/cache\//m);
   }
   assert.doesNotMatch(validation, /secrets\.EXPO_TOKEN/);
   assert.ok(publishing.indexOf('npm audit signatures') < publishing.indexOf('secrets.EXPO_TOKEN'));
