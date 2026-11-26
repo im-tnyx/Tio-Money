@@ -36,9 +36,9 @@ test('preview build is internal and not a production release', () => {
 test('SDK 58 expo-updates is checked into both manifests with resolved transitive entries', () => {
   const manifest = readJson('package.json');
   const lock = readJson('package-lock.json');
-  assert.equal(manifest.dependencies['expo-updates'], '~58.0.22');
-  assert.equal(lock.packages[''].dependencies['expo-updates'], '~58.0.22');
-  assert.equal(lock.packages['node_modules/expo-updates'].version, '58.0.22');
+  assert.equal(manifest.dependencies['expo-updates'], '~58.0.23');
+  assert.equal(lock.packages[''].dependencies['expo-updates'], '~58.0.23');
+  assert.equal(lock.packages['node_modules/expo-updates'].version, '58.0.23');
   for (const name of ['expo-eas-client', 'expo-json-utils', 'expo-manifests',
     'expo-structured-headers', 'expo-updates-interface']) {
     assert.ok(lock.packages['node_modules/' + name]?.integrity, name);
