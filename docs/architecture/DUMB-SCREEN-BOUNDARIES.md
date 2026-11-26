@@ -64,7 +64,7 @@ export function AccountScreen({ vm, onAddAccount }: AccountScreenProps) {
 
 **Invalid (must fail architecture review):** a screen imports `expo-sqlite`, `@/data/sqlite`, `@/domain/ledger`, `expo-router` and calls `router.push`, computes `balance += amount`, calls FX network, applies fees or creates a ledger posting. Type-only imported display contracts from a feature's public interface are permitted; business data computations remain in the mapper/controller/domain.
 
-## 3. Actual source UI verified against current main
+## 3. Source UI snapshot from 2026-11-21
 
 **Exact inspected main SHA:** `118830c94a7af78dd2c29fdf6d3f7ab561cf4c1a` on 2026-11-21. Five root route modules remain, but **only four** are BlankScreen:
 - `src/app/(tabs)/index.tsx` → `BlankScreen` (Home)
@@ -78,6 +78,14 @@ The appearance controller owns **visibility, preference selection and persistenc
 **Current owner-approved UI:** five destinations and separate More-aligned **disabled** Add; selected icon 300/inactive 200, **0dp** icon-label gap, 24dp symbols, 50dp bar baseline + OS inset, 50dp FAB + 16dp clearance and **160ms Reduced Motion-aware content crossfade**. Older five-blank/all-200/1dp descriptions in TM-DEC-005/010 were historical pre-refinement snapshots.
 
 Read-only repository source verification is **not** proof of installed-device QA or that the future AST/negative-fixture gates `TM-PRES-001–006` already exist.
+
+### Accounts and Currency Settings preservation
+
+The merged [Accounts UI from PR #97](https://github.com/im-tnyx/Tio-Money/pull/97) is the approved Accounts presentation baseline. Review the current source and [post-merge UI record](../../.ai/tasks/accounts/accounts-ui-foundation-20261123.md#current-ui-snapshot-source-verified-2026-11-25) alongside the earlier tab snapshot above. This requirement applies to every account type and future finance gate. Preserve layouts, field placement, labels, icons, spacing, typography, themes, navigation, animations and accessibility interactions. Visual or behavioral changes require separate discussion and explicit owner approval.
+
+Preserve the existing Main Currency, Sub Currency, Currency Detail and Currency Display Settings screens. Reuse their currency preferences, provider, selectors and shared controls. Keep existing Main and per-Sub override behavior for currency-default precision or 0–3 display decimals, Auto/Indian/International/no grouping, and front/end symbol placement. Extend the shared formatting path when exact financial display is approved and preserve existing preview outputs. Booked amounts must cross that boundary as exact minor units with their stored currency-unit precision. The current number-based examples remain preview inputs. Use the stored unit and an approved display fallback when the booked currency leaves the preference list. Preference changes affect display only. Keep one preference store and one shared formatting path without feature-specific copies.
+
+Integrate future finance through controller-supplied ViewModels, application commands, domain rules, typed repository ports and SQLite adapters. The domain owns exact parsing, limits and immutable currency-unit rules. Screens render prepared display values and forward callbacks. Future finance PRs must demonstrate regression coverage for the affected Account forms and Currency Settings routes, preference isolation and removal, unchanged booked amounts, and existing selector, sheet and navigation behavior. Test relevant layout, theme, keyboard, accessibility and animation behavior on Android and iOS. The Bank-specific vectors and remaining policy decisions are tracked in [RFC #98 Gate 2.3](https://github.com/im-tnyx/Tio-Money/issues/98#issuecomment-7155693192).
 
 ## 4. CI architecture-gate specification for future code PRs
 
