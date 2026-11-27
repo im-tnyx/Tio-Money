@@ -13,6 +13,7 @@ permissions: {}
 
 jobs:
   audit:
+    name: audit|${{ vars.GUARD_CHECKER_SHA }}|${{ vars.GUARD_POLICY_EPOCH }}|${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}
     if: >-
       vars.GUARD_CONSUMER_AUDIT_ENABLED == 'true' &&
       github.repository == 'im-tnyx/Tio-Money' &&
@@ -57,6 +58,8 @@ jobs:
           ACTOR_ID: ${{ github.actor_id }}
           ACTOR_LOGIN: ${{ github.actor }}
           AUDIT_BASELINE: ${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}
+          CHECKER_SHA: ${{ vars.GUARD_CHECKER_SHA }}
+          POLICY_EPOCH: ${{ vars.GUARD_POLICY_EPOCH }}
         run: |
           set -euo pipefail
           if [[ "$EVENT" == pull_request_target ]]; then
@@ -71,7 +74,8 @@ jobs:
               --policy checker/config/pilots/tio-money.json \
               --ref "$REF" --base "$BASE" --head "$HEAD" \
               --actor-id "$ACTOR_ID" --actor-login "$ACTOR_LOGIN" \
-              --audit-baseline "$AUDIT_BASELINE"
+              --audit-baseline "$AUDIT_BASELINE" \
+              --checker-sha "$CHECKER_SHA" --policy-epoch "$POLICY_EPOCH"
           else
             exit 1
           fi

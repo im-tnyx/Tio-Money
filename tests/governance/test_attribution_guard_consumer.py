@@ -36,7 +36,10 @@ class ConsumerWorkflowTest(unittest.TestCase):
         self.assertNotIn("guard-consumer-${{ github.event.pull_request.number || github.ref }}", source)
         self.assertIn("Verify main audit chain and exact event", source)
         self.assertIn("AUDIT_BASELINE: ${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}", source)
+        self.assertIn("name: audit|${{ vars.GUARD_CHECKER_SHA }}|${{ vars.GUARD_POLICY_EPOCH }}|${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}", source)
+        self.assertIn("POLICY_EPOCH: ${{ vars.GUARD_POLICY_EPOCH }}", source)
         self.assertIn('--audit-baseline "$AUDIT_BASELINE"', source)
+        self.assertIn('--checker-sha "$CHECKER_SHA" --policy-epoch "$POLICY_EPOCH"', source)
         self.assertNotIn("actions: write", source)
 
     def test_unsupported_cross_repository_dispatch_is_not_exposed(self):
