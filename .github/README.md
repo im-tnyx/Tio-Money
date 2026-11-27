@@ -12,8 +12,11 @@
 | [Copilot instructions](copilot-instructions.md) | Concise routing to AGENTS.md and Tio Money invariants |
 
 The proposed [Attribution Guard V2 pilot](../.ai/tasks/security/attribution-guard-v2-pilot-20261127.md)
-adds a secretless, trusted-source PR and main-push preflight. It is disabled
-until a reviewed central checker SHA and separate owner activation are set.
+adds a secretless, trusted-source PR and main-push preflight. A separate,
+default-off job can wake central reconciliation using a dispatch-only
+credential from a main-restricted environment; the wake input carries no
+approval or attribution evidence. Both jobs stay disabled until separate
+owner activation and a reviewed central checker SHA are set.
 The App-backed shadow publisher and encrypted enrollment remain in the
 separate system repository. Proposed owner-only branch/tag rulesets are files
 for review, not live protection changes.

@@ -75,3 +75,27 @@ jobs:
           else
             exit 1
           fi
+
+  wake-central:
+    # A separate, dispatch-only principal may wake central reconciliation.
+    # The input is never evidence of an actor, PR head, policy or approval.
+    if: >-
+      vars.GUARD_CONSUMER_DISPATCH_ENABLED == 'true' &&
+      github.repository == 'im-tnyx/Tio-Money' &&
+      github.repository_id == '1462654174' &&
+      github.ref == 'refs/heads/main' && github.ref_protected &&
+      github.run_attempt == '1' && github.triggering_actor == github.actor
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    environment: attribution-guard-dispatch
+    permissions: {}
+    steps:
+      - name: Wake central state-bound evaluation
+        env:
+          GH_TOKEN: ${{ secrets.GUARD_WAKE_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$GH_TOKEN"
+          gh api --silent -X POST \
+            repos/im-tnyx/im-tnyx/actions/workflows/guard-runtime.yml/dispatches \
+            -f ref=main -f 'inputs[operation]=wake'
