@@ -1,0 +1,76 @@
+name: Attribution Guard consumer preflight
+
+# This is a secretless, read-only preflight. The App-backed check is published
+# only by the central im-tnyx/im-tnyx runtime after encrypted enrollment.
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+  push:
+    branches: [main]
+
+permissions: {}
+concurrency:
+  group: guard-consumer-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    if: >-
+      vars.GUARD_CONSUMER_AUDIT_ENABLED == 'true' &&
+      github.repository == 'im-tnyx/Tio-Money' &&
+      github.repository_id == '1462654174'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+      - name: Fetch only reviewed central checker source
+        env:
+          CHECKER_SHA: ${{ vars.GUARD_CHECKER_SHA }}
+        run: |
+          set -euo pipefail
+          [[ "$CHECKER_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git -c core.hooksPath=/dev/null init --quiet checker
+          git -C checker remote add origin https://github.com/im-tnyx/im-tnyx.git
+          git -C checker -c core.hooksPath=/dev/null fetch --quiet --no-tags origin refs/heads/main
+          git -C checker cat-file -e "${CHECKER_SHA}^{commit}"
+          git -C checker merge-base --is-ancestor "$CHECKER_SHA" FETCH_HEAD
+          git -C checker -c core.hooksPath=/dev/null checkout --quiet --detach "$CHECKER_SHA"
+          test "$(git -C checker rev-parse HEAD)" = "$CHECKER_SHA"
+      - name: Install pinned central checker dependencies
+        run: |
+          python -m pip install --disable-pip-version-check --require-hashes --only-binary=:all: \
+            -r checker/requirements-shadow.txt
+      - name: Audit exact current event without consumer code execution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REPO_ID: ${{ github.repository_id }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          REF: ${{ github.ref }}
+          ACTOR_ID: ${{ github.actor_id }}
+          ACTOR_LOGIN: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT" == pull_request_target ]]; then
+            PYTHONPATH=checker python -B -m guard.consumer_audit pr \
+              --repository "$REPO" --repository-id "$REPO_ID" \
+              --policy checker/config/pilots/tio-money.json \
+              --pr "$PR" --base "$BASE" --head "$HEAD"
+          elif [[ "$EVENT" == push ]]; then
+            PYTHONPATH=checker python -B -m guard.consumer_audit push \
+              --repository "$REPO" --repository-id "$REPO_ID" \
+              --policy checker/config/pilots/tio-money.json \
+              --ref "$REF" --base "$BASE" --head "$HEAD" \
+              --actor-id "$ACTOR_ID" --actor-login "$ACTOR_LOGIN"
+          else
+            exit 1
+          fi

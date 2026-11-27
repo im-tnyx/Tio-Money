@@ -11,6 +11,13 @@
 | [Post-merge sync](POST-MERGE-SYNC.md) | Verified owner-approved merge, safe clean worktree and fast-forward, then archive/handoff |
 | [Copilot instructions](copilot-instructions.md) | Concise routing to AGENTS.md and Tio Money invariants |
 
+The proposed [Attribution Guard V2 pilot](../.ai/tasks/security/attribution-guard-v2-pilot-20261127.md)
+adds a secretless, trusted-source PR and main-push preflight. It is disabled
+until a reviewed central checker SHA and separate owner activation are set.
+The App-backed shadow publisher and encrypted enrollment remain in the
+separate system repository. Proposed owner-only branch/tag rulesets are files
+for review, not live protection changes.
+
 ## Coexistence with Expo Phase 0
 
 [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) contains **`.github/workflows/phase-0-checks.yml`**, a separate workflow that runs Node/Expo compatibility, TypeScript, lint, formatting, tests and Metro exports. At the earlier governance setup PR #1 was parallel draft work; GitHub now verifies **PR #1 MERGED** on 2026-11-19 at `e647f78ce200fed1323d80ea794396c371fba7bf`, and **PR #2 MERGED** earlier at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. PR #7's branch-only documentation sync must preserve the merged Phase 0 app source and workflow unchanged.
