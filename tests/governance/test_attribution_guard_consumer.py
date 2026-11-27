@@ -18,6 +18,7 @@ class ConsumerWorkflowTest(unittest.TestCase):
         self.assertIn("push:\n    branches: [main]", source)
         self.assertIn("GUARD_CONSUMER_AUDIT_ENABLED == 'true'", source)
         self.assertIn("github.repository_id == '1462654174'", source)
+        self.assertIn("actions: read", source)
         self.assertIn("contents: read", source)
         self.assertIn("pull-requests: read", source)
         self.assertNotIn("contents: write", source)
@@ -28,6 +29,15 @@ class ConsumerWorkflowTest(unittest.TestCase):
         self.assertIn("guard.consumer_audit pr", source)
         self.assertIn("guard.consumer_audit push", source)
         self.assertEqual(source.count('--actor-id "$ACTOR_ID" --actor-login "$ACTOR_LOGIN"'), 2)
+
+    def test_push_runs_are_not_cancelled_and_require_a_verified_baseline(self):
+        source = WORKFLOW.read_text()
+        self.assertNotIn("cancel-in-progress: true", source)
+        self.assertNotIn("guard-consumer-${{ github.event.pull_request.number || github.ref }}", source)
+        self.assertIn("Verify main audit chain and exact event", source)
+        self.assertIn("AUDIT_BASELINE: ${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}", source)
+        self.assertIn('--audit-baseline "$AUDIT_BASELINE"', source)
+        self.assertNotIn("actions: write", source)
 
     def test_unsupported_cross_repository_dispatch_is_not_exposed(self):
         source = WORKFLOW.read_text()

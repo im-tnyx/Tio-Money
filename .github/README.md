@@ -21,6 +21,11 @@ App publishing remains blocked on a secure event-delivery decision.
 The App-backed shadow publisher and encrypted enrollment remain in the
 separate system repository. Proposed owner-only branch/tag rulesets are files
 for review, not live protection changes.
+Main-push audits are never canceled by a later push. Activation requires an
+owner-pinned main baseline; the trusted checker verifies each predecessor's
+successful GitHub Actions audit job and blocks on a missing or canceled run.
+The central follow-up PR adds authenticated evidence for two-parent GitHub
+merges. No merge method or live rule changes in this PR.
 
 ## Coexistence with Expo Phase 0
 
