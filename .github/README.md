@@ -13,10 +13,11 @@
 
 The proposed [Attribution Guard V2 pilot](../.ai/tasks/security/attribution-guard-v2-pilot-20261127.md)
 adds a secretless, trusted-source PR and main-push preflight. A separate,
-default-off job can wake central reconciliation using a dispatch-only
-credential from a main-restricted environment; the wake input carries no
-approval or attribution evidence. Both jobs stay disabled until separate
-owner activation and a reviewed central checker SHA are set.
+cross-repository wake job was removed after review: GitHub does not support
+the proposed non-owner collaborator fine-grained PAT for the personally owned
+system repository. The consumer preflight stays disabled until separate
+owner activation and a reviewed central checker SHA are set. Automatic central
+App publishing remains blocked on a secure event-delivery decision.
 The App-backed shadow publisher and encrypted enrollment remain in the
 separate system repository. Proposed owner-only branch/tag rulesets are files
 for review, not live protection changes.

@@ -21,25 +21,19 @@ class ConsumerWorkflowTest(unittest.TestCase):
         self.assertIn("contents: read", source)
         self.assertIn("pull-requests: read", source)
         self.assertNotIn("contents: write", source)
-        self.assertNotIn("secrets.", source.split("  wake-central:", 1)[0])
-        self.assertNotIn("environment:", source.split("  wake-central:", 1)[0])
+        self.assertNotIn("secrets.", source)
+        self.assertNotIn("environment:", source)
         self.assertNotIn("actions/checkout", source)
         self.assertNotIn("refs/pull/", source)
         self.assertIn("guard.consumer_audit pr", source)
         self.assertIn("guard.consumer_audit push", source)
         self.assertEqual(source.count('--actor-id "$ACTOR_ID" --actor-login "$ACTOR_LOGIN"'), 2)
 
-    def test_dispatch_credential_is_separate_from_audit_and_owner_bootstrap(self):
+    def test_unsupported_cross_repository_dispatch_is_not_exposed(self):
         source = WORKFLOW.read_text()
-        wake = source.split("  wake-central:", 1)[1]
-        self.assertIn("GUARD_CONSUMER_DISPATCH_ENABLED == 'true'", wake)
-        self.assertIn("environment: attribution-guard-dispatch", wake)
-        self.assertIn("github.ref == 'refs/heads/main' && github.ref_protected", wake)
-        self.assertIn("github.run_attempt == '1' && github.triggering_actor == github.actor", wake)
-        self.assertIn("GH_TOKEN: ${{ secrets.GUARD_WAKE_TOKEN }}", wake)
-        self.assertIn("permissions: {}", wake)
-        self.assertIn("inputs[operation]=wake", wake)
-        self.assertNotIn("actions/checkout", wake)
+        self.assertNotIn("wake-central", source)
+        self.assertNotIn("GUARD_WAKE_TOKEN", source)
+        self.assertNotIn("workflow_dispatch", source)
         self.assertNotIn("GUARD_APP_PRIVATE_KEY", source)
         self.assertNotIn("GUARD_STATE_KEY_HEX", source)
 
