@@ -27,6 +27,7 @@ class ConsumerWorkflowTest(unittest.TestCase):
         self.assertNotIn("refs/pull/", source)
         self.assertIn("guard.consumer_audit pr", source)
         self.assertIn("guard.consumer_audit push", source)
+        self.assertEqual(source.count('--actor-id "$ACTOR_ID" --actor-login "$ACTOR_LOGIN"'), 2)
 
     def test_central_source_is_immutable_reviewed_main_ancestor(self):
         source = WORKFLOW.read_text()

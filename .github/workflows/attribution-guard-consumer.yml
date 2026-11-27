@@ -64,7 +64,8 @@ jobs:
             PYTHONPATH=checker python -B -m guard.consumer_audit pr \
               --repository "$REPO" --repository-id "$REPO_ID" \
               --policy checker/config/pilots/tio-money.json \
-              --pr "$PR" --base "$BASE" --head "$HEAD"
+              --pr "$PR" --base "$BASE" --head "$HEAD" \
+              --actor-id "$ACTOR_ID" --actor-login "$ACTOR_LOGIN"
           elif [[ "$EVENT" == push ]]; then
             PYTHONPATH=checker python -B -m guard.consumer_audit push \
               --repository "$REPO" --repository-id "$REPO_ID" \
