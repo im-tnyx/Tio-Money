@@ -1,0 +1,58 @@
+name: Commit attribution guard (local pilot)
+
+# Main-target PR only. The App key is supplied only to the trusted publisher
+# step and never to push or pull_request workflows. Shadow check not required.
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+
+permissions: {}
+
+jobs:
+  guard:
+    name: Attribution guard runner (shadow)
+    if: >-
+      vars.GUARD_LOCAL_APP_ENABLED == 'true' &&
+      github.repository == 'im-tnyx/Tio-Money' && github.repository_id == '1462654174' &&
+      github.ref == 'refs/heads/main' && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    environment: attribution-guard-trusted
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+          submodules: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+      - name: Fetch immutable central checker
+        env:
+          CHECKER_SHA: ${{ vars.GUARD_CHECKER_SHA }}
+        run: |
+          set -euo pipefail
+          test "$CHECKER_SHA" = 5e0ff0a56b4f5f503419a12c20930bef0df22bc7
+          git -c core.hooksPath=/dev/null init --quiet checker
+          git -C checker remote add origin https://github.com/im-tnyx/im-tnyx.git
+          git -C checker -c core.hooksPath=/dev/null fetch --quiet --no-tags origin refs/heads/main
+          git -C checker merge-base --is-ancestor "$CHECKER_SHA" FETCH_HEAD
+          git -C checker -c core.hooksPath=/dev/null checkout --quiet --detach "$CHECKER_SHA"
+          test "$(git -C checker rev-parse HEAD)" = "$CHECKER_SHA"
+          python -m pip install --require-hashes --only-binary=:all: -r checker/requirements-shadow.txt
+      - name: Verify exact PR and publish App shadow check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ATTRIBUTION_GUARD_APP_PRIVATE_KEY: ${{ secrets.ATTRIBUTION_GUARD_APP_PRIVATE_KEY }}
+          CHECKER_SHA: ${{ vars.GUARD_CHECKER_SHA }}
+          POLICY_EPOCH: ${{ vars.GUARD_POLICY_EPOCH }}
+          POLICY_FILE: checker/config/pilots/tio-money.json
+          PYTHONPATH: checker
+        run: |
+          set -euo pipefail
+          python -B trusted/scripts/security/attribution_local.py publish

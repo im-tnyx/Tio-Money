@@ -1,0 +1,28 @@
+name: Local attribution adapter fixtures
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/*attribution*.yml'
+      - 'scripts/security/attribution_local.py'
+      - 'tests/governance/test_attribution_local.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/*attribution*.yml'
+      - 'scripts/security/attribution_local.py'
+      - 'tests/governance/test_attribution_local.py'
+permissions:
+  contents: read
+jobs:
+  fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+      - run: python -B -m unittest discover -s tests/governance -p test_attribution_local.py -v
