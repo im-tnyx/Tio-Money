@@ -1,0 +1,103 @@
+name: Gate 2A.3 actor fixture
+on:
+  push:
+    branches: [test/gate-2a3-actor-bot-run]
+permissions: {}
+jobs:
+  fixture:
+    if: >-
+      github.repository_id == '1462654174' && github.actor_id == '271889561' &&
+      github.run_attempt == '1' && github.ref == 'refs/heads/test/gate-2a3-actor-bot-run'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      checks: read
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Test merge behavior on disposable pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          from urllib.parse import quote
+
+          repository = 'repos/im-tnyx/Tio-Money'
+          target = 'test/gate-2a3-actor-target'
+          control = 'test/gate-2a3-actor-control'
+          driver = 'test/gate-2a3-actor-bot-run'
+          base_sha = 'd5e6c1b9af029450e4131bbb322e058da4dd91b3'
+          required_checks = {'static', 'Governance / Python, links and commit attribution'}
+
+          def get(path):
+              return json.loads(subprocess.check_output(
+                  ['gh', 'api', '--method', 'GET', f'{repository}/{path}'], text=True))
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          def read_branch(name):
+              return get(f'branches/{quote(name, safe="")}')
+
+          def preflight(number, base, head, sha):
+              pr = get(f'pulls/{number}')
+              require(pr['state'] == 'open' and not pr['draft'] and not pr['merged']
+                      and pr['base']['ref'] == base and pr['head']['ref'] == head
+                      and pr['base']['repo']['id'] == 1462654174 and pr['head']['repo']['id'] == 1462654174
+                      and pr['base']['sha'] == base_sha and pr['head']['sha'] == sha,
+                      f'Fixture #{number} changed or is still draft')
+              runs = get(f'commits/{sha}/check-runs?per_page=100')
+              require(runs['total_count'] == len(runs['check_runs']), 'Incomplete check listing')
+              passed = {run['name'] for run in runs['check_runs']
+                        if run['app']['id'] == 15368 and run['status'] == 'completed'
+                        and run['conclusion'] == 'success'}
+              require(required_checks <= passed, f'Fixture #{number} checks are not green')
+
+          def attempt(number, sha):
+              payload = json.dumps({'sha': sha, 'merge_method': 'squash',
+                                    'commit_title': 'test: merge disposable actor fixture'})
+              return subprocess.run(['gh', 'api', '--method', 'PUT',
+                  f'{repository}/pulls/{number}/merge', '--include', '--input', '-'],
+                  input=payload, text=True, capture_output=True, check=False)
+
+          driver_state = read_branch(driver)
+          require(driver_state['protected'] and driver_state['commit']['sha'] == os.environ['GITHUB_SHA'],
+                  'Test driver is unprotected or stale')
+          require(read_branch(target)['protected'] and not read_branch(control)['protected'],
+                  'Disposable branch protections differ from the fixture design')
+          rules = get(f'rules/branches/{quote(target, safe="")}')
+          require(any(rule['type'] == 'update' for rule in rules)
+                  and any(rule['type'] == 'required_status_checks'
+                          and rule['parameters']['strict_required_status_checks_policy']
+                          and {(check['context'], check['integration_id'])
+                               for check in rule['parameters']['required_status_checks']}
+                              == {(name, 15368) for name in required_checks} for rule in rules),
+                  'Disposable target rules are incomplete')
+
+          control_sha = '2ecefdd76d801b76c0fc5093cf0c29cb3cdb3bd7'
+          target_sha = '2362a84ded3b385c7ab3b47ff96d3aa4646eb9e8'
+          preflight(122, control, 'test/gate-2a3-control-green', control_sha)
+          preflight(121, target, 'test/gate-2a3-actor-green', target_sha)
+          positive = attempt(122, control_sha)
+          require(positive.returncode == 0, 'Unrestricted control did not merge, so the actor test is inconclusive')
+          merged = get('pulls/122')
+          require(merged['merged'] and merged['merged_by']['login'] == 'github-actions[bot]',
+                  'Control merge actor could not be confirmed')
+          print(f'Control merge verified: {merged["merge_commit_sha"]}')
+
+          preflight(121, target, 'test/gate-2a3-actor-green', target_sha)
+          negative = attempt(121, target_sha)
+          status = re.search(r'^HTTP/[^ ]+ (\d{3})\b', negative.stdout, re.MULTILINE)
+          code = status.group(1) if status else 'unknown'
+          current = get('pulls/121')
+          require(negative.returncode != 0 and not current['merged']
+                  and read_branch(target)['commit']['sha'] == base_sha,
+                  'Protected disposable target changed or accepted the bot merge')
+          require(code in {'403', '405', '422'}, f'Unexpected response {code}, inspect before drawing conclusions')
+          print(f'Protected fixture rejected merge with HTTP {code} and retained {base_sha}')
+          PY

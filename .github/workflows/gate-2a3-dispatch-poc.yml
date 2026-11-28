@@ -1,0 +1,53 @@
+name: Gate 2A.3 dispatch fixture
+on:
+  push:
+    branches: [test/gate-2a3-dispatch]
+permissions: {}
+jobs:
+  dispatch:
+    if: >-
+      github.repository_id == '1462654174' && github.run_attempt == '1' &&
+      github.ref == 'refs/heads/test/gate-2a3-dispatch' && github.actor_id == '271889561'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Read the fixture and dispatch the pinned publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          repository = 'repos/im-tnyx/Tio-Money'
+          ref = 'gate-2a3-publisher-poc'
+          source_sha = '145f7fd415ba48555e79bb88cdfbe2b4b7c5915a'
+
+          def get(path):
+              return json.loads(subprocess.check_output(
+                  ['gh', 'api', '--method', 'GET', f'{repository}/{path}'], text=True))
+
+          branch = get('branches/test%2Fgate-2a3-dispatch')
+          if not branch['protected'] or branch['commit']['sha'] != os.environ['GITHUB_SHA']:
+              raise SystemExit('Dispatcher ref is unprotected or stale')
+          tag = get(f'git/ref/tags/{ref}')['object']
+          if tag['type'] != 'commit' or tag['sha'] != source_sha:
+              raise SystemExit('Publisher tag is missing or differs from the staged commit')
+          fixture = get('pulls/121')
+          if (fixture['state'] != 'open' or fixture['merged']
+                  or fixture['base']['ref'] != 'test/gate-2a3-actor-target'
+                  or fixture['head']['ref'] != 'test/gate-2a3-actor-green'
+                  or fixture['base']['repo']['id'] != 1462654174
+                  or fixture['head']['repo']['id'] != 1462654174):
+              raise SystemExit('Unexpected fixture')
+          body = json.dumps({'ref': ref, 'inputs': {
+              'source_run_id': os.environ['GITHUB_RUN_ID'], 'fixture_pr': '121'}})
+          subprocess.run(['gh', 'api', '--method', 'POST',
+              f'{repository}/actions/workflows/433494883/dispatches', '--input', '-'],
+              input=body, text=True, check=True)
+          PY
