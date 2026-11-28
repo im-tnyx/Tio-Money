@@ -1,4 +1,4 @@
-name: Gate 2A.3 publisher registration
+name: Gate 2A.3 dispatch probe fixture
 on:
   workflow_dispatch:
     inputs:
@@ -10,8 +10,18 @@ on:
         type: string
 permissions: {}
 jobs:
-  registration-only:
-    if: ${{ false }}
+  marker:
+    if: github.repository_id == '1462654174' && github.ref == 'refs/heads/test/gate-2a3-probe-source'
     runs-on: ubuntu-latest
+    timeout-minutes: 3
+    environment: gate-2a3-publisher-poc-marker
     steps:
-      - run: exit 1
+      - name: Check for unexpected marker access
+        env:
+          MARKER: ${{ secrets.GATE_2A3_POC_MARKER }}
+        run: |
+          if [[ -n "${MARKER:-}" ]]; then
+            echo 'Fixture marker unexpectedly accessible'
+            exit 1
+          fi
+          echo 'Fixture marker absent'

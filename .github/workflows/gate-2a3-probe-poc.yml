@@ -1,0 +1,25 @@
+name: Gate 2A.3 event probe fixture
+on:
+  push:
+    branches: [test/gate-2a3-probe-run]
+  pull_request:
+    branches: [test/gate-2a3-actor-control]
+permissions: {}
+jobs:
+  marker:
+    if: >-
+      github.repository_id == '1462654174' &&
+      (github.event_name == 'push' || github.head_ref == 'test/gate-2a3-probe-source')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    environment: gate-2a3-publisher-poc-marker
+    steps:
+      - name: Check for unexpected marker access
+        env:
+          MARKER: ${{ secrets.GATE_2A3_POC_MARKER }}
+        run: |
+          if [[ -n "${MARKER:-}" ]]; then
+            echo 'Fixture marker unexpectedly accessible'
+            exit 1
+          fi
+          echo 'Fixture marker absent'
