@@ -11,22 +11,6 @@
 | [Post-merge sync](POST-MERGE-SYNC.md) | Verified owner-approved merge, safe clean worktree and fast-forward, then archive/handoff |
 | [Copilot instructions](copilot-instructions.md) | Concise routing to AGENTS.md and Tio Money invariants |
 
-The proposed [Attribution Guard V2 pilot](../.ai/tasks/security/attribution-guard-v2-pilot-20261127.md)
-adds a secretless, trusted-source PR and main-push preflight. A separate,
-cross-repository wake job was removed after review: GitHub does not support
-the proposed non-owner collaborator fine-grained PAT for the personally owned
-system repository. The consumer preflight stays disabled until separate
-owner activation and a reviewed central checker SHA are set. Automatic central
-App publishing remains blocked on a secure event-delivery decision.
-The App-backed shadow publisher and encrypted enrollment remain in the
-separate system repository. Proposed owner-only branch/tag rulesets are files
-for review, not live protection changes.
-Main-push audits are never canceled by a later push. Activation requires an
-owner-pinned main baseline; the trusted checker verifies each predecessor's
-successful GitHub Actions audit job and blocks on a missing or canceled run.
-The central follow-up PR adds authenticated evidence for two-parent GitHub
-merges. No merge method or live rule changes in this PR.
-
 ## Coexistence with Expo Phase 0
 
 [Phase 0 PR #1](https://github.com/im-tnyx/Tio-Money/pull/1) contains **`.github/workflows/phase-0-checks.yml`**, a separate workflow that runs Node/Expo compatibility, TypeScript, lint, formatting, tests and Metro exports. At the earlier governance setup PR #1 was parallel draft work; GitHub now verifies **PR #1 MERGED** on 2026-11-19 at `e647f78ce200fed1323d80ea794396c371fba7bf`, and **PR #2 MERGED** earlier at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. PR #7's branch-only documentation sync must preserve the merged Phase 0 app source and workflow unchanged.
@@ -36,3 +20,8 @@ With both independently authorized PRs merged, **both workflows coexist**: `AI g
 **Owner policy:** [TM-DEC-002/003](../docs/governance/DECISIONS.md) makes independent review optional by default, while retaining blocking findings and actual required GitHub checks/reviews. Every merge needs action-specific owner permission naming repo, PR, merge action and conditions. An agent may perform a non-force merge only after [preflight](POST-MERGE-SYNC.md#authorized-agent-merge-preflight-before-any-merge). **Status clarification:** This historical policy update did not itself grant PR #2 merge permission; the owner later authorized that action separately and GitHub confirms PR #2 merged at `04e6aa8d657627516b8ce7de91bd8304fdcbcf90`. New PRs still need their own authorization.
 
 **Trust and limitations:** This PR workflow checks out and executes untrusted PR code with **read-only** GitHub permissions and no secrets, which is suitable for nonprivileged test/diagnostic feedback, **not a trusted security gate resistant to a malicious PR modifying its own checker**. This document does not configure required status checks, branch protection, review eligibility, repository environments or App tokens. Their availability depends on owner settings/plan; never claim them configured. Only a separate, explicit owner approval can permit merge.
+
+
+## Repository-local attribution guard (draft)
+
+See [local guard correction](../docs/local-attribution-guard-pilot.md) for independent push audits, trusted main PR App shadow and protected-environment setup. Pre-merge verification is the security gate; a main push audit is detection only, not a prerequisite for other branches. No central enrollment, schedule, main audit baseline or previous-run receipt is required. Preserve the existing required contexts until separately approved activation.

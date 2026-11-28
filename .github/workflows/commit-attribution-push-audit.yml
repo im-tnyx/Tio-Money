@@ -1,7 +1,7 @@
 name: Commit attribution push audit
 
-# Keep this path, main receipt job name and verification step compatible
-# with the reviewed V2 checker. No App key, no schedule, no central runtime.
+# One independent audit for each supported branch push, plus non-main PR
+# detection. No App key, schedule, enrollment or previous-run dependency.
 on:
   push:
     branches: ['**']
@@ -13,14 +13,13 @@ permissions: {}
 
 jobs:
   audit:
-    name: audit|${{ vars.GUARD_CHECKER_SHA }}|${{ vars.GUARD_POLICY_EPOCH }}|${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}
+    name: Branch attribution audit
     if: >-
       vars.GUARD_CONSUMER_AUDIT_ENABLED == 'true' &&
       github.repository == 'im-tnyx/Tio-Money' && github.repository_id == '1462654174'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     permissions:
-      actions: read
       contents: read
       pull-requests: read
     steps:
@@ -46,12 +45,11 @@ jobs:
           git -C checker -c core.hooksPath=/dev/null checkout --quiet --detach "$CHECKER_SHA"
           test "$(git -C checker rev-parse HEAD)" = "$CHECKER_SHA"
           python -m pip install --require-hashes --only-binary=:all: -r checker/requirements-shadow.txt
-      - name: Verify main audit chain and exact event
+      - name: Verify exact push or PR
         env:
           GH_TOKEN: ${{ github.token }}
           CHECKER_SHA: ${{ vars.GUARD_CHECKER_SHA }}
           POLICY_EPOCH: ${{ vars.GUARD_POLICY_EPOCH }}
-          AUDIT_BASELINE: ${{ vars.GUARD_MAIN_AUDIT_BASELINE_SHA }}
           POLICY_FILE: checker/config/pilots/tio-money.json
           PYTHONPATH: checker
         run: |

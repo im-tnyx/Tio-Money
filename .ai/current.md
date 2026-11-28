@@ -1,6 +1,6 @@
-## 2026-11-27 — Attribution Guard V2 Tio-Money pilot
+## 2026-11-28 — Repository-local attribution guard correction
 
-[Scoped security task](tasks/security/attribution-guard-v2-pilot-20261127.md): proposed secretless, trusted-source PR and main-push preflight with a reviewed central checker SHA. The system App publisher and encrypted enrollment remain in `im-tnyx/im-tnyx`. Draft PR validation and owner activation are pending. Protect-main and existing CI remain unchanged.
+[Correction task and activation boundaries](../docs/local-attribution-guard-pilot.md) · [RFC #92](https://github.com/im-tnyx/Tio-Money/issues/92) · [draft PR #119](https://github.com/im-tnyx/Tio-Money/pull/119). Replaces the obsolete central-runtime consumer pilot. Branch push detection and trusted main PR App shadow run in Tio-Money. No scheduled or enrollment dependency, and no main audit receipt chain. The pre-merge App gate is the intended protection after live validation. Existing required checks remain active. Owner activation and live testing pending. No merge authorization.
 
 ## 2026-11-23 — Accounts UI foundation
 

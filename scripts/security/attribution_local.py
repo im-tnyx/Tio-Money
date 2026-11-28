@@ -76,13 +76,14 @@ def pr_scope(event, env):
     return number, "refs/heads/" + base["ref"], base["sha"], head["sha"]
 
 
-def feature_range(api, ref, before, after, directory, baseline, deps):
-    """Audit a single exact transition; new branches compare to audited main.
+def audit_range(api, ref, before, after, directory, deps):
+    """Audit an exact push independently of earlier Actions runs.
 
-    No per-feature predecessor receipt is claimed. Missing evidence, force
-    pushes, unreachable objects and moving live tips are failures, not skips.
+    New branches compare to the current main tip; this is a reference for
+    reachability, not certification of historical commits. Existing branches
+    use the exact before..after transition. Missing evidence fails closed.
     """
-    Scope, validate_scope, current_tip, fetch_transition, prior, verify = deps
+    Scope, validate_scope, current_tip, fetch_transition, verify = deps
     scope = Scope(REPO_ID, ref, before, after, "push")
     validate_scope(api.policy, scope)
     if after == ZERO:
@@ -90,11 +91,12 @@ def feature_range(api, ref, before, after, directory, baseline, deps):
     anchor = before
     if before == ZERO:
         anchor = api.protected_tip(MAIN)
-        prior(api, anchor, baseline, OWNER_ID, CHECKER, EPOCH)
+        demand(sha(anchor) and anchor != ZERO, "missing_main_reference")
     live = current_tip(api, scope)
     if anchor == live:
         demand(before == ZERO and after == live, "unverifiable_transition")
         demand(current_tip(api, scope) == live, "push_snapshot_changed")
+        demand(api.protected_tip(MAIN) == anchor, "main_reference_changed")
         return 0
     objects = fetch_transition(api, anchor, live, directory)
     demand(objects.is_ancestor(after, live), "superseded_or_rewritten_push")
@@ -105,6 +107,8 @@ def feature_range(api, ref, before, after, directory, baseline, deps):
         demand(bool(introduced) and introduced[-1].sha == after, "incomplete_history")
     verify(api, objects, introduced, ref)
     demand(current_tip(api, scope) == live, "push_snapshot_changed")
+    if before == ZERO:
+        demand(api.protected_tip(MAIN) == anchor, "main_reference_changed")
     return len(introduced)
 
 
@@ -136,7 +140,7 @@ def verify_commits(api, objects, introduced, ref):
 
 def run():
     from guard.actor_evidence import current_tip
-    from guard.consumer_audit import audit_pr, audit_push, require_prior_main_audit
+    from guard.consumer_audit import audit_pr
     from guard.github import GitHub
     from guard.policy import Scope, policy_from_registry, validate_scope
     from guard.shadow import check_shadow, fetch_transition
@@ -156,24 +160,16 @@ def run():
         state = Path(tmp)
         if mode == "push":
             ref, before, after = push_scope(event, env)
-            baseline = env.get("AUDIT_BASELINE", "")
-            demand(sha(baseline) and baseline != ZERO, "missing_approved_baseline")
-            api = GitHub(REPO, policy, token)
             if ref == MAIN:
                 demand(before != ZERO and after != ZERO, "main_creation_or_deletion_rejected")
-                result = audit_push(api, ref, before, after, OWNER_ID, OWNER, state,
-                                    baseline=baseline, checker_sha=CHECKER, policy_epoch=EPOCH)
-                demand(result["conclusion"] == "success", "main_audit_rejected")
-                print("Main exact transition verified.")
-            else:
-                # The extra ref authorizes V2 evidence lookup only; it is not a
-                # declaration of native branch protection or an enrollment.
-                api = GitHub(REPO, replace(policy, protected_refs=(MAIN, ref)), token)
-                deps = (Scope, validate_scope, current_tip, fetch_transition,
-                        require_prior_main_audit, verify_commits)
-                with TemporaryDirectory(prefix="branch-objects-", dir=state) as objects:
-                    count = feature_range(api, ref, before, after, Path(objects), baseline, deps)
-                print(f"Exact feature transition verified: {count} introduced commits.")
+            # Allow evidence lookups on the event's branch; this does not
+            # declare that the branch has native GitHub protection.
+            refs = (MAIN,) if ref == MAIN else (MAIN, ref)
+            api = GitHub(REPO, replace(policy, protected_refs=refs), token)
+            deps = (Scope, validate_scope, current_tip, fetch_transition, verify_commits)
+            with TemporaryDirectory(prefix="branch-objects-", dir=state) as objects:
+                count = audit_range(api, ref, before, after, Path(objects), deps)
+            print(f"Exact push transition verified: {count} introduced commits.")
         else:
             number, ref, base, head = pr_scope(event, env)
             if mode == "publish":

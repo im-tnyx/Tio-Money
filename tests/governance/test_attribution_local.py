@@ -130,32 +130,31 @@ class RangeTests(unittest.TestCase):
         self.objects.is_ancestor.return_value = True
         self.objects.introduced.return_value = (SimpleNamespace(sha=HEAD),)
         self.fetch = Mock(return_value=self.objects)
-        self.prior = Mock()
         self.verify = Mock()
-        self.deps = (self.scope, self.validate, self.tip, self.fetch, self.prior, self.verify)
+        self.deps = (self.scope, self.validate, self.tip, self.fetch, self.verify)
 
     def check(self, before=BASE, after=HEAD):
-        return a.feature_range(self.api, FEATURE, before, after, Path("/unused"), BASE, self.deps)
+        return a.audit_range(self.api, FEATURE, before, after, Path("/unused"), self.deps)
 
     def test_existing_branch_exact_range(self):
         self.assertEqual(self.check(), 1)
         self.objects.introduced.assert_called_once_with(BASE, HEAD)
         self.verify.assert_called_once()
-        self.prior.assert_not_called()
+        self.api.protected_tip.assert_not_called()
 
-    def test_new_branch_uses_audited_main_anchor(self):
+    def test_new_branch_uses_current_main_reference(self):
         self.assertEqual(self.check(before=a.ZERO), 1)
-        self.prior.assert_called_once_with(self.api, BASE, BASE, a.OWNER_ID, a.CHECKER, a.EPOCH)
+        self.assertEqual(self.api.protected_tip.call_count, 2)
         self.objects.introduced.assert_called_once_with(BASE, HEAD)
 
     def test_creation_at_main_tip_has_no_introduced_commits(self):
         self.tip.return_value = BASE
         self.assertEqual(self.check(before=a.ZERO, after=BASE), 0)
-        self.prior.assert_called_once()
+        self.assertEqual(self.api.protected_tip.call_count, 2)
         self.fetch.assert_not_called()
 
-    def test_new_branch_missing_main_receipt_fails(self):
-        self.prior.side_effect = a.Blocked("main_audit_gap")
+    def test_new_branch_missing_main_reference_fails(self):
+        self.api.protected_tip.return_value = a.ZERO
         with self.assertRaises(a.Blocked):
             self.check(before=a.ZERO)
         self.verify.assert_not_called()
@@ -194,6 +193,65 @@ class RangeTests(unittest.TestCase):
         self.objects.introduced.return_value = introduced
         self.assertEqual(self.check(), 2)
         self.verify.assert_called_once_with(self.api, self.objects, introduced, FEATURE)
+
+
+    def test_main_uses_same_exact_range_without_predecessor(self):
+        self.assertEqual(a.audit_range(self.api, a.MAIN, BASE, HEAD, Path("/unused"), self.deps), 1)
+        self.objects.introduced.assert_called_once_with(BASE, HEAD)
+        self.api.protected_tip.assert_not_called()
+        self.verify.assert_called_once()
+
+    def test_new_branch_reference_moves_fails(self):
+        self.api.protected_tip.side_effect = [BASE, "d" * 40]
+        with self.assertRaises(a.Blocked):
+            self.check(before=a.ZERO)
+
+
+class WorkflowBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        root = Path(__file__).resolve().parents[2]
+        self.push = (root / ".github/workflows/commit-attribution-push-audit.yml").read_text()
+        self.pr = (root / ".github/workflows/commit-attribution-guard.yml").read_text()
+        self.fixtures = (root / ".github/workflows/commit-attribution-fixtures.yml").read_text()
+        self.doc = (root / "docs/local-attribution-guard-pilot.md").read_text()
+        self.adapter = SOURCE.read_text()
+
+    def test_all_branches_and_pr_triggers(self):
+        self.assertIn("push:\n    branches: ['**']", self.push)
+        self.assertIn("pull_request:\n    branches-ignore: [main]", self.push)
+        self.assertIn("pull_request_target:\n    branches: [main]", self.pr)
+
+    def test_no_schedule_or_central_dispatch(self):
+        for source in (self.push, self.pr, self.fixtures):
+            for forbidden in ("schedule:", "repository_dispatch:", "workflow_dispatch:",
+                              "GUARD_WAKE_TOKEN", "GUARD_ENROLLMENT_JSON", "GUARD_STATE_KEY_HEX",
+                              "contents: write", "actions: write"):
+                self.assertNotIn(forbidden, source)
+
+    def test_key_only_in_trusted_main_publisher(self):
+        self.assertNotIn("secrets.", self.push)
+        self.assertNotIn("secrets.", self.fixtures)
+        self.assertNotIn("environment:", self.push)
+        self.assertIn("environment: attribution-guard-trusted", self.pr)
+        self.assertIn("github.ref == 'refs/heads/main'", self.pr)
+        self.assertIn("github.event.pull_request.base.sha", self.pr)
+        self.assertEqual(self.pr.count("secrets.ATTRIBUTION_GUARD_APP_PRIVATE_KEY"), 1)
+
+    def test_checker_pin_and_no_persisted_credentials(self):
+        for source in (self.push, self.pr):
+            self.assertIn(a.CHECKER, source)
+            self.assertIn("merge-base --is-ancestor", source)
+            self.assertIn("persist-credentials: false", source)
+            self.assertIn("submodules: false", source)
+        self.assertIn("refs/heads/main", self.push)
+
+    def test_independent_push_audit_no_baseline_or_receipts(self):
+        self.assertIn("Verify exact push or PR", self.push)
+        self.assertNotIn("AUDIT_BASELINE", self.push)
+        self.assertNotIn("actions: read", self.push)
+        self.assertNotIn("require_prior_main_audit", self.adapter)
+        self.assertNotIn("cancel-in-progress: true", self.push)
+        self.assertIn("Never make the shadow check required.", self.doc)
 
 
 if __name__ == "__main__":
