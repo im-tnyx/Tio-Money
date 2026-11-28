@@ -1,0 +1,115 @@
+name: Gate 2A.3 publisher fixture
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        required: true
+        type: string
+      fixture_pr:
+        required: true
+        type: string
+permissions: {}
+jobs:
+  marker:
+    if: >-
+      github.repository_id == '1462654174' && github.run_attempt == '1' &&
+      github.ref == 'refs/tags/gate-2a3-publisher-poc'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    environment: gate-2a3-publisher-poc-marker
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Verify the dispatch and fixture against GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FIXTURE_PR: ${{ inputs.fixture_pr }}
+          SOURCE_RUN: ${{ inputs.source_run_id }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          import time
+          from urllib.parse import quote
+
+          repository = 'repos/im-tnyx/Tio-Money'
+          repository_id = 1462654174
+          branch = 'test/gate-2a3-dispatch'
+          base = 'test/gate-2a3-actor-target'
+          head = 'test/gate-2a3-actor-green'
+
+          def get(path):
+              return json.loads(subprocess.check_output(
+                  ['gh', 'api', '--method', 'GET', f'{repository}/{path}'], text=True))
+
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+
+          def branch_state(ref):
+              return get(f'branches/{quote(ref, safe="")}')
+
+          for key in ('FIXTURE_PR', 'SOURCE_RUN'):
+              require(re.fullmatch(r'[1-9][0-9]{0,17}', os.environ[key]), 'Invalid fixture input')
+
+          tag = get('git/ref/tags/gate-2a3-publisher-poc')['object']
+          require(tag['type'] == 'commit' and tag['sha'] == os.environ['GITHUB_SHA'], 'Publisher tag changed')
+          source_path = f'actions/runs/{os.environ["SOURCE_RUN"]}'
+          for attempt in range(10):
+              source = get(source_path)
+              if source['status'] == 'completed':
+                  break
+              time.sleep(3)
+          dispatcher = branch_state(branch)
+          require(
+              source['status'] == 'completed' and source['conclusion'] == 'success'
+              and source['event'] == 'push' and source['run_attempt'] == 1
+              and source['path'].split('@', 1)[0] == '.github/workflows/gate-2a3-dispatch-poc.yml'
+              and source['head_branch'] == branch and source['head_sha'] == dispatcher['commit']['sha']
+              and source['repository']['id'] == repository_id
+              and source['head_repository']['id'] == repository_id
+              and source['actor']['id'] == 271889561 and source['actor']['type'] == 'User'
+              and dispatcher['protected'], 'Dispatcher provenance could not be verified')
+
+          path = f'pulls/{os.environ["FIXTURE_PR"]}'
+          pr = get(path)
+          require(
+              pr['state'] == 'open' and not pr['merged']
+              and pr['base']['ref'] == base and pr['head']['ref'] == head
+              and pr['base']['repo']['id'] == repository_id and pr['head']['repo']['id'] == repository_id,
+              'Unexpected fixture')
+          base_sha, head_sha = pr['base']['sha'], pr['head']['sha']
+          require(
+              branch_state(base)['commit']['sha'] == base_sha and branch_state(head)['commit']['sha'] == head_sha,
+              'Fixture refs changed')
+          comparison = get(f'compare/{base_sha}...{head_sha}')
+          require(comparison['merge_base_commit']['sha'] == base_sha and comparison['ahead_by'] > 0,
+                  'Fixture is stale or has no changes')
+          checks = get(f'commits/{head_sha}/check-runs?per_page=100')
+          require(checks['total_count'] == len(checks['check_runs']), 'Incomplete check listing')
+          for name in ('static', 'Governance / Python, links and commit attribution'):
+              matching = [run for run in checks['check_runs']
+                          if run['name'] == name and run['app']['id'] == 15368]
+              require(len(matching) == 1 and matching[0]['status'] == 'completed'
+                      and matching[0]['conclusion'] == 'success', 'Fixture check did not pass')
+          current = get(path)
+          require(current['state'] == 'open' and not current['merged']
+                  and current['base']['ref'] == base and current['head']['ref'] == head
+                  and current['base']['sha'] == base_sha and current['head']['sha'] == head_sha
+                  and branch_state(base)['commit']['sha'] == base_sha, 'Fixture changed before verdict')
+          print(f'Verified fixture #{pr["number"]} at {head_sha}')
+          PY
+      - name: Record a simulated verdict
+        env:
+          MARKER: ${{ secrets.GATE_2A3_POC_MARKER }}
+        run: |
+          if [[ -z "${MARKER:-}" ]]; then
+            echo 'Fixture marker unavailable'
+            exit 1
+          fi
+          echo 'Simulated verdict: pass' >> "$GITHUB_STEP_SUMMARY"
