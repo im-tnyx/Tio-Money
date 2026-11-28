@@ -1,0 +1,17 @@
+name: Gate 2A.3 publisher registration
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        required: true
+        type: string
+      fixture_pr:
+        required: true
+        type: string
+permissions: {}
+jobs:
+  registration-only:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 1
