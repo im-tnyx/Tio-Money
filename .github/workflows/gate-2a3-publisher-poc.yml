@@ -90,7 +90,7 @@ jobs:
           comparison = get(f'compare/{base_sha}...{head_sha}')
           require(comparison['merge_base_commit']['sha'] == base_sha and comparison['ahead_by'] > 0,
                   'Fixture is stale or has no changes')
-          checks = get(f'commits/{head_sha}/check-runs?per_page=100')
+          checks = get(f'commits/{head_sha}/check-runs?filter=all&per_page=100')
           require(checks['total_count'] == len(checks['check_runs']), 'Incomplete check listing')
           for name in ('static', 'Governance / Python, links and commit attribution'):
               matching = [run for run in checks['check_runs']
